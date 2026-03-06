@@ -25,6 +25,7 @@ copilot-messages.log
 *.bz2
 *.xz
 
+
 # Windows executables and installers
 *.exe
 *.msi
@@ -47,3 +48,5 @@ copilot-messages.log
 # System files
 .DS_Store
 .project/attachments/files/**
+
+*.*-info

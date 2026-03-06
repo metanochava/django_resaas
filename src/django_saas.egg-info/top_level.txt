@@ -1,1 +1,1 @@
-django_saas
+django_resaas

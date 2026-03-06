@@ -3,8 +3,8 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "django_saas"
-version = "0.0.4"
+name = "django_rest_saas"
+version = "0.0.5"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -12,6 +12,12 @@ requires-python = ">=3.9"
 
 authors = [
   { name = "Dias Metano Salvador Chavana", email = "metanochava@gmail.com" }
+]
+
+keywords = ["django", "saas", "framework"]
+classifiers = [
+  "Framework :: Django",
+  "Programming Language :: Python :: 3",
 ]
 
 dependencies = [
@@ -37,8 +43,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/metanochava/django_saas"
-Repository = "https://github.com/metanochava/django_saas"
+Homepage = "https://github.com/metanochava/django_resaas"
+Repository = "https://github.com/metanochava/django_resaas"
 
 # 🔥 MUITO IMPORTANTE
 [tool.setuptools]
@@ -46,5 +52,5 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["django_saas*"]
+include = ["django_resaas*"]
 
