@@ -3,8 +3,8 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "django_rest_saas"
-version = "0.0.5"
+name = "django_resaas"
+version = "0.0.6"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -40,6 +40,7 @@ dependencies = [
   "django-cors-headers",
   "psycopg[binary]",
   "django-filter",
+  "django-money",
 ]
 
 [project.urls]

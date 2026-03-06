@@ -12,7 +12,7 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-DEPLOY_TOKEN = settings.DEPLOY_TOKEN  # mete no env/setting em produção
+DEPLOY_TOKEN = getattr(settings, "DEPLOY_TOKEN", "@SaaS@")  # mete no env/setting em produção
 
 STATUS_FILE = "/tmp/deploy_status.json"
 LOG_FILE = "/tmp/deploy.log"
@@ -172,7 +172,6 @@ def home(request):
 
 
 # 🔐 Token de segurança
-DEPLOY_TOKEN = "12121212"
 BASE_DIR = settings.BASE_DIR
 PROJECT_NAME = "back"
 

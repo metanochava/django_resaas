@@ -52,7 +52,7 @@ supersaas:
 	$(MANAGE) supersaas
 
 run:
-	$(MANAGE) runserver 0.0.0.0:7001
+	$(MANAGE) runserver 0.0.0.0:7002
 
 # =========================
 # Git básico
