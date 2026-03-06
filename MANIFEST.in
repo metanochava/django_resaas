@@ -1,0 +1,2 @@
+recursive-include src/ds/templates *
+recursive-include src/ds/static *
