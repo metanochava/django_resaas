@@ -25,7 +25,7 @@ Example:
 
 ```bash
 python
-from django_saas.classes.Translate import Translate
+from django_resaas.classes.Translate import Translate
 
 return Response({
     'alert_error': Translate.tdc(request, 'Permission denied')
@@ -402,7 +402,7 @@ criar exemplos reais do RH
 3. Every viewset MUST inherit from BaseAPIView
 4. No relative imports allowed
 5. One class per file
-6. User model must be django_saas User
+6. User model must be django_resaas User
 7. Multi-tenant enforced via middleware
 8. No business logic inside ViewSets
 9. Serializers define API contract (OpenAPI source of truth)
