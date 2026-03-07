@@ -47,8 +47,8 @@ from django_resaas.models.documento import TipoDocumento, Documento
 # =========================
 User = get_user_model()
 
-admin.site.site_title = 'Auth'
-admin.site.index_title = 'Mytech Auth Rest'
+admin.site.site_title = 'Django Rest SaaS'
+admin.site.index_title = 'Django Rest SaaS'
 
 
 def all_fields(model):
@@ -65,6 +65,18 @@ class DocumentoAdmin(admin.ModelAdmin):
 
 @admin.register(Traducao)
 class TraducaoAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+from django_resaas.models.theme import Theme
+@admin.register(Theme)
+class ThemeAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+from django_resaas.models.layout_setting import LayoutSetting
+@admin.register(LayoutSetting)
+class LayoutSettingAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
@@ -124,7 +136,6 @@ class TipoEntidadeAdmin(BaseAdmin):
     search_fields = ['nome']
 
 
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 @admin.register(User)
 class UserAdmin( BaseAdmin):
     
