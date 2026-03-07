@@ -54,6 +54,8 @@ from django_resaas.data.ficheiro.views.ficheiro import FicheiroAPIView
 from django_resaas.data.permission.views.permission import PermissionAPIView
 from django_resaas.data.modelo.views.modelo import ModeloAPIView
 from django_resaas.data.user.views.user import UserAPIView
+from django_resaas.data.theme.views.theme import ThemeAPIView
+from django_resaas.data.layout_setting.views.layout_setting import LayoutSettingAPIView
 from django_resaas.management.apicommands.view.scaffold import ScaffoldAPIView
 from django_resaas.management.apicommands.view.modulo_schema import ModuloSchemaAPIView, RelationsAPIView
 
@@ -75,6 +77,8 @@ routerauth = routers.DefaultRouter()
 routerdjango_resaas.register("ficheiros", FicheiroAPIView, basename="ficheiros")
 routerdjango_resaas.register("idiomas", IdiomaAPIView, basename="idiomas")
 routerdjango_resaas.register("traducaos", TraducaoAPIView, basename="traducaos")
+routerdjango_resaas.register("themes", ThemeAPIView, basename="themes")
+routerdjango_resaas.register("layoutsettings", LayoutSettingAPIView, basename="layoutsettings")
 
 routerdjango_resaas.register("tipoentidades", TipoEntidadeAPIView, basename="tipo_entidades")
 routerdjango_resaas.register("entidades", EntidadeAPIView, basename="entidades")
