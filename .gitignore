@@ -47,5 +47,4 @@ copilot-messages.log
 # System files
 .DS_Store
 .project/attachments/files/**
-staticfiles
-dev
+*/staticfiles

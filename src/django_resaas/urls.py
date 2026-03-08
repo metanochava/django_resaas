@@ -44,6 +44,7 @@ from django_resaas.data.user.views.mail import MailAPIView
 # Data / API views
 # ─────────────────────────────
 from django_resaas.data.entidade.views.entidade import EntidadeAPIView
+from django_resaas.data.entidade.views.site import SiteAPIView
 from django_resaas.data.tipo_entidade.views.tipo_entidade import TipoEntidadeAPIView
 from django_resaas.data.group.views.grupo import GrupoAPIView
 from django_resaas.data.sucursal.views.sucursal import SucursalAPIView
@@ -107,6 +108,8 @@ urlpatterns = [
     path("auth/", include(routerauth.urls)),
     path("django_resaas/relations/", RelationsAPIView.as_view()),
 
+
+    path("site/", SiteAPIView.as_view(), name="site"),
 
     path("setup/", TenantAPIView.as_view(), name="setup"),
     path("login/", LoginAPIView.as_view(), name="login"),

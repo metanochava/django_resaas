@@ -80,6 +80,12 @@ class LayoutSettingAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
+from django_resaas.models.cors_allowed_origin import CorsAllowedOrigin
+@admin.register(CorsAllowedOrigin)
+class CorsAllowedOriginAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
 
 @admin.register(EntidadeGroup)
 class EntidadeGroupAdmin(BaseAdmin):
