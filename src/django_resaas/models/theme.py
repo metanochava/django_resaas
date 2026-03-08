@@ -7,16 +7,16 @@ class Theme(TimeModel):
 
     nome = models.CharField(max_length=100)
 
-    primary = models.CharField(max_length=7, default="#1976D2")
-    secondary = models.CharField(max_length=7, default="#26A69A")
-    accent = models.CharField(max_length=7, default="#9C27B0")
+    primary = models.CharField(max_length=50, default="#19506D2")
+    secondary = models.CharField(max_length=50, default="#26A69A")
+    accent = models.CharField(max_length=50, default="#9C250B0")
 
-    positive = models.CharField(max_length=7, default="#21BA45")
-    negative = models.CharField(max_length=7, default="#C10015")
-    warning = models.CharField(max_length=7, default="#F2C037")
-    info = models.CharField(max_length=7, default="#31CCEC")
+    positive = models.CharField(max_length=50, default="#21BA45")
+    negative = models.CharField(max_length=50, default="#C10015")
+    warning = models.CharField(max_length=50, default="#F2C0350")
+    info = models.CharField(max_length=50, default="#31CCEC")
 
-    dark = models.CharField(max_length=7, default="#1d1d1d")
+    dark = models.CharField(max_length=50, default="#1d1d1d")
 
     def to_dict(self):
         return {
@@ -35,5 +35,4 @@ class Theme(TimeModel):
         permissions = ()
         
 
-    def __str__(self):
-        return self.primary
+

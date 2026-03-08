@@ -44,6 +44,7 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
         user = UserSerializer(user)
 
+        print(request.tipo_entidade_id)
         ar = []
         userEntidades = EntidadeUser.objects.filter(user__id=id, entidade__tipo_entidade__id=request.tipo_entidade_id)
         if (userEntidades):

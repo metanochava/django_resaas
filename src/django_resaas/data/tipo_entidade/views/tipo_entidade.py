@@ -20,6 +20,11 @@ from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
 from django_resaas.models.entidade_modelo import EntidadeModelo
+from django_resaas.models.theme import Theme
+from django_resaas.models.layout_setting import LayoutSetting
+from django_resaas.data.theme.serializers.theme import ThemeSerializer
+from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
+
 
 from django_resaas.data.tipo_entidade.serializers.tipo_entidade import (
     TipoEntidadeSerializer
@@ -208,3 +213,24 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
         ]
 
         return Response(modulos, status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['GET'])
+    def themeGet(self, request, *args, **kwargs):
+        tipoentidade = self.get_object()
+        tipoentidade = TipoEntidade.objects.get(id=tipoentidade.id )
+        if tipoentidade.theme:
+            theme = ThemeSerializer(Theme.objects.get(id=tipoentidade.theme.id)).data
+        else:
+            theme = {}
+        return Response(theme, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'])
+    def layoutsettingsGet(self, request, *args, **kwargs):
+        tipoentidade = self.get_object()
+        tipoentidade = TipoEntidade.objects.get(id=tipoentidade.id )
+        if tipoentidade.layout_settings:
+            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
+        else:
+            ls = {}
+        return Response(ls, status=status.HTTP_200_OK)

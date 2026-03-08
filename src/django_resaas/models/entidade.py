@@ -17,7 +17,7 @@ def logo_path(instance, file_name):
 class Entidade(TimeModel):
 
     nome = models.CharField(max_length=100, null=True, default='-')
-
+    site = models.CharField(max_length=300, null=True, default='-')
     logo = models.FileField(upload_to=logo_path, default='logo.png', blank=True)
     display_logo = models.BooleanField(default=True, null=True, blank=True)
     display_bar = models.BooleanField(default=True, null=True, blank=True)

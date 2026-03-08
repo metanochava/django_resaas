@@ -37,6 +37,12 @@ from django_resaas.data.entidade.serializers.entidade_user import EntidadeUserSe
 from django_resaas.data.ficheiro.serializers.ficheiro import FicheiroSerializer
 from django_resaas.data.ficheiro.serializers.ficheiro_gravar import FicheiroGravarSerializer
 
+from django_resaas.models.theme import Theme
+from django_resaas.models.layout_setting import LayoutSetting
+from django_resaas.data.theme.serializers.theme import ThemeSerializer
+from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
+
+
 from django_resaas.core.services.disc_manager import DiskManegarService
 
 
@@ -461,3 +467,29 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         perfil = {'id': group.id, 'name': group.name, 'alert_success': 'Perfil <b>'+ group.name + ' </b> criado com sucesso'}
         return Response(perfil, status.HTTP_201_CREATED)
 
+    @action(detail=True, methods=['GET'])
+    def themeGet(self, request, *args, **kwargs):
+        entidade = self.get_object()
+        entidade = Entidade.objects.get(id=entidade.id )
+
+        if entidade.theme:
+            theme = ThemeSerializer(Theme.objects.get(id=entidade.theme.id)).data
+        else:
+            tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
+            theme = ThemeSerializer(Theme.objects.get(id=tipoentidade.theme.id)).data
+        return Response(theme, status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['GET'])
+    def layoutsettingsGet(self, request, *args, **kwargs):
+        entidade = self.get_object()
+        entidade = Entidade.objects.get(id=entidade.id)
+        if entidade.layout_settings:
+            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=entidade.layout_settings.id)).data
+        else:
+            tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
+            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
+        return Response(ls, status=status.HTTP_200_OK)
+
+
+    

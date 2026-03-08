@@ -3,5 +3,6 @@ from django_resaas.core.utils.clean import clean_class_name, clean_file_name, cl
 from django_resaas.core.utils.safe_write import safe_write
 from django_resaas.core.utils.bar_qr_code_64 import make_qr_b64, make_barcode_b64, png_bytes_to_b64,  PDF
 from django_resaas.core.utils.guess_name import guess_name
+from django_resaas.core.utils.cors_allowed_origin import get_cors_origins
 
 

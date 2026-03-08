@@ -8,6 +8,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from django_resaas.models.pessoa import Pessoa
+
+from django_resaas.models.tipo_entidade import TipoEntidade
+from django_resaas.models.entidade import Entidade
+from django_resaas.models.theme import Theme
+from django_resaas.models.layout_setting import LayoutSetting
 from django_resaas.models.user import User
 
 
@@ -116,3 +121,13 @@ def sync_pessoa(sender, instance, **kwargs):
         pessoa.apelido = instance.last_name or ""
         pessoa.email = instance.email or ""
         pessoa.save()
+
+
+@receiver(post_save, sender=TipoEntidade)
+def criar_thema(sender, instance, created, **kwargs):
+    if created and not instance.theme:
+
+        instance.theme = Theme.objects.create()
+        instance.layout_settings = LayoutSetting.objects.create()
+
+        instance.save(update_fields=["theme", "layout_settings"])
