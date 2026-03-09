@@ -24,12 +24,10 @@ class SiteAPIView(APIView):
     def get(self, request):
 
         origin = request.headers.get("Origin")
-        print(origin)
         try:
             entidade = Entidade.objects.get(site=origin)
-            print(entidade)
         except Exception as e:
-            print(e)
+            pass
 
 
 
@@ -44,7 +42,18 @@ class SiteAPIView(APIView):
         else:
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
             ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
-        
 
+        del ls["id"]
+        del ls["created_at"]
+        del ls["updated_at"]
+        del ls["deleted_at"]
+        del ls["estado"]
+
+        del theme["id"]
+        del theme["created_at"]
+        del theme["updated_at"]
+        del theme["deleted_at"]
+        del theme["estado"]
+        
        
-        return all(request, tayoutSetting = ls, theme = theme,)
+        return all(request, layoutSetting = ls, theme = theme,)
