@@ -19,6 +19,7 @@ class SiteAPIView(APIView):
     def get(self, request):
 
         domain = request.get_host()
+        print(domain)
         entidade = Entidade.objects.get(site=domain)
         print(domain)
         print(entidade)
