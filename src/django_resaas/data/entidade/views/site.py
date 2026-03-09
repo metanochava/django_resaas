@@ -20,7 +20,10 @@ class SiteAPIView(APIView):
 
         domain = request.get_host()
         print(domain)
-        entidade = Entidade.objects.get(site=domain)
+        try:
+            entidade = Entidade.objects.get(site=domain)
+        except Exception as e:
+            print(e)
         print(domain)
         print(entidade)
 
