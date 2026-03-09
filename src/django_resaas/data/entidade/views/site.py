@@ -11,6 +11,8 @@ from django_resaas.models.sucursal import Sucursal
 from django_resaas.models.entidade_user import EntidadeUser
 from django_resaas.models.sucursal_user import SucursalUser
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
+from django_resaas.data.theme.serializers.theme import ThemeSerializer
+from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
 
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import all
@@ -33,6 +35,7 @@ class SiteAPIView(APIView):
         else:
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
             theme = ThemeSerializer(Theme.objects.get(id=tipoentidade.theme.id)).data
+
         if entidade.layout_settings:
             ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=entidade.layout_settings.id)).data
         else:
