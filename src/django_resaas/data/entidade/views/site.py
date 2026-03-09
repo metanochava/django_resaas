@@ -11,6 +11,9 @@ from django_resaas.models.sucursal import Sucursal
 from django_resaas.models.entidade_user import EntidadeUser
 from django_resaas.models.sucursal_user import SucursalUser
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
+
+from django_resaas.models.theme import Theme
+from django_resaas.models.layout_setting import LayoutSetting
 from django_resaas.data.theme.serializers.theme import ThemeSerializer
 from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
 
