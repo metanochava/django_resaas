@@ -18,9 +18,10 @@ from django_resaas.core.utils import all
 class SiteAPIView(APIView):
     def get(self, request):
 
-        site = request.query_params.get("site")
-        entidade = Entidade.objects.get(site=site)
-        print(site)
+        domain = request.get_host()
+        entidade = Entidade.objects.get(site=domain)
+        print(domain)
+        print(entidade)
 
         if entidade.theme:
             theme = ThemeSerializer(Theme.objects.get(id=entidade.theme.id)).data
