@@ -48,12 +48,16 @@ class SiteAPIView(APIView):
         del ls["updated_at"]
         del ls["deleted_at"]
         del ls["estado"]
+        del ls["created_by"]
+        del ls["updated_by"]
 
         del theme["id"]
         del theme["created_at"]
         del theme["updated_at"]
         del theme["deleted_at"]
         del theme["estado"]
+        del theme["created_by"]
+        del theme["updated_by"]
         
        
         return all(request, layoutSetting = ls, theme = theme,)
