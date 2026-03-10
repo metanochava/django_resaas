@@ -481,7 +481,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['GET'])
-    def layoutsettingsGet(self, request, *args, **kwargs):
+    def layoutSettingsGet(self, request, *args, **kwargs):
         entidade = self.get_object()
         entidade = Entidade.objects.get(id=entidade.id)
         if entidade.layout_settings:
@@ -490,6 +490,38 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
             ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
         return Response(ls, status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['PUT'])
+    def themeGet(self, request, *args, **kwargs):
+        entidade = self.get_object()
+
+        theme = entidade.theme
+        data = request.data
+
+        for key, value in data.items():
+            if hasattr(theme, key):
+                setattr(theme, key, value)
+
+        theme.save()
+        theme = ThemeSerializer(theme).data
+        return Response(theme, status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['PUT'])
+    def layoutSettingsGet(self, request, *args, **kwargs):
+        entidade = self.get_object()
+
+        layout_settings = entidade.layout_settings
+        data = request.data
+
+        for key, value in data.items():
+            if hasattr(layout_settings, key):
+                setattr(layout_settings, key, value)
+
+        layout_settings.save()
+        layout_settings = LayoutSettingSerializer(layout_settings).data
+        return Response(layout_settings, status=status.HTTP_200_OK)
 
 
     
