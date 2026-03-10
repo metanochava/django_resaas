@@ -31,8 +31,10 @@ class Theme(TimeModel):
         }
     class Meta:
         verbose_name = 'Theme'
-        verbose_name_plural = 'Theme'
+        verbose_name_plural = 'Themes'
         permissions = ()
-        
+    
+    def __str__(self):
+        return self.nome
 
 

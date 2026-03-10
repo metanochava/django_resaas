@@ -238,7 +238,7 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['PUT'])
-    def themeGet(self, request, *args, **kwargs):
+    def themePut(self, request, *args, **kwargs):
         entidade = self.get_object()
 
         theme = entidade.theme
@@ -254,7 +254,7 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['PUT'])
-    def layoutSettingsGet(self, request, *args, **kwargs):
+    def layoutSettingsPut(self, request, *args, **kwargs):
         entidade = self.get_object()
 
         layout_settings = entidade.layout_settings
