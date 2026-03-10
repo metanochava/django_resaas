@@ -41,6 +41,7 @@ from django_resaas.models.theme import Theme
 from django_resaas.models.layout_setting import LayoutSetting
 from django_resaas.data.theme.serializers.theme import ThemeSerializer
 from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
+from django_resaas.core.utils import ok
 
 
 from django_resaas.core.services.disc_manager import DiskManegarService
@@ -493,35 +494,49 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['PUT'])
-    def themeGet(self, request, *args, **kwargs):
+    def themePut(self, request, *args, **kwargs):
         entidade = self.get_object()
+        theme = entidade.theme or Theme.objects.create()
+        if not entidade.theme:
+            entidade.theme = theme
+            entidade.save()
 
-        theme = entidade.theme
+        theme = Theme.objects.get(id=entidade.theme.id)
         data = request.data
 
         for key, value in data.items():
-            if hasattr(theme, key):
+            if key == "created_by" or key == "updated_by":
+                theme.created_by = request.user
+                theme.updated_by = request.user
+            else:
                 setattr(theme, key, value)
-
         theme.save()
         theme = ThemeSerializer(theme).data
-        return Response(theme, status=status.HTTP_200_OK)
+        return ok(request, 'Cores actualizadas com sucesso!',theme=theme)
 
 
     @action(detail=True, methods=['PUT'])
-    def layoutSettingsGet(self, request, *args, **kwargs):
+    def layoutSettingsPut(self, request, *args, **kwargs):
         entidade = self.get_object()
+        layout_settings = entidade.layout_settings or LayoutSetting.objects.create()
+        if not entidade.layout_settings:
+            entidade.layout_settings = layout_settings
+            entidade.save()
 
-        layout_settings = entidade.layout_settings
+
+        layout_settings = LayoutSetting.objects.get(id=entidade.layout_settings.id)
         data = request.data
 
         for key, value in data.items():
-            if hasattr(layout_settings, key):
+            if key == "created_by" or key == "updated_by":
+                layout_settings.created_by = request.user
+                layout_settings.updated_by = request.user
+            else:
                 setattr(layout_settings, key, value)
 
         layout_settings.save()
         layout_settings = LayoutSettingSerializer(layout_settings).data
-        return Response(layout_settings, status=status.HTTP_200_OK)
+        return ok(request, 'Llayout actualizado com sucesso!',layout_settings=layout_settings)
 
 
     
