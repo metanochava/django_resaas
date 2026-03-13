@@ -24,8 +24,10 @@ class Entidade(TimeModel):
     display_qr = models.BooleanField(default=True, null=True, blank=True)
 
     tipo_entidade = models.ForeignKey(TipoEntidade, on_delete=models.CASCADE)
-    theme = models.ForeignKey('django_resaas.Theme',null=True, blank=True, on_delete=models.SET_NULL)
-    layout_settings = models.ForeignKey('django_resaas.LayoutSetting',null=True, blank=True, on_delete=models.SET_NULL)
+    theme = models.ForeignKey('django_resaas.Theme', null=True, blank=True, on_delete=models.SET_NULL)
+    layout_settings = models.ForeignKey('django_resaas.LayoutSetting', null=True, blank=True, on_delete=models.SET_NULL)
+    typography = models.ForeignKey('django_resaas.Typography', null=True, blank=True, on_delete=models.SET_NULL)
+    animation_settings = models.ForeignKey('django_resaas.AnimationSetting', null=True, blank=True, on_delete=models.SET_NULL)
 
     admins = models.ManyToManyField(User)
 

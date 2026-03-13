@@ -12,10 +12,10 @@ from django_resaas.models.entidade_user import EntidadeUser
 from django_resaas.models.sucursal_user import SucursalUser
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 
-from django_resaas.models.theme import Theme
-from django_resaas.models.layout_setting import LayoutSetting
-from django_resaas.data.theme.serializers.theme import ThemeSerializer
-from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
+from django_resaas.models.theme import Theme, Typography
+from django_resaas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.data.theme.serializers.theme import ThemeSerializer, TypographySerializer
+from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer, AnimationSettingSerializer
 
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import all
@@ -32,32 +32,30 @@ class SiteAPIView(APIView):
 
 
         if entidade.theme:
-            theme = ThemeSerializer(Theme.objects.get(id=entidade.theme.id)).data
+            theme = Theme.objects.get(id=entidade.theme.id).to_dict()
         else:
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
-            theme = ThemeSerializer(Theme.objects.get(id=tipoentidade.theme.id)).data
+            theme = Theme.objects.get(id=tipoentidade.theme.id).to_dict()
+
+        if entidade.typography:
+            typography = Typography.objects.get(id=entidade.theme.id).to_dict()
+        else:
+            tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
+            typography = Typography.objects.get(id=tipoentidade.theme.id).to_dict()
 
         if entidade.layout_settings:
-            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=entidade.layout_settings.id)).data
+            ls = LayoutSetting.objects.get(id=entidade.layout_settings.id).to_dict()
         else:
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
-            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
+            ls = LayoutSetting.objects.get(id=tipoentidade.layout_settings.id).to_dict()
+        
 
-        del ls["id"]
-        del ls["created_at"]
-        del ls["updated_at"]
-        del ls["deleted_at"]
-        del ls["estado"]
-        del ls["created_by"]
-        del ls["updated_by"]
+        if entidade.animation_settings:
+            animation_settings = LayoutSetting.objects.get(id=entidade.layout_settings.id).to_dict()
+        else:
+            tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
+            animation_settings = LayoutSetting.objects.get(id=tipoentidade.layout_settings.id).to_dict()
 
-        del theme["id"]
-        del theme["created_at"]
-        del theme["updated_at"]
-        del theme["deleted_at"]
-        del theme["estado"]
-        del theme["created_by"]
-        del theme["updated_by"]
         
        
-        return all(request, layoutSetting = ls, theme = theme,)
+        return all(request, layoutSetting = ls, theme = theme, animation_settings= animation_settings, typography= typography )

@@ -53,6 +53,8 @@ supersaas:
 
 run:
 	$(MANAGE) runserver 0.0.0.0:7002
+rundev:
+	$(MANAGE) runserver 0.0.0.0:7001
 
 # =========================
 # Git básico

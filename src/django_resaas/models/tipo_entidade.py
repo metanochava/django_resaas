@@ -16,10 +16,12 @@ class TipoEntidade(TimeModel):
     ordem = models.IntegerField(default=2)
     crair_entidade = models.BooleanField(null=True, default=True)
 
-    layout_settings = models.ForeignKey('django_resaas.LayoutSetting',null=True, blank=True, on_delete=models.SET_NULL)
-    theme = models.ForeignKey('django_resaas.Theme',null=True, blank=True, on_delete=models.SET_NULL)
+    theme = models.ForeignKey('django_resaas.Theme', null=True, blank=True, on_delete=models.SET_NULL)
+    layout_settings = models.ForeignKey('django_resaas.LayoutSetting', null=True, blank=True, on_delete=models.SET_NULL)
+    typography = models.ForeignKey('django_resaas.Typography', null=True, blank=True, on_delete=models.SET_NULL)
+    animation_settings = models.ForeignKey('django_resaas.AnimationSetting', null=True, blank=True, on_delete=models.SET_NULL)
 
-
+    
     class Meta:
         permissions = ()
 
