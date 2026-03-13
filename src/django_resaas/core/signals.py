@@ -11,8 +11,10 @@ from django_resaas.models.pessoa import Pessoa
 
 from django_resaas.models.tipo_entidade import TipoEntidade
 from django_resaas.models.entidade import Entidade
-from django_resaas.models.theme import Theme
-from django_resaas.models.layout_setting import LayoutSetting
+from django_resaas.models.theme import Theme, Typography
+from django_resaas.models.layout_setting import LayoutSetting, AnimationSetting
+# from django_resaas.data.theme.serializers.theme import ThemeSerializer, TypographySerializer
+# from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer, AnimationSettingSerializer
 from django_resaas.models.user import User
 
 
@@ -129,5 +131,6 @@ def criar_thema(sender, instance, created, **kwargs):
 
         instance.theme = Theme.objects.create()
         instance.layout_settings = LayoutSetting.objects.create()
-
-        instance.save(update_fields=["theme", "layout_settings"])
+        instance.animation_settings = AnimationSetting.objects.create()
+        instance.typography = Typography.objects.create()
+        instance.save(update_fields=["theme", "layout_settings", "animation_settings", "typography"])

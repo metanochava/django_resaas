@@ -10,6 +10,17 @@ class LayoutSetting(TimeModel):
     # 🌗 tema
     dark_mode = models.BooleanField(default=False)
 
+    # BOTÕES
+    buttonDense = models.BooleanField(default=False)
+    buttonRounded = models.BooleanField(default=False)
+    buttonSquare = models.BooleanField(default=False)
+
+    # INPUTS
+    inputDense = models.BooleanField(default=False)
+    inputRounded = models.BooleanField(default=False)
+    inputSquare = models.BooleanField(default=False)
+
+
     # 📏 densidade UI
     density = models.CharField(
         max_length=20,
@@ -58,6 +69,9 @@ class LayoutSetting(TimeModel):
 
     input_dense = models.BooleanField(default=False)
 
+
+   # BORDER RADIUS GLOBAL
+    border_radius = models.IntegerField(default=8)
     
 
     # ========================
@@ -152,3 +166,126 @@ class LayoutSetting(TimeModel):
             }
         }
       
+
+
+class AnimationSetting(TimeModel):
+
+    # =========================
+    # GLOBAL
+    # =========================
+
+    nome = models.CharField(max_length=100)
+
+    enable_animations = models.BooleanField(default=True)
+
+    animation_speed = models.CharField(
+        max_length=20,
+        default="normal",
+        choices=[
+            ("slow", "Slow"),
+            ("normal", "Normal"),
+            ("fast", "Fast"),
+        ]
+    )
+
+    # =========================
+    # PAGE TRANSITIONS
+    # =========================
+
+    page_transition = models.CharField(
+        max_length=50,
+        default="fade",
+        choices=[
+            ("none", "None"),
+            ("fade", "Fade"),
+            ("slide-left", "Slide Left"),
+            ("slide-right", "Slide Right"),
+            ("slide-up", "Slide Up"),
+            ("slide-down", "Slide Down"),
+            ("scale", "Scale"),
+            ("zoom", "Zoom"),
+        ]
+    )
+
+    # =========================
+    # BUTTON EFFECTS
+    # =========================
+
+    button_animation = models.CharField(
+        max_length=50,
+        default="ripple",
+        choices=[
+            ("none", "None"),
+            ("ripple", "Ripple"),
+            ("pulse", "Pulse"),
+            ("bounce", "Bounce"),
+            ("scale", "Scale"),
+        ]
+    )
+
+    # =========================
+    # HOVER EFFECTS
+    # =========================
+
+    hover_effect = models.BooleanField(default=True)
+
+    hover_style = models.CharField(
+        max_length=50,
+        default="lift",
+        choices=[
+            ("none", "None"),
+            ("lift", "Lift"),
+            ("shadow", "Shadow"),
+            ("grow", "Grow"),
+            ("glow", "Glow"),
+        ]
+    )
+
+    # =========================
+    # CARD ANIMATIONS
+    # =========================
+
+    card_animation = models.CharField(
+        max_length=50,
+        default="fade",
+        choices=[
+            ("none", "None"),
+            ("fade", "Fade"),
+            ("slide-up", "Slide Up"),
+            ("zoom", "Zoom"),
+        ]
+    )
+
+    # =========================
+    # MODAL ANIMATION
+    # =========================
+
+    modal_animation = models.CharField(
+        max_length=50,
+        default="scale",
+        choices=[
+            ("none", "None"),
+            ("scale", "Scale"),
+            ("fade", "Fade"),
+            ("slide-up", "Slide Up"),
+        ]
+    )
+
+    def to_dict(self):
+        return {
+            "enable_animations": self.enable_animations,
+            "animation_speed": self.animation_speed,
+            "page_transition": self.page_transition,
+            "button_animation": self.button_animation,
+            "hover_effect": self.hover_effect,
+            "hover_style": self.hover_style,
+            "card_animation": self.card_animation,
+            "modal_animation": self.modal_animation,
+        }
+
+    class Meta:
+        verbose_name = "Animation Setting"
+        verbose_name_plural = "Animation Settings"
+
+    def __str__(self):
+        return self.nome
