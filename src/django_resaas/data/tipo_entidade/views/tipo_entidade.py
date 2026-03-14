@@ -20,10 +20,10 @@ from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
 from django_resaas.models.entidade_modelo import EntidadeModelo
-from django_resaas.models.theme import Theme
-from django_resaas.models.layout_setting import LayoutSetting
-from django_resaas.data.theme.serializers.theme import ThemeSerializer
-from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer
+from django_resaas.models.theme import Theme, Typography
+from django_resaas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.data.theme.serializers.theme import ThemeSerializer, TypographySerializer
+from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer, AnimationSettingSerializer
 
 
 from django_resaas.data.tipo_entidade.serializers.tipo_entidade import (
@@ -226,7 +226,7 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
         return Response(theme, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
-    def layoutsettingsGet(self, request, *args, **kwargs):
+    def layoutSettingsGet(self, request, *args, **kwargs):
         tipoentidade = self.get_object()
         tipoentidade = TipoEntidade.objects.get(id=tipoentidade.id )
         if tipoentidade.layout_settings:
@@ -235,18 +235,43 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
             ls = {}
         return Response(ls, status=status.HTTP_200_OK)
 
+    
+    @action(detail=True, methods=['GET'])
+    def typographyGet(self, request, *args, **kwargs):
+        tipoentidade = self.get_object()
+        tipoentidade = TipoEntidade.objects.get(id=tipoentidade.id )
+        if tipoentidade.typography:
+            typography = TypographySerializer(Typography.objects.get(id=tipoentidade.typography.id)).data
+        else:
+            typography = {}
+        return Response(typography, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'])
+    def animationSettingsGet(self, request, *args, **kwargs):
+        tipoentidade = self.get_object()
+        tipoentidade = TipoEntidade.objects.get(id=tipoentidade.id )
+        if tipoentidade.animation_settings:
+            animation_settings = AnimationSettingSerializer(AnimationSetting.objects.get(id=tipoentidade.animation_settings.id)).data
+        else:
+            animation_settings = {}
+        return Response(animation_settings, status=status.HTTP_200_OK)
+
 
 
     @action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
-        entidade = self.get_object()
+        tipoentidade = self.get_object()
 
-        theme = entidade.theme
+        theme = tipoentidade.theme
         data = request.data
 
         for key, value in data.items():
             if hasattr(theme, key):
-                setattr(theme, key, value)
+                if key == "created_by" or key == "updated_by":
+                    theme.created_by = request.user
+                    theme.updated_by = request.user
+                else:
+                    setattr(theme, key, value)
 
         theme.save()
         theme = ThemeSerializer(theme).data
@@ -255,18 +280,64 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
-        entidade = self.get_object()
+        tipoentidade = self.get_object()
 
-        layout_settings = entidade.layout_settings
+        layout_settings = tipoentidade.layout_settings
         data = request.data
 
         for key, value in data.items():
             if hasattr(layout_settings, key):
-                setattr(layout_settings, key, value)
+                if key == "created_by" or key == "updated_by":
+                    layout_settings.created_by = request.user
+                    layout_settings.updated_by = request.user
+                else:
+                    setattr(layout_settings, key, value)
 
         layout_settings.save()
         layout_settings = LayoutSettingSerializer(layout_settings).data
         return Response(layout_settings, status=status.HTTP_200_OK)
 
 
-    
+
+
+    @action(detail=True, methods=['PUT'])
+    def typographyPut(self, request, *args, **kwargs):
+        tipoentidade = self.get_object()
+
+        typography = tipoentidade.typography
+        data = request.data
+
+        for key, value in data.items():
+            if hasattr(typography, key):
+                if key == "created_by" or key == "updated_by":
+                    typography.created_by = request.user
+                    typography.updated_by = request.user
+                else:
+                    setattr(typography, key, value)
+        typography.save()
+        typography = TypographySerializer(typography).data
+        return Response(typography, status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['PUT'])
+    def animationSettingsPut(self, request, *args, **kwargs):
+        tipoentidade = self.get_object()
+
+        animation_settings = tipoentidade.animation_settings
+        data = request.data
+
+        for key, value in data.items():
+            if hasattr(animation_settings, key):
+                setattr(animation_settings, key, value)
+                if key == "created_by" or key == "updated_by":
+                    animation_settings.created_by = request.user
+                    animation_settings.updated_by = request.user
+                else:
+                    setattr(animation_settings, key, value)
+        
+
+        animation_settings.save()
+        animation_settings = AnimationSettingSerializer(animation_settings).data
+        return Response(animation_settings, status=status.HTTP_200_OK)
+
+
