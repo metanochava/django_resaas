@@ -38,10 +38,10 @@ class SiteAPIView(APIView):
             theme = Theme.objects.get(id=tipoentidade.theme.id).to_dict()
 
         if entidade.typography:
-            typography = Typography.objects.get(id=entidade.theme.id).to_dict()
+            typography = Typography.objects.get(id=entidade.typography.id).to_dict()
         else:
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
-            typography = Typography.objects.get(id=tipoentidade.theme.id).to_dict()
+            typography = Typography.objects.get(id=tipoentidade.typography.id).to_dict()
 
         if entidade.layout_settings:
             layout_settings = LayoutSetting.objects.get(id=entidade.layout_settings.id).to_dict()
@@ -58,4 +58,4 @@ class SiteAPIView(APIView):
 
         
        
-        return all(request, layout_settings = layout_settings, theme = theme, animation_settings= animation_settings, typography= typography )
+        return all(request, layout_settings = layout_settings, theme = theme, animation_settings= animation_settings, typography= typography, bach_end=request.get_host(), entidade= entidade.id )
