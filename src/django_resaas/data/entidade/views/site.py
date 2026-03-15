@@ -51,11 +51,11 @@ class SiteAPIView(APIView):
         
 
         if entidade.animation_settings:
-            animation_settings = LayoutSetting.objects.get(id=entidade.animation_settings.id).to_dict()
+            animation_settings = AnimationSetting.objects.get(id=entidade.animation_settings.id).to_dict()
         else:
             tipoentidade = TipoEntidade.objects.get(id=entidade.tipo_entidade.id )
             animation_settings = AnimationSetting.objects.get(id=tipoentidade.animation_settings.id).to_dict()
 
         
        
-        return all(request, layout_settings = layout_settings, theme = theme, animation_settings= animation_settings, typography= typography )
+        return all(request, layout_settings = layout_settings, theme = theme, animation_settings= animation_settings, typography= typography, bach_end=request.get_host(), entidade= entidade.id )
