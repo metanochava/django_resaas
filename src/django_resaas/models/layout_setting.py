@@ -139,31 +139,22 @@ class LayoutSetting(TimeModel):
             "square": self.square,
             "animations": self.animations,
 
-            "button": {
-                "style": self.button_style,
-                "dense": self.button_dense,
-                "round": self.button_round,
-            },
+            "button_style": self.button_style,
+            "button_dense": self.button_dense,
+            "button_round": self.button_round,
 
-            "input": {
-                "style": self.input_style,
-                "dense": self.input_dense,
-            },
+            "input_style": self.input_style,
+            "input_dense": self.input_dense,
 
-            "card": {
-                "flat": self.card_flat,
-                "bordered": self.card_bordered
-            },
+            "card_flat": self.card_flat,
+            "card_bordered": self.card_bordered,
 
-            "sidebar": {
-                "mini": self.sidebar_mini,
-                "width": self.sidebar_width
-            },
+            "sidebar_mini": self.sidebar_mini,
+            "sidebar_width": self.sidebar_width,
 
-            "toolbar": {
-                "dense": self.toolbar_dense,
-                "elevated": self.toolbar_elevated
-            }
+            "toolbar_dense": self.toolbar_dense,
+            "toolbar_elevated": self.toolbar_elevated,
+
         }
       
 
