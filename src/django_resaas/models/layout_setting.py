@@ -87,7 +87,7 @@ class LayoutSetting(TimeModel):
     toolbar_elevated = models.BooleanField(default=True)
 
 
-    nome = models.CharField(max_length=100)
+    nome = models.CharField(max_length=101)
 
     # 🎨 botão
     button_style = models.CharField(
