@@ -58,4 +58,4 @@ class SiteAPIView(APIView):
 
         
        
-        return all(request, layout_settings = layout_settings, theme = theme, animation_settings= animation_settings, typography= typography, bach_end=request.get_host(), entidade= entidade.id )
+        return all(request, layout_settings = layout_settings, theme = theme, animation_settings= animation_settings, typography= typography )

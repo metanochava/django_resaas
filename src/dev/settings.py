@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 from corsheaders.defaults import default_headers
 
+from django_resaas.core.utils import get_cors_origins
 
 
 if os.environ.get("DOCKER") != "YES":
@@ -21,16 +22,7 @@ DEBUG = int(os.environ.get("DEBUG", default=0))
 TIME_ZONE = os.environ.get("TIME_ZONE")
 LANGUAGE_CODE = 'EN-US'
 
-# --------------------------
-# URLs e Hosts
-# --------------------------
-PORT = os.environ.get("PORT")
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOW_HEADERS = list(default_headers) + os.environ.get("CORS_ALLOW_HEADERS", "").split(",")
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
-CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+
 
 
 # --------------------------
@@ -61,6 +53,19 @@ INSTALLED_APPS = MY_APPS + [
     'rest_framework_simplejwt',
     'rest_framework.authtoken',  # só para validação de permissão
 ]
+
+# --------------------------
+# URLs e Hosts
+# --------------------------
+PORT = os.environ.get("PORT")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+CORS_ORIGIN_ALLOW_ALL = False
+# CORS_ALLOWED_ORIGINS = get_cors_origins()
+CORS_ALLOW_HEADERS = list(default_headers) + os.environ.get("CORS_ALLOW_HEADERS", "").split(",")
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
+CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+
 
 # --------------------------
 # Middleware
