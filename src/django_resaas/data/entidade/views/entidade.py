@@ -595,7 +595,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['PUT'])
-    def layoutSettingsPut(self, request, *args, **kwargs):
+    def animationSettingsPut(self, request, *args, **kwargs):
         entidade = self.get_object()
         animation_settings = entidade.animation_settings or AnimationSetting.objects.create()
         if not entidade.animation_settings:

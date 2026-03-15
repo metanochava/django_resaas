@@ -230,10 +230,10 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
         tipoentidade = self.get_object()
         tipoentidade = TipoEntidade.objects.get(id=tipoentidade.id )
         if tipoentidade.layout_settings:
-            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
+            layout_settings = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentidade.layout_settings.id)).data
         else:
-            ls = {}
-        return Response(ls, status=status.HTTP_200_OK)
+            layout_settings = {}
+        return Response(layout_settings, status=status.HTTP_200_OK)
 
     
     @action(detail=True, methods=['GET'])
