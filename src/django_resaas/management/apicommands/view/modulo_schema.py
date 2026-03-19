@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 # 📦 Local (django_resaas)
-from django_resaas.core.base.views import register_view
+from django_resaas.core.base.views import registerView
 from django_resaas.core.base.permissions import hasPermission
 from django_resaas.core.utils import ok, fail, warn, all, clean_name
 from django_resaas.models.modelo_extra import ModeloExtra

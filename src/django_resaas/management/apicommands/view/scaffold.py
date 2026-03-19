@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import action
 
 from django_resaas.models.modelo_extra import ModeloExtra
-from django_resaas.core.base.views import register_view
+from django_resaas.core.base.views import registerView
 from django_resaas.core.utils import all, ok, fail, warn, clean_class_name, clean_file_name, safe_write
 
 import importlib.util
@@ -297,12 +297,12 @@ class {model}Serializer(BaseSerializer):
 def build_view(module, model):
     return f"""
 from django_resaas.core.base.views import BaseAPIView
-from django_resaas.core.base.views import register_view
+from django_resaas.core.base.views import registerView
 from {module}.models.{clean_file_name(model)} import {clean_class_name(model)}
 from {module}.serializers.{clean_file_name(model)} import {clean_class_name(model)}Serializer
 
 
-@register_view('{clean_file_name(model)}s')
+@registerView('{clean_file_name(model)}s')
 class {model}APIView(BaseAPIView):
     queryset = {clean_class_name(model)}.objects.all()   
     serializer_class = {clean_class_name(model)}Serializer
@@ -426,7 +426,7 @@ def write_python_pretty(code: str) -> str:
 # VIEWSET
 # =========================================================
 
-@register_view("scaffold", "django_resaas")
+@registerView("scaffold", "django_resaas")
 class ScaffoldAPIView(ViewSet):
 
     permission_classes = [IsAdminUser]
