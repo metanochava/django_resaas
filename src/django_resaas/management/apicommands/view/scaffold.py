@@ -112,8 +112,8 @@ def build_model(module, model, fields, extra_perms):
 
     lines = [
         "from django.db import models",
-        "from django_resaas.core.base.models import BaseModel",
-        "from django_resaas.core.utils import guess_name",
+        "from django_resaas.core.base.models import ",
+        "from django_BaseModelresaas.core.utils import guess_name",
         '',
         f"class {model}(BaseModel):",
     ]

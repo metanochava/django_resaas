@@ -1,44 +1,37 @@
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
-from django.db.models import Q
+from django.db.models import Q, ForeignKey, OneToOneField
 from django.core.exceptions import FieldDoesNotExist
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
+from django_filters.rest_framework import DjangoFilterBackend
 
 from django_resaas.core.base.permissions import isPermited
 from django_resaas.core.utils.translate import Translate
-from rest_framework.filters import SearchFilter, OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
-from django_resaas.core.base.permissions import hasPermission
-from django_resaas.core.utils import all, ok, fail, warn  # noqa
-
-
-
+from django_resaas.core.utils import ok, fail  # noqa
 from django_resaas.core.base.registry import VIEW_REGISTRY
 
-from django.db.models import Q, ForeignKey, OneToOneField
-from django.core.exceptions import FieldDoesNotExist
 
+# -----------------------------------
+# 🔍 SEARCH BUILDER
+# -----------------------------------
 
 def build_search_query(Model, search, depth=1):
-    """
-    depth = nível de profundidade (1 = FK direto)
-    """
     q = Q()
 
-    # campos locais
     candidates = [
         "nome", "name", "title", "descricao", "description",
         "username", "email", "codigo", "code"
     ]
 
+    # campos locais
     for field in candidates:
         try:
             Model._meta.get_field(field)
@@ -46,7 +39,7 @@ def build_search_query(Model, search, depth=1):
         except FieldDoesNotExist:
             continue
 
-    # 🔥 relações (FK)
+    # relações (FK)
     if depth > 0:
         for f in Model._meta.get_fields():
             if isinstance(f, (ForeignKey, OneToOneField)):
@@ -61,24 +54,32 @@ def build_search_query(Model, search, depth=1):
 
     return q
 
+
+# -----------------------------------
+# 🧩 VIEW REGISTRY
+# -----------------------------------
+
 def register_view(name=None, module=None):
     def decorator(cls):
-        key = name or cls.__name__.lower().replace('APIView', '')+'s'
-        module_name = module or cls.__module__.split(".")[0]  # rh, srm, etc
+        key = name or cls.__name__.lower().replace('APIView', '') + 's'
+        module_name = module or cls.__module__.split(".")[0]
 
         VIEW_REGISTRY.setdefault(module_name, {})[key] = cls
         return cls
     return decorator
 
 
+# -----------------------------------
+# 🚀 BASE API VIEW
+# -----------------------------------
+
 class BaseAPIView(ModelViewSet):
     """
     ViewSet base multi-tenant com controlo automático de permissões.
     """
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = "__all__"   # ou lista controlada
 
-    # search_fields = ["id", "name"]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = "__all__"
     ordering_fields = "__all__"
 
     permission_action_map = {
@@ -92,6 +93,9 @@ class BaseAPIView(ModelViewSet):
         'hard_delete': 'hard_delete',
     }
 
+    # -----------------------------------
+    # 🔍 SEARCH
+    # -----------------------------------
 
     def apply_dynamic_search(self, qs):
         search = (self.request.query_params.get("search") or "").strip()
@@ -100,23 +104,30 @@ class BaseAPIView(ModelViewSet):
             return qs
 
         Model = qs.model
-
         q = build_search_query(Model, search, depth=1)
 
         return qs.filter(q)
-    
+
+    # -----------------------------------
+    # 🧠 MODEL
+    # -----------------------------------
+
     def get_model(self):
-        return self.get_queryset().model
+        return self.queryset.model
 
     def get_method_permission(self):
         custom_map = getattr(self, 'method_permission', {})
         return {**self.permission_action_map, **custom_map}
 
+    # -----------------------------------
+    # 🔐 PERMISSIONS (COM CACHE)
+    # -----------------------------------
+
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
         action = self.action
-        model = self.get_queryset().model
+        model = self.get_model()
 
         perm_map = self.get_method_permission()
         perm_prefix = perm_map.get(action)
@@ -128,98 +139,119 @@ class BaseAPIView(ModelViewSet):
 
         codename = f'{perm_prefix}_{model._meta.model_name}'
 
+        # 🔥 cache de permissões
+        if not hasattr(request, "_perm_cache"):
+            request._perm_cache = {}
 
-        if not isPermited(request=request, role=codename):
-            raise PermissionDenied(
-                Translate.tdc(request, 'Não autorizado ' +  codename)
+        if codename not in request._perm_cache:
+            request._perm_cache[codename] = isPermited(
+                request=request,
+                role=codename
             )
 
+        if not request._perm_cache[codename]:
+            raise PermissionDenied(
+                Translate.tdc(request, f'Não autorizado {codename}')
+            )
+
+    # -----------------------------------
+    # 📊 QUERYSET (SAFE MULTI-TENANT)
+    # -----------------------------------
 
     def get_queryset(self):
-        qs = super().get_queryset().filter(
-            entidade_id=self.request.entidade_id,
-            sucursal_id=self.request.sucursal_id,
-        )
+        qs = super().get_queryset()
+        Model = qs.model
 
-        status = (self.request.query_params.get("objects") or "").strip()
-        
-        # Se quiser ver apagados: ?objects=all
-        if status == "all":
-            Model = qs.model
-            if hasattr(Model, "all_objects"):
-                return Model.all_objects.filter(
-                    entidade_id=self.request.entidade_id,
-                    sucursal_id=self.request.sucursal_id,
-                )
+        # 🔥 aplica tenant só se existir no model
+        if hasattr(Model, "entidade_id"):
+            qs = qs.filter(entidade_id=self.request.entidade_id)
 
-        # Se quiser so apagados: ?objects=deleted
-        if status == "deleted":
-            Model = qs.model
-            if hasattr(Model, "deleted_objects"):
-                return Model.deleted_objects.filter(
-                    entidade_id=self.request.entidade_id,
-                    sucursal_id=self.request.sucursal_id,
-                )
+        if hasattr(Model, "sucursal_id"):
+            qs = qs.filter(sucursal_id=self.request.sucursal_id)
+
+        objects_filter = (self.request.query_params.get("objects") or "").strip()
+
+        # ver todos
+        if objects_filter == "all" and hasattr(Model, "all_objects"):
+            qs = Model.all_objects.all()
+
+        # só apagados
+        elif objects_filter == "deleted" and hasattr(Model, "deleted_objects"):
+            qs = Model.deleted_objects.all()
+
+        # reaplicar tenant após troca de manager
+        if hasattr(Model, "entidade_id"):
+            qs = qs.filter(entidade_id=self.request.entidade_id)
+
+        if hasattr(Model, "sucursal_id"):
+            qs = qs.filter(sucursal_id=self.request.sucursal_id)
 
         qs = self.apply_dynamic_search(qs)
+
         return qs
 
+    # -----------------------------------
+    # ✍️ CREATE / UPDATE
+    # -----------------------------------
+
     def perform_create(self, serializer):
-        serializer.save(
-            entidade_id=self.request.entidade_id,
-            sucursal_id=self.request.sucursal_id,
-            created_by=self.request.user,
-            updated_by=self.request.user
-        )
+        data = {
+            "created_by": self.request.user,
+            "updated_by": self.request.user
+        }
+
+        if hasattr(serializer.Meta.model, "entidade_id"):
+            data["entidade_id"] = self.request.entidade_id
+
+        if hasattr(serializer.Meta.model, "sucursal_id"):
+            data["sucursal_id"] = self.request.sucursal_id
+
+        serializer.save(**data)
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
 
+    # -----------------------------------
+    # 🗑 DELETE (SOFT)
+    # -----------------------------------
 
     def perform_destroy(self, instance):
         if hasattr(instance, "deleted_at"):
             instance.deleted_at = timezone.now()
-        instance.delete(user = self.request.user)
+        instance.delete(user=self.request.user)
+
+    # -----------------------------------
+    # ♻️ RESTORE
+    # -----------------------------------
 
     @action(detail=True, methods=["post"], url_path="restore")
     def restore(self, request, pk=None):
         Model = self.get_model()
         instance = get_object_or_404(Model.all_objects, pk=pk)
 
-        if not instance:
-            return fail(request, "Objeto não encontrado")
-
-        model = instance._meta.model_name
-        codename = f"restore_{model}"
+        codename = f"restore_{Model._meta.model_name}"
 
         if not isPermited(request=request, role=codename):
             raise PermissionDenied("Não autorizado")
 
-        instance.restore(user=request.user)  # 🔥 usa teu método do model
+        instance.restore(user=request.user)
 
         return ok(request, "Restored com sucesso")
 
+    # -----------------------------------
+    # 💀 HARD DELETE
+    # -----------------------------------
 
     @action(detail=True, methods=["delete"], url_path="hard_delete")
     def hard_delete(self, request, pk=None):
         Model = self.get_model()
         instance = get_object_or_404(Model.all_objects, pk=pk)
 
-        model = instance._meta.model_name
-        codename = f"hard_delete_{model}"
+        codename = f"hard_delete_{Model._meta.model_name}"
 
         if not isPermited(request=request, role=codename):
             raise PermissionDenied("Não autorizado")
 
         instance.hard_delete()
 
-        return ok(
-            request,
-            "Apagado prara sempre com sucesso",
-        )
-
-    
-
-    
-
-
+        return ok(request, "Apagado para sempre com sucesso")
