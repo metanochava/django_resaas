@@ -59,12 +59,16 @@ def build_search_query(Model, search, depth=1):
 # 🧩 VIEW REGISTRY
 # -----------------------------------
 
-def register_view(name=None, module=None):
+def registerView(name=None, module=None):
     def decorator(cls):
         key = name or cls.__name__.lower().replace('APIView', '') + 's'
         module_name = module or cls.__module__.split(".")[0]
 
+        # 🔥 registra no registry
         VIEW_REGISTRY.setdefault(module_name, {})[key] = cls
+
+        # 🔥 AUTOMÁTICO: define module_name na class
+        cls.module_name = module_name
         return cls
     return decorator
 
@@ -74,6 +78,8 @@ def register_view(name=None, module=None):
 # -----------------------------------
 
 class BaseAPIView(ModelViewSet):
+
+
     """
     ViewSet base multi-tenant com controlo automático de permissões.
     """
@@ -125,6 +131,22 @@ class BaseAPIView(ModelViewSet):
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
+
+        # -----------------------------------
+        # 🔐 CHECK MODULE
+        # -----------------------------------
+        module = getattr(self, "module_name", None)
+
+        if module:
+            ativo = EntidadeModulo.objects.filter(
+                entidade_id=request.entidade_id,
+                modulo__codigo=module,
+                estado=True
+            ).exists()
+
+            if not ativo:
+                fail(request, "Módulo '{module}' não ativo")
+
 
         action = self.action
         model = self.get_model()

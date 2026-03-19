@@ -5,7 +5,7 @@ from django.contrib.auth.models import Permission, Group
 from rest_framework import status
 from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.response import Response
+from django_resaas.core.utils.api_response import all, ok, fail, warn
 
 from django_resaas.core.utils.translate import Translate
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
@@ -80,13 +80,15 @@ def hasModulo(codigo):
         def wrapper(self, request, *args, **kwargs):
             entidade_id = request.entidade_id
 
-            if not EntidadeModulo.objects.filter(
+            ativo = EntidadeModulo.objects.filter(
                 entidade_id=entidade_id,
                 modulo__codigo=codigo,
-                estado=1
-            ).exists():
-                return Response(
-                    {"detail": "Módulo não ativo"},
+                estado=True
+            ).exists()
+
+            if not ativo:
+                return fail(request,
+                   "Módulo não activo",
                     status=status.HTTP_403_FORBIDDEN
                 )
 
@@ -102,8 +104,7 @@ def hasPermission(role=None):
             if check_permission(request, role):
                 return view_func(self, request, *args, **kwargs)
 
-            txt = Translate.tdc(request, 'Permission denied')
-            return Response( {'alert_error': txt}, status=status.HTTP_403_FORBIDDEN )
+            return fail( request, 'Permission denied', status=status.HTTP_403_FORBIDDEN )
         return wrapper
     return decorator
 
