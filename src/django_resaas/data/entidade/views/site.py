@@ -22,7 +22,7 @@ from django_resaas.core.utils import all
 
 class SiteAPIView(APIView):
     def get(self, request):
-
+        entidade = None
         origin = request.headers.get("Origin")
         try:
             entidade = Entidade.objects.get(site=origin)
