@@ -2,11 +2,26 @@ from django.conf import settings
 from django.db import models
 import uuid
 # good
-
-from django.db import models
 from django.utils import timezone
+import os 
 
 
+def file_path(instance, file_name, pasta=""):
+    ext = os.path.splitext(file_name)[1].lower()
+    unique_name = f"{uuid.uuid4()}{ext}"
+
+    pasta = pasta.strip("/")
+
+    return (
+        f"{instance.entidade.tipo_entidade.id}/"
+        f"{instance.entidade.id}/"
+        f"{instance.id}/"
+        f"{pasta}/{unique_name}" if pasta else
+        f"{instance.entidade.tipo_entidade.id}/"
+        f"{instance.entidade.id}/"
+        f"{instance.id}/{unique_name}"
+    )
+    
 class SoftDeleteQuerySet(models.QuerySet):
     def alive(self):
         return self.filter(deleted_at__isnull=True)
