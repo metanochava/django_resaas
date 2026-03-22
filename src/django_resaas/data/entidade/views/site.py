@@ -24,13 +24,12 @@ class SiteAPIView(APIView):
     def get(self, request):
         entidade = None
         origin = request.headers.get("Origin")
-        try:
-            entidade = Entidade.objects.get(site=origin)
-        except Exception as e:
-            pass
+      
+        entidade = Entidade.objects.filter(site=origin).first()
 
-
-
+        if not entidade:
+            return all(request, Origin = "Desconhecida")
+        
         if entidade.theme:
             theme = Theme.objects.get(id=entidade.theme.id).to_dict()
         else:
