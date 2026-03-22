@@ -17,6 +17,7 @@ from django_resaas.core.base.permissions import isPermited
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import ok, fail  # noqa
 from django_resaas.core.base.registry import VIEW_REGISTRY
+from django_resaas.models.entidade_modulo import EntidadeModulo
 
 
 # -----------------------------------
@@ -61,10 +62,11 @@ def build_search_query(Model, search, depth=1):
 
 def registerView(name=None, module=None):
     def decorator(cls):
-        key = name or cls.__name__.lower().replace('APIView', '') + 's'
+        key = name or cls.__name__.lower().replace('apiview', '') + 's'
+        print(key, name)
         module_name = module or cls.__module__.split(".")[0]
         # 🔥 registra no registry
-        VIEW_REGISTRY.setdefault(key, {})[key] = cls
+        VIEW_REGISTRY.setdefault(module_name, {})[key] = cls
         # 🔥 AUTOMÁTICO: define module_name na class
         cls.module_name = module_name
         return cls
@@ -137,9 +139,9 @@ class BaseAPIView(ModelViewSet):
 
         if module:
             ativo = EntidadeModulo.objects.filter(
-                entidade_id=request.entidade_id,
-                modulo__codigo=module,
-                estado=True
+                entidade__id=request.entidade_id,
+                modulo__nome=module,
+                estado=1
             ).exists()
 
             if not ativo:
