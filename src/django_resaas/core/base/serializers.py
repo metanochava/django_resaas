@@ -1,10 +1,25 @@
 import os
-
 from django.db import models
 from rest_framework import serializers
 from django_resaas.core.utils.full_path import FullPath
 
-class BaseSerializer(serializers.ModelSerializer):
+class DynamicFieldsMixin:
+    def get_fields(self):
+        fields = super().get_fields()
+
+        exclude = self.context.get("exclude_fields", [])
+        include = self.context.get("include_fields", None)
+
+        if include:
+            fields = {k: v for k, v in fields.items() if k in include}
+
+        for field in exclude:
+            fields.pop(field, None)
+
+        return fields
+
+class BaseSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+
     """
     Serializer base que protege automaticamente
     todos os FileField e ImageField.
@@ -47,7 +62,6 @@ class BaseSerializer(serializers.ModelSerializer):
                     'size': getattr(file, 'size', None)
                 }
             except Exception as e:
-                print("❌ ERRO AO PROCESSAR FILE:", e)
                 data[field.name] = None
 
         return data
