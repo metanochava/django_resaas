@@ -63,10 +63,8 @@ def registerView(name=None, module=None):
     def decorator(cls):
         key = name or cls.__name__.lower().replace('APIView', '') + 's'
         module_name = module or cls.__module__.split(".")[0]
-
         # 🔥 registra no registry
-        VIEW_REGISTRY.setdefault(module_name, {})[key] = cls
-
+        VIEW_REGISTRY.setdefault(key, {})[key] = cls
         # 🔥 AUTOMÁTICO: define module_name na class
         cls.module_name = module_name
         return cls
