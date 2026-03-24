@@ -18,27 +18,45 @@ from django_resaas.models.layout_setting import LayoutSetting, AnimationSetting
 from django_resaas.models.user import User
 
 
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
+from django.conf import settings
+from django.apps import apps
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
+
 
 @receiver(post_migrate)
-def create_model_list_permissions(sender, **kwargs):
+def create_model_permissions(sender, **kwargs):
     """
-    Auto cria:
+    Cria permissões automaticamente por modelo e garante que
+    o grupo SuperAdmin está sempre atualizado.
+
     ✔ list_<model>
-    ✔ scaffold perms
-    e adiciona tudo ao grupo Admin
+    ✔ pdf_<model>
+    ✔ restore_<model>
+    ✔ hard_delete_<model>
+    ✔ scaffold permissions
+
+    ✔ Atualiza automaticamente quando novos modelos são adicionados
+    ✔ Seguro para múltiplas execuções (idempotente)
     """
 
-    # 🔥 roda apenas uma vez (evita N execuções)
-    if sender.name != "django_resaas":
+    # 🔥 executa apenas no app principal
+    if kwargs.get("app_config").name != "django_resaas":
         return
 
+    # 🔹 apps permitidas
     MY_APPS = getattr(settings, "MY_APPS", []) + ["django.contrib.auth"]
     allowed_apps = [app.split(".")[-1] for app in MY_APPS]
 
+    # 🔹 grupo SuperAdmin
     admin_group, _ = Group.objects.get_or_create(name="SuperAdmin")
 
+    created_perms = []
+
     # ==================================================
-    # MODEL LIST PERMISSIONS
+    # MODEL PERMISSIONS
     # ==================================================
     for model in apps.get_models():
 
@@ -47,34 +65,18 @@ def create_model_list_permissions(sender, **kwargs):
 
         ct = ContentType.objects.get_for_model(model)
 
-        perm, _ = Permission.objects.get_or_create(
-            codename=f"list_{model._meta.model_name}",
-            content_type=ct,
-            defaults={"name": f"Can list {model._meta.verbose_name}"},
-        )
-
-        perm, _ = Permission.objects.get_or_create(
-            codename=f"pdf_{model._meta.model_name}",
-            content_type=ct,
-            defaults={"name": f"Can pdf {model._meta.verbose_name}"},
-        )
-
-
-        perm, _ = Permission.objects.get_or_create(
-            codename=f"restore_{model._meta.model_name}",
-            content_type=ct,
-            defaults={"name": f"Can restore {model._meta.verbose_name}"},
-        )
-
-
-        perm, _ = Permission.objects.get_or_create(
-            codename=f"hard_delete_{model._meta.model_name}",
-            content_type=ct,
-            defaults={"name": f"Can hard delete {model._meta.verbose_name}"},
-        )
-
-
-
+        for codename, label in [
+            ("list", "Can list"),
+            ("pdf", "Can pdf"),
+            ("restore", "Can restore"),
+            ("hard_delete", "Can hard delete"),
+        ]:
+            perm, _ = Permission.objects.get_or_create(
+                codename=f"{codename}_{model._meta.model_name}",
+                content_type=ct,
+                defaults={"name": f"{label} {model._meta.verbose_name}"},
+            )
+            created_perms.append(perm)
 
     # ==================================================
     # SCAFFOLD PERMISSIONS
@@ -98,8 +100,12 @@ def create_model_list_permissions(sender, **kwargs):
             content_type=ct,
             defaults={"name": name},
         )
-    admin_group.permissions.add(*Permission.objects.filter())
+        created_perms.append(perm)
 
+    # ==================================================
+    # ATUALIZAR SUPERADMIN (INCREMENTAL)
+    # ==================================================
+    admin_group.permissions.add(*created_perms)
 
 
 
