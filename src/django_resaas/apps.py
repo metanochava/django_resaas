@@ -5,4 +5,6 @@ class DjangoSaasConfig(AppConfig):
     verbose_name = "Django SaaS"
 
     def ready(self):
-        import django_resaas.core.signals
+        import django_resaas.core.signals.permissions
+
+        
