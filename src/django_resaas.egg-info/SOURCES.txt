@@ -42,7 +42,6 @@ src/django_resaas/core/utils/clean.py
 src/django_resaas/core/utils/find_settings_with_my_apps.py
 src/django_resaas/core/utils/full_path.py
 src/django_resaas/core/utils/generate_key_otp.py
-src/django_resaas/core/utils/guess_name.py
 src/django_resaas/core/utils/safe_write.py
 src/django_resaas/core/utils/templates.py
 src/django_resaas/core/utils/translate.py

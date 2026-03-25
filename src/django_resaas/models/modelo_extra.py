@@ -1,6 +1,5 @@
 from django.db import models
 from django_resaas.core.base.models import TimeModel
-from django_resaas.core.utils import guess_name
 
 
 class ModeloExtra(TimeModel):
@@ -15,7 +14,6 @@ class ModeloExtra(TimeModel):
         permissions = ()
 
     def __str__(self):
-        # return guess_name(self)
         return self.modelo
 
 
@@ -43,6 +41,4 @@ class ModeloExtra(TimeModel):
 #     class Meta:
 #         permissions = ()
 
-#     def __str__(self):
-#         return guess_name(self)
 
