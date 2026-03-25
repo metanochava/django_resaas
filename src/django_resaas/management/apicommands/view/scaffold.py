@@ -211,11 +211,7 @@ def build_model(module, model, fields, extra_perms):
             lines.append(f'            ("{p}", "Can {p} {model}"),')
         lines.append("        ]")
 
-    lines.append(f"""
-    def __str__(self):
-        return f'{{guess_name(self)}}'
-    """)
-
+   
     
 
 
