@@ -18,6 +18,7 @@ from django_resaas.data.user.serializers.user import UserSerializer
 from django_resaas.data.entidade.serializers.entidade import EntidadeSerializer
 from django_resaas.data.sucursal.serializers.sucursal import SucursalSerializer
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
+from django_resaas.data.pessoa.serializers import PessoaSerializer
 
 
 
