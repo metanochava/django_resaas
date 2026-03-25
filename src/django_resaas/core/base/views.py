@@ -20,6 +20,11 @@ from django_resaas.core.base.registry import VIEW_REGISTRY
 from django_resaas.models.entidade_modulo import EntidadeModulo
 
 
+from .mixins.view.select import SelectMixin
+from django_resaas.core.utils import build_select_data
+
+
+
 # -----------------------------------
 # 🔍 SEARCH BUILDER
 # -----------------------------------
@@ -77,7 +82,7 @@ def registerView(name=None, module=None):
 # 🚀 BASE API VIEW
 # -----------------------------------
 
-class BaseAPIView(ModelViewSet):
+class BaseAPIView(SelectMixin, ModelViewSet):
 
 
     """
@@ -277,3 +282,21 @@ class BaseAPIView(ModelViewSet):
         instance.hard_delete()
 
         return ok(request, "Apagado para sempre com sucesso")
+
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # 🔥 SELECT MODE (NÃO ALTERA NADA DO RESTO)
+        if self.is_select_mode():
+            page = self.paginate_queryset(queryset)
+
+            if page is not None:
+                data = build_select_data(page)
+                return self.get_paginated_response(data)
+
+            data = build_select_data(queryset)
+            return Response(data)
+
+        # 🔥 comportamento normal (inalterado)
+        return super().list(request, *args, **kwargs)
