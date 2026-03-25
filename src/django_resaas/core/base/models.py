@@ -4,7 +4,7 @@ import uuid
 # good
 from django.utils import timezone
 import os 
-from .help.mixins.label_value import LabelValueMixin
+from .mixins.model.label_value import LabelValueMixin
 
 
 def file_path(instance, file_name, pasta=""):
