@@ -4,6 +4,7 @@ import uuid
 # good
 from django.utils import timezone
 import os 
+from .help.mixins.label_value import LabelValueMixin
 
 
 def file_path(instance, file_name, pasta=""):
@@ -22,6 +23,7 @@ def file_path(instance, file_name, pasta=""):
         f"{instance.id}/{unique_name}"
     )
     
+
 class SoftDeleteQuerySet(models.QuerySet):
     def alive(self):
         return self.filter(deleted_at__isnull=True)
@@ -82,7 +84,7 @@ class SoftBaseModel(models.Model):
     def hard_delete(self):
         super().delete()
 
-class TimeModel(SoftBaseModel):
+class TimeModel(LabelValueMixin,SoftBaseModel):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
