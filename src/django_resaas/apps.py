@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-class DjangoSaasConfig(AppConfig):
+class DjangoResaasConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = "django_resaas"
     verbose_name = "Django SaaS"

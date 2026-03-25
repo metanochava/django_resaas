@@ -52,7 +52,7 @@ class ModuloScaffoldService:
         p = module_path / 'templates' / name
         p.mkdir(parents=True)
 
-        (module_path / "__init__.py").write_text(f"""default_app_config = "{clean_file_name(name)}.apps.RhConfig"\n 
+        (module_path / "__init__.py").write_text(f"""default_app_config = "{clean_file_name(name)}.apps.{clean_class_name(name)}Config"\n 
         """)
 
         cls._create_apps(name, module_path)
