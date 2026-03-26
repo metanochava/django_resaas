@@ -8,7 +8,7 @@ from django_resaas.core.base.models import TimeModel
 def documento_path(instance, file_name):
     return f'{instance.tipo_entidade.nome}/{instance.nome}/{file_name}'
 
-class TipoDocumento(models.Model):
+class TipoDocumento(TimeModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nome = models.CharField(max_length=200)
     detalhes = models.CharField(max_length=200)
@@ -17,7 +17,6 @@ class TipoDocumento(models.Model):
         return self.nome
 
 class Documento(TimeModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     tipo = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
     numero = models.CharField(max_length=100)
