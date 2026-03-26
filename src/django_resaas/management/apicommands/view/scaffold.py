@@ -469,7 +469,6 @@ class ScaffoldAPIView(ViewSet):
         init_file = os.path.join(BASE_DIR, module_path, "models", "__init__.py")
 
         line = f"from {module_path}.models.{clean_file_name(model_name)} import {model_name}\n"
-        # line = f"from .{clean_file_name(model_name)} import *\n"
 
         if os.path.exists(init_file):
             with open(init_file, "r") as f:
@@ -504,6 +503,8 @@ class ScaffoldAPIView(ViewSet):
 
 
         fobjs = [Field(**f) for f in fields]
+
+        print(module, model)
 
         # write_file(models_dir(module)/f"{clean_file_name(model)}.py",  build_model(module, model, fobjs, perms))
 
