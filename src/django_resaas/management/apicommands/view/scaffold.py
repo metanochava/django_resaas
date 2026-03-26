@@ -227,7 +227,7 @@ def file_path(instance, file_name):
 def build_serializer(module, model, fields):
     imports = [
         "from django_resaas.core.base.serializers import BaseSerializer",
-        f"from {module}.models.{clean_file_name(model)} import {model}",
+        f"from {module}.models.{clean_file_name(model)} import {clean_class_name(model)}",
         "from rest_framework import serializers",
     ]
 
@@ -239,11 +239,11 @@ def build_serializer(module, model, fields):
             rel_module, rel_model = f["relation"].split(".")
 
             if rel_module.startswith('django_resaas'):
-                nested_imports.append(f"from {rel_module}.models.{clean_file_name(rel_model)} import {rel_model}")
-                nested_imports.append(f"from {rel_module}.data.{clean_file_name(rel_model)}.serializers.{clean_file_name(rel_model)} import {rel_model}Serializer")
+                nested_imports.append(f"from {rel_module}.models.{clean_file_name(rel_model)} import {clean_class_name(rel_model)}")
+                nested_imports.append(f"from {rel_module}.data.{clean_file_name(rel_model)}.serializers.{clean_file_name(rel_model)} import {clean_class_name(rel_model)}Serializer")
             else: 
-                nested_imports.append(f"from {rel_module}.models.{clean_file_name(rel_model)} import {rel_model}")
-                nested_imports.append(f"from {rel_module}.serializers.{clean_file_name(rel_model)} import {rel_model}Serializer")
+                nested_imports.append(f"from {rel_module}.models.{clean_file_name(rel_model)} import {clean_class_name(rel_model)}")
+                nested_imports.append(f"from {rel_module}.serializers.{clean_file_name(rel_model)} import {clean_class_name(rel_model)}Serializer")
 
             # FK / OneToOne
             if f["type"] in ["ForeignKey", "OneToOneField"]:
