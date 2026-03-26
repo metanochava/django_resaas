@@ -1,7 +1,7 @@
 # =========================
 # Django
 # =========================
-from django_resaas.core.base.admin import BaseAdmin
+from django_resaas.core.base.admin import BaseAdmin, all_fields
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
@@ -51,15 +51,13 @@ admin.site.site_title = 'Django Rest SaaS'
 admin.site.index_title = 'Django Rest SaaS'
 
 
-def all_fields(model):
-    return [field.name for field in model._meta.fields]
 
 @admin.register(TipoDocumento)
-class TipoDocumentoAdmin(admin.ModelAdmin):
+class TipoDocumentoAdmin(BaseAdmin):
     list_display = ('nome', 'detalhes')
     
 @admin.register(Documento)
-class DocumentoAdmin(admin.ModelAdmin):
+class DocumentoAdmin(BaseAdmin):
     list_display = ('tipo', 'numero', 'data_emissao', 'data_validade')
     list_filter = ('tipo',)
 
@@ -244,5 +242,7 @@ class ModeloExtraAdmin(BaseAdmin):
 @admin.register(Modulo)
 class ModuloAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+
+
 
 
