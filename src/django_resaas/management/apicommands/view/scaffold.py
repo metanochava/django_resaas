@@ -514,15 +514,11 @@ class ScaffoldAPIView(ViewSet):
 
         fobjs = [Field(**f) for f in fields]
 
-        write_file(models_dir(module)/f"{clean_file_name(model)}.py",
-                   build_model(module, model, fobjs, perms))
+        # write_file(models_dir(module)/f"{clean_file_name(model)}.py",  build_model(module, model, fobjs, perms))
 
-        write_file(serializers_dir(module)/f"{clean_file_name(model)}.py",
-                   build_serializer(module, model, fields))
+        write_file(serializers_dir(module)/f"{clean_file_name(model)}.py", build_serializer(module, model, fields))
 
-
-        write_file(views_dir(module)/f"{clean_file_name(model)}.py",
-                   build_view(module, model))
+        write_file(views_dir(module)/f"{clean_file_name(model)}.py", build_view(module, model))
 
         update_sidebar(module, model, icon, crud)
         update_admin(module, model)
