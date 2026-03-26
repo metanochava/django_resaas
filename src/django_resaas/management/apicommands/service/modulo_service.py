@@ -107,14 +107,11 @@ urlpatterns = [
     @staticmethod
     def _create_admin(name, path):
         (path / "admin.py").write_text(f"""
-from django_resaas.core.base.admin import BaseAdmin
+from django_resaas.core.base.admin import BaseAdmin, all_fields
 from django.contrib import admin
 
 admin.site.site_title = '{clean_name(name)}'
 admin.site.index_title = '{clean_name(name)}'
-
-def all_fields(model):
-    return [field.name for field in model._meta.fields]
 
 """)
 
