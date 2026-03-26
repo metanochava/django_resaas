@@ -105,7 +105,7 @@ class TimeModel(LabelValueMixin,SoftBaseModel):
     estado = models.IntegerField(
         default=0,
         null=True,
-        choices=((0, 'Inativo'), (1, 'Ativo')),
+        choices=((0, 'Inativo'), (1, 'Activo')),
     )
     class Meta:
         abstract = True
