@@ -8,6 +8,9 @@ def restore_selected(modeladmin, request, queryset):
 def soft_delete_selected(modeladmin, request, queryset):
     queryset.soft_delete()
 
+def all_fields(model):
+    return [field.name for field in model._meta.fields]
+
 class BaseAdmin(admin.ModelAdmin):
     actions = [restore_selected, soft_delete_selected]
 
