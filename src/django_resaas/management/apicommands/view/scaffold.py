@@ -112,7 +112,7 @@ def build_model(module, model, fields, extra_perms):
 
     lines = [
         "from django.db import models",
-        "from django_resaas.core.base.models import BaseModel",
+        "from django_resaas.core.base.models import BaseModel, upload_path",
         '',
         f"class {model}(BaseModel):",
     ]
@@ -173,7 +173,7 @@ def build_model(module, model, fields, extra_perms):
 
 
         if f.type in ["ImageField", "FileField"]:
-            opts.append(f'upload_to=file_path')
+            opts.append(f'upload_to=upload_path()')
             
         if f.choices:
             choices = [
@@ -211,15 +211,6 @@ def build_model(module, model, fields, extra_perms):
             lines.append(f'            ("{p}", "Can {p} {model}"),')
         lines.append("        ]")
 
-   
-    
-
-
-    if f.type in ["ImageField", "FileField"]:  
-        lines.append(f"""
-def file_path(instance, file_name):
-    return f"{{instance.entidade.tipo_entidade.nome}}/{{instance.entidade.nome}}/{{file_name}}"
-    """)
 
     return "\n".join(lines)
 
