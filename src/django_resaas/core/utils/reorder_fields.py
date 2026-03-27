@@ -1,18 +1,16 @@
 
+
 def reorder_fields(fields, start_fields, end_fields):
-    start = []
-    middle = []
-    end = []
+    field_map = {f['name']: f for f in fields}
 
-    for f in fields:
-        name = f.get('name')
+    start = [field_map[name] for name in start_fields if name in field_map]
 
-        if name in start_fields:
-            start.append(f)
-        elif name in end_fields:
-            end.append(f)
-        else:
-            middle.append(f)
+    end = [field_map[name] for name in end_fields if name in field_map]
+
+    middle = [
+        f for f in fields
+        if f['name'] not in start_fields and f['name'] not in end_fields
+    ]
 
     return [
         *start,
