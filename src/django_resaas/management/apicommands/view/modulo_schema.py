@@ -371,6 +371,12 @@ class ModuloSchemaAPIView(ModelViewSet):
         except LookupError:
             return fail(request, "model_not_found")
 
+        # 🔥 PRIORIDADE
+        start_fields = ['id', 'nid', 'codigo', 'code', 'nome', 'name','pessoa']
+        end_fields = ['estado', 'entidade', 'sucursal', 'created_by', 'updated_by', 'created_at', 'updated_at']
+
+        fields = reorder_fields(fields, start_fields, end_fields)
+
         actions = []
 
         for m in ModeloExtra.objects.filter(modelo=model):
@@ -383,15 +389,12 @@ class ModuloSchemaAPIView(ModelViewSet):
                 'details': m.details,
             })
 
-
-        
-        
         return all(
             request,
             module=module,
             model=model,
             fields=fields,
-            actions = actions
+            actions=actions
         )
 
 
