@@ -9,7 +9,7 @@ from django_resaas.models.pessoa import Pessoa
 
 from django_resaas.data.pessoa.serializers.pessoa import PessoaSerializer
 
-class  pessoaAPIView(viewsets.ModelViewSet):
+class  PessoaAPIView(viewsets.ModelViewSet):
 
     filter_backends = (filters.SearchFilter,)
     
