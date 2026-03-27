@@ -55,6 +55,7 @@ from django_resaas.data.ficheiro.views.ficheiro import FicheiroAPIView
 from django_resaas.data.permission.views.permission import PermissionAPIView
 from django_resaas.data.modelo.views.modelo import ModeloAPIView
 from django_resaas.data.user.views.user import UserAPIView
+from django_resaas.data.pessoa.views.pessoa import PessoaAPIView
 from django_resaas.data.theme.views.theme import ThemeAPIView
 from django_resaas.data.layout_setting.views.layout_setting import LayoutSettingAPIView
 from django_resaas.management.apicommands.view.scaffold import ScaffoldAPIView
@@ -85,6 +86,8 @@ routerdjango_resaas.register("tipoentidades", TipoEntidadeAPIView, basename="tip
 routerdjango_resaas.register("entidades", EntidadeAPIView, basename="entidades")
 routerdjango_resaas.register("sucursals", SucursalAPIView, basename="sucursais")
 routerdjango_resaas.register("users", UserAPIView, basename="users")
+routerdjango_resaas.register("pessoas", PessoaAPIView, basename="pessoas")
+
 routerauth.register("groups", GrupoAPIView, basename="groups")
 routerauth.register("permissions", PermissionAPIView, basename="permissions")
 routerdjango_resaas.register("modelos", ModeloAPIView, basename="modelos")
