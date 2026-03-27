@@ -22,7 +22,7 @@ from rest_framework.decorators import action
 # 📦 Local (django_resaas)
 from django_resaas.core.base.views import registerView
 from django_resaas.core.base.permissions import hasPermission
-from django_resaas.core.utils import ok, fail, warn, all, clean_name
+from django_resaas.core.utils import ok, fail, warn, all, clean_name, reorder_fields
 from django_resaas.models.modelo_extra import ModeloExtra
 from django_resaas.management.apicommands.service.modulo_service import ModuloScaffoldService
 
@@ -373,7 +373,7 @@ class ModuloSchemaAPIView(ModelViewSet):
 
         # 🔥 PRIORIDADE
         start_fields = ['id', 'nid', 'codigo', 'code', 'nome', 'name','pessoa']
-        end_fields = ['estado', 'entidade', 'sucursal', 'created_by', 'updated_by', 'created_at', 'updated_at']
+        end_fields = ['estado', 'entidade', 'sucursal', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted_at']
 
         fields = reorder_fields(fields, start_fields, end_fields)
 
