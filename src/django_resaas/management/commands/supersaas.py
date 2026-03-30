@@ -86,7 +86,7 @@ class Command(BaseCommand):
             "tipo_entidade": "SaaS",
             "entidade": "Mytech",
             "sucursal": "Sede",
-            "grupo": ["Guest", "SuperAdmin", "Admin"],
+            "grupo": ["Guest", "root", "Admin"],
         }
 
         # ------------------------

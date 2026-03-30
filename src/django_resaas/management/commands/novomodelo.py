@@ -28,7 +28,7 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(model)
         perms = Permission.objects.filter(content_type=content_type)
 
-        group, _ = Group.objects.get_or_create(name="SuperAdmin")
+        group, _ = Group.objects.get_or_create(name="root")
         group.permissions.add(*perms)
 
     def get_models_from_module(self, module):
