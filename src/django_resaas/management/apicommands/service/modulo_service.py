@@ -150,7 +150,7 @@ admin.site.index_title = '{clean_name(name)}'
             model="sidebar",
         )
 
-        admin_group, _ = Group.objects.get_or_create(name="SuperAdmin")
+        admin_group, _ = Group.objects.get_or_create(name="root")
         perm, _ = Permission.objects.get_or_create(
             codename=f"view_{clean_file_name(name)}_dashboard",
             content_type=ct,

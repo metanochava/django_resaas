@@ -328,7 +328,7 @@ def ensure_permissions(module, model, extras):
             defaults={"name": f"Can {p['method']}_{p['permission']} {model}"}
         )
 
-    group, _ = Group.objects.get_or_create(name="SuperAdmin")
+    group, _ = Group.objects.get_or_create(name="root")
     group.permissions.add(*Permission.objects.filter(content_type=ct))
 
 
