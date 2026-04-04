@@ -38,6 +38,7 @@ class Entidade(TimeModel):
     disc_free_space = models.FloatField(default=1048576.0, null=True)
 
     class Meta:
+        route="view_entidade"
         permissions = ()
 
     def save(self, *args, **kwargs):
