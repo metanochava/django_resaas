@@ -91,7 +91,7 @@ routerdjango_resaas.register("tipodocumentos", TipoDocumentoAPIView, basename="t
 routerdjango_resaas.register("documentos", DocumentoAPIView, basename="documentos")
 
 
-routerdjango_resaas.register("sucursalusergroups", SucursalUserGrupoAPIView, basename="sucursalusergroups")
+routerdjango_resaas.register("sucursalusergroups", SucursalUserGroupAPIView, basename="sucursalusergroups")
 routerdjango_resaas.register("sucursalusers", SucursalUserAPIView, basename="sucursalusers")
 
 routerdjango_resaas.register("tipoentidades", TipoEntidadeAPIView, basename="tipo_entidades")
