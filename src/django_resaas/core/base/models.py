@@ -112,13 +112,13 @@ class TimeModel(LabelValueMixin,SoftBaseModel):
 
 class BaseModel(TimeModel):
     entidade = models.ForeignKey(
-        "Entidade",
+        "django_resaas.Entidade",
         on_delete=models.CASCADE,
         related_name="%(class)s_entidade"
     )
 
     sucursal = models.ForeignKey(
-        "Sucursal",
+        "django_resaas.Sucursal",
         on_delete=models.CASCADE,
         related_name="%(class)s_sucursal"
     )
