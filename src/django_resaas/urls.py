@@ -48,6 +48,12 @@ from django_resaas.data.entidade.views.site import SiteAPIView
 from django_resaas.data.tipo_entidade.views.tipo_entidade import TipoEntidadeAPIView
 from django_resaas.data.group.views.grupo import GrupoAPIView
 from django_resaas.data.sucursal.views.sucursal import SucursalAPIView
+from django_resaas.data.sucursal_user.views.sucursal_user import SucursalUserAPIView
+from django_resaas.data.sucursal_user_group.views.sucursal_user_group import SucursalUserGroupAPIView
+from django_resaas.data.documento.views.documento import DocumentoAPIView
+from django_resaas.data.tipo_documento.views.tipo_documento import TipoDocumentoAPIView
+
+
 
 from django_resaas.data.traducao.views.traducao import TraducaoAPIView
 from django_resaas.data.idioma.views.idioma import IdiomaAPIView
@@ -81,6 +87,12 @@ routerdjango_resaas.register("idiomas", IdiomaAPIView, basename="idiomas")
 routerdjango_resaas.register("traducaos", TraducaoAPIView, basename="traducaos")
 routerdjango_resaas.register("themes", ThemeAPIView, basename="themes")
 routerdjango_resaas.register("layoutsettings", LayoutSettingAPIView, basename="layoutsettings")
+routerdjango_resaas.register("tipodocumentos", TipoDocumentoAPIView, basename="tipodocumentos")
+routerdjango_resaas.register("documentos", DocumentoAPIView, basename="documentos")
+
+
+routerdjango_resaas.register("sucursalusergroups", SucursalUserGrupoAPIView, basename="sucursalusergroups")
+routerdjango_resaas.register("sucursalusers", SucursalUserAPIView, basename="sucursalusers")
 
 routerdjango_resaas.register("tipoentidades", TipoEntidadeAPIView, basename="tipo_entidades")
 routerdjango_resaas.register("entidades", EntidadeAPIView, basename="entidades")

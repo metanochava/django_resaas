@@ -97,14 +97,20 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        transformer = self.get_object()
-        entidade = EntidadeSerializer(transformer, data=request.data)
+        partial = request.method == 'PATCH'
 
-        if entidade.is_valid(raise_exception=True):
-            entidade.save()
-            return Response(entidade.data, status=status.HTTP_201_CREATED)
+        instance = self.get_object()
 
-        return Response(entidade.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(
+            instance,
+            data=request.data,
+            partial=partial
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         tipo_entidade_id = request.headers.get('ET')
