@@ -1,8 +1,7 @@
 from django.db import models
 
 from django_resaas.models.user import User
-from django_resaas.models.entidade import Entidade
-from django_resaas.models.sucursal import Sucursal
+
 from django_resaas.core.base.models import TimeModel
 
 class AuditLog(TimeModel):
