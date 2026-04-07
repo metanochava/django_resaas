@@ -395,7 +395,9 @@ class ModuloSchemaAPIView(ModelViewSet):
             model=model,
             fields=fields,
             actions=actions,
-            route=getattr(Model, "route", f"view_{Model._meta.model_name}")
+            config= {
+                'route': getattr(Model, "route", f"view_{Model._meta.model_name}")
+            }
         )
 
 
