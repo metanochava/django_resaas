@@ -12,6 +12,4 @@ class BaseSerializer(
     FileFieldsMixin,
     RepresentationMixin,
     serializers.ModelSerializer
-):
-    label_field = None
-    value_field = "id"
+): pass

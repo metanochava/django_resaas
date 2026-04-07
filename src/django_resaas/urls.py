@@ -102,8 +102,9 @@ routerdjango_resaas.register("pessoas", PessoaAPIView, basename="pessoas")
 
 routerauth.register("groups", GrupoAPIView, basename="groups")
 routerauth.register("permissions", PermissionAPIView, basename="permissions")
+
 routerdjango_resaas.register("modelos", ModeloAPIView, basename="modelos")
-routerdjango_resaas.register("modulos", ModuloSchemaAPIView, basename="modulos")
+routerdjango_resaas.register("resaas_modulos", ModuloSchemaAPIView, basename="resaas_modulos")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
 
 
