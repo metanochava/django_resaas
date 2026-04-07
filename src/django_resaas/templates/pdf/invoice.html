@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      max-height: 70px;
+    }
+
+    .title {
+      text-align: right;
+    }
+
+    .title h1 {
+      margin: 0;
+      color: #027be3;
+    }
+
+    .section {
+      margin-bottom: 15px;
+    }
+
+    .box {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th {
+      background: #027be3;
+      color: white;
+      padding: 8px;
+      text-align: left;
+    }
+
+    td {
+      padding: 6px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .right {
+      text-align: right;
+    }
+
+    .totals {
+      margin-top: 20px;
+      width: 300px;
+      float: right;
+    }
+
+    .totals td {
+      border: none;
+      padding: 5px;
+    }
+
+    .grand-total {
+      font-size: 14px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 11px;
+      text-align: center;
+      color: #777;
+    }
+
+    .qr, .barcode {
+      margin-top: 10px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      {% if logo_b64 %}
+        <img src="data:image/png;base64,{{ logo_b64 }}">
+      {% endif %}
+    </div>
+
+    <div class="title">
+      <h1>{{ doc.type }}</h1>
+      <div>Nº: {{ doc.number }}</div>
+      <div>Data: {{ doc.date }}</div>
+      <div>Vencimento: {{ doc.due_date }}</div>
+    </div>
+  </div>
+
+  <!-- COMPANY & CUSTOMER -->
+  <div class="section row">
+    <div class="box" style="width:48%;">
+      <strong>Emitente</strong><br>
+      {{ company.name }}<br>
+      NIF: {{ company.nif }}<br>
+      {{ company.address }}<br>
+      {{ company.phone }}<br>
+      {{ company.email }}
+    </div>
+
+    <div class="box" style="width:48%;">
+      <strong>Cliente</strong><br>
+      {{ customer.name }}<br>
+      NIF: {{ customer.nif }}<br>
+      {{ customer.address }}<br>
+      {{ customer.phone }}<br>
+      {{ customer.email }}
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>Produto</th>
+        <th>SKU</th>
+        <th>Qtd</th>
+        <th>Preço</th>
+        <th>IVA %</th>
+        <th class="right">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for l in lines %}
+      <tr>
+        <td>{{ l.name }}</td>
+        <td>{{ l.sku }}</td>
+        <td>{{ l.qty }}</td>
+        <td>{{ l.unit_price }}</td>
+        <td>{{ l.vat_rate }}%</td>
+        <td class="right">{{ l.total }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- TOTALS -->
+  <table class="totals">
+    <tr>
+      <td>Subtotal:</td>
+      <td class="right">{{ totals.subtotal }}</td>
+    </tr>
+    <tr>
+      <td>IVA:</td>
+      <td class="right">{{ totals.vat_total }}</td>
+    </tr>
+    <tr>
+      <td>Desconto:</td>
+      <td class="right">{{ totals.discount_total }}</td>
+    </tr>
+    <tr class="grand-total">
+      <td>Total:</td>
+      <td class="right">{{ totals.grand_total }}</td>
+    </tr>
+  </table>
+
+  <!-- PAYMENT -->
+  <div style="clear: both;"></div>
+
+  <div class="section">
+    <strong>Método de Pagamento:</strong> {{ doc.payment_method }}<br>
+    <strong>Referência:</strong> {{ doc.reference }}
+  </div>
+
+  <!-- QR + BARCODE -->
+  <div class="row">
+    <div class="qr">
+      {% if qr_b64 %}
+        <img src="data:image/png;base64,{{ qr_b64 }}" width="100">
+      {% endif %}
+    </div>
+
+    <div class="barcode">
+      {% if barcode_b64 %}
+        <img src="data:image/png;base64,{{ barcode_b64 }}" height="50">
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="section">
+    <strong>Notas:</strong><br>
+    {{ doc.notes }}
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Documento gerado automaticamente pelo sistema
+  </div>
+
+</body>
+</html>
