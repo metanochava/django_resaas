@@ -715,5 +715,6 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
         qr_b64 = make_qr_b64(f"{doc['type']}|{doc['number']}|TOTAL:{totals['grand_total']}")
         barcode_b64 = make_barcode_b64(doc["number"])
+        
 
         return PDF("pdf/invoice.html", request,  company= company, customer= customer, doc= doc, lines= lines, totals= totals, logo_b64= logo_b64, qr_b64= qr_b64, barcode_b64= barcode_b64,)
