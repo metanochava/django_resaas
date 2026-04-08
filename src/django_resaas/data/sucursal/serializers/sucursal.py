@@ -3,13 +3,10 @@ from rest_framework import serializers
 
 
 from django_resaas.models.sucursal import Sucursal
+from django_resaas.core.base.serializers import BaseSerializer
 
 
-class SucursalSerializer(serializers.ModelSerializer):
+class SucursalSerializer(BaseSerializer):
     class Meta:
         model = Sucursal
-        fields = [
-            'id',
-            'nome',
-            'entidade',
-        ]
+        fields = "__all_"
