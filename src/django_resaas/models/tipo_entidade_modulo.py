@@ -10,6 +10,10 @@ class TipoEntidadeModulo(TimeModel):
             
         )
 
+    class RESAAS:
+        label_field = "tipo_entidade.nome"
+        # route="view_entidade"
+        
     def __str__(self):
         return str(self.tipo_entidade.nome) + "  |  " + str(self.modulo.nome)
 

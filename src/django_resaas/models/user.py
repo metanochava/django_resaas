@@ -112,6 +112,11 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
         verbose_name_plural = "Users"
         permissions = ()
 
+
+    class RESAAS:
+        label_field = "username"
+        route="view_user"
+
     def __str__(self):
         return self.username
 

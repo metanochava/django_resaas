@@ -25,6 +25,9 @@ class TipoEntidade(TimeModel):
     class Meta:
         permissions = ()
 
+    class RESAAS:
+        label_field = "nome"
+        route="view_tipoentidade"
     def __str__(self):
         return self.nome
 

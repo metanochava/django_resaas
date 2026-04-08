@@ -73,6 +73,10 @@ class Pessoa(TimeModel):
             models.Index(fields=['nome']),
             models.Index(fields=['email']),
         ]
+    
+    class RESAAS:
+        label_field = "nome"
+        route="view_pessoa"
 
     def save(self, *args, **kwargs):
         # 🔥 Gera nome completo automaticamente

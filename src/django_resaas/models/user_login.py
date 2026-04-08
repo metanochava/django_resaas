@@ -17,5 +17,9 @@ class UserLogin(TimeModel):
     class Meta:
         permissions = ()
 
+    class RESAAS:
+        label_field = "user.username"
+        route="view_entidade"
+
     def __str__(self):
         return self.dispositivo or ''

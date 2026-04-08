@@ -11,6 +11,10 @@ class TipoEntidadeGroup(TimeModel):
             
         )
 
+    class RESAAS:
+        label_field = "name"
+        # route="view_entidade"
+
     def __str__(self):
         return str(self.group.name)
 

@@ -23,6 +23,8 @@ class Endereco(TimeModel):
         verbose_name = 'Endereço'
         verbose_name_plural = 'Endereços'
         permissions = ()
+    class RESAAS:
+        label_field = "provincia"
         
 
     def __str__(self):

@@ -125,6 +125,10 @@ class LayoutSetting(TimeModel):
     class Meta:
         verbose_name = 'LayoutSetting'
         verbose_name_plural = 'LayoutSettings'
+
+    class RESAAS:
+        label_field = "nome"
+        # route="view_entidade"
     
     def __str__(self):
         return self.nome

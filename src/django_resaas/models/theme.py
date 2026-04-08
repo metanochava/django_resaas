@@ -115,6 +115,10 @@ class Theme(TimeModel):
         verbose_name_plural = 'Themes'
         permissions = ()
 
+    class RESAAS:
+        label_field = "nome"
+        # route="view_entidade"
+
     def to_dict(self):
         return {
 

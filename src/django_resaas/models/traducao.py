@@ -12,5 +12,9 @@ class Traducao(TimeModel):
     class Meta:
         permissions = ()
 
+    class RESAAS:
+        label_field = "idioma"
+        route="view_traducao"
+
     def __str__(self):
         return self.chave or ''

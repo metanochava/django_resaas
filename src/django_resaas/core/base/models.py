@@ -55,7 +55,7 @@ class AllObjectsManager(models.Manager):
         return SoftDeleteQuerySet(self.model, using=self._db)
 
 
-class SoftBaseModel(models.Model):
+class SoftBaseModel(LabelValueMixin, models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,7 +84,7 @@ class SoftBaseModel(models.Model):
     def hard_delete(self):
         super().delete()
 
-class TimeModel(LabelValueMixin,SoftBaseModel):
+class TimeModel(SoftBaseModel):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,

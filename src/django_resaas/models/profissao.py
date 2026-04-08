@@ -9,3 +9,7 @@ class Profissao(TimeModel):
 
     def __str__(self):
         return self.nome
+    
+    class RESAAS:
+        label_field = "nome"
+        # route="view_entidade"

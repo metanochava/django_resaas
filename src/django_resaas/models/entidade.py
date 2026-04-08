@@ -15,7 +15,7 @@ def logo_path(instance, file_name):
 
 
 class Entidade(TimeModel):
-    route="view_entidade"
+    
     nome = models.CharField(max_length=100, null=True, default='-')
     site = models.CharField(max_length=300, null=True, default='-')
     logo = models.FileField(upload_to=logo_path, default='logo.png', blank=True)
@@ -39,7 +39,10 @@ class Entidade(TimeModel):
 
     class Meta:
         permissions = ()
-
+    class RESAAS:
+        label_field = "nome"
+        route="view_entidade"
+        
     def save(self, *args, **kwargs):
         if self.disc_free_space is None or self.disc_free_space > self.disc_space:
             self.disc_free_space = self.disc_space - self.disc_used_space
