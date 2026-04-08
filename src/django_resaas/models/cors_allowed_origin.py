@@ -5,3 +5,5 @@ class CorsAllowedOrigin(TimeModel):
     origin = models.URLField(unique=True)
     def __str__(self):
         return self.origin
+    class RESAAS:
+        label_field = "origin"

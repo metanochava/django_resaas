@@ -9,12 +9,5 @@ class AuditLog(TimeModel):
     action = models.CharField(max_length=50)
     model = models.CharField(max_length=105)
     object_id = models.CharField(max_length=100)
-
-
-
-class Testee(TimeModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    latitude = models.DecimalField(
-        max_digits=9, decimal_places=6, null=True, blank=True
-    )
+    class RESAAS:
+        label_field = "nome"

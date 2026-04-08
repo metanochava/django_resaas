@@ -12,4 +12,7 @@ class BaseSerializer(
     FileFieldsMixin,
     RepresentationMixin,
     serializers.ModelSerializer
-): pass
+): 
+    permanent_fields_files = []
+    label_field = None
+    value_field = "id"

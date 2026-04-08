@@ -13,6 +13,10 @@ class ModeloExtra(TimeModel):
     class Meta:
         permissions = ()
 
+    class RESAAS:
+        label_field = "modelo"
+        # route="view_entidade"
+
     def __str__(self):
         return self.modelo
 

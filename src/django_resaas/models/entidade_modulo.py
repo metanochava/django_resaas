@@ -12,6 +12,8 @@ class EntidadeModulo(TimeModel):
 
     class Meta:
         permissions = ()
+    class RESAAS:
+        label_field = "entidade.nome"
 
     def __str__(self):
         return f'{self.entidade.nome} | {self.modulo.nome}'

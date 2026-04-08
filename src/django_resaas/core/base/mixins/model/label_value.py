@@ -8,10 +8,11 @@ LABEL_KEYS = (
 
 
 class LabelValueMixin:
-    label_field = None
-    value_field = "id"
 
-    # 🔹 helper (suporta nested apenas se definido manualmente)
+    class RESAAS:
+        label_field = None
+        value_field = "id"
+
     def _get_attr(self, path):
         obj = self
         for attr in path.split("."):
@@ -22,20 +23,24 @@ class LabelValueMixin:
 
     # 🔥 LABEL
     def get_label(self):
+        resaas = getattr(self, "RESAAS", None)
+
+        label_field = getattr(resaas, "label_field", None)
+
         # 1️⃣ prioridade manual
-        if self.label_field:
-            val = self._get_attr(self.label_field)
+        if label_field:
+            val = self._get_attr(label_field)
             if val not in (None, ""):
                 return str(val)
 
-        # 2️⃣ auto-detect (somente campos diretos)
+        # 2️⃣ auto-detect
         for key in LABEL_KEYS:
             if hasattr(self, key):
                 val = getattr(self, key, None)
                 if val not in (None, ""):
                     return str(val)
 
-        # 3️⃣ fallback final
+        # 3️⃣ fallback
         if hasattr(self, "id") and self.id:
             return f"{self.__class__.__name__} {self.id}"
 
@@ -43,8 +48,12 @@ class LabelValueMixin:
 
     # 🔥 VALUE
     def get_value(self):
-        if self.value_field:
-            val = self._get_attr(self.value_field)
+        resaas = getattr(self, "RESAAS", None)
+
+        value_field = getattr(resaas, "value_field", "id")
+
+        if value_field:
+            val = self._get_attr(value_field)
             if val is not None:
                 return val
 

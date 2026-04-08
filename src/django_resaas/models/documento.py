@@ -12,12 +12,13 @@ class TipoDocumento(TimeModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     nome = models.CharField(max_length=200)
     detalhes = models.CharField(max_length=200)
+    class RESAAS:
+        label_field = "nome"
 
     def __str__(self):
         return self.nome
 
 class Documento(TimeModel):
-
     tipo = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE)
     numero = models.CharField(max_length=100)
 
@@ -32,6 +33,7 @@ class Documento(TimeModel):
 
     class Meta:
         unique_together = ('tipo', 'numero')
-
+    class RESAAS:
+        label_field = "numero"
     def __str__(self):
         return f"{self.tipo.nome} - {self.numero}"

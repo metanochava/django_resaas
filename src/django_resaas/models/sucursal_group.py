@@ -11,5 +11,9 @@ class SucursalGroup(TimeModel):
         unique_together = ("sucursal", "group")
         permissions = ()
 
+    class RESAAS:
+        label_field = "sucursal.nome"
+        # route="view_entidade"
+
     def __str__(self):
         return f'{self.sucursal.nome} | {self.group.name}'

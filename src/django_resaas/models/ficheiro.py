@@ -22,5 +22,7 @@ class Ficheiro(TimeModel):
     class Meta:
         permissions = ()
 
+
+
     def __str__(self):
         return self.ficheiro.name if self.ficheiro else ''
