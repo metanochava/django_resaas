@@ -13,6 +13,10 @@ class LabelValueMixin:
         label_field = None
         value_field = "id"
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._resaas = getattr(cls, "RESAAS", None)
+
     def _get_attr(self, path):
         obj = self
         for attr in path.split("."):
@@ -21,34 +25,29 @@ class LabelValueMixin:
                 return None
         return obj
 
-    # 🔥 LABEL
     def get_label(self):
-        resaas = getattr(self, "RESAAS", None)
+        resaas = getattr(self.__class__, "_resaas", None)
 
         label_field = getattr(resaas, "label_field", None)
 
-        # 1️⃣ prioridade manual
         if label_field:
             val = self._get_attr(label_field)
             if val not in (None, ""):
                 return str(val)
 
-        # 2️⃣ auto-detect
         for key in LABEL_KEYS:
             if hasattr(self, key):
                 val = getattr(self, key, None)
                 if val not in (None, ""):
                     return str(val)
 
-        # 3️⃣ fallback
         if hasattr(self, "id") and self.id:
             return f"{self.__class__.__name__} {self.id}"
 
         return self.__class__.__name__
 
-    # 🔥 VALUE
     def get_value(self):
-        resaas = getattr(self, "RESAAS", None)
+        resaas = getattr(self.__class__, "_resaas", None)
 
         value_field = getattr(resaas, "value_field", "id")
 
@@ -59,6 +58,5 @@ class LabelValueMixin:
 
         return getattr(self, "id", None)
 
-    # 🔥 STRING SAFE
     def __str__(self):
         return self.get_label()
