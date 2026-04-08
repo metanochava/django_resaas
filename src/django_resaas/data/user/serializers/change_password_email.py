@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from django_resaas.core.utils.translate import Translate
 from django_resaas.models.user import User
-from django_resaas.data.user.serializers.login import LoginSerializer
+
 
 
 class ChangePasswordEmailAPIView(generics.GenericAPIView):

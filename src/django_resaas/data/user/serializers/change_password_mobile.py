@@ -6,7 +6,6 @@ from rest_framework.response import Response
 import pyotp
 
 from .models import User
-from .serializers import ResetPasswordEmailRequestSerializer
 from .classes.translate import Translate
 from .utils.generateKeyOTP import generateKeyOTP
 
