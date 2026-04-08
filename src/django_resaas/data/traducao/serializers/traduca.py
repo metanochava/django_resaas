@@ -2,8 +2,8 @@ from rest_framework import serializers
 
 from django_resaas.models.traducao import Traducao
 
-
-class TraducaoSerializer(serializers.ModelSerializer):
+from django_resaas.core.base.serializers import BaseSerializer
+class TraducaoSerializer(BaseSerializer):
     class Meta:
         model = Traducao
-        fields = ['id', 'chave', 'traducao', 'idioma']
+        fields = "__all__"
