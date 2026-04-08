@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 import uuid
-# good
 from django.utils import timezone
 import os 
 from .mixins.model.label_value import LabelValueMixin
@@ -13,16 +12,18 @@ def file_path(instance, file_name, pasta=""):
 
     pasta = pasta.strip("/")
 
+    instance_id = instance.id or uuid.uuid4()
+
     return (
         f"{instance.entidade.tipo_entidade.id}/"
         f"{instance.entidade.id}/"
-        f"{instance.id}/"
+        f"{instance_id}/"
         f"{pasta}/{unique_name}" if pasta else
         f"{instance.entidade.tipo_entidade.id}/"
         f"{instance.entidade.id}/"
-        f"{instance.id}/{unique_name}"
+        f"{instance_id}/{unique_name}"
     )
-    
+
 
 class SoftDeleteQuerySet(models.QuerySet):
     def alive(self):
@@ -32,10 +33,11 @@ class SoftDeleteQuerySet(models.QuerySet):
         return self.filter(deleted_at__isnull=False)
 
     def soft_delete(self):
-        return self.update( deleted_at=timezone.now())
+        now = timezone.now()
+        return self.update(deleted_at=now, updated_at=now)
 
     def restore(self):
-        return self.update( deleted_at=None)
+        return self.update(deleted_at=None)
 
     def hard_delete(self):
         return super().delete()
@@ -44,6 +46,7 @@ class SoftDeleteQuerySet(models.QuerySet):
 class SoftDeleteManager(models.Manager):
     def get_queryset(self):
         return SoftDeleteQuerySet(self.model, using=self._db).alive()
+
 
 class DeletedManager(models.Manager):
     def get_queryset(self):
@@ -61,28 +64,42 @@ class SoftBaseModel(LabelValueMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
 
-    objects = SoftDeleteManager()      # só ativos
-    all_objects = AllObjectsManager()  # tudo (ativos + apagados)
-    deleted_objects = DeletedManager()  #  só apagados
+    objects = SoftDeleteManager()
+    all_objects = AllObjectsManager()
+    deleted_objects = DeletedManager()
 
     class Meta:
         abstract = True
 
-
     def delete(self, using=None, keep_parents=False, user=None):
         self.deleted_at = timezone.now()
-        if user:
+
+        if user and hasattr(self, "updated_by"):
             self.updated_by = user
-        self.save(update_fields=["deleted_at", "updated_by"])
+
+        fields = ["deleted_at"]
+
+        if hasattr(self, "updated_by"):
+            fields.append("updated_by")
+
+        self.save(update_fields=fields)
 
     def restore(self, user=None):
         self.deleted_at = None
-        if user:
+
+        if user and hasattr(self, "updated_by"):
             self.updated_by = user
-        self.save(update_fields=["deleted_at", "updated_by"])
+
+        fields = ["deleted_at"]
+
+        if hasattr(self, "updated_by"):
+            fields.append("updated_by")
+
+        self.save(update_fields=fields)
 
     def hard_delete(self):
         super().delete()
+
 
 class TimeModel(SoftBaseModel):
     created_by = models.ForeignKey(
@@ -91,7 +108,6 @@ class TimeModel(SoftBaseModel):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="%(class)s_created",
-        
     )
 
     updated_by = models.ForeignKey(
@@ -104,11 +120,12 @@ class TimeModel(SoftBaseModel):
     
     estado = models.IntegerField(
         default=0,
-        null=True,
         choices=((0, 'Inativo'), (1, 'Activo')),
     )
+
     class Meta:
         abstract = True
+
 
 class BaseModel(TimeModel):
     entidade = models.ForeignKey(
@@ -123,9 +140,5 @@ class BaseModel(TimeModel):
         related_name="%(class)s_sucursal"
     )
 
-
     class Meta:
         abstract = True
-
-
-

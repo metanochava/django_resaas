@@ -34,7 +34,9 @@ logger = logging.getLogger(__name__)
 # ==========================================================
 
 LABEL_KEYS = ("nome", "name", "title", "descricao", "description", "label", "codigo", "code", "numero", "num", "id")
-
+def get_route(Model):
+    resaas = getattr(Model, "_resaas", None)
+    return getattr(resaas, "route", f"view_{Model._meta.model_name}")
 
 def _normalize_model_name(model: str) -> str:
     """
@@ -356,6 +358,7 @@ class ModuloSchemaAPIView(ModelViewSet):
             "count": qs.count()
         })
 
+
     # ======================================================
     # GET /api/django_resaas/modulo/<module>/<model>/schema/
     # lista campos detalhados
@@ -396,7 +399,7 @@ class ModuloSchemaAPIView(ModelViewSet):
             fields=fields,
             actions=actions,
             config= {
-                'route': getattr(Model, "route", f"view_{Model._meta.model_name}")
+                'route': get_route(Model)
             }
         )
 
@@ -439,7 +442,7 @@ class RelationsAPIView(APIView):
 
         qs = qs.order_by("-id")[:50]
 
-        rows = [{"id": o.pk, "label": _guess_label_value(o)} for o in qs]
+        rows = [{"id": o.pk, "value": o.pk, "label": _guess_label_value(o)} for o in qs]
         return Response(rows, status=200)
 
 
