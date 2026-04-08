@@ -1,4 +1,4 @@
-# utils/pdf_assets.py
+
 import base64
 from io import BytesIO
 from django.conf import settings
