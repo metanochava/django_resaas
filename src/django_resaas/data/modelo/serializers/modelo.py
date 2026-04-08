@@ -1,13 +1,9 @@
 from rest_framework import serializers
 
 from django.contrib.contenttypes.models import ContentType
+from django_resaas.core.base.serializers import BaseSerializer
 
-
-class ModeloSerializer(serializers.ModelSerializer):
+class ModeloSerializer(BaseSerializer):
     class Meta:
         model = ContentType
-        fields = [
-            "id",
-            "app_label",
-            "model",
-        ]
+        fields = "__all__"
