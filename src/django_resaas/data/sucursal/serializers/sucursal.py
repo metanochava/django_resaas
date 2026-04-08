@@ -9,4 +9,4 @@ from django_resaas.core.base.serializers import BaseSerializer
 class SucursalSerializer(BaseSerializer):
     class Meta:
         model = Sucursal
-        fields = "__all_"
+        fields = "__all__"
