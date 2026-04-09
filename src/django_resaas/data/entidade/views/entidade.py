@@ -115,52 +115,98 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        tipo_entidade_id = request.headers.get('ET')
+        data = request.data.copy()
+        user = request.user
+        tipo_entidade_id = request.tipo_entidade
 
-        if self.request.query_params.get('selfRegist') == 'self':
-            request.data['tipo_entidade'] = tipo_entidade_id
-            request.data['admin'] = request.user.id
+        # ------------------------
+        # 🔥 SELF REGISTER
+        # ------------------------
+        if request.query_params.get('selfRegist') == 'self':
+            data['tipo_entidade'] = tipo_entidade_id
+            data['admin'] = user.id
 
-        entidade = EntidadeGravarSerializer(data=request.data)
-        entidade.is_valid(raise_exception=True)
-        entidade_save = entidade.save()
+        # ------------------------
+        # 🔥 VALIDAR E CRIAR ENTIDADE
+        # ------------------------
+        serializer = EntidadeGravarSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        entidade = serializer.save()
 
-        EntidadeUser.objects.create(
-            user=request.user,
-            entidade=entidade_save
+        # ------------------------
+        # 🔥 TIPO ENTIDADE
+        # ------------------------
+        tipo_entidade, _ = TipoEntidade.objects.get_or_create(
+            id=tipo_entidade_id,
+            defaults={"estado": 1}
         )
 
-        tipo_entidade = TipoEntidade.objects.filter(
-            id=entidade_save.tipo_entidade.id
-        ).first()
+        # ------------------------
+        # 🔥 RELAÇÃO USER ↔ ENTIDADE
+        # ------------------------
+        entidade.admins.add(user)
 
-        for group in tipo_entidade.groups.all():
-            entidade_save.groups.add(group)
+        EntidadeUser.objects.get_or_create(
+            user=user,
+            entidade=entidade
+        )
 
+        # ------------------------
+        # 🔥 GRUPO BASE
+        # ------------------------
+        grupo, _ = Group.objects.get_or_create(name="Admin")
+        user.groups.add(grupo)
+
+        # ------------------------
+        # 🔥 HERDAR GRUPOS DO TIPO ENTIDADE
+        # ------------------------
+        for g in tipo_entidade.groups.all():
+            entidade.groups.add(g)
+            user.groups.add(g)
+
+        # ------------------------
+        # 🔥 SUCURSAL PRINCIPAL
+        # ------------------------
         sucursal = Sucursal.objects.create(
-            nome=f"{entidade_save.nome} Sede",
-            entidade=entidade_save,
+            nome=f"{entidade.nome} Sede",
+            entidade=entidade,
             icon='...',
             label='...'
         )
 
-        SucursalUser.objects.create(
-            user=request.user,
+        # ------------------------
+        # 🔥 RELAÇÃO USER ↔ SUCURSAL
+        # ------------------------
+        SucursalUser.objects.get_or_create(
+            user=user,
             sucursal=sucursal
         )
 
-        user = User.objects.filter(id=request.user.id).first()
-        for group in tipo_entidade.groups.all():
-            sucursal.groups.add(group)
-            user.groups.add(group)
+        # ------------------------
+        # 🔥 GRUPOS NA SUCURSAL
+        # ------------------------
+        for g in tipo_entidade.groups.all():
+            sucursal.groups.add(g)
 
-            SucursalUserGroup.objects.create(
-                group=group,
-                user=request.user,
-                sucursal=sucursal
+            SucursalUserGroup.objects.get_or_create(
+                user=user,
+                sucursal=sucursal,
+                group=g
             )
 
-        return Response(entidade.data, status=status.HTTP_201_CREATED)
+        # ------------------------
+        # 🔥 RESPONSE
+        # ------------------------
+        return ok(
+            request,
+            "Entidade criada com sucesso",
+            tipo_entidade=tipo_entidade.nome,
+            entidade=entidade.nome,
+            sucursal=sucursal.nome,
+            grupo=grupo.name,
+            usuario=user.username,
+            status=status.HTTP_201_CREATED
+        )
 
     @action(detail=True, methods=['GET'])
     def sucursals(self, request, *args, **kwargs):

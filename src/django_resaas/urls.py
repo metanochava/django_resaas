@@ -22,7 +22,7 @@ from rest_framework import routers
 
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from django_resaas.data.bootstrap.views.bootstrap import TenantAPIView
+
 
 
 # ─────────────────────────────
@@ -127,7 +127,6 @@ urlpatterns = [
 
     path("site/", SiteAPIView.as_view(), name="site"),
 
-    path("setup/", TenantAPIView.as_view(), name="setup"),
     path("login/", LoginAPIView.as_view(), name="login"),
     path("logout/", LogoutAPIView.as_view(), name="logout"),
     path("me/", MeAPIView.as_view(), name="me"),
