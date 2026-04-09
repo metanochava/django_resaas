@@ -14,7 +14,8 @@ from django_resaas.models.sucursal_user_group import SucursalUserGroup
 
 from django_resaas.core.utils.translate import Translate
 
-
+ 
+ 
 class TenantAPIView(APIView):
     """
     Bootstrap inicial:
