@@ -28,6 +28,7 @@ class SiteAPIView(APIView):
             .first()
         )
 
+
         if not entidade:
             return all(request, Origin="Desconhecida")
 
