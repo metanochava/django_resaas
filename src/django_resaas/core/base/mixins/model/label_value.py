@@ -12,6 +12,8 @@ class LabelValueMixin:
     class RESAAS:
         label_field = None
         value_field = "id"
+        crud = True
+        routes= {}
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -24,6 +26,8 @@ class LabelValueMixin:
             if obj is None:
                 return None
         return obj
+
+        
 
     def get_label(self):
         resaas = getattr(self.__class__, "_resaas", None)

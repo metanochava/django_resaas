@@ -39,9 +39,16 @@ class Entidade(TimeModel):
 
     class Meta:
         permissions = ()
+
     class RESAAS:
         label_field = "nome"
-        route="view_entidade"
+        crud = True
+        routes={
+            'list': "add_entidade",
+            'view': "view_entidade",
+            'add': "add_entidade",
+            'change': "change_entidade"
+        }
         
     def save(self, *args, **kwargs):
         if self.disc_free_space is None or self.disc_free_space > self.disc_space:
