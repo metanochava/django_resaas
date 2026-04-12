@@ -36,8 +36,17 @@ logger = logging.getLogger(__name__)
 LABEL_KEYS = ("nome", "name", "title", "descricao", "description", "label", "codigo", "code", "numero", "num", "id")
 def get_route(Model):
     resaas = getattr(Model, "_resaas", None)
-    return getattr(resaas, "route", f"view_{Model._meta.model_name}")
+    return getattr(resaas, "routes",  {
+        'list': f"list_{Model._meta.model_name}",
+        'add': f"add_{Model._meta.model_name}",
+        'change': f"change_{Model._meta.model_name}",
+        'view': f"view_{Model._meta.model_name}"
+        })
 
+def get_crud(Model):
+    resaas = getattr(Model, "_resaas", None)
+    return getattr(resaas, "crud",  True)
+ 
 def _normalize_model_name(model: str) -> str:
     """
     Aceita: Entidade | entidade | ENTIDADE
@@ -399,8 +408,9 @@ class ModuloSchemaAPIView(ModelViewSet):
             fields=fields,
             actions=actions,
             config= {
-                'route': get_route(Model)
-            }
+                'crud': get_crud(Model),
+                'routes': get_route(Model)
+            } 
         )
 
 
