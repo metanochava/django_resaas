@@ -250,11 +250,11 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- RELATIONS ----------------
     elif ftype in ["ForeignKey", "OneToOneField"]:
-        component = "select"
+        component = "q-select"
         ui["isRelation"] = True
 
     elif ftype == "ManyToManyField":
-        component = "multiselect"
+        component = "q-multiselect"
         ui["isRelation"] = True
 
     # ---------------- BOOLEAN ----------------
