@@ -217,6 +217,16 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
     return rules
 
 
+def _get_resaas_field_config(field_obj):
+    Model = field_obj.model
+    resaas = getattr(Model, "RESAAS", None)
+    if not resaas:
+        return {}
+
+    fields = getattr(resaas, "fields", {}) or {}
+    return fields.get(field_obj.name, {})
+
+
 # ==========================================================
 # UI RESOLVER (🔥 BONUS SEM ALTERAR LÓGICA)
 # ==========================================================
@@ -229,12 +239,14 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
     if ftype == "FileField":
         component = "file"
         ui["isFile"] = True
-        props["accept"] = "*"
+        cfg = _get_resaas_field_config(field_obj)
+        props["accept"] = cfg.get("accept", "*")
 
     elif ftype == "ImageField":
         component = "image"
         ui["isImage"] = True
-        props["accept"] = "image/*"
+        cfg = _get_resaas_field_config(field_obj)
+        props["accept"] = cfg.get("accept", "image/*")
 
     # ---------------- RELATIONS ----------------
     elif ftype in ["ForeignKey", "OneToOneField"]:
@@ -372,6 +384,7 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
 
         # limpa keys None pra ficar bonito
         payload = {k: v for k, v in payload.items() if v is not None}
+
         # 🔥 RULES
         rules = _build_rules(payload, ftype)
         if rules:
