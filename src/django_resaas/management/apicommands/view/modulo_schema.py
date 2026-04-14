@@ -162,6 +162,137 @@ def _extract_min_max_from_validators(validators) -> Tuple[Optional[float], Optio
 
     return min_v, max_v, min_len, max_len_v
 
+# ==========================================================
+# RULES BUILDER (🔥 validação automática)
+# ==========================================================
+def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
+    rules = []
+
+    # ---------------- REQUIRED ----------------
+    if payload.get("required"):
+        rules.append({
+            "type": "required",
+            "message": "Campo obrigatório"
+        })
+
+    # ---------------- MIN LENGTH ----------------
+    if payload.get("min_length") is not None:
+        rules.append({
+            "type": "min_length",
+            "value": payload["min_length"],
+            "message": f"Mínimo {payload['min_length']} caracteres"
+        })
+
+    # ---------------- MAX LENGTH ----------------
+    if payload.get("max_length") is not None:
+        rules.append({
+            "type": "max_length",
+            "value": payload["max_length"],
+            "message": f"Máximo {payload['max_length']} caracteres"
+        })
+
+    # ---------------- MIN VALUE ----------------
+    if payload.get("min") is not None:
+        rules.append({
+            "type": "min",
+            "value": payload["min"],
+            "message": f"Valor mínimo {payload['min']}"
+        })
+
+    # ---------------- MAX VALUE ----------------
+    if payload.get("max") is not None:
+        rules.append({
+            "type": "max",
+            "value": payload["max"],
+            "message": f"Valor máximo {payload['max']}"
+        })
+
+    # ---------------- EMAIL ----------------
+    if ftype == "EmailField":
+        rules.append({
+            "type": "email",
+            "message": "Email inválido"
+        })
+
+    return rules
+
+
+# ==========================================================
+# UI RESOLVER (🔥 BONUS SEM ALTERAR LÓGICA)
+# ==========================================================
+def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
+    ui = {}
+    component = "q-input"
+    props = {}
+
+    # ---------------- FILE ----------------
+    if ftype == "FileField":
+        component = "file"
+        ui["isFile"] = True
+        props["accept"] = "*"
+
+    elif ftype == "ImageField":
+        component = "image"
+        ui["isImage"] = True
+        props["accept"] = "image/*"
+
+    # ---------------- RELATIONS ----------------
+    elif ftype in ["ForeignKey", "OneToOneField"]:
+        component = "select"
+        ui["isRelation"] = True
+
+    elif ftype == "ManyToManyField":
+        component = "multiselect"
+        ui["isRelation"] = True
+
+    # ---------------- BOOLEAN ----------------
+    elif ftype == "BooleanField":
+        component = "q-toggle"
+
+    # ---------------- NUMBERS ----------------
+    elif ftype in ["IntegerField", "FloatField", "DecimalField"]:
+        component = "q-input"
+        props["type"] = "number"
+
+        if payload.get("min") is not None:
+            props["min"] = payload["min"]
+
+        if payload.get("max") is not None:
+            props["max"] = payload["max"]
+
+    # ---------------- TEXT (🔥 EDITOR) ----------------
+    elif ftype == "TextField":
+        component = "q-editor"
+        ui["isRichText"] = True
+
+        props["toolbar"] = [
+            ["bold", "italic", "underline"],
+            ["quote", "unordered", "ordered"],
+            ["link"],
+            ["undo", "redo"]
+        ]
+        props["minHeight"] = "150px"
+
+    # ---------------- CHAR ----------------
+    elif ftype == "CharField":
+        component = "q-input"
+
+        if payload.get("max_length"):
+            props["maxlength"] = payload["max_length"]
+
+        if payload.get("min_length"):
+            props["minlength"] = payload["min_length"]
+
+    result = {
+        "component": component,
+        "ui": ui,
+    }
+
+    if props:
+        result["props"] = props
+
+    return result
+
 
 def _schema_fields(Model) -> List[Dict[str, Any]]:
     """
@@ -241,6 +372,13 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
 
         # limpa keys None pra ficar bonito
         payload = {k: v for k, v in payload.items() if v is not None}
+        # 🔥 RULES
+        rules = _build_rules(payload, ftype)
+        if rules:
+            payload["rules"] = rules
+
+        ui_data = _resolve_ui(field_obj, ftype, payload)
+        payload.update(ui_data)
 
         out.append(payload)
 
