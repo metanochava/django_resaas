@@ -49,6 +49,15 @@ class Entidade(TimeModel):
             'add': "add_entidade",
             'change': "change_entidade"
         }
+
+        # 🔥 CONFIG DE CAMPOS (AQUI QUE IMPORTA)
+        fields = {
+            "logo": {
+                "accept": ".png,.jpg,.jpeg,.svg",
+                "max_size": 2 * 1024 * 1024,  # 2MB
+                "multiple": False
+            }
+        }
         
     def save(self, *args, **kwargs):
         if self.disc_free_space is None or self.disc_free_space > self.disc_space:
