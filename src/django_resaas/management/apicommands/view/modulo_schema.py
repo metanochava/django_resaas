@@ -237,13 +237,13 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- FILE ----------------
     if ftype == "FileField":
-        component = "file"
+        component = "q-file"
         ui["isFile"] = True
         cfg = _get_resaas_field_config(field_obj)
         props["accept"] = cfg.get("accept", "*")
 
     elif ftype == "ImageField":
-        component = "image"
+        component = "q-image"
         ui["isImage"] = True
         cfg = _get_resaas_field_config(field_obj)
         props["accept"] = cfg.get("accept", "image/*")
