@@ -117,7 +117,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         user = request.user
-        tipo_entidade_id = request.tipo_entidade
+        tipo_entidade_id = request.tipo_entidade_id
 
         # ------------------------
         # 🔥 SELF REGISTER
