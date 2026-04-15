@@ -22,7 +22,8 @@ from rest_framework.decorators import action
 # 📦 Local (django_resaas)
 from django_resaas.core.base.views import registerView
 from django_resaas.core.base.permissions import hasPermission
-from django_resaas.core.utils import ok, fail, warn, all, clean_name, reorder_fields
+from django_resaas.core.utils import ok, fail, warn, all, clean_name, reorder_fields, clean_class_name
+from django_resaas.models.modulo import Modulo
 from django_resaas.models.modelo_extra import ModeloExtra
 from django_resaas.management.apicommands.service.modulo_service import ModuloScaffoldService
 
@@ -453,7 +454,7 @@ class ModuloSchemaAPIView(ModelViewSet):
         shutil.rmtree(module_path)
 
         ModuloScaffoldService._remove_from_settings(name)
-
+        Modulo.objects.get(nome=name).delete()
         return ok(request, "module_deleted_success")
 
     def create(self, request):
@@ -467,7 +468,7 @@ class ModuloSchemaAPIView(ModelViewSet):
 
         try:
             path = ModuloScaffoldService.create(name)
-
+            modulo, _ = Modulo.objects.get_or_create(nome=clean_class_name(name), defaults={"estado": 1})
             return ok(
                 request,
                 "modulo created success",
