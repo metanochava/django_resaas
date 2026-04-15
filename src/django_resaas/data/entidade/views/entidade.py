@@ -28,9 +28,12 @@ from django_resaas.models.entidade_user import EntidadeUser
 from django_resaas.models.ficheiro import Ficheiro
 from django_resaas.models.sucursal import Sucursal
 from django_resaas.models.sucursal_user import SucursalUser
+from django_resaas.models.sucursal_group import SucursalGroup
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 from django_resaas.models.tipo_entidade import TipoEntidade
+from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup
 from django_resaas.models.entidade_modelo import EntidadeModelo
+from django_resaas.models.entidade_group import EntidadeGroup
 from django_resaas.models.user import User
 
 from django_resaas.data.entidade.serializers.entidade import EntidadeSerializer
@@ -160,9 +163,13 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         # ------------------------
         # 🔥 HERDAR GRUPOS DO TIPO ENTIDADE
         # ------------------------
-        for g in tipo_entidade.groups.all():
-            entidade.groups.add(g)
-            user.groups.add(g)
+        for te in TipoEntidadeGroup.objects.filter(tipo_entidade = tipo_entidade_id ):
+
+            EntidadeGroup.objects.get_or_create(
+                entidade = entidade,
+                group = te.group
+            )
+            user.groups.add(te.group)
 
         # ------------------------
         # 🔥 SUCURSAL PRINCIPAL
@@ -185,13 +192,17 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         # ------------------------
         # 🔥 GRUPOS NA SUCURSAL
         # ------------------------
-        for g in tipo_entidade.groups.all():
-            sucursal.groups.add(g)
+        for e in EntidadeGroup.objects.filter(entidade = entidade.id ):
+
+            SucursalGroup.objects.get_or_create(
+                sucursal=sucursal,
+                group=e.group
+            )
 
             SucursalUserGroup.objects.get_or_create(
                 user=user,
                 sucursal=sucursal,
-                group=g
+                group=e.group
             )
 
         # ------------------------

@@ -33,6 +33,7 @@ from django_resaas.models.sucursal_group import SucursalGroup
 from django_resaas.models.tipo_entidade import TipoEntidade
 from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
 from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
+from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup
 from django_resaas.models.entidade_modelo import EntidadeModelo
 from django_resaas.models.ficheiro import Ficheiro
 from django_resaas.models.user_login import UserLogin
@@ -232,6 +233,13 @@ class TipoEntidadeModuloAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id', 'tipo_entidade', 'modulo')
     search_fields = ['tipo_entidade', 'modulo']
+
+
+@admin.register(TipoEntidadeGroup)
+class TipoEntidadeGroupAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id', 'tipo_entidade', 'group')
+    search_fields = ['tipo_entidade', 'group']
 
 @admin.register(ModeloExtra)
 class ModeloExtraAdmin(BaseAdmin):
