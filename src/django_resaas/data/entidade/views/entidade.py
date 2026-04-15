@@ -32,6 +32,7 @@ from django_resaas.models.sucursal_group import SucursalGroup
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 from django_resaas.models.tipo_entidade import TipoEntidade
 from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup
+from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
 from django_resaas.models.entidade_modelo import EntidadeModelo
 from django_resaas.models.entidade_group import EntidadeGroup
 from django_resaas.models.user import User
@@ -119,15 +120,14 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
-        user = request.user
-        tipo_entidade_id = request.tipo_entidade_id
-
+        
         # ------------------------
         # 🔥 SELF REGISTER
         # ------------------------
         if request.query_params.get('selfRegist') == 'self':
-            data['tipo_entidade'] = tipo_entidade_id
-            data['admin'] = user.id
+            data['tipo_entidade'] = request.tipo_entidade_id
+            data['admins'][0] = request.user.id
+
 
         # ------------------------
         # 🔥 VALIDAR E CRIAR ENTIDADE
@@ -139,71 +139,75 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         # ------------------------
         # 🔥 TIPO ENTIDADE
         # ------------------------
-        tipo_entidade, _ = TipoEntidade.objects.get_or_create(
-            id=tipo_entidade_id,
-            defaults={"estado": 1}
+        tipo_entidade = TipoEntidade.objects.get(
+            id=entidade.tipo_entidade.id
         )
 
-        # ------------------------
-        # 🔥 RELAÇÃO USER ↔ ENTIDADE
-        # ------------------------
-        entidade.admins.add(user)
-
-        EntidadeUser.objects.get_or_create(
-            user=user,
-            entidade=entidade
-        )
-
-        # ------------------------
-        # 🔥 GRUPO BASE
-        # ------------------------
-        grupo, _ = Group.objects.get_or_create(name="Admin")
-        user.groups.add(grupo)
-
-        # ------------------------
-        # 🔥 HERDAR GRUPOS DO TIPO ENTIDADE
-        # ------------------------
-        for te in TipoEntidadeGroup.objects.filter(tipo_entidade = tipo_entidade_id ):
-
-            EntidadeGroup.objects.get_or_create(
-                entidade = entidade,
-                group = te.group
-            )
-            user.groups.add(te.group)
-
-        # ------------------------
-        # 🔥 SUCURSAL PRINCIPAL
-        # ------------------------
-        sucursal = Sucursal.objects.create(
-            nome=f"{entidade.nome} Sede",
-            entidade=entidade,
-            icon='...',
-            label='...'
-        )
-
-        # ------------------------
-        # 🔥 RELAÇÃO USER ↔ SUCURSAL
-        # ------------------------
-        SucursalUser.objects.get_or_create(
-            user=user,
-            sucursal=sucursal
-        )
-
-        # ------------------------
-        # 🔥 GRUPOS NA SUCURSAL
-        # ------------------------
-        for e in EntidadeGroup.objects.filter(entidade = entidade.id ):
-
-            SucursalGroup.objects.get_or_create(
-                sucursal=sucursal,
-                group=e.group
+        for te in TipoEntidadeModulo.objects.filter(tipo_entidade=tipo_entidade):
+            entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
+                modulo=te.modulo,
+                entidade=entidade,
+                defaults={"estado": 1}
             )
 
-            SucursalUserGroup.objects.get_or_create(
+        for u in data['admins']:
+            user = User.objects.get(id = u)
+           
+            # ------------------------
+            # 🔥 RELAÇÃO USER ↔ ENTIDADE
+            # ------------------------
+            entidade.admins.add(user)
+
+            EntidadeUser.objects.get_or_create(
                 user=user,
-                sucursal=sucursal,
-                group=e.group
+                entidade=entidade
             )
+         
+            # ------------------------
+            # 🔥 HERDAR GRUPOS DO TIPO ENTIDADE
+            # ------------------------
+            for te in TipoEntidadeGroup.objects.filter(tipo_entidade = entidade.tipo_entidade.id ):
+
+                EntidadeGroup.objects.get_or_create(
+                    entidade = entidade,
+                    group = te.group
+                )
+                user.groups.add(te.group)
+
+            # ------------------------
+            # 🔥 SUCURSAL PRINCIPAL
+            # ------------------------
+            sucursal = Sucursal.objects.create(
+                nome=f"{entidade.nome} Sede",
+                entidade=entidade,
+                icon='...',
+                label='...'
+            )
+
+            # ------------------------
+            # 🔥 RELAÇÃO USER ↔ SUCURSAL
+            # ------------------------
+            SucursalUser.objects.get_or_create(
+                user=user,
+                sucursal=sucursal
+            )
+
+            # ------------------------
+            # 🔥 GRUPOS NA SUCURSAL
+            # ------------------------
+            for e in EntidadeGroup.objects.filter(entidade = entidade.id ):
+
+                SucursalGroup.objects.get_or_create(
+                    sucursal=sucursal,
+                    group=e.group
+                )
+
+                SucursalUserGroup.objects.get_or_create(
+                    user=user,
+                    sucursal=sucursal,
+                    group=e.group
+                )
+            
 
         # ------------------------
         # 🔥 RESPONSE
@@ -214,7 +218,6 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             tipo_entidade=tipo_entidade.nome,
             entidade=entidade.nome,
             sucursal=sucursal.nome,
-            grupo=grupo.name,
             usuario=user.username,
             status=status.HTTP_201_CREATED
         )

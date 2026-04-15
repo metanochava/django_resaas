@@ -63,7 +63,6 @@ class ModuloScaffoldService:
         cls._alocate_modulo(name)
 
         
-
         return str(module_path)
 
     # =========================
