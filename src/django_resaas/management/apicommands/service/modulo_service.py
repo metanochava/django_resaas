@@ -33,6 +33,8 @@ class ModuloScaffoldService:
         name = cls.clean(name)
         name = name.lower()
 
+        cls._alocate_modulo(name)
+
         base = Path(settings.BASE_DIR)
         module_path = base / name
 
@@ -60,7 +62,7 @@ class ModuloScaffoldService:
         cls._create_sidebar(name, module_path)
         cls._create_admin(name, module_path)
         cls._add_to_settings(name)
-        cls._alocate_modulo(name)
+
 
         
         return str(module_path)
