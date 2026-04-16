@@ -440,7 +440,7 @@ class ModuloSchemaAPIView(ModelViewSet):
 
     @hasPermission("delete_modulo")
     def destroy(self, request, pk=None):
-        name = pk
+        name = pk.lower()
         self._ensure_dev(request)
 
         module_path = Path(settings.BASE_DIR) / name
