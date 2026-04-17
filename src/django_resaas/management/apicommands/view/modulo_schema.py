@@ -466,9 +466,21 @@ class ModuloSchemaAPIView(ModelViewSet):
 
         if not name:
             return fail(request, "module_name_required")
-
         try:
             path = ModuloScaffoldService.create_back(name)
+            return ok(
+                request,
+                "modulo created success",
+                path=path
+            )
+
+        except Exception as e:
+            return fail(
+                request,
+                "module_creation_failed \n "+ str(e),
+            )
+
+        try:
             ModuloScaffoldService.create_front(name)
             return ok(
                 request,
@@ -479,7 +491,7 @@ class ModuloSchemaAPIView(ModelViewSet):
         except Exception as e:
             return fail(
                 request,
-                "module_creation_failed  ch4\n "+ str(e),
+                "ERROOOOOU \n "+ str(e),
             )
 
 
