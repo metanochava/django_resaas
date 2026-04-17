@@ -25,7 +25,7 @@ class ModuloScaffoldService:
     }
 
     TEMPLATE_FRONT = {
-        ".": ["__init__.py"],
+        "meta": ["__init__.py"],
     }
 
     # =========================
@@ -78,7 +78,6 @@ class ModuloScaffoldService:
         name = cls.clean(name)
         name = name.lower()
 
-        cls._alocate_modulo(name)
 
         base = Path(settings.BASE_DIR)
         module_path = base.parent / 'front' / 'src' / 'pages' / name
@@ -99,6 +98,7 @@ class ModuloScaffoldService:
         (module_path / "routes.js").write_text(f"""\n""")
 
         cls._add_route(name)
+        print(module_path)
 
         return str(module_path)
 
@@ -250,13 +250,14 @@ SUBMENUS = [
     def _add_route(app_name: str):
 
         base = Path(settings.BASE_DIR)
-        router_file = base.parent / 'front' / 'src' / 'router' / 'router.js'
+        router_file = base.parent / 'front' / 'src' / 'router' / 'routes.js'
+        print(router_file)
 
         if not router_file.exists():
             raise CommandError(f"Arquivo não encontrado: {router_file}")
 
         text = router_file.read_text(encoding="utf-8")
-
+        print(text)
         # 🔥 nomes
         app_name = app_name.lower()
         route_var = f"{app_name}Routes"
