@@ -305,7 +305,7 @@ SUBMENUS = [
     def _remove_route(app_name: str):
 
         base = Path(settings.BASE_DIR)
-        router_file = base.parent / 'front' / 'src' / 'router' / 'router.js'
+        router_file = base.parent / 'front' / 'src' / 'router' / 'routes.js'
 
         if not router_file.exists():
             raise CommandError(f"Arquivo não encontrado: {router_file}")
