@@ -32,7 +32,7 @@ class ModuloScaffoldService:
     # PUBLIC
     # =========================
     @classmethod
-    def create(cls, name: str):
+    def create_back(cls, name: str):
 
         name = cls.clean(name)
         name = name.lower()
