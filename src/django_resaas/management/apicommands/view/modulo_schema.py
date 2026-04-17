@@ -468,8 +468,8 @@ class ModuloSchemaAPIView(ModelViewSet):
             return fail(request, "module_name_required")
 
         try:
-            path = ModuloScaffoldService.create_front(name)
             path = ModuloScaffoldService.create(name)
+            ModuloScaffoldService.create_front(name)
             return ok(
                 request,
                 "modulo created success",
