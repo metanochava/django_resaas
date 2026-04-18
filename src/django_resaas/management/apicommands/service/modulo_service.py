@@ -130,7 +130,6 @@ export let {name}Routes = [
         """)
 
         cls._add_route(name)
-        print(module_path)
 
         return str(module_path)
 

@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Dict, Any
 
+from  ..service.modelo_service import build_view_front_list, remove_route, add_route, build_view_front_save_edit, build_view_front_view, build_view_front_Store, build_view_front_Routes
+
+
 # =========================================================
 import sys
 import importlib
@@ -36,13 +39,16 @@ from io import StringIO
 # =========================================================
 
 BASE_DIR = Path(settings.BASE_DIR)
+def module_path_front(name): return BASE_DIR.parent / 'front' / 'src' / 'pages' / name
+
+def module_path(name): return BASE_DIR / name
+def models_dir(name): return module_path(name) / "models"
+def serializers_dir(name): return module_path(name) / "serializers"
+def views_dir(name): return module_path(name) / "views"
+def services_dir(name): return module_path(name) / "services"
 
 
-def module_path(m): return BASE_DIR / m
-def models_dir(m): return module_path(m) / "models"
-def serializers_dir(m): return module_path(m) / "serializers"
-def views_dir(m): return module_path(m) / "views"
-def services_dir(m): return module_path(m) / "services"
+
 
 
 def write_file(path: Path, content: str):
@@ -504,20 +510,27 @@ class ScaffoldAPIView(ViewSet):
 
         fobjs = [Field(**f) for f in fields]
 
-        print(module, model)
-
-        # write_file(models_dir(module)/f"{clean_file_name(model)}.py",  build_model(module, model, fobjs, perms))
-
+        write_file(models_dir(module)/f"{clean_file_name(model)}.py",  build_model(module, model, fobjs, perms))
         write_file(serializers_dir(module)/f"{clean_file_name(model)}.py", build_serializer(module, model, fields))
-
         write_file(views_dir(module)/f"{clean_file_name(model)}.py", build_view(module, model))
 
         update_sidebar(module, model, icon, crud)
         update_admin(module, model)
         self.update_models_init(module, model)
         reload_app_models(module)
-        
+
+
+        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_class_name(model)}LPage.vue",  build_view_front_list(module, model))
+        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_class_name(model)}SEPage.vue",  build_view_front_save_edit(module, model))
+        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_class_name(model)}VPage.vue",  build_view_front_view(module, model))
+        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_file_name(model)}Store.js",  build_view_front_Store(module, model))
+        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_file_name(model)}Routes.js",  build_view_front_Routes(module, model))
+
+        add_route(module, model)
+
         return ok(request, 'Modelo Criado com sucesso', status=201, out='migrate')
+
+        
 
     @action(detail=False, methods=["post"])
     def migrate(self, request):
