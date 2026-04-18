@@ -140,8 +140,7 @@ class  SucursalAPIView(viewsets.ModelViewSet):
 
         TIME_ZONE = 'UTC'
         settings.LANGUAGE_CODE = 'pt-pt'
-        # django.setup()
-        print(settings.LANGUAGE_CODE)
+
 
         root = settings.MEDIA_ROOT
         lingua = self.request.query_params.get('lang')
@@ -193,14 +192,14 @@ class  SucursalAPIView(viewsets.ModelViewSet):
             logo = base64.b64encode(bytes(file))
         except Exception as e:
             logo = logo_name.split('.')[-1]
-        print(logo, logo_name, ficheiro)
+    
         
         url = origin + '/#/?s=' + sucursal.data['id'] + '&q=1' 
         var_qr['entidade'] = entidade.data['nome']
         var_qr['sucursal'] = sucursal.data['nome']
         for key, value in var_qr.items():
             url = url + '&' + key + '=' + value
-        # print(url)
+
         qr = qrcode.QRCode(box_size=2)
         qr.add_data(str(url))
         qr.make()

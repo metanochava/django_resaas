@@ -549,34 +549,10 @@ class ScaffoldAPIView(ViewSet):
         model  = clean_class_name(request.data.get("modelo") or "").strip()
         perms = request.data.get("actions")
 
-        print(module, model, perms)
 
         ensure_permissions(module, model, perms)
         
         return ok(request, 'Permicoes actualizadas', status=201)
-
-
-    # @action(detail=True, methods=["get"], url_path=r"(?P<model>[^/.]+)/migrate")
-    # def model_schema(self, request, pk=None, model=None):
-    #     print(pk, model)
-    #     out = StringIO()
-    #     sms = ''
-    #     try:
-    #         print('Criar  migracoes')
-    #         call_command("makemigrations", module, stdout=out)
-    #         print('Migracoes feitas')
-    #         call_command("migrate", stdout=out)
-    #         print('Migrado')
-    #     except Exception as e:
-    #         sms = e.message
-
-    #     if out.getvalue() == '':
-    #         sms = 'Migracoes nao feitas'
-
-    #     reload_app_models(module)
-    #     ensure_permissions(module, model, perms)
-        
-    #     return ok(request, 'Modelo Criado com sucesso', status=201, out= out.getvalue()+ sms)
 
 
     # -----------------------------------------------------

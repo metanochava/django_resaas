@@ -68,7 +68,6 @@ def build_search_query(Model, search, depth=1):
 def registerView(name=None, module=None):
     def decorator(cls):
         key = name or cls.__name__.lower().replace('apiview', '') + 's'
-        print(key, name)
         module_name = module or cls.__module__.split(".")[0]
         # 🔥 registra no registry
         VIEW_REGISTRY.setdefault(module_name, {})[key] = cls
