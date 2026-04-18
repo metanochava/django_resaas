@@ -118,7 +118,8 @@ def build_model(module, model, fields, extra_perms):
 
     lines = [
         "from django.db import models",
-        "from django_resaas.core.base.models import BaseModel, upload_path",
+        "from django_resaas.core.base.models import BaseModel",
+        "from django_resaas.core.utils import upload_path",
         '',
         f"class {model}(BaseModel):",
     ]
@@ -530,7 +531,7 @@ class ScaffoldAPIView(ViewSet):
 
         return ok(request, 'Modelo Criado com sucesso', status=201, out='migrate')
 
-        
+
 
     @action(detail=False, methods=["post"])
     def migrate(self, request):
