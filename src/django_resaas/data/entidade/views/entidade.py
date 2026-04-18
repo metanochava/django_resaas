@@ -397,7 +397,8 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             fcr.delete()
             DiskManegarService.recoverSpace(entidade.id, fcr)
         except:
-            print('Nao apgaou')
+            pass
+
     
 
         request.data['size'] = uploaded_file.size
@@ -427,8 +428,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
         TIME_ZONE = 'UTC'
         settings.LANGUAGE_CODE = 'pt-pt'
-        # django.setup()
-        print(settings.LANGUAGE_CODE)
+
 
         root = settings.MEDIA_ROOT
         lingua = self.request.query_params.get('lang')
@@ -770,7 +770,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         logo_b64 = None
         with open(entidade.logo.path, "rb") as f:
             logo_b64 = png_bytes_to_b64(f.read())
-        print(entidade.logo.path, entidade.logo)
+
 
 
         qr_b64 = make_qr_b64(f"{doc['type']}|{doc['number']}|TOTAL:{totals['grand_total']}")

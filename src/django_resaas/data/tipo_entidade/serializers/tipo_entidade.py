@@ -22,7 +22,7 @@ class TipoEntidadeSerializer(BaseSerializer):
         tietgr = []
         for teg in TipoEntidadeGroup.objects.filter(tipo_entidade__id=obj.id):
             tietgr.append({'id':teg.group.id, 'name':teg.group.name})
-        # print(tietgr)
+
 
         return tietgr
 

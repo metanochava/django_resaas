@@ -68,7 +68,6 @@ class  PermissionAPIView(viewsets.ModelViewSet):
         methods=['POST'],
     )
     def removeFromGroup(self, request, id):
-        # print(id, request.data) 
         grupo = Group.objects.get(id=request.data['id'])
         permission = Permission.objects.get(id=id)
         grupo.permissions.remove(permission)
