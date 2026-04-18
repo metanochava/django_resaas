@@ -72,12 +72,11 @@ class ModuloScaffoldService:
         return str(module_path)
 
     # =========================
-
+    @classmethod
     def create_front(cls, name: str):
 
         name = cls.clean(name)
         name = name.lower()
-
 
         base = Path(settings.BASE_DIR)
         module_path = base.parent / 'front' / 'src' / 'pages' / name
