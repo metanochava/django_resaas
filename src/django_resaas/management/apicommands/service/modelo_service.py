@@ -76,30 +76,94 @@ def build_view_front_view(module, model):
 
 
 def build_view_front_Store(module, model):
-    return """
-<template>
-  <q-page class="q-pa-sm">
-    
-  </q-page>
-</template>
+    return f"""
+import { HTTPAuth, url, createBaseStore} from 'quasar_resaas' 
 
-<script setup>
+export const use{clean_class_name(model)}tore = createBaseStore(
+  '{clean_file_name(model)}',
+  {{ url: 'api/{clean_file_name(module)}/{clean_file_name(model)}s', app: '{clean_file_name(module)}', model: '{clean_class_name(model)}' }},
+  {{
+    state: () => ({{
 
-</script>
+    }}),
+
+    getters: {{
+      actual: (state) => state.row,
+    }},
+
+    actions: {{
+
+    }},
+
+    hooks: {{
+      beforeLoad() {{
+        
+      }},
+
+      afterLoad(data) {{
+        
+      }},
+
+      beforeCreate(form) {{
+        
+      }}
+    }}
+  }}
+)
 """
 
 
 def build_view_front_Routes(module, model):
-    return """
-<template>
-  <q-page class="q-pa-sm">
-    
-  </q-page>
-</template>
+    return f"""
+import { tdc } from 'quasar_resaas'
 
-<script setup>
+export let {clean_file_name(model)}Routes = [
+  {{
+    path: '/list_{clean_file_name(model)}',
+    name: 'list_{clean_file_name(model)}',
+    component: () => import('./{clean_class_name(model)}LPage.vue'),
+    meta: {{
+      title: tdc('Vista de') + ' ' + tdc('{clean_file_name(model)}'),
+      requiresAuth: true,
+      icon: 'list',
+      requiredRole: 'list_{clean_file_name(model)}',
+    }},
+  }},
+  {{
+    path: '/add_{clean_file_name(model)}',
+    name: 'add_{clean_file_name(model)}',
+    component: () => import('./{clean_class_name(model)}SEPage.vue'),
+    meta: {{
+      title: tdc('Adicionar') + ' ' + tdc('{clean_file_name(model)}'),
+      requiresAuth: true,
+      icon: 'add',
+      requiredRole: 'add_{clean_file_name(model)}',
+    }},
+  }},
+  {{
+    path: '/change_{clean_file_name(model)}/:id',
+    name: 'change_{clean_file_name(model)}',
+    component: () => import('./{clean_class_name(model)}SEPage.vue'),
+    meta: {{
+      title: tdc('Editar') + ' ' + tdc('{clean_file_name(model)}'),
+      requiresAuth: true,
+      icon: 'edit',
+      requiredRole: 'change_{clean_file_name(model)}',
+    }},
+  }},
+  {{
+    path: '/view_{clean_file_name(model)}/:id',
+    name: 'view_{clean_file_name(model)}',
+    component: () => import('./{clean_class_name(model)}VPage.vue'),
+    meta: {{
+      title: tdc('Visualizar') + ' ' + tdc('{clean_file_name(model)}'),
+      requiresAuth: true,
+      icon: 'visibility',
+      requiredRole: 'view_{clean_file_name(model)}',
+    }},
+  }}
+]
 
-</script>
 """
 
 
