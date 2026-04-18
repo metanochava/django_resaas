@@ -454,7 +454,7 @@ class ModuloSchemaAPIView(ModelViewSet):
         shutil.rmtree(module_path)
 
         ModuloScaffoldService._remove_from_settings(name)
-        ModuloScaffoldService._remove_route(name)
+        ModuloScaffoldService.delete_front(name)
         Modulo.objects.get(nome=name).hard_delete()
         return ok(request, "module_deleted_success")
 
