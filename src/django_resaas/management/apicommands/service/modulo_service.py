@@ -25,7 +25,7 @@ class ModuloScaffoldService:
     }
 
     TEMPLATE_FRONT = {
-        ".": ["main.js"],
+        # ".": ["main.js"],
     }
 
     # =========================
