@@ -11,7 +11,7 @@ def build_view_front_list(module, model):
     return f"""
 <template>
   <q-page class="q-pa-sm">
-    <AutoCrud :module="{module}" :model="{model}" :can="User.can" :ignoreFields="ignoreFields" route="view_{model}"  />
+    <AutoCrud :module="module" :model="model" :can="User.can" :ignoreFields="ignoreFields" route="view_{clean_file_name(model)}"  />
   </q-page>
 </template>
 
@@ -108,35 +108,47 @@ def add_route(module: str, model: str):
     base = Path(settings.BASE_DIR)
     module_routes = base.parent / 'front' / 'src' / 'pages' / module / 'routes.js'
 
-    if not module_routes.exists():
-        raise CommandError(f"Arquivo não encontrado: {module_routes}")
+    model = model.lower()
+    module = module.lower()
 
+    route_var = f"{model}Routes"
+    module_var = f"{module}Routes"
+
+    import_line = f"import {{ {route_var} }} from './{model}/{model}Routes'\n"
+    spread_line = f"  ...{route_var},\n"
+
+    # =====================================
+    # CRIAR FICHEIRO SE NÃO EXISTIR
+    # =====================================
+    if not module_routes.exists():
+        module_routes.write_text(
+f"""{import_line}
+
+export let {module_var} = [
+{spread_line}]
+"""
+        )
+        return
+
+    # =====================================
+    # LER
+    # =====================================
     text = module_routes.read_text(encoding="utf-8")
 
-    model = model.lower()
-    route_var = f"{model}Routes"
-
     # =====================================
-    # 1. IMPORT
+    # IMPORT
     # =====================================
-    import_line = f"import {{ {route_var} }} from './{model}/{model}Routes'\n"
-
     if import_line not in text:
-        text = re.sub(
-            r"(import .*?\n)+",
-            lambda m: m.group(0) + import_line,
-            text,
-            count=1
-        )
+        text = import_line + text
 
     # =====================================
-    # 2. ARRAY DO MÓDULO
+    # ARRAY
     # =====================================
-    pattern = r"export\s+(const|let)\s+\w+\s*=\s*\[(.*?)\]"
+    pattern = rf"export\s+(const|let)\s+{module_var}\s*=\s*\[(.*?)\]"
     match = re.search(pattern, text, re.S)
 
     if not match:
-        raise CommandError("Array de routes do módulo não encontrado")
+        raise CommandError(f"{module_var} não encontrado")
 
     block = match.group(2)
 
@@ -144,12 +156,11 @@ def add_route(module: str, model: str):
         module_routes.write_text(text, encoding="utf-8")
         return
 
-    new_block = block.rstrip() + f"\n  ...{route_var},\n"
+    new_block = block.rstrip() + "\n" + spread_line
 
     text = text.replace(block, new_block)
 
     module_routes.write_text(text, encoding="utf-8")
-
 
 
 
@@ -160,7 +171,7 @@ def remove_route(module: str, model: str):
     module_routes = base.parent / 'front' / 'src' / 'pages' / module / 'routes.js'
 
     if not module_routes.exists():
-        raise CommandError(f"Arquivo não encontrado: {module_routes}")
+        return
 
     text = module_routes.read_text(encoding="utf-8")
 
@@ -168,16 +179,16 @@ def remove_route(module: str, model: str):
     route_var = f"{model}Routes"
 
     # =====================================
-    # 1. REMOVER IMPORT
+    # REMOVE IMPORT
     # =====================================
     text = re.sub(
-        rf"\n?import\s+\{{\s*{route_var}\s*\}}\s+from\s+['\"].*?{model}/routes['\"]\n?",
+        rf"\n?import\s+\{{\s*{route_var}\s*\}}\s+from\s+['\"].*?{model}/{model}Routes['\"]\n?",
         "\n",
         text
     )
 
     # =====================================
-    # 2. REMOVER SPREAD
+    # REMOVE SPREAD
     # =====================================
     text = re.sub(
         rf",?\s*\.\.\.{route_var}\s*,?",
@@ -186,7 +197,7 @@ def remove_route(module: str, model: str):
     )
 
     # =====================================
-    # 3. LIMPEZA
+    # LIMPEZA
     # =====================================
     text = re.sub(r",\s*,", ",", text)
     text = re.sub(r"\n\s*\n\s*\n", "\n\n", text)
