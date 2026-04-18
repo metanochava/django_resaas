@@ -71,6 +71,34 @@ class ModuloScaffoldService:
         
         return str(module_path)
 
+
+    @classmethod
+    def delete_front(cls, name: str):
+
+        name = cls.clean(name).lower()
+
+        base = Path(settings.BASE_DIR)
+        module_path = base.parent / 'front' / 'src' / 'pages' / name
+
+        # =====================================
+        # 1. VALIDAR EXISTÊNCIA
+        # =====================================
+        if not module_path.exists():
+            raise CommandError(f"Módulo '{name}' não existe")
+
+        # =====================================
+        # 2. REMOVER PASTA
+        # =====================================
+        shutil.rmtree(module_path)
+
+        # =====================================
+        # 3. REMOVER ROUTES
+        # =====================================
+        cls._remove_route(name)
+
+        return str(module_path)
+
+
     # =========================
     @classmethod
     def create_front(cls, name: str):
