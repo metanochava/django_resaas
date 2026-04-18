@@ -166,17 +166,16 @@ export let {clean_file_name(model)}Routes = [
 
 """
 
-
 def add_route(module: str, model: str):
 
     base = Path(settings.BASE_DIR)
     module_routes = base.parent / 'front' / 'src' / 'pages' / module / 'routes.js'
 
-    model = model.lower()
     module = module.lower()
+    model = model.lower()
 
-    route_var = f"{model}Routes"
     module_var = f"{module}Routes"
+    route_var = f"{model}Routes"
 
     import_line = f"import {{ {route_var} }} from './{model}/{model}Routes'\n"
     spread_line = f"  ...{route_var},\n"
@@ -194,10 +193,18 @@ export let {module_var} = [
         )
         return
 
-    # =====================================
-    # LER
-    # =====================================
     text = module_routes.read_text(encoding="utf-8")
+
+    # =====================================
+    # GARANTIR QUE EXISTE ARRAY
+    # =====================================
+    if f"export let {module_var}" not in text:
+        text = (
+            text.strip() + "\n\n" +
+f"""export let {module_var} = [
+]
+"""
+        )
 
     # =====================================
     # IMPORT
@@ -208,13 +215,14 @@ export let {module_var} = [
     # =====================================
     # ARRAY
     # =====================================
-    pattern = rf"export\s+(const|let)\s+{module_var}\s*=\s*\[(.*?)\]"
+    pattern = rf"export\s+let\s+{module_var}\s*=\s*\[(.*?)\]"
     match = re.search(pattern, text, re.S)
 
     if not match:
-        raise CommandError(f"{module_var} não encontrado")
+        module_routes.write_text(text, encoding="utf-8")
+        return
 
-    block = match.group(2)
+    block = match.group(1)
 
     if f"...{route_var}" in block:
         module_routes.write_text(text, encoding="utf-8")
@@ -225,8 +233,6 @@ export let {module_var} = [
     text = text.replace(block, new_block)
 
     module_routes.write_text(text, encoding="utf-8")
-
-
 
 
 def remove_route(module: str, model: str):
