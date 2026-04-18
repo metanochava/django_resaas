@@ -251,7 +251,7 @@ SUBMENUS = [
 
         base = Path(settings.BASE_DIR)
         router_file = base.parent / 'front' / 'src' / 'router' / 'routes.js'
-        print(router_file)
+        print(router_file) 
 
         if not router_file.exists():
             raise CommandError(f"Arquivo não encontrado: {router_file}")
