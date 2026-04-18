@@ -165,7 +165,7 @@ onMounted(async () => {{
 
 
 def build_view_front_view(module, model):
-    return """
+    return f"""
 <template>
 
   <FormSaveEdit
