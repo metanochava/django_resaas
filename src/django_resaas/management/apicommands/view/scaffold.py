@@ -521,11 +521,11 @@ class ScaffoldAPIView(ViewSet):
         reload_app_models(module)
 
 
-        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_class_name(model)}LPage.vue",  build_view_front_list(module, model))
-        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_class_name(model)}SEPage.vue",  build_view_front_save_edit(module, model))
-        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_class_name(model)}VPage.vue",  build_view_front_view(module, model))
-        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_file_name(model)}Store.js",  build_view_front_Store(module, model))
-        write_file(module_path_front(module) / clean_class_name(model) / f"{clean_file_name(model)}Routes.js",  build_view_front_Routes(module, model))
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}LPage.vue",  build_view_front_list(module, model))
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}SEPage.vue",  build_view_front_save_edit(module, model))
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}VPage.vue",  build_view_front_view(module, model))
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Store.js",  build_view_front_Store(module, model))
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Routes.js",  build_view_front_Routes(module, model))
 
         add_route(module, model)
 
