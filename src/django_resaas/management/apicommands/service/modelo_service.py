@@ -77,7 +77,7 @@ def build_view_front_view(module, model):
 
 def build_view_front_Store(module, model):
     return f"""
-import { HTTPAuth, url, createBaseStore} from 'quasar_resaas' 
+import {{ HTTPAuth, url, createBaseStore }} from 'quasar_resaas' 
 
 export const use{clean_class_name(model)}tore = createBaseStore(
   '{clean_file_name(model)}',
@@ -115,7 +115,7 @@ export const use{clean_class_name(model)}tore = createBaseStore(
 
 def build_view_front_Routes(module, model):
     return f"""
-import { tdc } from 'quasar_resaas'
+import {{ tdc }} from 'quasar_resaas'
 
 export let {clean_file_name(model)}Routes = [
   {{
