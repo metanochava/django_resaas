@@ -371,6 +371,8 @@ export let {clean_file_name(model)}Routes = [
 
 """
 
+
+
 def add_route(module: str, model: str):
 
     base = Path(settings.BASE_DIR)
@@ -386,7 +388,7 @@ def add_route(module: str, model: str):
     spread_line = f"  ...{route_var},\n"
 
     # =====================================
-    # CRIAR FICHEIRO SE NÃO EXISTIR
+    # CRIAR SE NÃO EXISTIR (CORRETO)
     # =====================================
     if not module_routes.exists():
         module_routes.write_text(
@@ -401,7 +403,7 @@ export let {module_var} = [
     text = module_routes.read_text(encoding="utf-8")
 
     # =====================================
-    # GARANTIR QUE EXISTE ARRAY
+    # GARANTIR ARRAY EXISTE
     # =====================================
     if f"export let {module_var}" not in text:
         text = (
@@ -418,7 +420,7 @@ f"""export let {module_var} = [
         text = import_line + text
 
     # =====================================
-    # ARRAY
+    # INSERIR NO ARRAY
     # =====================================
     pattern = rf"export\s+let\s+{module_var}\s*=\s*\[(.*?)\]"
     match = re.search(pattern, text, re.S)
