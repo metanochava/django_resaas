@@ -25,7 +25,7 @@ class ModuloScaffoldService:
     }
 
     TEMPLATE_FRONT = {
-        "meta": ["__init__.py"],
+        ".": ["main.js"],
     }
 
     # =========================
@@ -94,7 +94,11 @@ class ModuloScaffoldService:
             for f in files:
                 (p / f).touch()
 
-        (module_path / "routes.js").write_text(f"""\n""")
+        (module_path / "routes.js").write_text(f"""\n 
+export let {name}Routes = [
+
+]
+        """)
 
         cls._add_route(name)
         print(module_path)
