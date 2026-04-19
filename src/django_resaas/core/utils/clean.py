@@ -42,3 +42,13 @@ def clean_name(name: str) -> str:
     # capitaliza cada palavra
     return " ".join(word.capitalize() for word in name.split())
 
+
+def clean_lower(s: str) -> str:
+    # 🔥 separa CamelCase
+    s = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", s)
+
+    # 🔥 remove tudo que não é letra/número
+    s = re.sub(r"[^a-zA-Z0-9]", "", s)
+
+    # 🔥 lower
+    return s.lower()
