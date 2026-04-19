@@ -188,7 +188,7 @@ def build_model(module, model, fields, extra_perms):
                 for c in f.choices
             ]
             opts.append(f'choices={choices}')
-        
+         
 
         # RELATION
         if f.type in ["ForeignKey", "OneToOneField"]:
