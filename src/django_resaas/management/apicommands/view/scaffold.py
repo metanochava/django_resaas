@@ -26,7 +26,7 @@ from rest_framework.decorators import action
 
 from django_resaas.models.modelo_extra import ModeloExtra
 from django_resaas.core.base.views import registerView
-from django_resaas.core.utils import all, ok, fail, warn, clean_class_name, clean_file_name, safe_write
+from django_resaas.core.utils import all, ok, fail, warn, clean_class_name, clean_file_name, safe_write, clean_lower
 
 import importlib.util
 import importlib
@@ -295,7 +295,7 @@ from {module}.models.{clean_file_name(model)} import {clean_class_name(model)}
 from {module}.serializers.{clean_file_name(model)} import {clean_class_name(model)}Serializer
 
 
-@registerView('{clean_file_name(model)}s')
+@registerView('{clean_lower(model)}s')
 class {model}APIView(BaseAPIView):
     queryset = {clean_class_name(model)}.objects.all()   
     serializer_class = {clean_class_name(model)}Serializer
