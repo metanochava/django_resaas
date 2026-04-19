@@ -1,9 +1,16 @@
 import re
 
-
 def clean_class_name(s: str):
-    s = re.sub(r"[^a-zA-Z0-9_ ]", "", s)
-    parts = re.split(r"[_\s]+", s)
+
+    # 🔥 se já parece CamelCase → não mexe
+    if re.match(r"^[A-Z][a-zA-Z0-9]+$", s):
+        return s
+
+    # 🔥 normaliza
+    s = re.sub(r"[^a-zA-Z0-9]", " ", s)
+
+    parts = re.split(r"\s+", s.strip())
+
     return "".join(p.capitalize() for p in parts if p)
 
 
