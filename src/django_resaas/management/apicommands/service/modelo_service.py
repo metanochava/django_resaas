@@ -426,14 +426,14 @@ f"""export let {module_var} = [
     match = re.search(pattern, text, re.S)
 
     if not match:
-        module_routes.write_text(text, encoding="utf-8")
-        return
+      module_routes.write_text(text, encoding="utf-8")
+      return
 
     block = match.group(1)
 
     if f"...{route_var}" in block:
-        module_routes.write_text(text, encoding="utf-8")
-        return
+      module_routes.write_text(text, encoding="utf-8")
+      return
 
     new_block = block.rstrip() + "\n" + spread_line
 
