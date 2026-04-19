@@ -493,7 +493,7 @@ class ScaffoldAPIView(ViewSet):
         module = (request.data.get("modulo") or "").strip()
         icon = (request.data.get("icon") or "list").strip()
         crud = request.data.get("crud") or False
-        model  = clean_class_name(request.data.get("modelo") or "").strip()
+        model  = (request.data.get("modelo") or "").strip()
         fields = request.data.get("fields", [])
         perms  = request.data.get("permissions", [])
 
