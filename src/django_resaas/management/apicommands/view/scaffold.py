@@ -248,7 +248,7 @@ def build_serializer(module, model, fields):
                 serializer_fields.append(
                     f"""    
     {f['name']} = serializers.PrimaryKeyRelatedField(
-        source="{f['name']}", queryset={rel_model}.objects.all(), write_only=True
+        queryset={rel_model}.objects.all(), write_only=True
     )"""
                 )
                 serializer_fields.append(
@@ -260,7 +260,7 @@ def build_serializer(module, model, fields):
                 serializer_fields.append(
                     f"""    
     {f['name']} = serializers.PrimaryKeyRelatedField(
-        source="{f['name']}", queryset={rel_model}.objects.all(), many=True, write_only=True
+        queryset={rel_model}.objects.all(), many=True, write_only=True
     ) """
                 )
                 serializer_fields.append(
