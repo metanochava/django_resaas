@@ -6,6 +6,6 @@ from django_resaas.core.utils.cors_allowed_origin import get_cors_origins
 from django_resaas.core.utils.files import upload_path
 from django_resaas.core.utils.select import build_select_data
 from django_resaas.core.utils.reorder_fields import reorder_fields
-from django_resaas.core.utils.profile_creator import profile_creator
+from django_resaas.core.utils.group_creator import group_creator
 
 
