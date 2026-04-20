@@ -20,7 +20,6 @@ from django_resaas.core.utils.safe_write import safe_write
 BASE_MODULES_PATH = settings.BASE_DIR
 
 
-
 class Command(BaseCommand):
     help = "Cria um novo modelo em qualquer módulo (rh, finance, crm...)"
 
