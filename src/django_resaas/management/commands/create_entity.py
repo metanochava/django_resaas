@@ -16,7 +16,7 @@ class Command(BaseCommand):
         tipo_entidade = input("Digite seu nome do Tipo de Entidade: ")
         entidade = input("Digite seu nome da Entidade: ")
         sucursal = input("Digite seu nome da Sucursal: ")
-        grupo = input("Digite seu nome do Grupo: ")
+        grupo = "Admin"
 
         user = UserService.get_or_create_superuser(self.stdout, style=self.style)
  

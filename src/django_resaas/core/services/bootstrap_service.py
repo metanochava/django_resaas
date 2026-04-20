@@ -25,7 +25,7 @@ class BootstrapService:
         tipo = cls.create_tipo_entidade(tipo_entidade, stdout, style)
         entidade = cls.create_entidade(tipo, entidade, user, stdout, style)
         sucursal = cls.create_sucursal(entidade, sucursal, user, stdout, style)
-        grupo = cls.create_grupo(user, entidade, sucursal, stdout, style)
+        grupo = cls.create_grupo(user, entidade, sucursal, grupo, stdout, style)
 
         return {
             "tipo_entidade": tipo,
@@ -66,7 +66,7 @@ class BootstrapService:
             entidade=entidade
         )
 
-        for name in ['django_resaas', 'rh']:
+        for name in ['rh']:
             modulo, _ = Modulo.objects.get_or_create(
                 nome=name,
                 defaults={"estado": 1}
@@ -115,8 +115,31 @@ class BootstrapService:
     # Grupo + SucursalUserGroup
     # ------------------------
     @staticmethod
-    def create_grupo(user,entidade, sucursal, stdout=None, style=None):
-        grupo, _ = Group.objects.get_or_create(name="Admin")
+    def create_grupo(user,entidade, sucursal, grupo, stdout=None, style=None):
+
+        grupo, _ = Group.objects.get_or_create(name=grupo)
+
+        # ligar grupo à sucursal
+        SucursalGroup.objects.get_or_create(
+            sucursal=sucursal,
+            group=grupo
+        )
+
+        # ligar grupo ao tenant (entidade)
+        EntidadeGroup.objects.get_or_create(
+            entidade=entidade,
+            group=grupo
+        )
+
+        user.groups.add(grupo)
+
+        SucursalUserGroup.objects.get_or_create(
+            user=user,
+            sucursal=sucursal,
+            group=grupo
+        )
+
+        grupo, _ = Group.objects.get_or_create(name="Guest")
 
         # ligar grupo à sucursal
         SucursalGroup.objects.get_or_create(
@@ -141,9 +164,8 @@ class BootstrapService:
         )
 
         if stdout and style:
-            stdout.write(style.SUCCESS(f"✔ {'Grupo:':20} {grupo.name}"))
+            stdout.write(style.SUCCESS(f"✔ {'Grupos:':20} Guest e Admin"))
             stdout.write(style.SUCCESS(f"✔ {'EntidadeGrupo':20} OK"))
             stdout.write(style.SUCCESS(f"✔ {'SucursalGrupo':20} OK"))
-
 
         return grupo
