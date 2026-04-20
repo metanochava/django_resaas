@@ -28,9 +28,7 @@ class IdiomaService:
             idioma, created = Idioma.objects.get_or_create(
                 code=code,
                 nome=nome,
-                defaults={
-                    "estado": 1
-                }
+                estado= 1
             )
 
             if created:
