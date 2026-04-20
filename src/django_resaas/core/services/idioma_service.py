@@ -1,5 +1,7 @@
 from django_resaas.models.idioma import Idioma
 from django.db import IntegrityError
+
+
 class IdiomaService:
     """
     Serviço responsável por inicializar os idiomas base do sistema.
