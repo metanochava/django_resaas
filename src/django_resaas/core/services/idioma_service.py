@@ -1,6 +1,5 @@
 from django_resaas.models.idioma import Idioma
 
-
 class IdiomaService:
     """
     Serviço responsável por inicializar os idiomas base do sistema.
@@ -28,8 +27,8 @@ class IdiomaService:
         for nome, code in cls.DEFAULT_IDIOMAS:
             idioma, created = Idioma.objects.get_or_create(
                 code=code,
+                nome=nome,
                 defaults={
-                    "nome": nome,
                     "estado": 1
                 }
             )
