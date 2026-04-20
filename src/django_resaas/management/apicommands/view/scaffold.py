@@ -247,24 +247,24 @@ def build_serializer(module, model, fields):
             if f["type"] in ["ForeignKey", "OneToOneField"]:
                 serializer_fields.append(
                     f"""    
-    {f['name']}_id = serializers.PrimaryKeyRelatedField(
+    {f['name']} = serializers.PrimaryKeyRelatedField(
         source="{f['name']}", queryset={rel_model}.objects.all(), write_only=True
     )"""
                 )
                 serializer_fields.append(
-                    f"    {f['name']} = {rel_model}Serializer(read_only=True)"
+                    f"    {f['name']}_data = {rel_model}Serializer(read_only=True)"
                 )
 
             # ManyToMany
             elif f["type"] == "ManyToManyField":
                 serializer_fields.append(
                     f"""    
-    {f['name']}_ids = serializers.PrimaryKeyRelatedField(
+    {f['name']} = serializers.PrimaryKeyRelatedField(
         source="{f['name']}", queryset={rel_model}.objects.all(), many=True, write_only=True
     ) """
                 )
                 serializer_fields.append(
-                    f"    {f['name']} = {rel_model}Serializer(many=True, read_only=True)"
+                    f"    {f['name']}_data = {rel_model}Serializer(many=True, read_only=True)"
                 )
 
     # remove duplicados
