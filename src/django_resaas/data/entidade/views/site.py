@@ -6,11 +6,17 @@ from django_resaas.data.entidade.serializers.entidade import EntidadeSerializer
 
 from django_resaas.core.utils import all
 
+from urllib.parse import urlparse
+
 
 class SiteAPIView(APIView):
 
     def get(self, request):
         origin = request.headers.get("Origin")
+        domain = None
+
+        if origin:
+            domain = urlparse(origin).netloc
 
         entidade = (
             Entidade.objects
@@ -24,7 +30,7 @@ class SiteAPIView(APIView):
                 "tipo_entidade__layout_settings",
                 "tipo_entidade__animation_settings",
             )
-            .filter(site=origin)
+            .filter(site=domain)
             .first()
         )
 
