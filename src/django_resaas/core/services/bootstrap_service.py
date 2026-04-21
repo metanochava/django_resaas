@@ -41,7 +41,7 @@ class BootstrapService:
     def create_tipo_entidade(nome, stdout=None, style=None):
         tipo, _ = TipoEntidade.objects.get_or_create(
             nome=nome,
-            defaults={"estado": 1}
+            estado = 1
         )
 
         if stdout and style:
@@ -56,32 +56,34 @@ class BootstrapService:
     def create_entidade(tipo_entidade, nome, user, stdout=None, style=None):
         entidade, _ = Entidade.objects.get_or_create(
             nome=nome,
-            tipo_entidade=tipo_entidade
+            tipo_entidade=tipo_entidade,
+            estado = 1
         )
 
         entidade.admins.add(user)
 
         EntidadeUser.objects.get_or_create(
             user=user,
-            entidade=entidade
+            entidade=entidade,
+            estado = 1
         )
 
         for name in ['rh']:
             modulo, _ = Modulo.objects.get_or_create(
                 nome=name,
-                defaults={"estado": 1}
+                estado = 1
             )
 
             tipo_entidade_modulo, _ = TipoEntidadeModulo.objects.get_or_create(
                 modulo=modulo,
                 tipo_entidade=tipo_entidade,
-                defaults={"estado": 1}
+                estado = 1
             )
 
             entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
                 modulo=modulo,
                 entidade=entidade,
-                defaults={"estado": 1}
+                estado = 1
             )
 
             stdout.write(style.WARNING(f"✔ {'Modulo:':20} {modulo.nome}"))
@@ -122,13 +124,15 @@ class BootstrapService:
         # ligar grupo à sucursal
         SucursalGroup.objects.get_or_create(
             sucursal=sucursal,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         # ligar grupo ao tenant (entidade)
         EntidadeGroup.objects.get_or_create(
             entidade=entidade,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         user.groups.add(grupo)
@@ -136,7 +140,8 @@ class BootstrapService:
         SucursalUserGroup.objects.get_or_create(
             user=user,
             sucursal=sucursal,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         grupo, _ = Group.objects.get_or_create(name="Guest")
@@ -144,23 +149,25 @@ class BootstrapService:
         # ligar grupo à sucursal
         SucursalGroup.objects.get_or_create(
             sucursal=sucursal,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         # ligar grupo ao tenant (entidade)
         EntidadeGroup.objects.get_or_create(
             entidade=entidade,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         user.groups.add(grupo)
 
         
-
         SucursalUserGroup.objects.get_or_create(
             user=user,
             sucursal=sucursal,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         if stdout and style:

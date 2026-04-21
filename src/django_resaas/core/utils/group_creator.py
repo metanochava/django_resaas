@@ -12,12 +12,10 @@ def group_creator(groups=None):
     # 🔥 criar base
     tipo_entidade, _ = TipoEntidade.objects.get_or_create(
         nome="SaaS",
-        defaults={"estado": 1}
     )
 
     entidade, _ = Entidade.objects.get_or_create(
         nome="Mytech",
-        defaults={"estado": 1}
     )
 
     # 🔥 criar grupos
@@ -26,10 +24,12 @@ def group_creator(groups=None):
 
         TipoEntidadeGroup.objects.get_or_create(
             tipo_entidade=tipo_entidade,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         EntidadeGroup.objects.get_or_create(
             entidade=entidade,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
