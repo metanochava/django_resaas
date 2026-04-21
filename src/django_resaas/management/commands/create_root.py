@@ -94,7 +94,7 @@ class Command(BaseCommand):
         # ------------------------
         tipo_entidade, _ = TipoEntidade.objects.get_or_create(
             nome=data["tipo_entidade"],
-            defaults={"estado": 1}
+            estado = 1
         )
 
         # ------------------------
@@ -102,7 +102,8 @@ class Command(BaseCommand):
         # ------------------------
         entidade, created_entidade = Entidade.objects.get_or_create(
             nome=data["entidade"],
-            tipo_entidade=tipo_entidade
+            tipo_entidade=tipo_entidade,
+            estado = 1
         )
 
         # ManyToMany → DEPOIS
@@ -110,7 +111,8 @@ class Command(BaseCommand):
 
         EntidadeUser.objects.get_or_create(
             user=user,
-            entidade=entidade
+            entidade=entidade,
+            estado = 1
         )
 
         # ------------------------
@@ -118,12 +120,14 @@ class Command(BaseCommand):
         # ------------------------
         sucursal, _ = Sucursal.objects.get_or_create(
             nome=data["sucursal"],
-            entidade=entidade
+            entidade=entidade,
+            estado = 1
         )
 
         SucursalUser.objects.get_or_create(
             user=user,
-            sucursal=sucursal
+            sucursal=sucursal,
+            estado = 1
         )
 
         # ------------------------
@@ -138,24 +142,28 @@ class Command(BaseCommand):
             SucursalUserGroup.objects.get_or_create(
                 user=user,
                 sucursal=sucursal,
-                group=grupo
+                group=grupo,
+                estado = 1
             )
 
             user.groups.add(grupo)
 
             TipoEntidadeGroup.objects.get_or_create(
                 tipo_entidade=tipo_entidade,
-                group=grupo
+                group=grupo,
+                estado = 1
             )
 
             EntidadeGroup.objects.get_or_create(
                 entidade=entidade,
-                group=grupo
+                group=grupo,
+                estado = 1
             )
 
             SucursalGroup.objects.get_or_create(
                 sucursal=sucursal,
-                group=grupo
+                group=grupo,
+                estado = 1
             )
 
         self.stdout.write(self.style.WARNING(f"\n"))
@@ -163,19 +171,19 @@ class Command(BaseCommand):
         for name in ['django_resaas',]:
             modulo, _ = Modulo.objects.get_or_create(
                 nome=name,
-                defaults={"estado": 1}
+                estado = 1
             )
 
             tipo_entidade_modulo, _ = TipoEntidadeModulo.objects.get_or_create(
                 modulo=modulo,
                 tipo_entidade=tipo_entidade,
-                defaults={"estado": 1}
+                estado = 1
             )
 
             entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
                 modulo=modulo,
                 entidade=entidade,
-                defaults={"estado": 1}
+                estado = 1
             )
 
             self.stdout.write(self.style.WARNING(f"✔ {'Modulo:':20} {modulo.nome}"))
