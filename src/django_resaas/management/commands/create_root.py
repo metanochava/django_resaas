@@ -198,7 +198,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entidade:':20} {entidade.nome}"))
         self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Sucursal:':20} {sucursal.nome}"))
         self.stdout.write(self.style.WARNING(f"{'Grupos:':20} {data['grupo']}"))
-        self.stdout.write(self.style.ERROR("⚠️  Guarde estas credenciais com segurança"))
+        self.stdout.write(self.style.ERROR("⚠️ Guarde estas credenciais com segurança"))
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))
 

@@ -31,7 +31,6 @@ LANGUAGE_CODE = 'EN-US'
 
 MY_APPS = [
     'django_resaas',
-    'rh',
 ]
 
 
