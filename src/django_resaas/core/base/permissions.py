@@ -83,7 +83,7 @@ def hasModulo(codigo):
             ativo = EntidadeModulo.objects.filter(
                 entidade_id=entidade_id,
                 modulo__codigo=codigo,
-                estado=True
+                estado= 1
             ).exists()
 
             if not ativo:
