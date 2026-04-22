@@ -40,7 +40,7 @@ class TenantAPIView(APIView):
         # ------------------------
         tipo_entidade, _ = TipoEntidade.objects.get_or_create(
             nome=data["tipo_entidade"],
-            defaults={"estado": 1}
+            estado = 1
         )
 
         # ------------------------
@@ -56,7 +56,8 @@ class TenantAPIView(APIView):
 
         EntidadeUser.objects.get_or_create(
             user=user,
-            entidade=entidade
+            entidade=entidade,
+            estado = 1
         )
 
         # ------------------------
@@ -64,12 +65,14 @@ class TenantAPIView(APIView):
         # ------------------------
         sucursal, _ = Sucursal.objects.get_or_create(
             nome=data["sucursal"],
-            entidade=entidade
+            entidade=entidade,
+            estado = 1
         )
 
         SucursalUser.objects.get_or_create(
             user=user,
-            sucursal=sucursal
+            sucursal=sucursal,
+            estado = 1
         )
 
         # ------------------------
@@ -82,7 +85,8 @@ class TenantAPIView(APIView):
         SucursalUserGroup.objects.get_or_create(
             user=user,
             sucursal=sucursal,
-            group=grupo
+            group=grupo,
+            estado = 1
         )
 
         user.groups.add(grupo)

@@ -115,7 +115,7 @@ class  SucursalAPIView(viewsets.ModelViewSet):
 
         request.data['size'] = uploaded_file.size
         request.data['modelo'] = 'sucursal'
-        request.data['estado'] = 'Activo'
+        request.data['estado'] = 1
         request.data['funcionalidade'] = 'CapaSite'
 
         ficheiro = FicheiroGravarSerializer(data=request.data)

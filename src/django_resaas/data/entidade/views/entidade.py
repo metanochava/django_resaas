@@ -147,7 +147,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
                 modulo=te.modulo,
                 entidade=entidade,
-                defaults={"estado": 1}
+                estado = 1
             )
 
         for u in data['admins']:
@@ -160,7 +160,8 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
             EntidadeUser.objects.get_or_create(
                 user=user,
-                entidade=entidade
+                entidade=entidade,
+                estado = 1
             )
          
             # ------------------------
@@ -170,7 +171,8 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
                 EntidadeGroup.objects.get_or_create(
                     entidade = entidade,
-                    group = te.group
+                    group = te.group,
+                    estado = 1
                 )
                 user.groups.add(te.group)
 
@@ -180,6 +182,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             sucursal = Sucursal.objects.create(
                 nome=f"{entidade.nome} Sede",
                 entidade=entidade,
+                estado = 1,
                 icon='...',
                 label='...'
             )
@@ -189,7 +192,8 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             # ------------------------
             SucursalUser.objects.get_or_create(
                 user=user,
-                sucursal=sucursal
+                sucursal=sucursal,
+                estado = 1
             )
 
             # ------------------------
@@ -199,13 +203,15 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
                 SucursalGroup.objects.get_or_create(
                     sucursal=sucursal,
-                    group=e.group
+                    group=e.group,
+                    estado = 1
                 )
 
                 SucursalUserGroup.objects.get_or_create(
                     user=user,
                     sucursal=sucursal,
-                    group=e.group
+                    group=e.group,
+                    estado = 1
                 )
             
 
@@ -338,7 +344,8 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         if not exists:
             EntidadeUser.objects.create(
                 user=user,
-                entidade=transformer
+                entidade=transformer,
+                estado = 1
             )
             return Response(
                 {
@@ -373,7 +380,6 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         )
 
 
-
     @action(
         detail=True,
         methods=['POST'],
@@ -403,7 +409,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
         request.data['size'] = uploaded_file.size
         request.data['modelo'] = 'Entidade'
-        request.data['estado'] = 'Activo'
+        request.data['estado'] = 1
         request.data['funcionalidade'] = 'Logo'
 
         ficheiro = FicheiroGravarSerializer(data=request.data)

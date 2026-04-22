@@ -184,7 +184,7 @@ admin.site.index_title = '{clean_name(name)}'
     def _alocate_modulo(name):
         tipo_entidade, _ = TipoEntidade.objects.get_or_create(
             nome='SaaS',
-            defaults={"estado": 1}
+            estado = 1
         )
 
         entidade, _ = Entidade.objects.get_or_create(
@@ -194,19 +194,19 @@ admin.site.index_title = '{clean_name(name)}'
         
         modulo, _ = Modulo.objects.get_or_create(
             nome=name,
-            defaults={"estado": 1}
+            estado = 1
         )
 
         tipo_entidade_modulo, _ = TipoEntidadeModulo.objects.get_or_create(
             modulo=modulo,
             tipo_entidade=tipo_entidade,
-            defaults={"estado": 1}
+            estado = 1
         )
 
         entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
             modulo=modulo,
             entidade=entidade,
-            defaults={"estado": 1}
+            estado = 1
         )
 
         
