@@ -10,11 +10,23 @@ SUBMENUS = [
         "rota": "view_django_resaas_dashboard",
     },
     {
-        "menu": "Crud",
-        "icon": "construction",
-        "role": "view_crud",
-        "rota": "crud_state",
-    },
+        "menu": "Grupo",
+        "icon": "group",
+        "role": "list_group",
+        "rota": "list_group",
+        "add_role": "add_group",
+        "add_rota": "add_group",
+        'crud': { 'module': 'auth', 'model': 'Group' }
+    }, 
+    {
+        "menu": "Permission",
+        "icon": "admin_panel_settings",
+        "role": "list_permission",
+        "rota": "list_permission",
+        "add_role": "add_permission",
+        "add_rota": "add_permission",
+        'crud': { 'module': 'auth', 'model': 'Permission' }
+    }, 
     {
         "menu": "Ficheiro",
         "icon": "insert_drive_file",
@@ -61,24 +73,6 @@ SUBMENUS = [
         'crud': { 'module': 'django_resaas', 'model': 'Sucursal' }
     }, 
     {
-        "menu": "Grupo",
-        "icon": "group",
-        "role": "list_group",
-        "rota": "list_group",
-        "add_role": "add_group",
-        "add_rota": "add_group",
-        'crud': { 'module': 'auth', 'model': 'Group' }
-    }, 
-    {
-        "menu": "Permission",
-        "icon": "admin_panel_settings",
-        "role": "list_permission",
-        "rota": "list_permission",
-        "add_role": "add_permission",
-        "add_rota": "add_permission",
-        'crud': { 'module': 'auth', 'model': 'Permission' }
-    }, 
-    {
         "menu": "User",
         "icon": "person",
         "role": "list_user",
@@ -87,34 +81,42 @@ SUBMENUS = [
         "add_rota": "add_user",
         'crud': { 'module': 'django_resaas', 'model': 'User' }
     },  
-    # {
-    #     "menu": "Modulo",
-    #     "icon": "extension",
-    #     "role": "list_Modulo",
-    #     "rota": "list_Modulo",
-    #     "add_role": "add_Modulo",
-    #     "add_rota": "add_Modulo",
-    #     'crud': { 'module': 'django_resaas', 'model': 'Modulo' }
-    # },
-    # {
-    #     "menu": "Modelo",
-    #     "icon": "schema",
-    #     "role": "list_modelo",
-    #     "rota": "list_modelo",
-    #     "add_role": "add_modelo",
-    #     "add_rota": "add_modelo",
-    #     'crud': { 'module': 'django_resaas', 'model': 'Modelo' }
-    # }, 
+    {
+        "menu": "Modulo",
+        "icon": "extension",
+        "role": "list_Modulo",
+        "rota": "list_Modulo",
+        "add_role": "add_Modulo",
+        "add_rota": "add_Modulo",
+        'crud': { 'module': 'django_resaas', 'model': 'Modulo' }
+    },
+    {
+        "menu": "Modelo",
+        "icon": "schema",
+        "role": "list_modelo",
+        "rota": "list_modelo",
+        "add_role": "add_modelo",
+        "add_rota": "add_modelo",
+        'crud': { 'module': 'django_resaas', 'model': 'Modelo' }
+    }, 
 
-    # {
-    #     "menu": "Cometario",
-    #     "icon": "mode_comment",
-    #     "role": "list_cometario",
-    #     "rota": "list_cometario",
-    #     "add_role": "add_cometario",
-    #     "add_rota": "add_cometario",
-    #     'crud': { 'module': 'django_resaas', 'model': 'Cometario' }
-    # },
+    {
+        "menu": "Cometario",
+        "icon": "mode_comment",
+        "role": "list_cometario",
+        "rota": "list_cometario",
+        "add_role": "add_cometario",
+        "add_rota": "add_cometario",
+        'crud': { 'module': 'django_resaas', 'model': 'Cometario' }
+    },
+
+    
+    {
+        "menu": "Crud",
+        "icon": "construction",
+        "role": "view_crud",
+        "rota": "crud_state",
+    },
     {
         "menu": "Dev",
         "icon": "list",
