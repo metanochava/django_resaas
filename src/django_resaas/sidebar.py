@@ -1,17 +1,16 @@
-
 MENU = "Core"
-ICON = "menu"
+ICON = "terminal"  # 🔥 mais dev
 
 SUBMENUS = [
     {
         "menu": "Dashboard",
-        "icon": "dashboard",
+        "icon": "space_dashboard",  # mais moderno
         "role": "view_django_resaas_dashboard",
         "rota": "view_django_resaas_dashboard",
     },
     {
         "menu": "Grupo",
-        "icon": "group",
+        "icon": "groups",  # melhor que group
         "role": "list_group",
         "rota": "list_group",
         "add_role": "add_group",
@@ -20,7 +19,7 @@ SUBMENUS = [
     }, 
     {
         "menu": "Permission",
-        "icon": "admin_panel_settings",
+        "icon": "verified_user",  # 🔥 segurança
         "role": "list_permission",
         "rota": "list_permission",
         "add_role": "add_permission",
@@ -29,7 +28,7 @@ SUBMENUS = [
     }, 
     {
         "menu": "Ficheiro",
-        "icon": "insert_drive_file",
+        "icon": "folder_open",  # melhor UX
         "role": "list_ficheiro",
         "rota": "list_ficheiro",
         "add_role": "add_ficheiro",
@@ -47,7 +46,7 @@ SUBMENUS = [
     },
     {
         "menu": "TipoEntidade",
-        "icon": "corporate_fare",
+        "icon": "apartment",  # mais semântico
         "role": "list_tipoentidade",
         "rota": "list_tipoentidade",
         "add_role": "add_tipoentidade",
@@ -56,7 +55,7 @@ SUBMENUS = [
     },    
     {
         "menu": "Entidade",
-        "icon": "home",
+        "icon": "domain",  # 🔥 empresa
         "role": "list_entidade",
         "rota": "list_entidade",
         "add_role": "add_entidade",
@@ -65,7 +64,7 @@ SUBMENUS = [
     },  
     {
         "menu": "Sucursal",
-        "icon": "house",
+        "icon": "store",  # melhor que house
         "role": "list_sucursal",
         "rota": "list_sucursal",
         "add_role": "add_sucursal",
@@ -74,7 +73,7 @@ SUBMENUS = [
     }, 
     {
         "menu": "User",
-        "icon": "person",
+        "icon": "account_circle",  # mais moderno
         "role": "list_user",
         "rota": "list_user",
         "add_role": "add_user",
@@ -83,7 +82,7 @@ SUBMENUS = [
     },  
     {
         "menu": "Modulo",
-        "icon": "extension",
+        "icon": "view_module",  # 🔥 dev style
         "role": "list_Modulo",
         "rota": "list_Modulo",
         "add_role": "add_Modulo",
@@ -92,7 +91,7 @@ SUBMENUS = [
     },
     {
         "menu": "Modelo",
-        "icon": "schema",
+        "icon": "data_object",  # 🔥 DEV PERFEITO
         "role": "list_modelo",
         "rota": "list_modelo",
         "add_role": "add_modelo",
@@ -102,7 +101,7 @@ SUBMENUS = [
 
     {
         "menu": "Cometario",
-        "icon": "mode_comment",
+        "icon": "chat_bubble_outline",
         "role": "list_cometario",
         "rota": "list_cometario",
         "add_role": "add_cometario",
@@ -110,27 +109,27 @@ SUBMENUS = [
         'crud': { 'module': 'django_resaas', 'model': 'Cometario' }
     },
 
-    
     {
         "menu": "Crud",
-        "icon": "construction",
+        "icon": "build",  # 🔥 melhor que construction
         "role": "view_crud",
         "rota": "crud_state",
     },
+
     {
         "menu": "Dev",
-        "icon": "list",
+        "icon": "code",  # 🔥 ESSENCIAL
         "role": "view_scaffold",
         "submenu": [
             {
                 "menu": "Criar Modulo",
-                "icon": "list",
+                "icon": "add_box",
                 "role": "add_modulo",
                 "rota": "add_modulo",
             },
             {
                 "menu": "Scaffold",
-                "icon": "list",
+                "icon": "developer_mode",  # 🔥 MUITO BOM
                 "role": "view_scaffold",
                 "rota": "view_scaffold",
             },       
