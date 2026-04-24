@@ -1,5 +1,5 @@
 MENU = "Core"
-ICON = "terminal"  # 🔥 mais dev
+ICON = "menu"  # 🔥 mais dev
 
 SUBMENUS = [
     {
@@ -51,7 +51,7 @@ SUBMENUS = [
         "rota": "list_tipoentidade",
         "add_role": "add_tipoentidade",
         "add_rota": "add_tipoentidade",
-        'crud': { 'module': 'django_resaas', 'model': 'TipoEntidade' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'TipoEntidade' }
     },    
     {
         "menu": "Entidade",
@@ -60,7 +60,7 @@ SUBMENUS = [
         "rota": "list_entidade",
         "add_role": "add_entidade",
         "add_rota": "add_entidade",
-        'crud': { 'module': 'django_resaas', 'model': 'Entidade' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'Entidade' }
     },  
     {
         "menu": "Sucursal",
@@ -69,7 +69,7 @@ SUBMENUS = [
         "rota": "list_sucursal",
         "add_role": "add_sucursal",
         "add_rota": "add_sucursal",
-        'crud': { 'module': 'django_resaas', 'model': 'Sucursal' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'Sucursal' }
     }, 
     {
         "menu": "User",
@@ -78,7 +78,7 @@ SUBMENUS = [
         "rota": "list_user",
         "add_role": "add_user",
         "add_rota": "add_user",
-        'crud': { 'module': 'django_resaas', 'model': 'User' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'User' }
     },  
     {
         "menu": "Modulo",
