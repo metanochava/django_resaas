@@ -13,6 +13,7 @@ from django_resaas.models.sucursal_user import SucursalUser
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 
 from django_resaas.core.utils.translate import Translate
+from django_resaas.core.utils import all
 
  
  
@@ -79,7 +80,8 @@ class TenantAPIView(APIView):
         # 4. Grupo
         # ------------------------
         grupo, _ = Group.objects.get_or_create(
-            name=data["grupo"]
+            name=data["grupo"],
+            estado = 1
         )
 
         SucursalUserGroup.objects.get_or_create(
@@ -94,19 +96,6 @@ class TenantAPIView(APIView):
         # ------------------------
         # RESPONSE
         # ------------------------
-        return Response(
-            {
-                "alert_success": Translate.tdc(
-                    request,
-                    "Configuração inicial criada com sucesso"
-                ),
-                "data": {
-                    "tipo_entidade": tipo_entidade.nome,
-                    "entidade": entidade.nome,
-                    "sucursal": sucursal.nome,
-                    "grupo": grupo.name,
-                    "user": user.username,
-                }
-            },
+        return all(request, "Configuração inicial criada com sucesso", data = { "tipo_entidade": tipo_entidade.nome, "entidade": entidade.nome, "sucursal": sucursal.nome,  "grupo": grupo.name, "user": user.username, },
             status=status.HTTP_201_CREATED
         )
