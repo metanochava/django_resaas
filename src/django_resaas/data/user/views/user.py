@@ -149,20 +149,23 @@ class UserAPIView(viewsets.ModelViewSet):
     )
     def permissions(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
+        print(user)
         user = UserSerializer(user)
         sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = id, sucursal__id=request.sucursal_id, group__id=request.group_id)
+        print(sucursalUserGroup)
         
         per = []
         if (sucursalUserGroup):
             group = Group.objects.get(id=sucursalUserGroup[0].group.id)
+            print(group)
             permissions = group.permissions.all()
 
             for permission in permissions:
                 per.append({'id': permission.id, 'codename': permission.codename, 'name': permission.name})
 
-        if True:
-            return Response(per, status.HTTP_200_OK)
-        return Response([], status.HTTP_400_BAD_REQUEST)
+
+        return Response(per, status.HTTP_200_OK)
+  
 
 
     def filter_menu_by_permission(self, menu_list, user_perms):
