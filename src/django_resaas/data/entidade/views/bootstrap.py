@@ -23,7 +23,7 @@ class BootstrapAPIView(BaseAPIView):
         tipo_entidade = data.get('tipo_entidade')
         entidade_nome = data.get('entidade')
         sucursal_nome = data.get('sucursal')
-        grupo_nome = data.get('grupo', 'Admin')
+        group_nome = data.get('group', 'Admin')
         user_id = data.get('user_id')
 
         # =========================
@@ -66,7 +66,7 @@ class BootstrapAPIView(BaseAPIView):
                 entidade_nome,
                 sucursal_nome,
                 user,
-                grupo_nome
+                group_nome
             )
 
             # =========================
@@ -87,7 +87,7 @@ class BootstrapAPIView(BaseAPIView):
                     "tipo_entidade": result["tipo_entidade"].nome,
                     "entidade": result["entidade"].nome,
                     "sucursal": result["sucursal"].nome,
-                    "grupo": result["grupo"].name
+                    "group": result["group"].name
                 }
             })
 

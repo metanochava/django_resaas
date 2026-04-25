@@ -20,7 +20,7 @@ from django_resaas.core.utils import all
 class TenantAPIView(APIView):
     """
     Bootstrap inicial:
-    TipoEntidade → Entidade → Sucursal → Grupo
+    TipoEntidade → Entidade → Sucursal → Group
     Tudo associado a um utilizador.
     """
     permission_classes = [IsAuthenticated]
@@ -33,7 +33,7 @@ class TenantAPIView(APIView):
             "tipo_entidade": "Saas",
             "entidade": "Mytech",
             "sucursal": "Sede",
-            "grupo": "Admin",
+            "group": "Admin",
         }
 
         # ------------------------
@@ -77,25 +77,25 @@ class TenantAPIView(APIView):
         )
 
         # ------------------------
-        # 4. Grupo
+        # 4. Group
         # ------------------------
-        grupo, _ = Group.objects.get_or_create(
-            name=data["grupo"],
+        group, _ = Group.objects.get_or_create(
+            name=data["group"],
             estado = 1
         )
 
         SucursalUserGroup.objects.get_or_create(
             user=user,
             sucursal=sucursal,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
-        user.groups.add(grupo)
+        user.groups.add(group)
 
         # ------------------------
         # RESPONSE
         # ------------------------
-        return all(request, "Configuração inicial criada com sucesso", data = { "tipo_entidade": tipo_entidade.nome, "entidade": entidade.nome, "sucursal": sucursal.nome,  "grupo": grupo.name, "user": user.username, },
+        return all(request, "Configuração inicial criada com sucesso", data = { "tipo_entidade": tipo_entidade.nome, "entidade": entidade.nome, "sucursal": sucursal.nome,  "group": group.name, "user": user.username, },
             status=status.HTTP_201_CREATED
         )

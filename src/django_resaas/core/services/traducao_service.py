@@ -16,7 +16,7 @@ class TraducaoService:
             "Configuração inicial criada com sucesso": "Configuração inicial criada com sucesso",
             "Seleccione a Entidade": "Seleccione a Entidade",
             "Seleccione a Sucursal": "Seleccione a Sucursal",
-            "Seleccione o Grupo": "Seleccione o Grupo",
+            "Seleccione o Group": "Seleccione o Group",
         },
         "en-us": {
             "Login efectuado com sucesso": "Login successful",
@@ -26,7 +26,7 @@ class TraducaoService:
             "Configuração inicial criada com sucesso": "Initial setup completed successfully",
             "Seleccione a Entidade": "Select Entity",
             "Seleccione a Sucursal": "Select Branch",
-            "Seleccione o Grupo": "Select Group",
+            "Seleccione o Group": "Select Group",
         },
     }
 

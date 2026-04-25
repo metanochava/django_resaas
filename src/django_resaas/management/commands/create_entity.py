@@ -16,11 +16,11 @@ class Command(BaseCommand):
         tipo_entidade = input("Digite seu nome do Tipo de Entidade: ")
         entidade = input("Digite seu nome da Entidade: ")
         sucursal = input("Digite seu nome da Sucursal: ")
-        grupo = "Admin"
+        group = "Admin"
 
         user = UserService.get_or_create_superuser(self.stdout, style=self.style)
  
-        result = BootstrapService.run(tipo_entidade, entidade, sucursal, user, grupo, stdout=self.stdout, style=self.style)
+        result = BootstrapService.run(tipo_entidade, entidade, sucursal, user, group, stdout=self.stdout, style=self.style)
 
         self.stdout.write(
             self.style.SUCCESS(f"✔ Superuser criado: \t {user.email} \n")

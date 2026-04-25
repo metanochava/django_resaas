@@ -27,15 +27,15 @@ from rest_framework.response import Response
 # =========================
 # Local application (absolute import)
 # =========================
-from django_resaas.data.group.serializers.grupo import GrupoSerializer
+from django_resaas.data.group.serializers.group import GroupSerializer
 
 
-class GrupoAPIView(viewsets.ModelViewSet):
+class GroupAPIView(viewsets.ModelViewSet):
     """
-    API de gestão de Grupos (Profiles / Roles).
+    API de gestão de Groups (Profiles / Roles).
     """
 
-    serializer_class = GrupoSerializer
+    serializer_class = GroupSerializer
     queryset = Group.objects.all()
     lookup_field = "id"
     filter_backends = (filters.SearchFilter,)
@@ -55,12 +55,12 @@ class GrupoAPIView(viewsets.ModelViewSet):
     # -------------------------
 
     def retrieve(self, request, id, *args, **kwargs):
-        grupo = self.get_object()
+        group = self.get_object()
 
-        # Se ?permissions=1 → retorna permissões do grupo
+        # Se ?permissions=1 → retorna permissões do group
         if request.query_params.get("permissions"):
             permissions = (
-                grupo.permissions
+                group.permissions
                 .annotate(
                     content_type_model=F("content_type__model"),
                     content_type_app=F("content_type__app_label"),
@@ -83,7 +83,7 @@ class GrupoAPIView(viewsets.ModelViewSet):
                 status=status.HTTP_200_OK,
             )
 
-        serializer = self.get_serializer(grupo)
+        serializer = self.get_serializer(group)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # -------------------------
@@ -91,15 +91,15 @@ class GrupoAPIView(viewsets.ModelViewSet):
     # -------------------------
 
     def update(self, request, id, *args, **kwargs):
-        grupo = self.get_object()
-        grupo.name = request.data.get("name", grupo.name)
-        grupo.save()
+        group = self.get_object()
+        group.name = request.data.get("name", group.name)
+        group.save()
 
         return Response(
             {
-                "id": grupo.id,
-                "name": grupo.name,
-                "alert_success": f'%-{grupo.name}-% foi actualizado com sucesso',
+                "id": group.id,
+                "name": group.name,
+                "alert_success": f'%-{group.name}-% foi actualizado com sucesso',
             },
             status=status.HTTP_202_ACCEPTED,
         )
@@ -109,9 +109,9 @@ class GrupoAPIView(viewsets.ModelViewSet):
     # -------------------------
 
     def destroy(self, request, id, *args, **kwargs):
-        grupo = self.get_object()
-        nome = grupo.name
-        grupo.delete()
+        group = self.get_object()
+        nome = group.name
+        group.delete()
 
         return Response(
             {
@@ -126,7 +126,7 @@ class GrupoAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["POST"])
     def addPermission(self, request, id):
-        grupo = self.get_object()
+        group = self.get_object()
 
         codename = request.data.get("codename")
         name = request.data.get("name")
@@ -148,7 +148,7 @@ class GrupoAPIView(viewsets.ModelViewSet):
             defaults={"name": name},
         )
 
-        grupo.permissions.add(permission)
+        group.permissions.add(permission)
 
         return Response(
             {

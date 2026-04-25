@@ -9,15 +9,6 @@ SUBMENUS = [
         "rota": "view_django_resaas_dashboard",
     },
     {
-        "menu": "Grupo",
-        "icon": "groups",  # melhor que group
-        "role": "list_group",
-        "rota": "list_group",
-        "add_role": "add_group",
-        "add_rota": "add_group",
-        # 'crud': { 'module': 'auth', 'model': 'Group' }
-    }, 
-    {
         "menu": "Permission",
         "icon": "verified_user",  # 🔥 segurança
         "role": "list_permission",
@@ -25,7 +16,16 @@ SUBMENUS = [
         "add_role": "add_permission",
         "add_rota": "add_permission",
         # 'crud': { 'module': 'auth', 'model': 'Permission' }
-    }, 
+    },
+    {
+        "menu": "Group",
+        "icon": "groups",  # melhor que group
+        "role": "list_group",
+        "rota": "list_group",
+        "add_role": "add_group",
+        "add_rota": "add_group",
+        # 'crud': { 'module': 'auth', 'model': 'Group' }
+    },
     {
         "menu": "Ficheiro",
         "icon": "folder_open",  # melhor UX
@@ -98,7 +98,6 @@ SUBMENUS = [
         "add_rota": "add_modelo",
         'crud': { 'module': 'django_resaas', 'model': 'Modelo' }
     }, 
-
     {
         "menu": "Cometario",
         "icon": "chat_bubble_outline",

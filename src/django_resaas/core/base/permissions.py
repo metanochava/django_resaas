@@ -18,7 +18,7 @@ class HasAppPermission(BasePermission):
 
     Usa o mesmo motor de permissões:
     - headers (ET, E, S, G, L)
-    - grupos
+    - groups
     - permissões do Django
     - uma única query
     """

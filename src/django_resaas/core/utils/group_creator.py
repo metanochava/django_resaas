@@ -18,18 +18,18 @@ def group_creator(groups=None):
         nome="Mytech",
     )
 
-    # 🔥 criar grupos
+    # 🔥 criar groups
     for g in groups:
-        grupo, _ = Group.objects.get_or_create(name=g)
+        group, _ = Group.objects.get_or_create(name=g)
 
         TipoEntidadeGroup.objects.get_or_create(
             tipo_entidade=tipo_entidade,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
         EntidadeGroup.objects.get_or_create(
             entidade=entidade,
-            group=grupo,
+            group=group,
             estado = 1
         )
