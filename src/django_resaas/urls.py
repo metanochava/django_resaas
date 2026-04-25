@@ -46,7 +46,7 @@ from django_resaas.data.user.views.mail import MailAPIView
 from django_resaas.data.entidade.views.entidade import EntidadeAPIView
 from django_resaas.data.entidade.views.site import SiteAPIView
 from django_resaas.data.tipo_entidade.views.tipo_entidade import TipoEntidadeAPIView
-from django_resaas.data.group.views.grupo import GrupoAPIView
+from django_resaas.data.group.views.group import GroupAPIView
 from django_resaas.data.sucursal.views.sucursal import SucursalAPIView
 from django_resaas.data.sucursal_user.views.sucursal_user import SucursalUserAPIView
 from django_resaas.data.sucursal_user_group.views.sucursal_user_group import SucursalUserGroupAPIView
@@ -100,7 +100,7 @@ routerdjango_resaas.register("sucursals", SucursalAPIView, basename="sucursais")
 routerdjango_resaas.register("users", UserAPIView, basename="users")
 routerdjango_resaas.register("pessoas", PessoaAPIView, basename="pessoas")
 
-routerauth.register("groups", GrupoAPIView, basename="groups")
+routerauth.register("groups", GroupAPIView, basename="groups")
 routerauth.register("permissions", PermissionAPIView, basename="permissions")
 
 routerdjango_resaas.register("modelos", ModeloAPIView, basename="modelos")

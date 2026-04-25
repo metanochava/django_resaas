@@ -20,18 +20,18 @@ class BootstrapService:
 
     @classmethod
     @transaction.atomic
-    def run(cls, tipo_entidade, entidade, sucursal, user, grupo, stdout=None, style=None):
+    def run(cls, tipo_entidade, entidade, sucursal, user, group, stdout=None, style=None):
 
         tipo = cls.create_tipo_entidade(tipo_entidade, stdout, style)
         entidade = cls.create_entidade(tipo, entidade, user, stdout, style)
         sucursal = cls.create_sucursal(entidade, sucursal, user, stdout, style)
-        grupo = cls.create_grupo(user, entidade, sucursal, grupo, stdout, style)
+        group = cls.create_group(user, entidade, sucursal, group, stdout, style)
 
         return {
             "tipo_entidade": tipo,
             "entidade": entidade,
             "sucursal": sucursal,
-            "grupo": grupo,
+            "group": group,
         }
 
     # ------------------------
@@ -114,65 +114,65 @@ class BootstrapService:
         return sucursal
 
     # ------------------------
-    # Grupo + SucursalUserGroup
+    # Group + SucursalUserGroup
     # ------------------------
     @staticmethod
-    def create_grupo(user,entidade, sucursal, grupo, stdout=None, style=None):
+    def create_group(user,entidade, sucursal, group, stdout=None, style=None):
 
-        grupo, _ = Group.objects.get_or_create(name=grupo)
+        group, _ = Group.objects.get_or_create(name=group)
 
-        # ligar grupo à sucursal
+        # ligar group à sucursal
         SucursalGroup.objects.get_or_create(
             sucursal=sucursal,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
-        # ligar grupo ao tenant (entidade)
+        # ligar group ao tenant (entidade)
         EntidadeGroup.objects.get_or_create(
             entidade=entidade,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
-        user.groups.add(grupo)
+        user.groups.add(group)
 
         SucursalUserGroup.objects.get_or_create(
             user=user,
             sucursal=sucursal,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
-        grupo, _ = Group.objects.get_or_create(name="Guest")
+        group, _ = Group.objects.get_or_create(name="Guest")
 
-        # ligar grupo à sucursal
+        # ligar group à sucursal
         SucursalGroup.objects.get_or_create(
             sucursal=sucursal,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
-        # ligar grupo ao tenant (entidade)
+        # ligar group ao tenant (entidade)
         EntidadeGroup.objects.get_or_create(
             entidade=entidade,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
-        user.groups.add(grupo)
+        user.groups.add(group)
 
         
         SucursalUserGroup.objects.get_or_create(
             user=user,
             sucursal=sucursal,
-            group=grupo,
+            group=group,
             estado = 1
         )
 
         if stdout and style:
-            stdout.write(style.SUCCESS(f"✔ {'Grupos:':20} Guest e Admin"))
-            stdout.write(style.SUCCESS(f"✔ {'EntidadeGrupo':20} OK"))
-            stdout.write(style.SUCCESS(f"✔ {'SucursalGrupo':20} OK"))
+            stdout.write(style.SUCCESS(f"✔ {'Groups:':20} Guest e Admin"))
+            stdout.write(style.SUCCESS(f"✔ {'EntidadeGroup':20} OK"))
+            stdout.write(style.SUCCESS(f"✔ {'SucursalGroup':20} OK"))
 
-        return grupo
+        return group

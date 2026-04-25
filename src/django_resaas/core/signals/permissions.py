@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 def create_model_permissions(sender, **kwargs):
     """
     Cria permissões automaticamente por modelo e garante que
-    o grupo root está sempre atualizado.
+    o group root está sempre atualizado.
 
     ✔ list_<model>
     ✔ pdf_<model>
@@ -50,7 +50,7 @@ def create_model_permissions(sender, **kwargs):
     MY_APPS = getattr(settings, "MY_APPS", []) + ["django.contrib.auth"]
     allowed_apps = [app.split(".")[-1] for app in MY_APPS]
 
-    # 🔹 grupo root
+    # 🔹 group root
     admin_group, _ = Group.objects.get_or_create(name="root")
 
     created_perms = []

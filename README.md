@@ -25,7 +25,7 @@ Entidade (tenant)
  ↓
 Sucursal
  ↓
-Grupos + Permissões
+Groups + Permissões
 ```
 
 ---
@@ -54,9 +54,9 @@ Relaciona:
 
 * User
 * Sucursal
-* Grupo (Django)
+* Group (Django)
 
-👉 Permite múltiplos grupos por sucursal
+👉 Permite múltiplos groups por sucursal
 
 ---
 
@@ -75,7 +75,7 @@ Headers obrigatórios:
 ET → tipo_entidade
 E  → entidade
 S  → sucursal
-G  → grupo
+G  → group
 L  → idioma
 ```
 

@@ -16,7 +16,7 @@ src/django_resaas.egg-info/top_level.txt
 src/django_resaas/core/conf.py
 src/django_resaas/core/constasts.py
 src/django_resaas/core/signals.py
-src/django_resaas/core/tipo_entidade_grupo.py
+src/django_resaas/core/tipo_entidade_group.py
 src/django_resaas/core/base/admin.py
 src/django_resaas/core/base/models.py
 src/django_resaas/core/base/permissions.py
@@ -56,9 +56,9 @@ src/django_resaas/data/ficheiro/models/ficheiro.py
 src/django_resaas/data/ficheiro/serializers/ficheiro.py
 src/django_resaas/data/ficheiro/serializers/ficheiro_gravar.py
 src/django_resaas/data/ficheiro/views/ficheiro.py
-src/django_resaas/data/group/models/grupo.py
-src/django_resaas/data/group/serializers/grupo.py
-src/django_resaas/data/group/views/grupo.py
+src/django_resaas/data/group/models/group.py
+src/django_resaas/data/group/serializers/group.py
+src/django_resaas/data/group/views/group.py
 src/django_resaas/data/idioma/models/idioma.py
 src/django_resaas/data/idioma/serializers/idioma.py
 src/django_resaas/data/idioma/views/idioma.py

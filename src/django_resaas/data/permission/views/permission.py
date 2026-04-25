@@ -55,9 +55,9 @@ class  PermissionAPIView(viewsets.ModelViewSet):
         methods=['POST'],
     )
     def addToGroup(self, request, id):
-        grupo = Group.objects.get(id=request.data['id'])
+        group = Group.objects.get(id=request.data['id'])
         permission = Permission.objects.get(id=id)
-        grupo.permissions.add(permission)
+        group.permissions.add(permission)
     
         per= {'id': permission.id, 'nome': permission.codename, 'nomeseparado':permission.name, 'alert_success': 'Permicao <b>' +permission.name + '</b> foi Adicionado consucesso'}
         return Response(per,status.HTTP_201_CREATED )
@@ -68,9 +68,9 @@ class  PermissionAPIView(viewsets.ModelViewSet):
         methods=['POST'],
     )
     def removeFromGroup(self, request, id):
-        grupo = Group.objects.get(id=request.data['id'])
+        group = Group.objects.get(id=request.data['id'])
         permission = Permission.objects.get(id=id)
-        grupo.permissions.remove(permission)
+        group.permissions.remove(permission)
     
         per= {'id': permission.id, 'nome': permission.codename, 'nomeseparado':permission.name, 'alert_info': 'Permicao <b>' +permission.name + '</b> foi removido consucesso'}
         return Response(per,status.HTTP_201_CREATED )

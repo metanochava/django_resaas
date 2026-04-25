@@ -86,7 +86,7 @@ class Command(BaseCommand):
             "tipo_entidade": "SaaS",
             "entidade": "Mytech",
             "sucursal": "Sede",
-            "grupo": ["Guest", "root", "Admin"],
+            "group": ["Guest", "root", "Admin"],
         }
 
         # ------------------------
@@ -131,38 +131,38 @@ class Command(BaseCommand):
         )
 
         # ------------------------
-        # 4. Grupo
+        # 4. Group
         # ------------------------
-        for g in data["grupo"]:
+        for g in data["group"]:
 
-            grupo, _ = Group.objects.get_or_create(
+            group, _ = Group.objects.get_or_create(
                 name=g
             )
 
             SucursalUserGroup.objects.get_or_create(
                 user=user,
                 sucursal=sucursal,
-                group=grupo,
+                group=group,
                 estado = 1
             )
 
-            user.groups.add(grupo)
+            user.groups.add(group)
 
             TipoEntidadeGroup.objects.get_or_create(
                 tipo_entidade=tipo_entidade,
-                group=grupo,
+                group=group,
                 estado = 1
             )
 
             EntidadeGroup.objects.get_or_create(
                 entidade=entidade,
-                group=grupo,
+                group=group,
                 estado = 1
             )
 
             SucursalGroup.objects.get_or_create(
                 sucursal=sucursal,
-                group=grupo,
+                group=group,
                 estado = 1
             )
 
@@ -197,7 +197,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_SUCCESS(f"{'TipoEntidade:':20} {tipo_entidade.nome}"))
         self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entidade:':20} {entidade.nome}"))
         self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Sucursal:':20} {sucursal.nome}"))
-        self.stdout.write(self.style.WARNING(f"{'Grupos:':20} {data['grupo']}"))
+        self.stdout.write(self.style.WARNING(f"{'Groups:':20} {data['group']}"))
         self.stdout.write(self.style.ERROR("⚠️ Guarde estas credenciais com segurança"))
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))

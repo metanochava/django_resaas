@@ -219,7 +219,7 @@ Organização principal (ex: Clínica ABC).
 
 Unidade da entidade (ex: Filial Luanda).
 
-🔹 Grupo
+🔹 Group
 
 Papel do utilizador numa sucursal (ex: Admin, RH, Médico).
 
@@ -231,7 +231,7 @@ múltiplas Entidades
 
 múltiplas Sucursais
 
-múltiplos Grupos
+múltiplos Groups
 
 🧭 Contexto Obrigatório (Headers)
 
@@ -241,7 +241,7 @@ Header	Descrição
 ET	ID do Tipo de Entidade
 E	ID da Entidade
 S	ID da Sucursal
-G	ID do Grupo
+G	ID do Group
 L	Idioma 
 
 📌 Sem estes headers, o acesso é negado.
@@ -299,7 +299,7 @@ Estas permissões:
 
 são criadas pelo Django
 
-podem ser atribuídas a grupos
+podem ser atribuídas a groups
 
 podem ser usadas nas views
 
@@ -312,15 +312,15 @@ isPermited(request=request, role=[codename])
 
 Internamente, o sistema valida numa única query:
 
-user ∈ grupo
+user ∈ group
 
-grupo ∈ sucursal
+group ∈ sucursal
 
 sucursal ∈ entidade
 
 entidade ∈ tipo_entidade
 
-grupo possui a permissão solicitada
+group possui a permissão solicitada
 
 Se qualquer condição falhar → acesso negado.
 

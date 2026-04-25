@@ -123,7 +123,7 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['GET'],
     )
-    def userGrupos(self, request, id, *args, **kwargs):
+    def userGroups(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
         user = UserSerializer(user)
 
@@ -154,8 +154,8 @@ class UserAPIView(viewsets.ModelViewSet):
         
         per = []
         if (sucursalUserGroup):
-            grupo = Group.objects.get(id=sucursalUserGroup[0].group.id)
-            permissions = grupo.permissions.all()
+            group = Group.objects.get(id=sucursalUserGroup[0].group.id)
+            permissions = group.permissions.all()
 
             for permission in permissions:
                 per.append({'id': permission.id, 'codename': permission.codename, 'name': permission.name})
@@ -197,8 +197,8 @@ class UserAPIView(viewsets.ModelViewSet):
         sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = request.user.id, sucursal__id=request.sucursal_id, group__id=request.group_id)
         user_perms = []
         if (sucursalUserGroup):
-            grupo = Group.objects.get(id=sucursalUserGroup[0].group.id)
-            permissions = grupo.permissions.all()
+            group = Group.objects.get(id=sucursalUserGroup[0].group.id)
+            permissions = group.permissions.all()
             for permission in permissions:
                 user_perms.append(permission.codename)
 

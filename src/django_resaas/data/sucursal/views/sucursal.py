@@ -68,7 +68,7 @@ class  SucursalAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['GET'],
     )
-    def grupos(self, request, id):
+    def groups(self, request, id):
         sucursalUserGroups = SucursalUserGroup.objects.all().filter(sucursal__id=id, user__id=request.user.id)
         suc = []
         for sucursalUserGroup in sucursalUserGroups:
