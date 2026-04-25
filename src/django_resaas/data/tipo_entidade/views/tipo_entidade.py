@@ -6,6 +6,7 @@ from django.conf import settings as dj_settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 
+
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -39,69 +40,62 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
     queryset = TipoEntidade.objects.all()
     lookup_field = 'id'
 
+
     def get_queryset(self):
         if self.request.query_params.get('all'):
             return self.queryset.order_by('ordem')
 
         self._paginator = None
-        return self.queryset.filter(
-            estado=1
-        ).order_by('ordem')
+        return self.queryset.filter(estado=1).order_by('ordem')
 
+    # ===============================
+    # USER ENTIDADES
+    # ===============================
     @action(detail=True, methods=['GET'])
     def user_entidades(self, request, id):
-        entidades = Entidade.objects.filter(
-            tipo_entidade__id=id
-        )
+        entidades = Entidade.objects.filter(tipo_entidade__id=id)
         resultado = []
 
         for entidade in entidades:
             try:
-                EntidadeUser.objects.get(
-                    entidade=entidade,
-                    user=request.user
-                )
+                EntidadeUser.objects.get(entidade=entidade, user=request.user)
                 logo = FullPath.url(request, entidade.logo.name, temporary=False)
-                resultado.append(
-                    {
-                        'id': entidade.id,
-                        'nome': entidade.nome,
-                        'logo': logo,
-                    }
-                )
+
+                resultado.append({
+                    'id': entidade.id,
+                    'nome': entidade.nome,
+                    'logo': logo,
+                })
             except EntidadeUser.DoesNotExist:
                 continue
 
         return Response(resultado, status=status.HTTP_200_OK)
 
+    # ===============================
+    # ENTIDADES
+    # ===============================
     @action(detail=True, methods=['GET'])
     def entidades(self, request, id):
-        entidades = Entidade.objects.filter(
-            tipo_entidade__id=id
+        entidades = Entidade.objects.filter(tipo_entidade__id=id)
+        return Response(
+            [{'id': e.id, 'nome': e.nome} for e in entidades],
+            status=status.HTTP_200_OK
         )
-        resultado = [
-            {'id': entidade.id, 'nome': entidade.nome}
-            for entidade in entidades
-        ]
-        return Response(resultado, status=status.HTTP_200_OK)
 
+    # ===============================
+    # PERFIL
+    # ===============================
     @action(detail=True, methods=['PUT'])
     def perfilPut(self, request, id):
         group = Group.objects.get(id=request.data['id'])
         group.name = request.data['name']
         group.save()
 
-        return Response(
-            {
-                'id': group.id,
-                'name': group.name,
-                'alert_success': Translate.tdc(
-                    request,
-                    f'Perfil <b>{group.name}</b> actualizado com sucesso'
-                ),
-            },
-            status=status.HTTP_201_CREATED,
-        )
+        return Response({
+            'id': group.id,
+            'name': group.name,
+            'alert_success': Translate.tdc(request, f'Perfil <b>{group.name}</b> actualizado com sucesso'),
+        }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['POST'])
     def perfilPost(self, request, id):
@@ -109,94 +103,188 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
         group = Group.objects.create(name=request.data['name'])
 
         tipo_entidade.groups.add(group)
+
         for entidade in Entidade.objects.filter(tipo_entidade_id=id):
             entidade.groups.add(group)
 
-        return Response(
-            {
-                'id': group.id,
-                'name': group.name,
-                'alert_success': Translate.tdc(
-                    request,
-                    f'Perfil <b>{group.name}</b> criado com sucesso'
-                ),
-            },
-            status=status.HTTP_201_CREATED,
-        )
+        return Response({
+            'id': group.id,
+            'name': group.name,
+            'alert_success': Translate.tdc(request, f'Perfil <b>{group.name}</b> criado com sucesso'),
+        }, status=status.HTTP_201_CREATED)
 
+    # ===============================
+    # APPS
+    # ===============================
     @action(detail=True, methods=['GET'])
     def apps(self, request, id):
         resultado = []
 
         for app in apps.get_app_configs():
-            resultado.append(
-                {
-                    'name': app.name,
-                    'label': app.label,
-                    'verbose': app.verbose_name,
-                }
-            )
-
-        for app in dj_settings.INSTALLED_APPS:
-            resultado.append(app)
+            resultado.append({
+                'name': app.name,
+                'label': app.label,
+                'verbose': app.verbose_name,
+            })
 
         return Response(resultado, status=status.HTTP_200_OK)
 
+    # ===============================
+    # MODELOS
+    # ===============================
     @action(detail=True, methods=['GET'])
     def modelos(self, request, id):
         tipo_entidade = TipoEntidade.objects.get(id=id)
+
         modelos = [
             {
                 'id': tem.modelo.id,
                 'model': tem.modelo.model,
                 'app_label': tem.modelo.app_label,
             }
-            for tem in TipoEntidadeModelo.filter(tipo_entidade__id=tipo_entidade.id)
+            for tem in TipoEntidadeModelo.objects.filter(tipo_entidade=tipo_entidade)
         ]
+
         return Response(modelos, status=status.HTTP_200_OK)
 
+    # ===============================
+    # ADD MODELO
+    # ===============================
     @action(detail=True, methods=['POST'])
     def addModelo(self, request, id):
         tipo_entidade = TipoEntidade.objects.get(id=id)
         modelo = ContentType.objects.get(id=request.data['id'])
 
-        TipoEntidadeModelo.objects.get_or_create(tipo_entidade__id=tipo_entidade.id, modelo=modelo)
-        for entidade in Entidade.objects.filter(tipo_entidade_id=id):
-            EntidadeModelo.objects.get_or_create(entidade__id=entidade.id, modelo=modelo)
-
-        return Response(
-            {
-                'id': modelo.id,
-                'model': modelo.model,
-                'alert_success': Translate.tdc(
-                    request,
-                    f'Aplicação <b>{modelo.model}</b> criada com sucesso'
-                ),
-            },
-            status=status.HTTP_201_CREATED,
+        TipoEntidadeModelo.objects.get_or_create(
+            tipo_entidade=tipo_entidade,
+            modelo=modelo
         )
 
+        for entidade in Entidade.objects.filter(tipo_entidade_id=id):
+            EntidadeModelo.objects.get_or_create(
+                entidade=entidade,
+                modelo=modelo
+            )
+
+        return Response({
+            'id': modelo.id,
+            'model': modelo.model,
+            'alert_success': Translate.tdc(request, f'Aplicação <b>{modelo.model}</b> criada com sucesso')
+        }, status=status.HTTP_201_CREATED)
+
+    # ===============================
+    # REMOVE MODELO
+    # ===============================
     @action(detail=True, methods=['POST'])
     def removeModelo(self, request, id):
         tipo_entidade = TipoEntidade.objects.get(id=id)
         modelo = ContentType.objects.get(id=request.data['id'])
 
-        TipoEntidadeModelo.objects.filter(tipo_entidade__id=tipo_entidade.id, modelo=modelo).delete()
+        TipoEntidadeModelo.objects.filter(
+            tipo_entidade=tipo_entidade,
+            modelo=modelo
+        ).delete()
+
         for entidade in Entidade.objects.filter(tipo_entidade_id=id):
-            EntidadeModelo.objects.filter(entidade__id=entidade.id, modelo=modelo).delete()
+            EntidadeModelo.objects.filter(
+                entidade=entidade,
+                modelo=modelo
+            ).delete()
 
-        return Response(
-            {
-                'id': modelo.id,
-                'model': modelo.model,
-                'alert_success': Translate.tdc(
+        return Response({
+            'id': modelo.id,
+            'model': modelo.model,
+            'alert_success': Translate.tdc(request, f'Aplicação <b>{modelo.model}</b> removida com sucesso')
+        }, status=status.HTTP_201_CREATED)
+
+ 
+    # ===============================
+    # SYNC MODELOS (🔥 PRINCIPAL)
+    # ===============================
+    @action(detail=True, methods=['POST'])
+    def syncModelos(self, request, id):
+        try:
+            tipo_entidade = TipoEntidade.objects.get(id=id)
+            ids = request.data.get('ids', [])
+
+            # 🔥 validação
+            if not isinstance(ids, list):
+                return Response({"error": "ids must be list"}, status=400)
+
+            # 🔥 modelos atuais
+            atuais = set(
+                TipoEntidadeModelo.objects.filter(tipo_entidade=tipo_entidade)
+                .values_list('modelo_id', flat=True)
+            )
+
+            novos = set(ids)
+
+            para_adicionar = novos - atuais
+            para_remover = atuais - novos
+
+            # 🔥 evitar N+1
+            entidades = list(Entidade.objects.filter(tipo_entidade_id=id))
+
+            # ============================
+            # ➕ ADICIONAR
+            # ============================
+            if para_adicionar:
+                modelos_add = ContentType.objects.filter(id__in=para_adicionar)
+
+                # TipoEntidadeModelo
+                TipoEntidadeModelo.objects.bulk_create([
+                    TipoEntidadeModelo(tipo_entidade=tipo_entidade, modelo=m)
+                    for m in modelos_add
+                ], ignore_conflicts=True)
+
+                # EntidadeModelo
+                EntidadeModelo.objects.bulk_create([
+                    EntidadeModelo(entidade=e, modelo=m)
+                    for e in entidades
+                    for m in modelos_add
+                ], ignore_conflicts=True)
+
+            # ============================
+            # ➖ REMOVER
+            # ============================
+            if para_remover:
+                modelos_remove = ContentType.objects.filter(id__in=para_remover)
+
+                TipoEntidadeModelo.objects.filter(
+                    tipo_entidade=tipo_entidade,
+                    modelo__in=modelos_remove
+                ).delete()
+
+                EntidadeModelo.objects.filter(
+                    entidade__in=entidades,
+                    modelo__in=modelos_remove
+                ).delete()
+
+            return Response({
+                "success": True,
+                "added": list(para_adicionar),
+                "removed": list(para_remover),
+                "alert_success": Translate.tdc(
                     request,
-                    f'Aplicação <b>{modelo.model}</b> removida com sucesso'
-                ),
-            },
-            status=status.HTTP_201_CREATED,
-        )
+                    "Modelos sincronizados com sucesso"
+                )
+            })
 
+        except TipoEntidade.DoesNotExist:
+            return Response({
+                "success": False,
+                "error": "TipoEntidade não encontrado"
+            }, status=404)
+
+        except Exception as e:
+            return Response({
+                "success": False,
+                "error": str(e)
+            }, status=400)
+
+
+
+    
     @action(detail=True, methods=['GET'])
     def modulos(self, request, *args, **kwargs):
         tipo_entidade = self.get_object()
@@ -339,5 +427,6 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
         animation_settings.save()
         animation_settings = AnimationSettingSerializer(animation_settings).data
         return Response(animation_settings, status=status.HTTP_200_OK)
+
 
 
