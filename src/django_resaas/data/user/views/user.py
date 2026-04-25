@@ -147,7 +147,7 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['GET'],
     )
-    def userPermicoes(self, request, id, *args, **kwargs):
+    def permissions(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
         user = UserSerializer(user)
         sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = id, sucursal__id=request.sucursal_id, group__id=request.group_id)

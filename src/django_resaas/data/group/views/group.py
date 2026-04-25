@@ -14,6 +14,7 @@ from django.db.models import F
 from django.http import Http404
 
 
+
 # =========================
 # Django REST Framework
 # =========================
@@ -161,3 +162,55 @@ class GroupAPIView(viewsets.ModelViewSet):
         )
 
     
+    
+
+
+    @action(detail=True, methods=["POST"])
+    def removePermission(self, request, pk=None):
+        group = self.get_object()
+
+        codename = request.data.get("codename")
+
+        if not codename:
+            return Response(
+                {"alert_error": "codename é obrigatório"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            permission = Permission.objects.get(codename=codename)
+        except Permission.DoesNotExist:
+            return Response(
+                {"alert_error": "Permissão não encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # 🔥 remover permissão
+        group.permissions.remove(permission)
+
+        return Response(
+            {
+                "id": permission.id,
+                "codename": permission.codename,
+                "name": permission.name,
+                "alert_success": f'Permissão <b>{permission.name}</b> removida com sucesso',
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    
+    @action(
+        detail=True,
+        methods=['GET'],
+    )
+    def permissions(self, request, id, *args, **kwargs):
+        per = []
+        group = Group.objects.get(id=id)
+        permissions = group.permissions.all()
+
+        for permission in permissions:
+            per.append({'id': permission.id, 'codename': permission.codename, 'name': permission.name})
+
+        if True:
+            return Response(per, status.HTTP_200_OK)
+        return Response([], status.HTTP_400_BAD_REQUEST)
