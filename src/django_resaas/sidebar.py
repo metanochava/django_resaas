@@ -15,7 +15,7 @@ SUBMENUS = [
         "rota": "list_group",
         "add_role": "add_group",
         "add_rota": "add_group",
-        'crud': { 'module': 'auth', 'model': 'Group' }
+        # 'crud': { 'module': 'auth', 'model': 'Group' }
     }, 
     {
         "menu": "Permission",
@@ -24,7 +24,7 @@ SUBMENUS = [
         "rota": "list_permission",
         "add_role": "add_permission",
         "add_rota": "add_permission",
-        'crud': { 'module': 'auth', 'model': 'Permission' }
+        # 'crud': { 'module': 'auth', 'model': 'Permission' }
     }, 
     {
         "menu": "Ficheiro",

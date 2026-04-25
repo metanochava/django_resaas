@@ -157,13 +157,15 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
 
         TipoEntidadeModelo.objects.get_or_create(
             tipo_entidade=tipo_entidade,
-            modelo=modelo
+            modelo=modelo,
+            estado=1
         )
 
         for entidade in Entidade.objects.filter(tipo_entidade_id=id):
             EntidadeModelo.objects.get_or_create(
                 entidade=entidade,
-                modelo=modelo
+                modelo=modelo,
+                estado=1
             )
 
         return Response({
