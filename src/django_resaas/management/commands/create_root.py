@@ -21,10 +21,12 @@ from django_resaas.models.sucursal_group import SucursalGroup
 User = get_user_model()
 
 GROUPS_WITH_ID = [
-    (1, "Guest"),
-    (2, "root"),
-    (3, "Admin"),
+"Guest",
+"Admin",
+"Root",
 ]
+
+
 
 
 class Command(BaseCommand):
@@ -138,11 +140,10 @@ class Command(BaseCommand):
         # ------------------------
         # 4. Group
         # ------------------------
-        for gid, gname in GROUPS_WITH_ID:
+        for gname in GROUPS_WITH_ID:
 
             group, _ = Group.objects.get_or_create(
-                id=gid,  # 🔥 FORÇA O ID
-                defaults={"name": gname}
+                name = gname
             )
 
 
@@ -204,7 +205,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_SUCCESS(f"{'TipoEntidade:':20} {tipo_entidade.nome}"))
         self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entidade:':20} {entidade.nome}"))
         self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Sucursal:':20} {sucursal.nome}"))
-        self.stdout.write(self.style.WARNING(f"{'Groups:':20} {GROUPS_WITH_ID}"))
+        self.stdout.write(self.style.WARNING(f"{'Groups:':20} Guest, root e Admin"))
         self.stdout.write(self.style.ERROR("⚠️ Guarde estas credenciais com segurança"))
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))

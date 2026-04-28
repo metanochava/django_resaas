@@ -14,6 +14,19 @@ class DjangoResaasConfig(AppConfig):
         ✔ evita efeitos colaterais
         """
 
+        from django.contrib.auth.models import Group
+        GROUPS_WITH_ID = [
+            (1, "Guest"),
+            (2, "Root"),
+            (3, "Admin"),
+        ]
+
+        for gid, gname in GROUPS_WITH_ID:
+            group, _ = Group.objects.get_or_create(
+                id=gid,  # 🔥 FORÇA O ID
+                defaults={"name": gname}
+            )
+
         # 🔥 IMPORT LAZY (IMPORTANTE)
         self.load_permissions()
 
