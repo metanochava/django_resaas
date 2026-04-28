@@ -20,6 +20,12 @@ from django_resaas.models.sucursal_group import SucursalGroup
 
 User = get_user_model()
 
+GROUPS_WITH_ID = [
+    (1, "Guest"),
+    (2, "root"),
+    (3, "Admin"),
+]
+
 
 class Command(BaseCommand):
     help = "Cria um superuser estático se não existir"
@@ -86,7 +92,6 @@ class Command(BaseCommand):
             "tipo_entidade": "SaaS",
             "entidade": "Mytech",
             "sucursal": "Sede",
-            "group": ["Guest", "root", "Admin"],
         }
 
         # ------------------------
@@ -133,11 +138,13 @@ class Command(BaseCommand):
         # ------------------------
         # 4. Group
         # ------------------------
-        for g in data["group"]:
+        for gid, gname in GROUPS_WITH_ID:
 
-            group, _ = Group.objects.get_or_create(
-                name=g
+            group, _ = Group.objects.update_or_create(
+                id=gid,  # 🔥 FORÇA O ID
+                defaults={"name": gname}
             )
+
 
             SucursalUserGroup.objects.get_or_create(
                 user=user,
@@ -197,7 +204,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_SUCCESS(f"{'TipoEntidade:':20} {tipo_entidade.nome}"))
         self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entidade:':20} {entidade.nome}"))
         self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Sucursal:':20} {sucursal.nome}"))
-        self.stdout.write(self.style.WARNING(f"{'Groups:':20} {data['group']}"))
+        self.stdout.write(self.style.WARNING(f"{'Groups:':20} {GROUPS_WITH_ID}"))
         self.stdout.write(self.style.ERROR("⚠️ Guarde estas credenciais com segurança"))
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))
