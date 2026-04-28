@@ -1,4 +1,28 @@
 from django.apps import AppConfig
+from django.db.models.signals import post_migrate
+
+
+# ==========================================================
+# CREATE SAUDE GROUPS
+# ==========================================================
+def create_django_resaas_groups(sender, **kwargs):
+    if kwargs.get("app_config").name != "django_resaas":
+        return
+
+    from django.contrib.auth.models import Group
+    GROUPS_WITH_ID = [
+        (1, "Guest"),
+        (2, "Root"),
+        (3, "Admin"),
+    ]
+
+    for gid, gname in GROUPS_WITH_ID:
+        group, _ = Group.objects.get_or_create(
+            id=gid,  # 🔥 FORÇA O ID
+            defaults={"name": gname}
+        )
+
+
 
 
 class DjangoResaasConfig(AppConfig):
@@ -14,18 +38,11 @@ class DjangoResaasConfig(AppConfig):
         ✔ evita efeitos colaterais
         """
 
-        from django.contrib.auth.models import Group
-        GROUPS_WITH_ID = [
-            (1, "Guest"),
-            (2, "Root"),
-            (3, "Admin"),
-        ]
 
-        for gid, gname in GROUPS_WITH_ID:
-            group, _ = Group.objects.get_or_create(
-                id=gid,  # 🔥 FORÇA O ID
-                defaults={"name": gname}
-            )
+        # 🔥 SIGNAL CORRETO
+        post_migrate.connect(create_django_resaas_groups, sender=self)
+
+        
 
         # 🔥 IMPORT LAZY (IMPORTANTE)
         self.load_permissions()
