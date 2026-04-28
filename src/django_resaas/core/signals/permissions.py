@@ -33,7 +33,6 @@ def create_model_permissions(sender, **kwargs):
 
     ✔ scaffold permissions
 
-    ✔ Atualiza automaticamente quando novos modelos são adicionados
     ✔ Seguro para múltiplas execuções (idempotente)
     """
 
@@ -41,6 +40,13 @@ def create_model_permissions(sender, **kwargs):
     # EXECUTA APENAS NO APP PRINCIPAL
     # ------------------------------------------------------
     if kwargs.get("app_config").name != "django_resaas":
+        return
+
+    # ------------------------------------------------------
+    # 🔥 FIX CRÍTICO: GARANTE CONTEXTO ANTES DE EXECUTAR
+    # Evita erro: tipo_entidade_id = NULL
+    # ------------------------------------------------------
+    if not TipoEntidade.objects.exists():
         return
 
     # ------------------------------------------------------
@@ -67,7 +73,6 @@ def create_model_permissions(sender, **kwargs):
 
         ct = ContentType.objects.get_for_model(model)
 
-        # 🔹 permissões extras do sistema
         for codename, label in [
             ("list", "Can list"),
             ("pdf", "Can pdf"),
@@ -112,7 +117,6 @@ def create_model_permissions(sender, **kwargs):
     # ======================================================
     # ATUALIZAR GROUP ROOT
     # ======================================================
-    # 🔹 incremental (não remove permissões existentes)
     admin_group.permissions.add(*created_perms)
 
 
