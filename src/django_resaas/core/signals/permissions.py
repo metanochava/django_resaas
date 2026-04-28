@@ -36,6 +36,7 @@ def create_model_permissions(sender, **kwargs):
     ✔ pdf_<model>
     ✔ restore_<model>
     ✔ hard_delete_<model>
+
     ✔ scaffold permissions
 
     ✔ Atualiza automaticamente quando novos modelos são adicionados
@@ -76,6 +77,28 @@ def create_model_permissions(sender, **kwargs):
                 content_type=ct,
                 defaults={"name": f"{label} {model._meta.verbose_name}"},
             )
+            created_perms.append(perm)
+    
+
+    for model in [Group, Permission]:
+
+        ct = ContentType.objects.get_for_model(model)
+
+        for codename, label in [
+            ("changue", "Can change"),
+            ("add", "Can add"),
+            ("delete", "Can delete"),
+            ("view", "Can view "),
+        ]:
+
+            perm, _ = Permission.objects.get_or_create(
+                codename=f"{codename}_{model._meta.model_name}",
+                content_type=ct,
+                defaults={
+                    "name": f"{label} {model._meta.verbose_name}"
+                },
+            )
+
             created_perms.append(perm)
 
     # ==================================================
