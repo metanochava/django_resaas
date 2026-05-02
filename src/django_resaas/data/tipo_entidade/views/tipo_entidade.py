@@ -27,6 +27,9 @@ from django_resaas.data.theme.serializers.theme import ThemeSerializer, Typograp
 from django_resaas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer, AnimationSettingSerializer
 
 
+from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup  # 🔥 NOVO
+
+
 from django_resaas.data.tipo_entidade.serializers.tipo_entidade import (
     TipoEntidadeSerializer
 )
@@ -82,37 +85,7 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    # ===============================
-    # PERFIL
-    # ===============================
-    @action(detail=True, methods=['PUT'])
-    def perfilPut(self, request, id):
-        group = Group.objects.get(id=request.data['id'])
-        group.name = request.data['name']
-        group.save()
-
-        return Response({
-            'id': group.id,
-            'name': group.name,
-            'alert_success': Translate.tdc(request, f'Perfil <b>{group.name}</b> actualizado com sucesso'),
-        }, status=status.HTTP_201_CREATED)
-
-    @action(detail=True, methods=['POST'])
-    def perfilPost(self, request, id):
-        tipo_entidade = TipoEntidade.objects.get(id=id)
-        group = Group.objects.create(name=request.data['name'])
-
-        tipo_entidade.groups.add(group)
-
-        for entidade in Entidade.objects.filter(tipo_entidade_id=id):
-            entidade.groups.add(group)
-
-        return Response({
-            'id': group.id,
-            'name': group.name,
-            'alert_success': Translate.tdc(request, f'Perfil <b>{group.name}</b> criado com sucesso'),
-        }, status=status.HTTP_201_CREATED)
-
+    
     # ===============================
     # APPS
     # ===============================
@@ -431,4 +404,80 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
         return Response(animation_settings, status=status.HTTP_200_OK)
 
 
+    # ===============================
+    # 🔥 GROUPS (FINAL LIMPO)
+    # ===============================
 
+    @action(detail=True, methods=['GET'])
+    def groups(self, request, id):
+        tipo = TipoEntidade.objects.get(id=id)
+
+        groups = TipoEntidadeGroup.objects.filter(
+            tipo_entidade=tipo
+        ).select_related('group')
+
+        return Response([
+            {
+                "id": g.group.id,
+                "name": g.group.name
+            }
+            for g in groups
+        ], status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['POST'])
+    def createGroup(self, request, id):
+        tipo = TipoEntidade.objects.get(id=id)
+        name = request.data.get("name")
+
+        if not name:
+            return Response({"error": "name é obrigatório"}, status=400)
+
+        group = Group.objects.create(name=name)
+
+        TipoEntidadeGroup.objects.get_or_create(
+            tipo_entidade=tipo,
+            group=group
+        )
+
+        for entidade in Entidade.objects.filter(tipo_entidade_id=id):
+            entidade.groups.add(group)
+
+        return Response({
+            "id": group.id,
+            "name": group.name
+        }, status=status.HTTP_201_CREATED)
+
+
+    @action(detail=True, methods=['POST'])
+    def addGroup(self, request, id):
+        tipo = TipoEntidade.objects.get(id=id)
+        group_id = request.data.get("group")
+
+        group = Group.objects.filter(id=group_id).first()
+        if not group:
+            return Response({"error": "Group not found"}, status=400)
+
+        TipoEntidadeGroup.objects.get_or_create(
+            tipo_entidade=tipo,
+            group=group
+        )
+
+        return Response({"success": True})
+
+
+    @action(detail=True, methods=['POST'])
+    def removeGroup(self, request, id):
+        tipo = TipoEntidade.objects.get(id=id)
+        group_id = request.data.get("group")
+
+        group = Group.objects.filter(id=group_id).first()
+        if not group:
+            return Response({"error": "Group not found"}, status=400)
+
+        TipoEntidadeGroup.objects.filter(
+            tipo_entidade=tipo,
+            group=group
+        ).delete()
+
+        return Response({"success": True})
