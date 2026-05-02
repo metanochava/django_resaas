@@ -28,6 +28,7 @@ from django_resaas.data.layout_setting.serializers.layout_setting import LayoutS
 
 
 from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup  # 🔥 NOVO
+from django_resaas.models.entidade_group import EntidadeGroup
 
 
 from django_resaas.data.tipo_entidade.serializers.tipo_entidade import (
@@ -427,26 +428,31 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['POST'])
     def createGroup(self, request, id):
-        tipo = TipoEntidade.objects.get(id=id)
-        name = request.data.get("name")
+        tipo = self.get_object()
 
+        name = request.data.get("name")
         if not name:
             return Response({"error": "name é obrigatório"}, status=400)
 
         group = Group.objects.create(name=name)
 
+        # 🔥 TipoEntidade
         TipoEntidadeGroup.objects.get_or_create(
             tipo_entidade=tipo,
             group=group
         )
 
+        # 🔥 Entidades
         for entidade in Entidade.objects.filter(tipo_entidade_id=id):
-            entidade.groups.add(group)
+            EntidadeGroup.objects.get_or_create(
+                entidade=entidade,
+                group=group
+            )
 
         return Response({
             "id": group.id,
             "name": group.name
-        }, status=status.HTTP_201_CREATED)
+        })
 
 
     @action(detail=True, methods=['POST'])
