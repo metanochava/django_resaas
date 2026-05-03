@@ -17,6 +17,8 @@ from django_resaas.core.utils.full_path import FullPath
 from django_resaas.models.tipo_entidade import TipoEntidade
 from django_resaas.models.entidade import Entidade
 from django_resaas.models.entidade_user import EntidadeUser
+        
+from django_resaas.models.modulo import Modulo
 from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
@@ -260,23 +262,67 @@ class TipoEntidadeAPIView(viewsets.ModelViewSet):
 
 
 
-    
-    @action(detail=True, methods=['GET'])
-    def modulos(self, request, *args, **kwargs):
-        tipo_entidade = self.get_object()
-        relacoes = TipoEntidadeModulo.objects.filter(
-            tipo_entidade=tipo_entidade.id
-        )
+        
 
-        modulos = [
+
+
+    # ===============================
+    # 🔥 GET MODULOS DO TIPO
+    # ===============================
+    @action(detail=True, methods=['GET'])
+    def modulos(self, request, id):
+        tipo = self.get_object()
+
+        relacoes = TipoEntidadeModulo.objects.filter(
+            tipo_entidade=tipo
+        ).select_related('modulo')
+
+        return Response([
             {
-                'id': rel.modelo.id,
-                'nome': rel.modelo.nome,
+                "id": rel.modulo.id,
+                "nome": rel.modulo.nome
             }
             for rel in relacoes
-        ]
+        ], status=status.HTTP_200_OK)
 
-        return Response(modulos, status=status.HTTP_200_OK)
+
+    # ===============================
+    # 🔥 ADD MODULO
+    # ===============================
+    @action(detail=True, methods=['POST'])
+    def addModulo(self, request, id):
+        tipo = self.get_object()
+        modulo_id = request.data.get("id")
+
+        modulo = Modulo.objects.filter(id=modulo_id).first()
+        if not modulo:
+            return Response({"error": "Modulo not found"}, status=400)
+
+        TipoEntidadeModulo.objects.get_or_create(
+            tipo_entidade=tipo,
+            modulo=modulo
+        )
+
+        return Response({
+            "id": modulo.id,
+            "nome": modulo.nome
+        }, status=status.HTTP_201_CREATED)
+
+
+    # ===============================
+    # 🔥 REMOVE MODULO
+    # ===============================
+    @action(detail=True, methods=['POST'])
+    def removeModulo(self, request, id):
+        tipo = self.get_object()
+        modulo_id = request.data.get("id")
+
+        TipoEntidadeModulo.objects.filter(
+            tipo_entidade=tipo,
+            modulo_id=modulo_id
+        ).delete()
+
+        return Response({"success": True})
 
 
     @action(detail=True, methods=['GET'])

@@ -60,6 +60,7 @@ from django_resaas.data.idioma.views.idioma import IdiomaAPIView
 from django_resaas.data.ficheiro.views.ficheiro import FicheiroAPIView
 from django_resaas.data.permission.views.permission import PermissionAPIView
 from django_resaas.data.modelo.views.modelo import ModeloAPIView
+from django_resaas.data.modulo.views.modulo import ModuloAPIView
 from django_resaas.data.user.views.user import UserAPIView
 from django_resaas.data.pessoa.views.pessoa import PessoaAPIView
 from django_resaas.data.theme.views.theme import ThemeAPIView
@@ -104,6 +105,7 @@ routerauth.register("groups", GroupAPIView, basename="groups")
 routerauth.register("permissions", PermissionAPIView, basename="permissions")
 
 routerdjango_resaas.register("modelos", ModeloAPIView, basename="modelos")
+routerdjango_resaas.register("modulos", ModuloAPIView, basename="modulos")
 routerdjango_resaas.register("resaas_modulos", ModuloSchemaAPIView, basename="resaas_modulos")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
 
