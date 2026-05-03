@@ -195,36 +195,64 @@ class UserAPIView(viewsets.ModelViewSet):
         return result
 
 
+
     @action(detail=True, methods=['GET'])
     def menus(self, request, *args, **kwargs):
-        sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = request.user.id, sucursal__id=request.sucursal_id, group__id=request.group_id)
-        user_perms = []
-        if (sucursalUserGroup):
-            group = Group.objects.get(id=sucursalUserGroup[0].group.id)
-            permissions = group.permissions.all()
-            for permission in permissions:
-                user_perms.append(permission.codename)
 
+        # ===============================
+        # 🔥 PERMISSÕES DO USER
+        # ===============================
+        sucursalUserGroup = SucursalUserGroup.objects.filter(
+            user__id=request.user.id,
+            sucursal__id=request.sucursal_id,
+            group__id=request.group_id
+        )
+
+        user_perms = []
+
+        if sucursalUserGroup.exists():
+            group = sucursalUserGroup.first().group
+            permissions = group.permissions.all()
+            user_perms = [p.codename for p in permissions]
+
+        # ===============================
+        # 🔥 MODULOS ATIVOS
+        # ===============================
+        modulos = EntidadeModulo.objects.filter(
+            entidade__id=request.entidade_id,
+            modulo__estado=1,
+            estado=1
+        ).select_related('modulo')
+
+        nomes_modulos = [m.modulo.nome for m in modulos]
+
+        # ===============================
+        # 🔥 GERAR MENUS
+        # ===============================
+
+        
         MENUS = []
-      
 
         for app in apps.get_app_configs():
+
+            # 🔥 FILTRO PRINCIPAL (MÓDULOS)
+            if app.label not in nomes_modulos:
+                continue
+
             module_name = f"{app.name}.sidebar"
-            if not EntidadeModulo.objects.filter(entidade__id=request.entidade_id, modulo__nome=app.label, modulo__estado=1, estado=1).exists():
+
+            # 🔥 verifica se existe sidebar
+            try:
+                sidebar = importlib.import_module(module_name)
+            except ModuleNotFoundError:
                 continue
 
-            if not importlib.util.find_spec(module_name):
-                continue
-
-            sidebar = importlib.import_module(module_name)
-
-            # Filtrar submenus recursivamente
+            # 🔥 filtrar submenus por permissão
             filtered_submenus = self.filter_menu_by_permission(
                 sidebar.SUBMENUS,
                 user_perms
             )
-    
-            # Se não tem submenu permitido → ignora menu
+
             if not filtered_submenus:
                 continue
 
@@ -235,6 +263,47 @@ class UserAPIView(viewsets.ModelViewSet):
             })
 
         return Response(MENUS, status=status.HTTP_200_OK)
+
+    # @action(detail=True, methods=['GET'])
+    # def menus(self, request, *args, **kwargs):
+    #     sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = request.user.id, sucursal__id=request.sucursal_id, group__id=request.group_id)
+    #     user_perms = []
+    #     if (sucursalUserGroup):
+    #         group = Group.objects.get(id=sucursalUserGroup[0].group.id)
+    #         permissions = group.permissions.all()
+    #         for permission in permissions:
+    #             user_perms.append(permission.codename)
+
+    #     MENUS = []
+      
+
+    #     for app in apps.get_app_configs():
+    #         module_name = f"{app.name}.sidebar"
+    #         if not EntidadeModulo.objects.filter(entidade__id=request.entidade_id, modulo__nome=app.label, modulo__estado=1, estado=1).exists():
+    #             continue
+
+    #         if not importlib.util.find_spec(module_name):
+    #             continue
+
+    #         sidebar = importlib.import_module(module_name)
+
+    #         # Filtrar submenus recursivamente
+    #         filtered_submenus = self.filter_menu_by_permission(
+    #             sidebar.SUBMENUS,
+    #             user_perms
+    #         )
+    
+    #         # Se não tem submenu permitido → ignora menu
+    #         if not filtered_submenus:
+    #             continue
+
+    #         MENUS.append({
+    #             "menu": sidebar.MENU,
+    #             "icon": sidebar.ICON,
+    #             "submenu": filtered_submenus,
+    #         })
+
+    #     return Response(MENUS, status=status.HTTP_200_OK)
 
 
     @action(

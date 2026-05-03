@@ -48,6 +48,7 @@ def _current_release():
         return None
 
 
+
 def _list_releases(limit=30):
     if not os.path.isdir(RELEASES_DIR):
         return []
