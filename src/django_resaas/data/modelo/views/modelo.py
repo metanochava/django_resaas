@@ -28,7 +28,28 @@ class ModeloAPIView(viewsets.ModelViewSet):
     lookup_field = "id"
 
     def get_queryset(self):
-        return self.queryset.order_by('app_label', 'model')
+        qs = self.queryset
+
+        tipo_id = self.request.query_params.get("tipoentidade")
+
+        # 🔥 SE NÃO VIER PARAM → comportamento normal
+        if not tipo_id:
+            return qs.order_by('app_label', 'model')
+
+        # 🔥 SE VIER → aplicar filtro
+        modulos = TipoEntidadeModulo.objects.filter(
+            tipo_entidade_id=tipo_id
+        ).select_related('modulo')
+
+        nomes_modulos = [m.modulo.nome for m in modulos]
+
+        # 🔥 se não tiver módulos → retorna vazio (segurança)
+        if not nomes_modulos:
+            return qs.none()
+
+        qs = qs.filter(app_label__in=nomes_modulos)
+
+        return qs.order_by('app_label', 'model')
 
     def list(self, request, *args, **kwargs):
         self._paginator = None
