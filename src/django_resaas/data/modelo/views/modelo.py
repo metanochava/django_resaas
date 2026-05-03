@@ -12,6 +12,8 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 
+from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
+
 
 # =========================
 # Local application (absolute imports)
