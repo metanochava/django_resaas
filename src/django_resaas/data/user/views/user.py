@@ -23,6 +23,8 @@ from django_resaas.data.pessoa.serializers.pessoa import PessoaSerializer
 
 
 
+
+
 class UserAPIView(viewsets.ModelViewSet):
     search_fields = ['id','username']
     filter_backends = (filters.SearchFilter,)
@@ -203,53 +205,60 @@ class UserAPIView(viewsets.ModelViewSet):
         # 🔥 PERMISSÕES DO USER
         # ===============================
         sucursalUserGroup = SucursalUserGroup.objects.filter(
-            user__id=request.user.id,
-            sucursal__id=request.sucursal_id,
-            group__id=request.group_id
-        )
+            user_id=request.user.id,
+            sucursal_id=request.sucursal_id,
+            group_id=request.group_id
+        ).select_related('group')
 
         user_perms = []
 
         if sucursalUserGroup.exists():
             group = sucursalUserGroup.first().group
-            permissions = group.permissions.all()
-            user_perms = [p.codename for p in permissions]
+            user_perms = list(group.permissions.values_list('codename', flat=True))
 
         # ===============================
-        # 🔥 MODULOS ATIVOS
+        # 🔥 TIPO ENTIDADE
         # ===============================
-        modulos = EntidadeModulo.objects.filter(
-            entidade__id=request.entidade_id,
-            modulo__estado=1,
-            estado=1
+        tipo_id = getattr(request, "tipo_entidade_id", None)
+
+        if not tipo_id:
+            return Response([], status=status.HTTP_200_OK)
+
+        # ===============================
+        # 🔥 MODULOS ATIVOS (AGORA CORRETO)
+        # ===============================
+        modulos = TipoEntidadeModulo.objects.filter(
+            tipo_entidade_id=tipo_id
         ).select_related('modulo')
 
-        nomes_modulos = [m.modulo.nome for m in modulos]
+        nomes_modulos = set(m.modulo.nome for m in modulos)
 
         # ===============================
         # 🔥 GERAR MENUS
         # ===============================
-
-        
         MENUS = []
 
         for app in apps.get_app_configs():
 
-            # 🔥 FILTRO PRINCIPAL (MÓDULOS)
             if app.label not in nomes_modulos:
                 continue
 
             module_name = f"{app.name}.sidebar"
 
-            # 🔥 verifica se existe sidebar
             try:
                 sidebar = importlib.import_module(module_name)
             except ModuleNotFoundError:
                 continue
 
-            # 🔥 filtrar submenus por permissão
+            MENU = getattr(sidebar, "MENU", None)
+            ICON = getattr(sidebar, "ICON", "menu")
+            SUBMENUS = getattr(sidebar, "SUBMENUS", [])
+
+            if not MENU or not SUBMENUS:
+                continue
+
             filtered_submenus = self.filter_menu_by_permission(
-                sidebar.SUBMENUS,
+                SUBMENUS,
                 user_perms
             )
 
@@ -257,13 +266,12 @@ class UserAPIView(viewsets.ModelViewSet):
                 continue
 
             MENUS.append({
-                "menu": sidebar.MENU,
-                "icon": sidebar.ICON,
+                "menu": MENU,
+                "icon": ICON,
                 "submenu": filtered_submenus,
             })
 
         return Response(MENUS, status=status.HTTP_200_OK)
-
     # @action(detail=True, methods=['GET'])
     # def menus(self, request, *args, **kwargs):
     #     sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = request.user.id, sucursal__id=request.sucursal_id, group__id=request.group_id)
