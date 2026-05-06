@@ -48,7 +48,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 content_type__in=TipoEntidadeModelo.objects.filter(
                     tipo_entidade_id=tipo_id
-                ).values_list('content_type', flat=True)
+                ).values_list('modelo', flat=True)  # 🔥 CORRETO
             )
 
         return queryset.order_by(
