@@ -517,34 +517,6 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(
-        detail=True,
-        methods=['PUT'],
-    )
-    def perfilPut(self, request, pk):
-        group = Group.objects.get(id=request.data['id'])
-        group.name = request.data['name']
-        group.save()
-        
-        perfil = {'id': group.id, 'name': group.name, 'alert_success': 'Perfil <b>'+ group.name + ' </b> actualizado com sucesso'}
-        return Response(perfil, status.HTTP_201_CREATED)
-
-
-    @action(
-        detail=True,
-        methods=['POST'],
-    )
-    def perfilPost(self, request, pk):      
-        group = Group.objects.create(name=request.data['name'])
-        entidade = Entidade.objects.get(id=pk)
-        entidade.groups.add(group)
-
-        perfil = {'id': group.id, 'name': group.name, 'alert_success': 'Perfil <b>'+ group.name + ' </b> criado com sucesso'}
-        return Response(perfil, status.HTTP_201_CREATED)
-        
-
-
-
     @action(detail=True, methods=['GET'])
     def themeGet(self, request, *args, **kwargs):
         entidade = self.get_object()
@@ -784,3 +756,83 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         
 
         return PDF("django_resaas/invoice.html", request,  company= company, customer= customer, doc= doc, lines= lines, totals= totals, logo_b64= logo_b64, qr_b64= qr_b64, barcode_b64= barcode_b64,)
+
+    
+    
+    
+    
+    # ===============================
+    # 🔥 GROUPS (FINAL LIMPO)
+    # ===============================
+
+    @action(detail=True, methods=['GET'])
+    def groups(self, request, id):
+        entidade = Entidade.objects.get(id=id)
+
+        groups = EntidadeGroup.objects.filter(
+            entidade=entidade
+        ).select_related('group')
+
+        return Response([
+            {
+                "id": g.group.id,
+                "name": g.group.name
+            }
+            for g in groups
+        ], status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['POST'])
+    def createGroup(self, request, id):
+        entidade = self.get_object()
+
+        name = request.data.get("name")
+        if not name:
+            return Response({"error": "name é obrigatório"}, status=400)
+
+        group = Group.objects.create(name=name)
+
+        # 🔥 Entidade
+        EntidadeGroup.objects.get_or_create(
+            entidade=entidade,
+            group=group
+        )
+
+        return Response({
+            "id": group.id,
+            "name": group.name
+        })
+
+
+    @action(detail=True, methods=['POST'])
+    def addGroup(self, request, id):
+        entidade = Entidade.objects.get(id=id)
+        group_id = request.data.get("group")
+
+        group = Group.objects.filter(id=group_id).first()
+        if not group:
+            return Response({"error": "Group not found"}, status=400)
+
+        EntidadeGroup.objects.get_or_create(
+            entidade=entidade,
+            group=group
+        )
+
+        return Response({"success": True})
+
+
+    @action(detail=True, methods=['POST'])
+    def removeGroup(self, request, id):
+        entidade = Entidade.objects.get(id=id)
+        group_id = request.data.get("group")
+
+        group = Group.objects.filter(id=group_id).first()
+        if not group:
+            return Response({"error": "Group not found"}, status=400)
+
+        EntidadeGroup.objects.filter(
+            tipo_entidade=entidade,
+            group=group
+        ).delete()
+
+        return Response({"success": True})
