@@ -32,14 +32,28 @@ class PermissionAPIView(viewsets.ModelViewSet):
 
     # 🔥 QUERYSET BASE OTIMIZADO
     def get_queryset(self):
-        return (
+        tipo_id = getattr(self.request, "tipo_entidade_id", None)
+
+        queryset = (
             Permission.objects
-            .select_related('content_type')  # 🔥 evita query extra
+            .select_related('content_type')
             .annotate(
                 content_type_model=F('content_type__model'),
                 content_type_app=F('content_type__app_label')
             )
-            .order_by('content_type__app_label', 'content_type__model', 'codename')
+        )
+
+        if tipo_id:
+            queryset = queryset.filter(
+                content_type__in=TipoEntidadeModelo.objects.filter(
+                    tipo_entidade_id=tipo_id
+                ).values_list('content_type', flat=True)
+            )
+
+        return queryset.order_by(
+            'content_type__app_label',
+            'content_type__model',
+            'codename'
         )
 
     # 🔥 LIST LIMPO (SEM REPETIÇÃO)
