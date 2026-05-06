@@ -18,6 +18,7 @@ from rest_framework.response import Response
 # Local
 # =========================
 from django_resaas.models.user import User
+from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
 from django_resaas.models.sucursal_user_group import SucursalUserGroup
 from django_resaas.data.permission.serializers.permission import PermissionSerializer
 
