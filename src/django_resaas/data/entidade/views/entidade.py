@@ -8,6 +8,8 @@ import barcode
 import qrcode
 from barcode.writer import ImageWriter
 from PIL import Image
+from django.db import transaction
+
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -117,6 +119,7 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         serializer.save()
 
         return Response(serializer.data)
+
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -758,9 +761,6 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         return PDF("django_resaas/invoice.html", request,  company= company, customer= customer, doc= doc, lines= lines, totals= totals, logo_b64= logo_b64, qr_b64= qr_b64, barcode_b64= barcode_b64,)
 
     
-    
-    
-    
     # ===============================
     # 🔥 GROUPS (FINAL LIMPO)
     # ===============================
@@ -782,8 +782,10 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         ], status=status.HTTP_200_OK)
 
 
+
     @action(detail=True, methods=['POST'])
-    def createGroup(self, request, id):
+    @transaction.atomic
+    def createGroup(self, request, pk=None):
         entidade = self.get_object()
 
         name = request.data.get("name")
@@ -793,10 +795,18 @@ class EntidadeAPIView(viewsets.ModelViewSet):
         group = Group.objects.create(name=name)
 
         # 🔥 Entidade
-        EntidadeGroup.objects.get_or_create(
+        EntidadeGroup.objects.create(
             entidade=entidade,
             group=group
         )
+
+        # 🔥 Propaga para sucursais
+        sucursais = Sucursal.objects.filter(entidade=entidade)
+
+        SucursalGroup.objects.bulk_create([
+            SucursalGroup(sucursal=s, group=group)
+            for s in sucursais
+        ], ignore_conflicts=True)
 
         return Response({
             "id": group.id,
@@ -805,8 +815,9 @@ class EntidadeAPIView(viewsets.ModelViewSet):
 
 
     @action(detail=True, methods=['POST'])
-    def addGroup(self, request, id):
-        entidade = Entidade.objects.get(id=id)
+    @transaction.atomic
+    def addGroup(self, request, pk=None):
+        entidade = self.get_object()
         group_id = request.data.get("group")
 
         group = Group.objects.filter(id=group_id).first()
@@ -818,20 +829,41 @@ class EntidadeAPIView(viewsets.ModelViewSet):
             group=group
         )
 
+        # 🔥 Propaga para sucursais
+        sucursais = Sucursal.objects.filter(entidade=entidade)
+
+        SucursalGroup.objects.bulk_create([
+            SucursalGroup(sucursal=s, group=group)
+            for s in sucursais
+        ], ignore_conflicts=True)
+
         return Response({"success": True})
 
 
     @action(detail=True, methods=['POST'])
-    def removeGroup(self, request, id):
-        entidade = Entidade.objects.get(id=id)
+    @transaction.atomic
+    def removeGroup(self, request, pk=None):
+        entidade = self.get_object()
         group_id = request.data.get("group")
 
         group = Group.objects.filter(id=group_id).first()
         if not group:
             return Response({"error": "Group not found"}, status=400)
 
+        # 🔥 Remove da entidade
         EntidadeGroup.objects.filter(
-            tipo_entidade=entidade,
+            entidade=entidade,
+            group=group
+        ).delete()
+
+        # 🔥 Remove das sucursais
+        SucursalGroup.objects.filter(
+            sucursal__entidade=entidade,
+            group=group
+        ).delete()
+
+        SucursalUserGroup.objects.filter(
+            sucursal__entidade=entidade,
             group=group
         ).delete()
 
