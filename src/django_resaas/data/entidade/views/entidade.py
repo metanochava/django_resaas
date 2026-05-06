@@ -766,8 +766,11 @@ class EntidadeAPIView(viewsets.ModelViewSet):
     # ===============================
 
     @action(detail=True, methods=['GET'])
-    def groups(self, request, id):
-        entidade = Entidade.objects.get(id=id)
+    # @transaction.atomic
+    def groups(self, request, pk=None):
+        entidade = self.get_object()
+        print(id, 'metano')
+        # entidade = Entidade.objects.get(id=id)
 
         groups = EntidadeGroup.objects.filter(
             entidade=entidade
