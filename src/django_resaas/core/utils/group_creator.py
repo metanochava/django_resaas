@@ -21,7 +21,7 @@ def group_creator(groups=None):
     # 🔥 GARANTE Entity COM entity_type
     # ------------------------------------------------------
     entity, _ = Entity.objects.get_or_create(
-        name="Mytech",
+        name="Entity",
         entity_type=entity_type,  # 🔥 FIX CRÍTICO
         estado= 1
     )

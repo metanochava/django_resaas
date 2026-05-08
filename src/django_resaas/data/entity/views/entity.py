@@ -183,7 +183,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             # 🔥 SUCURSAL PRINCIPAL
             # ------------------------
             branch = Branch.objects.create(
-                name=f"{entity.name} Sede",
+                name=f"{entity.name} Main",
                 entity=entity,
                 estado = 1,
                 icon='...',
