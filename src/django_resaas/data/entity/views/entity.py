@@ -528,8 +528,8 @@ class EntityAPIView(viewsets.ModelViewSet):
         if entity.theme:
             theme = ThemeSerializer(Theme.objects.get(id=entity.theme.id)).data
         else:
-            tipoentity = EntityType.objects.get(id=entity.entity_type.id )
-            theme = ThemeSerializer(Theme.objects.get(id=tipoentity.theme.id)).data
+            entitytype = EntityType.objects.get(id=entity.entity_type.id )
+            theme = ThemeSerializer(Theme.objects.get(id=entitytype.theme.id)).data
         return Response(theme, status=status.HTTP_200_OK)
 
 
@@ -561,8 +561,8 @@ class EntityAPIView(viewsets.ModelViewSet):
         if entity.layout_settings:
             ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=entity.layout_settings.id)).data
         else:
-            tipoentity = EntityType.objects.get(id=entity.entity_type.id )
-            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentity.layout_settings.id)).data
+            entitytype = EntityType.objects.get(id=entity.entity_type.id )
+            ls = LayoutSettingSerializer(LayoutSetting.objects.get(id=entitytype.layout_settings.id)).data
         return Response(ls, status=status.HTTP_200_OK)
 
 
@@ -603,8 +603,8 @@ class EntityAPIView(viewsets.ModelViewSet):
         if entity.typography:
             typography = TypographySerializer(Typography.objects.get(id=entity.typography.id)).data
         else:
-            tipoentity = EntityType.objects.get(id=entity.entity_type.id )
-            typography = TypographySerializer(Typography.objects.get(id=tipoentity.typography.id)).data
+            entitytype = EntityType.objects.get(id=entity.entity_type.id )
+            typography = TypographySerializer(Typography.objects.get(id=entitytype.typography.id)).data
         return Response(typography, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['PUT'])
@@ -638,8 +638,8 @@ class EntityAPIView(viewsets.ModelViewSet):
         if entity.animation_settings:
             animation_settings = AnimationSettingSerializer(AnimationSetting.objects.get(id=entity.animation_settings.id)).data
         else:
-            tipoentity = EntityType.objects.get(id=entity.entity_type.id )
-            animation_settings = AnimationSettingSerializer(AnimationSetting.objects.get(id=tipoentity.animation_settings.id)).data
+            entitytype = EntityType.objects.get(id=entity.entity_type.id )
+            animation_settings = AnimationSettingSerializer(AnimationSetting.objects.get(id=entitytype.animation_settings.id)).data
         return Response(animation_settings, status=status.HTTP_200_OK)
 
 
