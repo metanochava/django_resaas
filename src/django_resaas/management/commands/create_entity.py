@@ -13,9 +13,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.MIGRATE_HEADING("🚀 Bootstrap SaaS \n\n"))
 
-        entity_type = input("Digite seu name do Tipo de Entity: ")
-        entity = input("Digite seu name da Entity: ")
-        branch = input("Digite seu name da Branch: ")
+        entity_type = input("Enter your Entity Type name.: ")
+        entity = input("Enter your Entity name.: ")
+        branch = input("Enter your branch name: ")
         group = "Admin"
 
         user = UserService.get_or_create_superuser(self.stdout, style=self.style)
