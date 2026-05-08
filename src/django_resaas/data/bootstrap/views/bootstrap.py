@@ -31,7 +31,7 @@ class TenantAPIView(APIView):
 
         data = {
             "entity_type": "Saas",
-            "entity": "Entity",
+            "entity": "Tenant",
             "branch": "Main",
             "group": "Admin",
         }
