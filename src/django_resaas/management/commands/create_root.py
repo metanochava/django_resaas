@@ -36,27 +36,17 @@ class Command(BaseCommand):
         email = "root@co.mz"
         username = "root"
 
-        FrontEndService.load_defaults( stdout=self.stdout,  style=self.style  )
-        LanguageService.load_defaults( stdout=self.stdout, style=self.style )
+        while True:
+            username = input("Write username: ")
+            email = input("Write a valid e-mail: ")
+            user = User.objects.filter(email=email).first()
+            if user :
+                self.stdout.write(
+                    self.style.WARNING("\nThe e-mail is already exist.")
+                )
+                continue
 
-        user = User.objects.filter(email=email).first()
-        exist = False
-        if user :
-            exist = True
-            self.stdout.write(
-                self.style.WARNING("\nSuperuser já existe")
-            )
-            self.stdout.write(
-                self.style.HTTP_INFO("  Username: \t") + self.style.SUCCESS(user.username)
-            )
-            self.stdout.write(
-                self.style.HTTP_INFO("  Email: \t") + self.style.SUCCESS(user.email) 
-            )
-
-            self.stdout.write(
-                self.style.WARNING("\n")
-            )
-
+            break
 
 
 
@@ -92,8 +82,8 @@ class Command(BaseCommand):
 
         data = {
             "entity_type": "SaaS",
-            "entity": "Mytech",
-            "branch": "Sede",
+            "entity": "Entity",
+            "branch": "Main",
         }
 
         # ------------------------
@@ -195,6 +185,9 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(self.style.WARNING(f"✔ {'App:':20} {app.name}"))
+
+        FrontEndService.load_defaults( stdout=self.stdout,  style=self.style  )
+        LanguageService.load_defaults( stdout=self.stdout, style=self.style )
 
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))
