@@ -147,7 +147,7 @@ class Command(BaseCommand):
 
         data = {
             "entity_type": "SaaS",
-            "entity": "Entity",
+            "entity": "Tenant",
             "branch": "Main",
         }
 
