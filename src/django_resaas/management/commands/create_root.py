@@ -133,16 +133,16 @@ class Command(BaseCommand):
                 continue
 
             break
-        if not exist:
-            user = User.objects.create_superuser(
-                email=email,
-                username=username,
-                password=password,
-            )
 
-            user.set_password(password)
-            user.is_verified_email= True
-            user.save()
+        user = User.objects.create_superuser(
+            email=email,
+            username=username,
+            password=password,
+        )
+
+        user.set_password(password)
+        user.is_verified_email= True
+        user.save()
 
 
         data = {
