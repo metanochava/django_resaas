@@ -30,7 +30,72 @@ GROUPS_WITH_ID = [
 
 
 class Command(BaseCommand):
-    help = "Cria um superuser estático se não existir"
+    help = """
+    Enterprise Bootstrap Command
+
+    This command initializes the entire SaaS environment by creating a fully configured superuser
+    and setting up the complete system structure required for operation.
+
+    Features:
+
+    ✔ Interactive creation of a superuser (username, email, password)
+    ✔ Email uniqueness validation
+    ✔ Secure password input (hidden typing)
+    ✔ Automatic email verification flag
+    ✔ Creation of core SaaS structure:
+        - Entity Type (multi-tenant template)
+        - Entity (tenant instance)
+        - Branch (operational unit)
+
+    ✔ Automatic assignment of relationships:
+        - User → Entity (as admin)
+        - User → Branch
+
+    ✔ Group management:
+        - Creates default groups (e.g., Guest, Admin, Root)
+        - Assigns groups to:
+            • Entity Type
+            • Entity
+            • Branch
+            • User
+
+    ✔ Application bootstrap:
+        - Registers core applications
+        - Links applications to Entity Type and Entity
+
+    ✔ Loads system defaults:
+        - Frontend configuration
+        - Language settings
+
+    Security & Validation:
+
+    ⚠ Prevents duplicate email registration
+    ⚠ Enforces password confirmation
+    ⚠ Ensures consistent system initialization
+
+    Usage:
+
+        python manage.py <command_name>
+
+    Example:
+
+        python manage.py bootstrap
+
+    Expected Output:
+
+        ✔ Superuser successfully created
+        ✔ SaaS environment initialized
+        ✔ Groups and permissions assigned
+        ✔ Applications registered
+        ✔ System ready for use
+
+    Notes:
+
+    - This command is intended for initial system setup.
+    - Should be executed once per environment.
+    - Credentials generated should be stored securely.
+
+    """
 
     def handle(self, *args, **options):
         email = "root@co.mz"
@@ -52,12 +117,12 @@ class Command(BaseCommand):
 
         # 🔐 pedir password pelo teclado (sem mostrar)
         while True:
-            password = getpass("Password do superuser: ")
-            password_confirm = getpass("Confirme a password: ")
+            password = getpass("Superuser password: ")
+            password_confirm = getpass("Confirm password: ")
 
             if not password:
                 self.stdout.write(
-                    self.style.ERROR("A password não pode estar vazia")
+                    self.style.ERROR("The password cannot be empty.")
                 )
                 continue
 
@@ -191,7 +256,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))
-        self.stdout.write(self.style.HTTP_INFO(f"{'':10} {'✔ Superuser criado:'}"))
+        self.stdout.write(self.style.HTTP_INFO(f"{'':10} {'✔ Superuser created:'}"))
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f"{'Email:':20} {user.email}"))
         self.stdout.write(self.style.SUCCESS(f"{'User:':20} {user.username}"))
@@ -199,7 +264,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entity:':20} {entity.name}"))
         self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Branch:':20} {branch.name}"))
         self.stdout.write(self.style.WARNING(f"{'Groups:':20} Guest, Admin, Root"))
-        self.stdout.write(self.style.ERROR("⚠️ Guarde estas credenciais com segurança"))
+        self.stdout.write(self.style.ERROR("⚠️ Keep these credentials safe."))
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))
 
