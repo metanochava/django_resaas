@@ -1,4 +1,4 @@
-from .documento import Documento
-from .pessoa import Pessoa
-from .tipo_entidade_group import TipoEntidadeGroup
+from .document import Document
+from .person import Person
+from .entity_type_group import EntityTypeGroup
 from .cors_allowed_origin import CorsAllowedOrigin

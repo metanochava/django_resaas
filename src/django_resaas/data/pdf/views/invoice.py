@@ -82,7 +82,7 @@ def invoice_pdf(request, invoice_id: int):
     }
 
     # Logo (opcional): leia um PNG e converta para base64
-    # Exemplo simples: se tiveres um ficheiro logo.png no disco:
+    # Exemplo simples: se tiveres um file logo.png no disco:
     logo_b64 = None
     # with open("/caminho/logo.png", "rb") as f:
     #     logo_b64 = png_bytes_to_b64(f.read())

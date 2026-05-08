@@ -1,8 +1,8 @@
-from django_resaas.models.traducao import Traducao
-from django_resaas.models.idioma import Idioma
+from django_resaas.models.translation import Translation
+from django_resaas.models.language import Language
 
 
-class TraducaoService:
+class TranslationService:
     """
     Serviço para carga inicial de traduções base do sistema
     """
@@ -14,8 +14,8 @@ class TraducaoService:
             "Conta desactivada": "Conta desactivada",
             "Email não verificado": "Email não verificado",
             "Configuração inicial criada com sucesso": "Configuração inicial criada com sucesso",
-            "Seleccione a Entidade": "Seleccione a Entidade",
-            "Seleccione a Sucursal": "Seleccione a Sucursal",
+            "Seleccione a Entity": "Seleccione a Entity",
+            "Seleccione a Branch": "Seleccione a Branch",
             "Seleccione o Group": "Seleccione o Group",
         },
         "en-us": {
@@ -24,8 +24,8 @@ class TraducaoService:
             "Conta desactivada": "Account disabled",
             "Email não verificado": "Email not verified",
             "Configuração inicial criada com sucesso": "Initial setup completed successfully",
-            "Seleccione a Entidade": "Select Entity",
-            "Seleccione a Sucursal": "Select Branch",
+            "Seleccione a Entity": "Select Entity",
+            "Seleccione a Branch": "Select Branch",
             "Seleccione o Group": "Select Group",
         },
     }
@@ -34,24 +34,24 @@ class TraducaoService:
     def load_defaults(cls, stdout=None, style=None):
         for code, traducoes in cls.DEFAULT_TRADUCOES.items():
             try:
-                idioma = Idioma.objects.get(code=code)
-            except Idioma.DoesNotExist:
+                language = Language.objects.get(code=code)
+            except Language.DoesNotExist:
                 if stdout:
                     stdout.write(
-                        style.ERROR(f"✖ Idioma não encontrado: {code}")
+                        style.ERROR(f"✖ Language não encontrado: {code}")
                     )
                 continue
 
             if stdout:
                 stdout.write(
-                    style.MIGRATE_HEADING(f"\n🌐 Idioma: {idioma.nome}")
+                    style.MIGRATE_HEADING(f"\n🌐 Language: {language.name}")
                 )
 
-            for chave, traducao in traducoes.items():
-                obj, created = Traducao.objects.get_or_create(
-                    idioma=idioma,
+            for chave, translation in traducoes.items():
+                obj, created = Translation.objects.get_or_create(
+                    language=language,
                     chave=chave,
-                    defaults={"traducao": traducao}
+                    defaults={"translation": translation}
                 )
 
                 if stdout:

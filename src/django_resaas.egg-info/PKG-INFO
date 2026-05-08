@@ -67,8 +67,8 @@ it does not define the base queryset.
 
 Example:
 ```bash 
-    class PessoaViewSet(BaseAPIView):
-        queryset = Pessoa.objects.select_related('user', 'endereco')
+    class PersonViewSet(BaseAPIView):
+        queryset = Person.objects.select_related('user', 'address')
 
 ```
 
@@ -136,7 +136,7 @@ FEP: Frontend Password
 
 # File Token Configuration
 
-A biblioteca suporta dois tipos de token para acesso a ficheiros:
+A biblioteca suporta dois tipos de token para acesso a files:
 
 - 🔐 Token permanente (não expira)
 - ⏱️ Token temporário (com TTL)
@@ -207,27 +207,27 @@ Validação automática no BaseAPIView
 Uma única query por request (alta performance)
 
 🧱 Conceitos Fundamentais
-🔹 Tipo de Entidade
+🔹 Tipo de Entity
 
 Classificação da organização (ex: Clínica, Escola, Empresa).
 
-🔹 Entidade
+🔹 Entity
 
 Organização principal (ex: Clínica ABC).
 
-🔹 Sucursal
+🔹 Branch
 
-Unidade da entidade (ex: Filial Luanda).
+Unidade da entity (ex: Filial Luanda).
 
 🔹 Group
 
-Papel do utilizador numa sucursal (ex: Admin, RH, Médico).
+Papel do utilizador numa branch (ex: Admin, RH, Médico).
 
 🔹 Utilizador
 
 Pode pertencer a:
 
-múltiplas Entidades
+múltiplas Entitys
 
 múltiplas Sucursais
 
@@ -238,15 +238,15 @@ múltiplos Groups
 Todo request autenticado DEVE enviar os headers abaixo:
 
 Header	Descrição
-ET	ID do Tipo de Entidade
-E	ID da Entidade
-S	ID da Sucursal
+ET	ID do Tipo de Entity
+E	ID da Entity
+S	ID da Branch
 G	ID do Group
-L	Idioma 
+L	Language 
 
 📌 Sem estes headers, o acesso é negado.
 
-🔐 Modelo de Permissões (Padrão)
+🔐 Model de Permissões (Padrão)
 
 O sistema segue o padrão Django com extensão para list.
 
@@ -259,7 +259,7 @@ update	change_<model>
 partial_update	change_<model>
 destroy	delete_<model>
 
-📌 <model> é o nome do model em minúsculas.
+📌 <model> é o name do model em minúsculas.
 
 Exemplo (Colaborador)
 list_colaborador
@@ -314,11 +314,11 @@ Internamente, o sistema valida numa única query:
 
 user ∈ group
 
-group ∈ sucursal
+group ∈ branch
 
-sucursal ∈ entidade
+branch ∈ entity
 
-entidade ∈ tipo_entidade
+entity ∈ entity_type
 
 group possui a permissão solicitada
 
@@ -334,7 +334,7 @@ O que o BaseAPIView faz
 
 ✔️ valida permissões automaticamente
 
-✔️ injeta contexto (entidade_id, sucursal_id, etc.)
+✔️ injeta contexto (entity_id, branch_id, etc.)
 
 ✔️ filtra queryset por tenant
 

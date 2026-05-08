@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Dict, Any
 
-from  ..service.modelo_service import build_view_front_list, remove_route, add_route, build_view_front_save_edit, build_view_front_view, build_view_front_Store, build_view_front_Routes
+from  ..service.model_service import build_view_front_list, remove_route, add_route, build_view_front_save_edit, build_view_front_view, build_view_front_Store, build_view_front_Routes
 
 
 # =========================================================
@@ -24,7 +24,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import action
 
-from django_resaas.models.modelo_extra import ModeloExtra
+from django_resaas.models.model_extra import ModelExtra
 from django_resaas.core.base.views import registerView
 from django_resaas.core.utils import all, ok, fail, warn, clean_class_name, clean_file_name, safe_write, clean_lower
 
@@ -311,18 +311,18 @@ def ensure_permissions(module, model, extras):
 
     Model = apps.get_model(module, model)
     ct = ContentType.objects.get_for_model(Model)
-    modelo = model
+    model = model
     model = model.lower()
     defaults = []
 
     perms = defaults + extras
 
-    ModeloExtra.objects.filter(modelo=modelo).delete()
+    ModelExtra.objects.filter(model=model).delete()
 
     for p in perms:
         # p = {'method': 'get', 'permission': 'pdf', 'url': '', 'details': True}
-        ModeloExtra.objects.get_or_create(
-            modelo=modelo,
+        ModelExtra.objects.get_or_create(
+            model=model,
             icon=p['icon'],
             method=p['method'],
             permission=p['permission'],
@@ -436,19 +436,19 @@ class ScaffoldAPIView(ViewSet):
     @action(detail=False, methods=["post"])
     def preview(self, request):
 
-        module = (request.data.get("modulo") or "").strip()
-        model  = clean_class_name(request.data.get("modelo") or "").strip()
+        module = (request.data.get("app") or "").strip()
+        model  = clean_class_name(request.data.get("model") or "").strip()
         fields = request.data.get("fields", [])
         perms  = request.data.get("permissions", [])
 
         if not module or not model:
-            return fail(request, "Nome do módulo ou modelo não po-de estar vazio!")
+            return fail(request, "Name do módulo ou model não po-de estar vazio!")
         if not fields:
-            return fail(request, "Tem de ter pelo menos um campo para criar Modelo")
+            return fail(request, "Tem de ter pelo menos um campo para criar Model")
         
         for f in fields:
             if f['name'] == '':
-                return fail(request, "Ha campo sem atributo nome.<br> Melhor verificar")
+                return fail(request, "Ha campo sem atributo name.<br> Melhor verificar")
             if f['type'] == '':
                 return fail(request, "O campo <b>"+ f['name'] + "</b> esta sem atributo tipo de dado.<br> Melhor Colocar. ")
 
@@ -490,21 +490,21 @@ class ScaffoldAPIView(ViewSet):
 
     def create(self, request):
 
-        module = (request.data.get("modulo") or "").strip()
+        module = (request.data.get("app") or "").strip()
         icon = (request.data.get("icon") or "list").strip()
         crud = request.data.get("crud") or False
-        model  = (request.data.get("modelo") or "").strip()
+        model  = (request.data.get("model") or "").strip()
         fields = request.data.get("fields", [])
         perms  = request.data.get("permissions", [])
 
         if not module or not model:
-            return fail(request, "Nome do módulo ou modelo não pode estar vazio!")
+            return fail(request, "Name do módulo ou model não pode estar vazio!")
         if not fields:
-            return fail(request, "Tem de ter pelo menos um campo para criar Modelo")
+            return fail(request, "Tem de ter pelo menos um campo para criar Model")
 
         for f in fields:
             if f['name'] == '':
-                return fail(request, "Ha campo sem atributo nome.<br> Melhor verificar")
+                return fail(request, "Ha campo sem atributo name.<br> Melhor verificar")
             if f['type'] == '':
                 return fail(request, "O campo <b>"+ f['name'] + "</b> esta sem atributo tipo de dado.<br> Melhor Colocar. ")
 
@@ -529,13 +529,13 @@ class ScaffoldAPIView(ViewSet):
 
         add_route(module, model)
 
-        return ok(request, 'Modelo Criado com sucesso', status=201, out='migrate')
+        return ok(request, 'Model Criado com sucesso', status=201, out='migrate')
 
 
 
     @action(detail=False, methods=["post"])
     def migrate(self, request):
-        module = (request.data.get("modulo") or "").strip()
+        module = (request.data.get("app") or "").strip()
         out = StringIO()
        
         call_command("makemigrations", module, stdout=out)
@@ -545,8 +545,8 @@ class ScaffoldAPIView(ViewSet):
     
     @action(detail=False, methods=["post"])
     def permissions(self, request):
-        module = (request.data.get("modulo") or "").strip()
-        model  = clean_class_name(request.data.get("modelo") or "").strip()
+        module = (request.data.get("app") or "").strip()
+        model  = clean_class_name(request.data.get("model") or "").strip()
         perms = request.data.get("actions")
 
 

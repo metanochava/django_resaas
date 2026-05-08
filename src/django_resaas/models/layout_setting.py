@@ -5,7 +5,7 @@ from django_resaas.core.base.models import TimeModel
 
 class LayoutSetting(TimeModel):
 
-    nome = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
     # 🌗 tema
     dark_mode = models.BooleanField(default=False)
@@ -87,7 +87,7 @@ class LayoutSetting(TimeModel):
     toolbar_elevated = models.BooleanField(default=True)
 
 
-    nome = models.CharField(max_length=101)
+    name = models.CharField(max_length=101)
 
     # 🎨 botão
     button_style = models.CharField(
@@ -127,11 +127,11 @@ class LayoutSetting(TimeModel):
         verbose_name_plural = 'LayoutSettings'
 
     class RESAAS:
-        label_field = "nome"
-        # route="view_entidade"
+        label_field = "name"
+        # route="view_entity"
     
     def __str__(self):
-        return self.nome
+        return self.name
 
     def to_dict(self):
 
@@ -169,7 +169,7 @@ class AnimationSetting(TimeModel):
     # GLOBAL
     # =========================
 
-    nome = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
     enable_animations = models.BooleanField(default=True)
 
@@ -283,4 +283,4 @@ class AnimationSetting(TimeModel):
         verbose_name_plural = "Animation Settings"
 
     def __str__(self):
-        return self.nome
+        return self.name

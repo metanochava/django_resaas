@@ -9,7 +9,7 @@ class FrontEndService:
 
     DEFAULT_FRONTENDS = [
         {
-            "nome": "Quasar Web",
+            "name": "Quasar Web",
             "fek": "frontend.quasar",
             "access": "super",
         },
@@ -25,7 +25,7 @@ class FrontEndService:
             frontend, created = FrontEnd.objects.get_or_create(
                 fek=item["fek"],
                 defaults={
-                    "nome": item["nome"],
+                    "name": item["name"],
                     "fep": cls.generate_secret(),
                     "access": item.get("access", "read"),
                     "estado": 1,
@@ -35,7 +35,7 @@ class FrontEndService:
             if stdout:
                 if created:
                     stdout.write(
-                        style.SUCCESS(f"\n✔ FrontEnd criado: {frontend.nome}")
+                        style.SUCCESS(f"\n✔ FrontEnd criado: {frontend.name}")
                     )
                     stdout.write(
                         style.NOTICE(f"  FEK: {frontend.fek}")
@@ -45,7 +45,7 @@ class FrontEndService:
                     )
                 else:
                     stdout.write(
-                        style.WARNING(f"\nFrontEnd já existe: {frontend.nome}")
+                        style.WARNING(f"\nFrontEnd já existe: {frontend.name}")
                     )
                     stdout.write(
                         style.NOTICE(f"  FEK: {frontend.fek}")

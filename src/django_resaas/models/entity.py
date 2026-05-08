@@ -1,0 +1,69 @@
+import uuid
+
+from django.db import models
+from django.contrib.contenttypes.models import ContentType
+
+
+from django_resaas.models.user import User
+from django_resaas.models.entity_type import EntityType
+
+from django_resaas.core.base.models import TimeModel
+
+
+def logo_path(instance, file_name):
+    return f'{instance.entity_type.name}/{instance.name}/{file_name}'
+
+
+class Entity(TimeModel):
+    
+    name = models.CharField(max_length=100, null=True, default='-')
+    site = models.CharField(max_length=300, null=True, default='-')
+    logo = models.FileField(upload_to=logo_path, default='logo.png', blank=True)
+    display_logo = models.BooleanField(default=True, null=True, blank=True)
+    display_bar = models.BooleanField(default=True, null=True, blank=True)
+    display_qr = models.BooleanField(default=True, null=True, blank=True)
+
+    entity_type = models.ForeignKey('django_resaas.EntityType', on_delete=models.CASCADE)
+    theme = models.ForeignKey('django_resaas.Theme', null=True, blank=True, on_delete=models.SET_NULL)
+    layout_settings = models.ForeignKey('django_resaas.LayoutSetting', null=True, blank=True, on_delete=models.SET_NULL)
+    typography = models.ForeignKey('django_resaas.Typography', null=True, blank=True, on_delete=models.SET_NULL)
+    animation_settings = models.ForeignKey('django_resaas.AnimationSetting', null=True, blank=True, on_delete=models.SET_NULL)
+
+    admins = models.ManyToManyField(User)
+
+    rodape = models.CharField(max_length=2000, null=True)
+
+    disc_space = models.FloatField(default=1048576.0, null=True)
+    disc_used_space = models.FloatField(default=0.0, null=True)
+    disc_free_space = models.FloatField(default=1048576.0, null=True)
+
+    class Meta:
+        permissions = ()
+
+    class RESAAS:
+        label_field = "name"
+        crud = True
+        routes={
+            'list': "add_entity",
+            'view': "view_entity",
+            'add': "add_entity",
+            'change': "change_entity"
+        }
+
+        # 🔥 CONFIG DE CAMPOS (AQUI QUE IMPORTA)
+        fields = {
+            "logo": {
+                "accept": ".png,.jpg,.jpeg,.svg",
+                "max_size": 2 * 1024 * 1024,  # 2MB
+                "multiple": False
+            }
+        }
+        
+    def save(self, *args, **kwargs):
+        if self.disc_free_space is None or self.disc_free_space > self.disc_space:
+            self.disc_free_space = self.disc_space - self.disc_used_space
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name or ''
+

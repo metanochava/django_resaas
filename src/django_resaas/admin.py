@@ -7,40 +7,40 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
 from django.contrib.contenttypes.admin import GenericTabularInline
-from .models import Documento
+from .models import Document
 
 
-class DocumentoInline(GenericTabularInline):
-    model = Documento
+class DocumentInline(GenericTabularInline):
+    model = Document
     extra = 1
 
 
 # =========================
 # ds – models
 # =========================
-from django_resaas.models.traducao import Traducao
-from django_resaas.models.idioma import Idioma
-from django_resaas.models.entidade import Entidade
-from django_resaas.models.entidade_user import EntidadeUser
-from django_resaas.models.entidade_modulo import EntidadeModulo
-from django_resaas.models.entidade_group import EntidadeGroup
+from django_resaas.models.translation import Translation
+from django_resaas.models.language import Language
+from django_resaas.models.entity import Entity
+from django_resaas.models.entity_user import EntityUser
+from django_resaas.models.entity_app import EntityApp
+from django_resaas.models.entity_group import EntityGroup
 
-from django_resaas.models.sucursal import Sucursal
-from django_resaas.models.sucursal_user import SucursalUser
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
-from django_resaas.models.sucursal_group import SucursalGroup
+from django_resaas.models.branch import Branch
+from django_resaas.models.branch_user import BranchUser
+from django_resaas.models.branch_user_group import BranchUserGroup
+from django_resaas.models.branch_group import BranchGroup
 
-from django_resaas.models.tipo_entidade import TipoEntidade
-from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
-from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
-from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup
-from django_resaas.models.entidade_modelo import EntidadeModelo
-from django_resaas.models.ficheiro import Ficheiro
+from django_resaas.models.entity_type import EntityType
+from django_resaas.models.entity_type_app import EntityTypeApp
+from django_resaas.models.entity_type_model import EntityTypeModel
+from django_resaas.models.entity_type_group import EntityTypeGroup
+from django_resaas.models.entity_model import EntityModel
+from django_resaas.models.file import File
 from django_resaas.models.user_login import UserLogin
-from django_resaas.models.modulo import Modulo
+from django_resaas.models.app import App
 from django_resaas.models.front_end import FrontEnd
-from django_resaas.models.modelo_extra import ModeloExtra
-from django_resaas.models.documento import TipoDocumento, Documento
+from django_resaas.models.model_extra import ModelExtra
+from django_resaas.models.document import DocumentType, Document
 
 
 # =========================
@@ -53,17 +53,17 @@ admin.site.index_title = 'Django Rest SaaS'
 
 
 
-@admin.register(TipoDocumento)
-class TipoDocumentoAdmin(BaseAdmin):
-    list_display = ('nome', 'detalhes')
+@admin.register(DocumentType)
+class DocumentTypeAdmin(BaseAdmin):
+    list_display = ('name', 'detalhes')
     
-@admin.register(Documento)
-class DocumentoAdmin(BaseAdmin):
+@admin.register(Document)
+class DocumentAdmin(BaseAdmin):
     list_display = ('tipo', 'numero', 'data_emissao', 'data_validade')
     list_filter = ('tipo',)
 
-@admin.register(Traducao)
-class TraducaoAdmin(BaseAdmin):
+@admin.register(Translation)
+class TranslationAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
@@ -99,24 +99,24 @@ class AnimationSettingAdmin(BaseAdmin):
     list_display_links = ('id',)
 
 
-@admin.register(EntidadeGroup)
-class EntidadeGroupAdmin(BaseAdmin):
+@admin.register(EntityGroup)
+class EntityGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
 
-@admin.register(Ficheiro)
-class FicheiroAdmin(BaseAdmin):
+@admin.register(File)
+class FileAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
-@admin.register(TipoEntidadeModelo)
-class TipoEntidadeModeloAdmin(BaseAdmin):
+@admin.register(EntityTypeModel)
+class EntityTypeModelAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
-@admin.register(EntidadeModelo)
-class EntidadeModeloAdmin(BaseAdmin):
+@admin.register(EntityModel)
+class EntityModelAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 
@@ -127,12 +127,12 @@ class PermissionAdmin(admin.ModelAdmin):
     list_display_links = ('id',)
     search_fields = ['id', 'name']
 
-from .models import Pessoa
+from .models import Person
 
-@admin.register(Pessoa)
-class PessoaAdmin(admin.ModelAdmin):
+@admin.register(Person)
+class PersonAdmin(admin.ModelAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    inlines = [DocumentoInline]
+    inlines = [DocumentInline]
 
 
 @admin.register(FrontEnd)
@@ -140,18 +140,18 @@ class FrontEndAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
 
 
-@admin.register(Idioma)
-class IdiomaAdmin(BaseAdmin):
+@admin.register(Language)
+class LanguageAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
-    search_fields = ['id', 'nome']
+    search_fields = ['id', 'name']
 
 
-@admin.register(TipoEntidade)
-class TipoEntidadeAdmin(BaseAdmin):
+@admin.register(EntityType)
+class EntityTypeAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'nome')
-    search_fields = ['nome']
+    list_display_links = ('id', 'name')
+    search_fields = ['name']
 
 
 @admin.register(User)
@@ -172,83 +172,83 @@ class UserAdmin( BaseAdmin):
 class UserLoginAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
-    search_fields = ['local_nome', 'dispositivo', 'user']
+    search_fields = ['local_name', 'dispositivo', 'user']
 
 
-@admin.register(Entidade)
-class EntidadeAdmin(BaseAdmin):
+@admin.register(Entity)
+class EntityAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'nome')
-    search_fields = ['nome']
+    list_display_links = ('id', 'name')
+    search_fields = ['name']
 
     def admin_list(self, obj):
         return ', '.join(u.username for u in obj.admins.all())
     admin_list.short_description = 'admins'
 
 
-@admin.register(EntidadeUser)
-class EntidadeUserAdmin(BaseAdmin):
+@admin.register(EntityUser)
+class EntityUserAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id', 'user')
     search_fields = ['user']
 
 
-@admin.register(Sucursal)
-class SucursalAdmin(BaseAdmin):
+@admin.register(Branch)
+class BranchAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'nome')
-    search_fields = ['nome']
+    list_display_links = ('id', 'name')
+    search_fields = ['name']
 
 
-@admin.register(SucursalGroup)
-class SucursalGroupAdmin(BaseAdmin):
+@admin.register(BranchGroup)
+class BranchGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'sucursal', 'group')
-    search_fields = ['sucursal', 'group']
+    list_display_links = ('id', 'branch', 'group')
+    search_fields = ['branch', 'group']
 
 
-@admin.register(SucursalUser)
-class SucursalUserAdmin(BaseAdmin):
+@admin.register(BranchUser)
+class BranchUserAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'sucursal', 'user')
-    search_fields = ['sucursal', 'user']
+    list_display_links = ('id', 'branch', 'user')
+    search_fields = ['branch', 'user']
 
 
-@admin.register(SucursalUserGroup)
-class SucursalUserGroupAdmin(BaseAdmin):
+@admin.register(BranchUserGroup)
+class BranchUserGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'sucursal', 'user', 'group')
-    search_fields = ['sucursal', 'user', 'group']
+    list_display_links = ('id', 'branch', 'user', 'group')
+    search_fields = ['branch', 'user', 'group']
 
 
-@admin.register(EntidadeModulo)
-class EntidadeModuloAdmin(BaseAdmin):
+@admin.register(EntityApp)
+class EntityAppAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'entidade', 'modulo')
-    search_fields = ['entidade', 'modulo']
+    list_display_links = ('id', 'entity', 'app')
+    search_fields = ['entity', 'app']
 
 
-@admin.register(TipoEntidadeModulo)
-class TipoEntidadeModuloAdmin(BaseAdmin):
+@admin.register(EntityTypeApp)
+class EntityTypeAppAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'tipo_entidade', 'modulo')
-    search_fields = ['tipo_entidade', 'modulo']
+    list_display_links = ('id', 'entity_type', 'app')
+    search_fields = ['entity_type', 'app']
 
 
-@admin.register(TipoEntidadeGroup)
-class TipoEntidadeGroupAdmin(BaseAdmin):
+@admin.register(EntityTypeGroup)
+class EntityTypeGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'tipo_entidade', 'group')
-    search_fields = ['tipo_entidade', 'group']
+    list_display_links = ('id', 'entity_type', 'group')
+    search_fields = ['entity_type', 'group']
 
-@admin.register(ModeloExtra)
-class ModeloExtraAdmin(BaseAdmin):
+@admin.register(ModelExtra)
+class ModelExtraAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'modelo')
-    search_fields = [ 'icon', 'modelo', 'url', 'datails', 'permission']
+    list_display_links = ('id', 'model')
+    search_fields = [ 'icon', 'model', 'url', 'datails', 'permission']
 
-@admin.register(Modulo)
-class ModuloAdmin(BaseAdmin):
+@admin.register(App)
+class AppAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
 
 

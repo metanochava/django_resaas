@@ -111,12 +111,12 @@ class GroupAPIView(viewsets.ModelViewSet):
 
     def destroy(self, request, id, *args, **kwargs):
         group = self.get_object()
-        nome = group.name
+        name = group.name
         group.delete()
 
         return Response(
             {
-                "alert_success": f"<b>{nome}</b> foi apagado com sucesso"
+                "alert_success": f"<b>{name}</b> foi apagado com sucesso"
             },
             status=status.HTTP_202_ACCEPTED,
         )

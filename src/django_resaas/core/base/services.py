@@ -1,7 +1,7 @@
 class BaseService:
     def __init__(self, request):
         self.request = request
-        self.entidade_id = request.entidade_id
-        self.sucursal_id = request.sucursal_id
+        self.entity_id = request.entity_id
+        self.branch_id = request.branch_id
         self.user = request.user
 

@@ -10,7 +10,7 @@ class UserLogin(TimeModel):
     info = models.TextField(null=True)
     local_lat = models.CharField(max_length=100, null=True)
     local_lon = models.CharField(max_length=100, null=True)
-    local_nome = models.CharField(max_length=100, null=True)
+    local_name = models.CharField(max_length=100, null=True)
    
     is_blocked = models.BooleanField(default=False)
 
@@ -19,7 +19,7 @@ class UserLogin(TimeModel):
 
     class RESAAS:
         label_field = "user.username"
-        route="view_entidade"
+        route="view_entity"
 
     def __str__(self):
         return self.dispositivo or ''

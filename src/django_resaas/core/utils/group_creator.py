@@ -4,25 +4,25 @@ def group_creator(groups=None):
 
     # 🔥 IMPORT LAZY
     from django.contrib.auth.models import Group
-    from django_resaas.models.tipo_entidade import TipoEntidade
-    from django_resaas.models.entidade import Entidade
-    from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup
-    from django_resaas.models.entidade_group import EntidadeGroup
+    from django_resaas.models.entity_type import EntityType
+    from django_resaas.models.entity import Entity
+    from django_resaas.models.entity_type_group import EntityTypeGroup
+    from django_resaas.models.entity_group import EntityGroup
 
     # ------------------------------------------------------
-    # 🔥 GARANTE TipoEntidade BASE
+    # 🔥 GARANTE EntityType BASE
     # ------------------------------------------------------
-    tipo_entidade, _ = TipoEntidade.objects.get_or_create(
-        nome="SaaS",
+    entity_type, _ = EntityType.objects.get_or_create(
+        name="SaaS",
         estado= 1
     )
 
     # ------------------------------------------------------
-    # 🔥 GARANTE Entidade COM tipo_entidade
+    # 🔥 GARANTE Entity COM entity_type
     # ------------------------------------------------------
-    entidade, _ = Entidade.objects.get_or_create(
-        nome="Mytech",
-        tipo_entidade=tipo_entidade,  # 🔥 FIX CRÍTICO
+    entity, _ = Entity.objects.get_or_create(
+        name="Mytech",
+        entity_type=entity_type,  # 🔥 FIX CRÍTICO
         estado= 1
     )
 
@@ -32,14 +32,14 @@ def group_creator(groups=None):
     for g in groups:
         group, _ = Group.objects.get_or_create(name=g)
 
-        TipoEntidadeGroup.objects.get_or_create(
-            tipo_entidade=tipo_entidade,
+        EntityTypeGroup.objects.get_or_create(
+            entity_type=entity_type,
             group=group,
             defaults={"estado": 1}
         )
 
-        EntidadeGroup.objects.get_or_create(
-            entidade=entidade,
+        EntityGroup.objects.get_or_create(
+            entity=entity,
             group=group,
             defaults={"estado": 1}
         )

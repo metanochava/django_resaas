@@ -17,7 +17,7 @@ from django_resaas.core.base.permissions import isPermited
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import ok, fail  # noqa
 from django_resaas.core.base.registry import VIEW_REGISTRY
-from django_resaas.models.entidade_modulo import EntidadeModulo
+from django_resaas.models.entity_app import EntityApp
 
 
 from .mixins.view.select import SelectMixin
@@ -33,7 +33,7 @@ def build_search_query(Model, search, depth=1):
     q = Q()
 
     candidates = [
-        "nome", "name", "title", "descricao", "description",
+        "name", "name", "title", "descricao", "description",
         "username", "email", "codigo", "code"
     ]
 
@@ -142,9 +142,9 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         module = getattr(self, "module_name", None)
 
         if module:
-            ativo = EntidadeModulo.objects.filter(
-                entidade__id=request.entidade_id,
-                modulo__nome=module,
+            ativo = EntityApp.objects.filter(
+                entity__id=request.entity_id,
+                app__name=module,
                 estado=1
             ).exists()
 
@@ -189,11 +189,11 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         Model = qs.model
 
         # 🔥 aplica tenant só se existir no model
-        if hasattr(Model, "entidade_id"):
-            qs = qs.filter(entidade_id=self.request.entidade_id)
+        if hasattr(Model, "entity_id"):
+            qs = qs.filter(entity_id=self.request.entity_id)
 
-        if hasattr(Model, "sucursal_id"):
-            qs = qs.filter(sucursal_id=self.request.sucursal_id)
+        if hasattr(Model, "branch_id"):
+            qs = qs.filter(branch_id=self.request.branch_id)
 
         objects_filter = (self.request.query_params.get("objects") or "").strip()
 
@@ -206,11 +206,11 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             qs = Model.deleted_objects.all()
 
         # reaplicar tenant após troca de manager
-        if hasattr(Model, "entidade_id"):
-            qs = qs.filter(entidade_id=self.request.entidade_id)
+        if hasattr(Model, "entity_id"):
+            qs = qs.filter(entity_id=self.request.entity_id)
 
-        if hasattr(Model, "sucursal_id"):
-            qs = qs.filter(sucursal_id=self.request.sucursal_id)
+        if hasattr(Model, "branch_id"):
+            qs = qs.filter(branch_id=self.request.branch_id)
 
         qs = self.apply_dynamic_search(qs)
 
@@ -226,11 +226,11 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             "updated_by": self.request.user
         }
 
-        if hasattr(serializer.Meta.model, "entidade_id"):
-            data["entidade_id"] = self.request.entidade_id
+        if hasattr(serializer.Meta.model, "entity_id"):
+            data["entity_id"] = self.request.entity_id
 
-        if hasattr(serializer.Meta.model, "sucursal_id"):
-            data["sucursal_id"] = self.request.sucursal_id
+        if hasattr(serializer.Meta.model, "branch_id"):
+            data["branch_id"] = self.request.branch_id
 
         serializer.save(**data)
 

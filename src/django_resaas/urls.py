@@ -43,30 +43,30 @@ from django_resaas.data.user.views.mail import MailAPIView
 # ─────────────────────────────
 # Data / API views
 # ─────────────────────────────
-from django_resaas.data.entidade.views.entidade import EntidadeAPIView
-from django_resaas.data.entidade.views.site import SiteAPIView
-from django_resaas.data.tipo_entidade.views.tipo_entidade import TipoEntidadeAPIView
+from django_resaas.data.entity.views.entity import EntityAPIView
+from django_resaas.data.entity.views.site import SiteAPIView
+from django_resaas.data.entity_type.views.entity_type import EntityTypeAPIView
 from django_resaas.data.group.views.group import GroupAPIView
-from django_resaas.data.sucursal.views.sucursal import SucursalAPIView
-from django_resaas.data.sucursal_user.views.sucursal_user import SucursalUserAPIView
-from django_resaas.data.sucursal_user_group.views.sucursal_user_group import SucursalUserGroupAPIView
-from django_resaas.data.documento.views.documento import DocumentoAPIView
-from django_resaas.data.tipo_documento.views.tipo_documento import TipoDocumentoAPIView
+from django_resaas.data.branch.views.branch import BranchAPIView
+from django_resaas.data.branch_user.views.branch_user import BranchUserAPIView
+from django_resaas.data.branch_user_group.views.branch_user_group import BranchUserGroupAPIView
+from django_resaas.data.document.views.document import DocumentAPIView
+from django_resaas.data.document_type.views.document_type import DocumentTypeAPIView
 
 
 
-from django_resaas.data.traducao.views.traducao import TraducaoAPIView
-from django_resaas.data.idioma.views.idioma import IdiomaAPIView
-from django_resaas.data.ficheiro.views.ficheiro import FicheiroAPIView
+from django_resaas.data.translation.views.translation import TranslationAPIView
+from django_resaas.data.language.views.language import LanguageAPIView
+from django_resaas.data.file.views.file import FileAPIView
 from django_resaas.data.permission.views.permission import PermissionAPIView
-from django_resaas.data.modelo.views.modelo import ModeloAPIView
-from django_resaas.data.modulo.views.modulo import ModuloAPIView
+from django_resaas.data.model.views.model import ModelAPIView
+from django_resaas.data.app.views.app import AppAPIView
 from django_resaas.data.user.views.user import UserAPIView
-from django_resaas.data.pessoa.views.pessoa import PessoaAPIView
+from django_resaas.data.person.views.person import PersonAPIView
 from django_resaas.data.theme.views.theme import ThemeAPIView
 from django_resaas.data.layout_setting.views.layout_setting import LayoutSettingAPIView
 from django_resaas.management.apicommands.view.scaffold import ScaffoldAPIView
-from django_resaas.management.apicommands.view.modulo_schema import ModuloSchemaAPIView, RelationsAPIView
+from django_resaas.management.apicommands.view.app_schema import AppSchemaAPIView, RelationsAPIView
 
 from django_resaas.data.pdf.views.invoice import invoice_pdf
 
@@ -83,30 +83,30 @@ from django_resaas.core.utils.autoload_urls import build_saas_urls
 routerdjango_resaas = routers.DefaultRouter()
 routerauth = routers.DefaultRouter()
 
-routerdjango_resaas.register("ficheiros", FicheiroAPIView, basename="ficheiros")
-routerdjango_resaas.register("idiomas", IdiomaAPIView, basename="idiomas")
-routerdjango_resaas.register("traducaos", TraducaoAPIView, basename="traducaos")
+routerdjango_resaas.register("files", FileAPIView, basename="files")
+routerdjango_resaas.register("languages", LanguageAPIView, basename="languages")
+routerdjango_resaas.register("translations", TranslationAPIView, basename="translations")
 routerdjango_resaas.register("themes", ThemeAPIView, basename="themes")
 routerdjango_resaas.register("layoutsettings", LayoutSettingAPIView, basename="layoutsettings")
-routerdjango_resaas.register("tipodocumentos", TipoDocumentoAPIView, basename="tipodocumentos")
-routerdjango_resaas.register("documentos", DocumentoAPIView, basename="documentos")
+routerdjango_resaas.register("tipodocuments", DocumentTypeAPIView, basename="tipodocuments")
+routerdjango_resaas.register("documents", DocumentAPIView, basename="documents")
 
 
-routerdjango_resaas.register("sucursalusergroups", SucursalUserGroupAPIView, basename="sucursalusergroups")
-routerdjango_resaas.register("sucursalusers", SucursalUserAPIView, basename="sucursalusers")
+routerdjango_resaas.register("branchusergroups", BranchUserGroupAPIView, basename="branchusergroups")
+routerdjango_resaas.register("branchusers", BranchUserAPIView, basename="branchusers")
 
-routerdjango_resaas.register("tipoentidades", TipoEntidadeAPIView, basename="tipo_entidades")
-routerdjango_resaas.register("entidades", EntidadeAPIView, basename="entidades")
-routerdjango_resaas.register("sucursals", SucursalAPIView, basename="sucursais")
+routerdjango_resaas.register("tipoentitys", EntityTypeAPIView, basename="entity_types")
+routerdjango_resaas.register("entitys", EntityAPIView, basename="entitys")
+routerdjango_resaas.register("branchs", BranchAPIView, basename="sucursais")
 routerdjango_resaas.register("users", UserAPIView, basename="users")
-routerdjango_resaas.register("pessoas", PessoaAPIView, basename="pessoas")
+routerdjango_resaas.register("persons", PersonAPIView, basename="persons")
 
 routerauth.register("groups", GroupAPIView, basename="groups")
 routerauth.register("permissions", PermissionAPIView, basename="permissions")
 
-routerdjango_resaas.register("modelos", ModeloAPIView, basename="modelos")
-routerdjango_resaas.register("modulos", ModuloAPIView, basename="modulos")
-routerdjango_resaas.register("resaas_modulos", ModuloSchemaAPIView, basename="resaas_modulos")
+routerdjango_resaas.register("models", ModelAPIView, basename="models")
+routerdjango_resaas.register("apps", AppAPIView, basename="apps")
+routerdjango_resaas.register("resaas_apps", AppSchemaAPIView, basename="resaas_apps")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
 
 

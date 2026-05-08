@@ -8,17 +8,17 @@ from rest_framework.response import Response
 
 from django.contrib.auth.models import Group
 from django_resaas.models.user import User
-from django_resaas.models.entidade import Entidade
-from django_resaas.models.sucursal import Sucursal
-from django_resaas.models.entidade_user import EntidadeUser
-from django_resaas.models.entidade_modulo import EntidadeModulo
-from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
-from django_resaas.models.sucursal_user import SucursalUser
+from django_resaas.models.entity import Entity
+from django_resaas.models.branch import Branch
+from django_resaas.models.entity_user import EntityUser
+from django_resaas.models.entity_app import EntityApp
+from django_resaas.models.entity_type_app import EntityTypeApp
+from django_resaas.models.branch_user import BranchUser
 from django_resaas.data.user.serializers.user import UserSerializer
-from django_resaas.data.entidade.serializers.entidade import EntidadeSerializer
-from django_resaas.data.sucursal.serializers.sucursal import SucursalSerializer
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
-from django_resaas.data.pessoa.serializers.pessoa import PessoaSerializer
+from django_resaas.data.entity.serializers.entity import EntitySerializer
+from django_resaas.data.branch.serializers.branch import BranchSerializer
+from django_resaas.models.branch_user_group import BranchUserGroup
+from django_resaas.data.person.serializers.person import PersonSerializer
 
 
 
@@ -43,17 +43,17 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['GET'],
     )
-    def userEntidades(self, request, id, *args, **kwargs):
+    def userEntitys(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
         user = UserSerializer(user)
 
         ar = []
-        userEntidades = EntidadeUser.objects.filter(user__id=id, entidade__tipo_entidade__id=request.tipo_entidade_id)
-        if (userEntidades):
-            for userEntidade in userEntidades:
-                entidade = Entidade.objects.get(id=userEntidade.entidade.id)
-                entidade = EntidadeSerializer(entidade, context={'request': request})
-                ar.append({'id': entidade.data['id'], 'tipoEntidade': entidade.data['tipo_entidade'],  'nome': entidade.data['nome'], 'created_at': entidade.data['created_at'].split('-')[0], 'logo': entidade.data['logo']})
+        userEntitys = EntityUser.objects.filter(user__id=id, entity__entity_type__id=request.entity_type_id)
+        if (userEntitys):
+            for userEntity in userEntitys:
+                entity = Entity.objects.get(id=userEntity.entity.id)
+                entity = EntitySerializer(entity, context={'request': request})
+                ar.append({'id': entity.data['id'], 'entityType': entity.data['entity_type'],  'name': entity.data['name'], 'created_at': entity.data['created_at'].split('-')[0], 'logo': entity.data['logo']})
            
 
         return Response(ar, status.HTTP_200_OK)
@@ -72,18 +72,18 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['GET'],
     )
-    def userSucursals(self, request, id, *args, **kwargs):
+    def userBranchs(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
         user = UserSerializer(user)
 
 
         ar = []
-        userSucursals = SucursalUser.objects.filter(user__id=id, sucursal__entidade__tipo_entidade__id=request.tipo_entidade_id, sucursal__entidade__id=request.entidade_id)
-        if (userSucursals):
-            for userSucursal in userSucursals:
-                sucursal = Sucursal.objects.get(id=userSucursal.sucursal.id)
-                sucursal = SucursalSerializer(sucursal)
-                ar.append({'id': sucursal.data['id'], 'nome': sucursal.data['nome']})
+        userBranchs = BranchUser.objects.filter(user__id=id, branch__entity__entity_type__id=request.entity_type_id, branch__entity__id=request.entity_id)
+        if (userBranchs):
+            for userBranch in userBranchs:
+                branch = Branch.objects.get(id=userBranch.branch.id)
+                branch = BranchSerializer(branch)
+                ar.append({'id': branch.data['id'], 'name': branch.data['name']})
 
         return Response(ar, status.HTTP_200_OK)
     
@@ -91,20 +91,20 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['POST'],
     )
-    def addUserSucursal(self, request, id, *args, **kwargs):
+    def addUserBranch(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
 
-        sucursal = Sucursal.objects.get(id= request.data['sucursal'])
+        branch = Branch.objects.get(id= request.data['branch'])
 
         ar = []
-        userSucursals = SucursalUser.objects.filter(user__id=id, sucursal__id= sucursal.id,  sucursal__entidade__tipo_entidade__id=request.tipo_entidade_id, sucursal__entidade__id=request.entidade_id)
-        if (len(userSucursals) <= 1):
-            su = SucursalUser()
+        userBranchs = BranchUser.objects.filter(user__id=id, branch__id= branch.id,  branch__entity__entity_type__id=request.entity_type_id, branch__entity__id=request.entity_id)
+        if (len(userBranchs) <= 1):
+            su = BranchUser()
             su.user = user
-            su.sucursal  = sucursal
+            su.branch  = branch
             su.save()
             # data = json.loads(json.dumps(paciente.data, cls=DjangoJSONEncoder))
-        add = {'alert_success':  '<b>' + sucursal.nome+ '</b> foi adicionado com sucesso'}
+        add = {'alert_success':  '<b>' + branch.name+ '</b> foi adicionado com sucesso'}
             # data.update(add)
         return Response(add, status = status.HTTP_201_CREATED)
     
@@ -112,13 +112,13 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['POST'],
     )
-    def removeUserSucursal(self, request, id, *args, **kwargs):
+    def removeUserBranch(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
-        sucursal = Sucursal.objects.get(id= request.data['sucursal'])
+        branch = Branch.objects.get(id= request.data['branch'])
 
-        userSucursals = SucursalUser.objects.get(user__id=id, sucursal__id= sucursal.id, sucursal__entidade__tipo_entidade__id=request.tipo_entidade_id, sucursal__entidade__id=request.entidade_id)
-        userSucursals.delete()
-        add = {'alert_success': '<b>' + sucursal.nome+ '</b> foi removido com sucesso'}
+        userBranchs = BranchUser.objects.get(user__id=id, branch__id= branch.id, branch__entity__entity_type__id=request.entity_type_id, branch__entity__id=request.entity_id)
+        userBranchs.delete()
+        add = {'alert_success': '<b>' + branch.name+ '</b> foi removido com sucesso'}
         return Response(add, status = status.HTTP_200_OK)
 
     @action(
@@ -129,16 +129,16 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
         user = UserSerializer(user)
 
-        if self.request.query_params.get('sucursal') == 'nulo' or self.request.query_params.get('sucursal') == None:
+        if self.request.query_params.get('branch') == 'nulo' or self.request.query_params.get('branch') == None:
             pass
         else:
-            sucursal_id = self.request.query_params.get('sucursal')
+            branch_id = self.request.query_params.get('branch')
 
-        sucursalUserGroups = SucursalUserGroup.objects.filter(user__id=id, sucursal__id=request.sucursal_id)
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id)
         ar = []
-        if (sucursalUserGroups):
-            for sucursalUserGroup in sucursalUserGroups:
-                group = Group.objects.get(id=sucursalUserGroup.group.id)
+        if (branchUserGroups):
+            for branchUserGroup in branchUserGroups:
+                group = Group.objects.get(id=branchUserGroup.group.id)
                 ar.append({'id': group.id, 'name': group.name})
 
         if True:
@@ -153,12 +153,12 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
         print(user)
         user = UserSerializer(user)
-        sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = id, sucursal__id=request.sucursal_id, group__id=request.group_id)
-        print(sucursalUserGroup)
+        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id)
+        print(branchUserGroup)
         
         per = []
-        if (sucursalUserGroup):
-            group = Group.objects.get(id=sucursalUserGroup[0].group.id)
+        if (branchUserGroup):
+            group = Group.objects.get(id=branchUserGroup[0].group.id)
             print(group)
             permissions = group.permissions.all()
 
@@ -204,22 +204,22 @@ class UserAPIView(viewsets.ModelViewSet):
         # ===============================
         # 🔥 PERMISSÕES DO USER
         # ===============================
-        sucursalUserGroup = SucursalUserGroup.objects.filter(
+        branchUserGroup = BranchUserGroup.objects.filter(
             user_id=request.user.id,
-            sucursal_id=request.sucursal_id,
+            branch_id=request.branch_id,
             group_id=request.group_id
         ).select_related('group')
 
         user_perms = []
 
-        if sucursalUserGroup.exists():
-            group = sucursalUserGroup.first().group
+        if branchUserGroup.exists():
+            group = branchUserGroup.first().group
             user_perms = list(group.permissions.values_list('codename', flat=True))
 
         # ===============================
         # 🔥 TIPO ENTIDADE
         # ===============================
-        tipo_id = getattr(request, "tipo_entidade_id", None)
+        tipo_id = getattr(request, "entity_type_id", None)
 
         if not tipo_id:
             return Response([], status=status.HTTP_200_OK)
@@ -227,11 +227,11 @@ class UserAPIView(viewsets.ModelViewSet):
         # ===============================
         # 🔥 MODULOS ATIVOS (AGORA CORRETO)
         # ===============================
-        modulos = TipoEntidadeModulo.objects.filter(
-            tipo_entidade_id=tipo_id
-        ).select_related('modulo')
+        apps = EntityTypeApp.objects.filter(
+            entity_type_id=tipo_id
+        ).select_related('app')
 
-        nomes_modulos = set(m.modulo.nome for m in modulos)
+        names_apps = set(m.app.name for m in apps)
 
         # ===============================
         # 🔥 GERAR MENUS
@@ -240,7 +240,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
         for app in apps.get_app_configs():
 
-            if app.label not in nomes_modulos:
+            if app.label not in names_apps:
                 continue
 
             module_name = f"{app.name}.sidebar"
@@ -274,10 +274,10 @@ class UserAPIView(viewsets.ModelViewSet):
         return Response(MENUS, status=status.HTTP_200_OK)
     # @action(detail=True, methods=['GET'])
     # def menus(self, request, *args, **kwargs):
-    #     sucursalUserGroup = SucursalUserGroup.objects.filter(user__id = request.user.id, sucursal__id=request.sucursal_id, group__id=request.group_id)
+    #     branchUserGroup = BranchUserGroup.objects.filter(user__id = request.user.id, branch__id=request.branch_id, group__id=request.group_id)
     #     user_perms = []
-    #     if (sucursalUserGroup):
-    #         group = Group.objects.get(id=sucursalUserGroup[0].group.id)
+    #     if (branchUserGroup):
+    #         group = Group.objects.get(id=branchUserGroup[0].group.id)
     #         permissions = group.permissions.all()
     #         for permission in permissions:
     #             user_perms.append(permission.codename)
@@ -287,7 +287,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
     #     for app in apps.get_app_configs():
     #         module_name = f"{app.name}.sidebar"
-    #         if not EntidadeModulo.objects.filter(entidade__id=request.entidade_id, modulo__nome=app.label, modulo__estado=1, estado=1).exists():
+    #         if not EntityApp.objects.filter(entity__id=request.entity_id, app__name=app.label, app__estado=1, estado=1).exists():
     #             continue
 
     #         if not importlib.util.find_spec(module_name):
@@ -318,12 +318,12 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['GET'],
     )
-    def userPessoa(self, request, id, *args, **kwargs):
+    def userPerson(self, request, id, *args, **kwargs):
 
-        pessoa = Pessoa.objects.get(user__id=id)
-        pessoa = PessoaSerializer(pessoa)
-        if pessoa:
-            return Response(pessoa.data, status.HTTP_200_OK)
+        person = Person.objects.get(user__id=id)
+        person = PersonSerializer(person)
+        if person:
+            return Response(person.data, status.HTTP_200_OK)
         return Response([], status.HTTP_400_BAD_REQUEST)
 
 
@@ -334,14 +334,14 @@ class UserAPIView(viewsets.ModelViewSet):
     def removerPerfil(self, request, id ):
         user = User.objects.get(id=id)
         group_id = request.data['perfil']['id']
-        sucursal_id = request.data['sucursal_id']
-        sucursalUserGroups = SucursalUserGroup.objects.filter(user__id=id, sucursal__id=request.sucursal_id, group__id=request.group_id).first()
-        sucursalUserGroups.delete()
+        branch_id = request.data['branch_id']
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
+        branchUserGroups.delete()
         ar = []
-        sucursalUserGroups = SucursalUserGroup.objects.filter(user__id=id, sucursal__id=request.sucursal_id)
-        if (sucursalUserGroups):
-            for sucursalUserGroup in sucursalUserGroups:
-                group = Group.objects.get(id=sucursalUserGroup.group.id)
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id)
+        if (branchUserGroups):
+            for branchUserGroup in branchUserGroups:
+                group = Group.objects.get(id=branchUserGroup.group.id)
                 ar.append({'id': group.id, 'name': group.name})
 
 
@@ -358,22 +358,22 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
         group_id = request.data['perfil']['id']
         group = Group.objects.get(id=request.group_id)
-        sucursal_id = request.data['sucursal_id']
-        sucursal = Sucursal.objects.get(id=request.sucursal_id)
-        sucursalUserGroups = SucursalUserGroup.objects.filter(user__id=id, sucursal__id=request.sucursal_id, group__id=request.group_id).first()
+        branch_id = request.data['branch_id']
+        branch = Branch.objects.get(id=request.branch_id)
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
 
-        if None==sucursalUserGroups:
-            sucursalUserGroup = SucursalUserGroup()
-            sucursalUserGroup.user = user
-            sucursalUserGroup.group = group
-            sucursalUserGroup.sucursal = sucursal
-            sucursalUserGroup.save()
-        sucursalUserGroups = SucursalUserGroup.objects.filter(user__id=id, sucursal__id=request.sucursal_id)
+        if None==branchUserGroups:
+            branchUserGroup = BranchUserGroup()
+            branchUserGroup.user = user
+            branchUserGroup.group = group
+            branchUserGroup.branch = branch
+            branchUserGroup.save()
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id)
 
         ar = []
-        if (sucursalUserGroups):
-            for sucursalUserGroup in sucursalUserGroups:
-                group = Group.objects.get(id=sucursalUserGroup.group.id)
+        if (branchUserGroups):
+            for branchUserGroup in branchUserGroups:
+                group = Group.objects.get(id=branchUserGroup.group.id)
                 ar.append({'id': group.id, 'name': group.name})
 
 

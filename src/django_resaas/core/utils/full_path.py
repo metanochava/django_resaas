@@ -8,7 +8,7 @@ from django.utils.crypto import constant_time_compare
 
 class FullPath:
     """
-    Geração e validação de URLs protegidas para ficheiros.
+    Geração e validação de URLs protegidas para files.
     """
 
     # -------------------------

@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from rest_framework_simplejwt.tokens import RefreshToken
-from django_resaas.models.pessoa import Pessoa
+from django_resaas.models.person import Person
 from django_resaas.core.base.models import TimeModel
 
 
@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
     )
 
     language = models.ForeignKey(
-        "django_resaas.Idioma",
+        "django_resaas.Language",
         on_delete=models.SET_NULL,
         null=True,
         blank=True

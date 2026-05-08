@@ -1,0 +1,33 @@
+
+from django.db import models
+from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
+from django_resaas.core.base.models import TimeModel
+
+def icon_path(instance, file_name):
+    return f'{instance.name}/{file_name}'
+
+
+class EntityType(TimeModel):
+    name = models.CharField(max_length=100, null=True)
+    icon = models.FileField(upload_to=icon_path, default='logo.png', blank=True)
+    license = models.TextField(default='license')
+    label = models.CharField(max_length=100, null=True)
+    ordem = models.IntegerField(default=2)
+    crair_entity = models.BooleanField(null=True, default=True)
+
+    theme = models.ForeignKey('django_resaas.Theme', null=True, blank=True, on_delete=models.SET_NULL)
+    layout_settings = models.ForeignKey('django_resaas.LayoutSetting', null=True, blank=True, on_delete=models.SET_NULL)
+    typography = models.ForeignKey('django_resaas.Typography', null=True, blank=True, on_delete=models.SET_NULL)
+    animation_settings = models.ForeignKey('django_resaas.AnimationSetting', null=True, blank=True, on_delete=models.SET_NULL)
+
+    
+    class Meta:
+        permissions = ()
+
+    class RESAAS:
+        label_field = "name"
+        route="view_tipoentity"
+    def __str__(self):
+        return self.name
+

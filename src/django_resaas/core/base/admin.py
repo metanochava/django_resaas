@@ -96,7 +96,7 @@ class BaseAdmin(admin.ModelAdmin):
 
     def get_search_fields(self, request):
         candidates = [
-            "nome", "name", "title", "descricao",
+            "name", "name", "title", "descricao",
             "codigo", "email", "username"
         ]
 
@@ -147,8 +147,8 @@ class BaseAdmin(admin.ModelAdmin):
         if hasattr(obj, "updated_by"):
             obj.updated_by = request.user
 
-        if hasattr(obj, "entidade_id") and not obj.entidade_id:
-            obj.entidade_id = getattr(request, "entidade_id", None)
+        if hasattr(obj, "entity_id") and not obj.entity_id:
+            obj.entity_id = getattr(request, "entity_id", None)
 
         super().save_model(request, obj, form, change)
 

@@ -13,14 +13,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write(self.style.MIGRATE_HEADING("🚀 Bootstrap SaaS \n\n"))
 
-        tipo_entidade = input("Digite seu nome do Tipo de Entidade: ")
-        entidade = input("Digite seu nome da Entidade: ")
-        sucursal = input("Digite seu nome da Sucursal: ")
+        entity_type = input("Digite seu name do Tipo de Entity: ")
+        entity = input("Digite seu name da Entity: ")
+        branch = input("Digite seu name da Branch: ")
         group = "Admin"
 
         user = UserService.get_or_create_superuser(self.stdout, style=self.style)
  
-        result = BootstrapService.run(tipo_entidade, entidade, sucursal, user, group, stdout=self.stdout, style=self.style)
+        result = BootstrapService.run(entity_type, entity, branch, user, group, stdout=self.stdout, style=self.style)
 
         self.stdout.write(
             self.style.SUCCESS(f"✔ Superuser criado: \t {user.email} \n")

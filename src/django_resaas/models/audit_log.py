@@ -10,4 +10,4 @@ class AuditLog(TimeModel):
     model = models.CharField(max_length=105)
     object_id = models.CharField(max_length=100)
     class RESAAS:
-        label_field = "nome"
+        label_field = "name"

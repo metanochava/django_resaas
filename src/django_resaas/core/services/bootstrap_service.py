@@ -1,17 +1,17 @@
 from django.contrib.auth.models import Group
 from django.db import transaction
 
-from django_resaas.models.tipo_entidade import TipoEntidade
-from django_resaas.models.entidade import Entidade
-from django_resaas.models.sucursal import Sucursal
-from django_resaas.models.entidade_user import EntidadeUser
-from django_resaas.models.sucursal_user import SucursalUser
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
-from django_resaas.models.entidade_group import EntidadeGroup
-from django_resaas.models.sucursal_group import SucursalGroup
-from django_resaas.models.modulo import Modulo
-from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
-from django_resaas.models.entidade_modulo import EntidadeModulo
+from django_resaas.models.entity_type import EntityType
+from django_resaas.models.entity import Entity
+from django_resaas.models.branch import Branch
+from django_resaas.models.entity_user import EntityUser
+from django_resaas.models.branch_user import BranchUser
+from django_resaas.models.branch_user_group import BranchUserGroup
+from django_resaas.models.entity_group import EntityGroup
+from django_resaas.models.branch_group import BranchGroup
+from django_resaas.models.app import App
+from django_resaas.models.entity_type_app import EntityTypeApp
+from django_resaas.models.entity_app import EntityApp
 
 
 
@@ -20,142 +20,142 @@ class BootstrapService:
 
     @classmethod
     @transaction.atomic
-    def run(cls, tipo_entidade, entidade, sucursal, user, group, stdout=None, style=None):
+    def run(cls, entity_type, entity, branch, user, group, stdout=None, style=None):
 
-        tipo = cls.create_tipo_entidade(tipo_entidade, stdout, style)
-        entidade = cls.create_entidade(tipo, entidade, user, stdout, style)
-        sucursal = cls.create_sucursal(entidade, sucursal, user, stdout, style)
-        group = cls.create_group(user, entidade, sucursal, group, stdout, style)
+        tipo = cls.create_entity_type(entity_type, stdout, style)
+        entity = cls.create_entity(tipo, entity, user, stdout, style)
+        branch = cls.create_branch(entity, branch, user, stdout, style)
+        group = cls.create_group(user, entity, branch, group, stdout, style)
 
         return {
-            "tipo_entidade": tipo,
-            "entidade": entidade,
-            "sucursal": sucursal,
+            "entity_type": tipo,
+            "entity": entity,
+            "branch": branch,
             "group": group,
         }
 
     # ------------------------
-    # TipoEntidade
+    # EntityType
     # ------------------------
     @staticmethod
-    def create_tipo_entidade(nome, stdout=None, style=None):
-        tipo, _ = TipoEntidade.objects.get_or_create(
-            nome=nome,
+    def create_entity_type(name, stdout=None, style=None):
+        tipo, _ = EntityType.objects.get_or_create(
+            name=name,
             estado = 1
         )
 
         if stdout and style:
-            stdout.write(style.SUCCESS(f"✔ {'TipoEntidade:':20} {tipo.nome}"))
+            stdout.write(style.SUCCESS(f"✔ {'EntityType:':20} {tipo.name}"))
 
         return tipo
 
     # ------------------------
-    # Entidade + EntidadeUser
+    # Entity + EntityUser
     # ------------------------
     @staticmethod
-    def create_entidade(tipo_entidade, nome, user, stdout=None, style=None):
-        entidade, _ = Entidade.objects.get_or_create(
-            nome=nome,
-            tipo_entidade=tipo_entidade,
+    def create_entity(entity_type, name, user, stdout=None, style=None):
+        entity, _ = Entity.objects.get_or_create(
+            name=name,
+            entity_type=entity_type,
             estado = 1
         )
 
-        entidade.admins.add(user)
+        entity.admins.add(user)
 
-        EntidadeUser.objects.get_or_create(
+        EntityUser.objects.get_or_create(
             user=user,
-            entidade=entidade,
+            entity=entity,
             estado = 1
         )
 
         for name in ['rh']:
-            modulo, _ = Modulo.objects.get_or_create(
-                nome=name,
+            app, _ = App.objects.get_or_create(
+                name=name,
                 estado = 1
             )
 
-            tipo_entidade_modulo, _ = TipoEntidadeModulo.objects.get_or_create(
-                modulo=modulo,
-                tipo_entidade=tipo_entidade,
+            entity_type_app, _ = EntityTypeApp.objects.get_or_create(
+                app=app,
+                entity_type=entity_type,
                 estado = 1
             )
 
-            entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
-                modulo=modulo,
-                entidade=entidade,
+            entity_app, _ = EntityApp.objects.get_or_create(
+                app=app,
+                entity=entity,
                 estado = 1
             )
 
-            stdout.write(style.WARNING(f"✔ {'Modulo:':20} {modulo.nome}"))
+            stdout.write(style.WARNING(f"✔ {'App:':20} {app.name}"))
 
         if stdout and style:
-            stdout.write(style.SUCCESS(f"✔ {'Entidade:':20} {entidade.nome}"))
+            stdout.write(style.SUCCESS(f"✔ {'Entity:':20} {entity.name}"))
 
-        return entidade
+        return entity
 
     # ------------------------
-    # Sucursal + SucursalUser
+    # Branch + BranchUser
     # ------------------------
     @staticmethod
-    def create_sucursal(entidade, nome, user, stdout=None, style=None):
-        sucursal, _ = Sucursal.objects.get_or_create(
-            nome=nome,
-            entidade=entidade
+    def create_branch(entity, name, user, stdout=None, style=None):
+        branch, _ = Branch.objects.get_or_create(
+            name=name,
+            entity=entity
         )
 
-        SucursalUser.objects.get_or_create(
+        BranchUser.objects.get_or_create(
             user=user,
-            sucursal=sucursal
+            branch=branch
         )
 
         if stdout and style:
-            stdout.write(style.SUCCESS(f"✔ {'Sucursal:':20} {sucursal.nome}"))
+            stdout.write(style.SUCCESS(f"✔ {'Branch:':20} {branch.name}"))
 
-        return sucursal
+        return branch
 
     # ------------------------
-    # Group + SucursalUserGroup
+    # Group + BranchUserGroup
     # ------------------------
     @staticmethod
-    def create_group(user,entidade, sucursal, group, stdout=None, style=None):
+    def create_group(user,entity, branch, group, stdout=None, style=None):
 
         group, _ = Group.objects.get_or_create(name=group)
 
-        # ligar group à sucursal
-        SucursalGroup.objects.get_or_create(
-            sucursal=sucursal,
+        # ligar group à branch
+        BranchGroup.objects.get_or_create(
+            branch=branch,
             group=group,
             estado = 1
         )
 
-        # ligar group ao tenant (entidade)
-        EntidadeGroup.objects.get_or_create(
-            entidade=entidade,
+        # ligar group ao tenant (entity)
+        EntityGroup.objects.get_or_create(
+            entity=entity,
             group=group,
             estado = 1
         )
 
         user.groups.add(group)
 
-        SucursalUserGroup.objects.get_or_create(
+        BranchUserGroup.objects.get_or_create(
             user=user,
-            sucursal=sucursal,
+            branch=branch,
             group=group,
             estado = 1
         )
 
         group, _ = Group.objects.get_or_create(name="Guest")
 
-        # ligar group à sucursal
-        SucursalGroup.objects.get_or_create(
-            sucursal=sucursal,
+        # ligar group à branch
+        BranchGroup.objects.get_or_create(
+            branch=branch,
             group=group,
             estado = 1
         )
 
-        # ligar group ao tenant (entidade)
-        EntidadeGroup.objects.get_or_create(
-            entidade=entidade,
+        # ligar group ao tenant (entity)
+        EntityGroup.objects.get_or_create(
+            entity=entity,
             group=group,
             estado = 1
         )
@@ -163,16 +163,16 @@ class BootstrapService:
         user.groups.add(group)
 
         
-        SucursalUserGroup.objects.get_or_create(
+        BranchUserGroup.objects.get_or_create(
             user=user,
-            sucursal=sucursal,
+            branch=branch,
             group=group,
             estado = 1
         )
 
         if stdout and style:
             stdout.write(style.SUCCESS(f"✔ {'Groups:':20} Guest e Admin"))
-            stdout.write(style.SUCCESS(f"✔ {'EntidadeGroup':20} OK"))
-            stdout.write(style.SUCCESS(f"✔ {'SucursalGroup':20} OK"))
+            stdout.write(style.SUCCESS(f"✔ {'EntityGroup':20} OK"))
+            stdout.write(style.SUCCESS(f"✔ {'BranchGroup':20} OK"))
 
         return group

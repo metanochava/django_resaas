@@ -14,13 +14,13 @@ class UploadPath:
         instance_id = instance.id or "tmp"
 
         return (
-            f"{instance.entidade.tipo_entidade.id}/"
-            f"{instance.entidade.id}/"
+            f"{instance.entity.entity_type.id}/"
+            f"{instance.entity.id}/"
             f"{instance_id}/"
             f"{self.pasta}/{unique_name}"
             if self.pasta else
-            f"{instance.entidade.tipo_entidade.id}/"
-            f"{instance.entidade.id}/"
+            f"{instance.entity.entity_type.id}/"
+            f"{instance.entity.id}/"
             f"{instance_id}/{unique_name}"
         )
 
@@ -41,13 +41,13 @@ class UploadPath:
 #         instance_id = instance.id or "tmp"
 
 #         return (
-#             f"{instance.entidade.tipo_entidade.id}/"
-#             f"{instance.entidade.id}/"
+#             f"{instance.entity.entity_type.id}/"
+#             f"{instance.entity.id}/"
 #             f"{instance_id}/"
 #             f"{pasta_clean}/{unique_name}"
 #             if pasta_clean else
-#             f"{instance.entidade.tipo_entidade.id}/"
-#             f"{instance.entidade.id}/"
+#             f"{instance.entity.entity_type.id}/"
+#             f"{instance.entity.id}/"
 #             f"{instance_id}/{unique_name}"
 #         )
 
