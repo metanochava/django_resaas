@@ -327,20 +327,20 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def themeGet(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
-        tipoentity = EntityType.objects.get(id=tipoentity.id )
-        if tipoentity.theme:
-            theme = ThemeSerializer(Theme.objects.get(id=tipoentity.theme.id)).data
+        entitytype = self.get_object()
+        entitytype = EntityType.objects.get(id=entitytype.id )
+        if entitytype.theme:
+            theme = ThemeSerializer(Theme.objects.get(id=entitytype.theme.id)).data
         else:
             theme = {}
         return Response(theme, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
     def layoutSettingsGet(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
-        tipoentity = EntityType.objects.get(id=tipoentity.id )
-        if tipoentity.layout_settings:
-            layout_settings = LayoutSettingSerializer(LayoutSetting.objects.get(id=tipoentity.layout_settings.id)).data
+        entitytype = self.get_object()
+        entitytype = EntityType.objects.get(id=entitytype.id )
+        if entitytype.layout_settings:
+            layout_settings = LayoutSettingSerializer(LayoutSetting.objects.get(id=entitytype.layout_settings.id)).data
         else:
             layout_settings = {}
         return Response(layout_settings, status=status.HTTP_200_OK)
@@ -348,20 +348,20 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['GET'])
     def typographyGet(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
-        tipoentity = EntityType.objects.get(id=tipoentity.id )
-        if tipoentity.typography:
-            typography = TypographySerializer(Typography.objects.get(id=tipoentity.typography.id)).data
+        entitytype = self.get_object()
+        entitytype = EntityType.objects.get(id=entitytype.id )
+        if entitytype.typography:
+            typography = TypographySerializer(Typography.objects.get(id=entitytype.typography.id)).data
         else:
             typography = {}
         return Response(typography, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
     def animationSettingsGet(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
-        tipoentity = EntityType.objects.get(id=tipoentity.id )
-        if tipoentity.animation_settings:
-            animation_settings = AnimationSettingSerializer(AnimationSetting.objects.get(id=tipoentity.animation_settings.id)).data
+        entitytype = self.get_object()
+        entitytype = EntityType.objects.get(id=entitytype.id )
+        if entitytype.animation_settings:
+            animation_settings = AnimationSettingSerializer(AnimationSetting.objects.get(id=entitytype.animation_settings.id)).data
         else:
             animation_settings = {}
         return Response(animation_settings, status=status.HTTP_200_OK)
@@ -370,9 +370,9 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
+        entitytype = self.get_object()
 
-        theme = tipoentity.theme
+        theme = entitytype.theme
         data = request.data
 
         for key, value in data.items():
@@ -390,9 +390,9 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
+        entitytype = self.get_object()
 
-        layout_settings = tipoentity.layout_settings
+        layout_settings = entitytype.layout_settings
         data = request.data
 
         for key, value in data.items():
@@ -412,9 +412,9 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def typographyPut(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
+        entitytype = self.get_object()
 
-        typography = tipoentity.typography
+        typography = entitytype.typography
         data = request.data
 
         for key, value in data.items():
@@ -431,9 +431,9 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['PUT'])
     def animationSettingsPut(self, request, *args, **kwargs):
-        tipoentity = self.get_object()
+        entitytype = self.get_object()
 
-        animation_settings = tipoentity.animation_settings
+        animation_settings = entitytype.animation_settings
         data = request.data
 
         for key, value in data.items():

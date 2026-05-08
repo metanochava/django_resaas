@@ -32,7 +32,7 @@ class ModelAPIView(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = self.queryset
 
-        tipo_id = self.request.query_params.get("tipoentity")
+        tipo_id = self.request.query_params.get("entitytype")
 
         # 🔥 SE NÃO VIER PARAM → comportamento normal
         if not tipo_id:

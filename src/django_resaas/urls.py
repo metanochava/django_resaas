@@ -95,7 +95,7 @@ routerdjango_resaas.register("documents", DocumentAPIView, basename="documents")
 routerdjango_resaas.register("branchusergroups", BranchUserGroupAPIView, basename="branchusergroups")
 routerdjango_resaas.register("branchusers", BranchUserAPIView, basename="branchusers")
 
-routerdjango_resaas.register("tipoentitys", EntityTypeAPIView, basename="entity_types")
+routerdjango_resaas.register("entitytypes", EntityTypeAPIView, basename="entity_types")
 routerdjango_resaas.register("entitys", EntityAPIView, basename="entitys")
 routerdjango_resaas.register("branchs", BranchAPIView, basename="sucursais")
 routerdjango_resaas.register("users", UserAPIView, basename="users")

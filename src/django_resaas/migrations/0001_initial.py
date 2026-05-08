@@ -1580,7 +1580,7 @@ class Migration(migrations.Migration):
             name="entity_type",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                to="django_resaas.tipoentity",
+                to="django_resaas.entitytype",
             ),
         ),
         migrations.CreateModel(
@@ -1624,7 +1624,7 @@ class Migration(migrations.Migration):
                     "entity_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipoentity",
+                        to="django_resaas.entitytype",
                     ),
                 ),
                 (
@@ -1688,7 +1688,7 @@ class Migration(migrations.Migration):
                     "entity_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipoentity",
+                        to="django_resaas.entitytype",
                     ),
                 ),
                 (
@@ -1752,7 +1752,7 @@ class Migration(migrations.Migration):
                     "entity_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipoentity",
+                        to="django_resaas.entitytype",
                     ),
                 ),
                 (
@@ -1938,7 +1938,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="tipoentity",
+            model_name="entitytype",
             name="typography",
             field=models.ForeignKey(
                 blank=True,

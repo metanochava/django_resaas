@@ -47,10 +47,10 @@ SUBMENUS = [
     {
         "menu": "EntityType",
         "icon": "apartment",  # mais semântico
-        "role": "list_tipoentity",
-        "rota": "list_tipoentity",
-        "add_role": "add_tipoentity",
-        "add_rota": "add_tipoentity",
+        "role": "list_entitytype",
+        "rota": "list_entitytype",
+        "add_role": "add_entitytype",
+        "add_rota": "add_entitytype",
         # 'crud': { 'module': 'django_resaas', 'model': 'EntityType' }
     },    
     {
