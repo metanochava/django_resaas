@@ -5,7 +5,7 @@ class SerializerUtilsMixin:
 
     def _get_attr(self, obj, path, default=None):
         """
-        Suporta nested: "pessoa.nome"
+        Suporta nested: "person.name"
         """
         for attr in path.split("."):
             if obj is None:

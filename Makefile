@@ -104,12 +104,12 @@ flow_init:
 	git flow init
 
 feature_start:
-	read -p "Nome da feature: " n; \
+	read -p "Name da feature: " n; \
 	git checkout develop; \
 	git flow feature start "$$n"
 
 feature_finish:
-	read -p "Nome da feature: " n; \
+	read -p "Name da feature: " n; \
 	git flow feature finish "$$n"; \
 	git push origin develop
 
@@ -136,11 +136,11 @@ release_finish:
 # HOTFIX
 # =========================
 hotfix_start:
-	read -p "Nome do hotfix: " n; \
+	read -p "Name do hotfix: " n; \
 	git checkout main; \
 	git flow hotfix start "$$n"
 
 hotfix_finish:
-	read -p "Nome do hotfix: " n; \
+	read -p "Name do hotfix: " n; \
 	git flow hotfix finish "$$n"; \
 	git push origin main develop --tags

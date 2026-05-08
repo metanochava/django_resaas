@@ -1,22 +1,22 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from getpass import getpass
-from django_resaas.models.tipo_entidade import TipoEntidade
-from django_resaas.models.entidade import Entidade
-from django_resaas.models.sucursal import Sucursal
-from django_resaas.models.entidade_user import EntidadeUser
-from django_resaas.models.sucursal_user import SucursalUser
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
+from django_resaas.models.entity_type import EntityType
+from django_resaas.models.entity import Entity
+from django_resaas.models.branch import Branch
+from django_resaas.models.entity_user import EntityUser
+from django_resaas.models.branch_user import BranchUser
+from django_resaas.models.branch_user_group import BranchUserGroup
 from django.contrib.auth.models import Group
 from django_resaas.core.services.frontend_service import FrontEndService
-from django_resaas.core.services.idioma_service import IdiomaService
-from django_resaas.models.modulo import Modulo
-from django_resaas.models.tipo_entidade_modulo import TipoEntidadeModulo
-from django_resaas.models.entidade_modulo import EntidadeModulo
+from django_resaas.core.services.language_service import LanguageService
+from django_resaas.models.app import App
+from django_resaas.models.entity_type_app import EntityTypeApp
+from django_resaas.models.entity_app import EntityApp
 
-from django_resaas.models.tipo_entidade_group import TipoEntidadeGroup
-from django_resaas.models.entidade_group import EntidadeGroup
-from django_resaas.models.sucursal_group import SucursalGroup
+from django_resaas.models.entity_type_group import EntityTypeGroup
+from django_resaas.models.entity_group import EntityGroup
+from django_resaas.models.branch_group import BranchGroup
 
 User = get_user_model()
 
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         username = "root"
 
         FrontEndService.load_defaults( stdout=self.stdout,  style=self.style  )
-        IdiomaService.load_defaults( stdout=self.stdout, style=self.style )
+        LanguageService.load_defaults( stdout=self.stdout, style=self.style )
 
         user = User.objects.filter(email=email).first()
         exist = False
@@ -91,49 +91,49 @@ class Command(BaseCommand):
 
 
         data = {
-            "tipo_entidade": "SaaS",
-            "entidade": "Mytech",
-            "sucursal": "Sede",
+            "entity_type": "SaaS",
+            "entity": "Mytech",
+            "branch": "Sede",
         }
 
         # ------------------------
-        # 1. TipoEntidade
+        # 1. EntityType
         # ------------------------
-        tipo_entidade, _ = TipoEntidade.objects.get_or_create(
-            nome=data["tipo_entidade"],
+        entity_type, _ = EntityType.objects.get_or_create(
+            name=data["entity_type"],
             estado = 1
         )
 
         # ------------------------
-        # 2. Entidade
+        # 2. Entity
         # ------------------------
-        entidade, created_entidade = Entidade.objects.get_or_create(
-            nome=data["entidade"],
-            tipo_entidade=tipo_entidade,
+        entity, created_entity = Entity.objects.get_or_create(
+            name=data["entity"],
+            entity_type=entity_type,
             estado = 1
         )
 
         # ManyToMany → DEPOIS
-        entidade.admins.add(user)
+        entity.admins.add(user)
 
-        EntidadeUser.objects.get_or_create(
+        EntityUser.objects.get_or_create(
             user=user,
-            entidade=entidade,
+            entity=entity,
             estado = 1
         )
 
         # ------------------------
-        # 3. Sucursal
+        # 3. Branch
         # ------------------------
-        sucursal, _ = Sucursal.objects.get_or_create(
-            nome=data["sucursal"],
-            entidade=entidade,
+        branch, _ = Branch.objects.get_or_create(
+            name=data["branch"],
+            entity=entity,
             estado = 1
         )
 
-        SucursalUser.objects.get_or_create(
+        BranchUser.objects.get_or_create(
             user=user,
-            sucursal=sucursal,
+            branch=branch,
             estado = 1
         )
 
@@ -147,29 +147,29 @@ class Command(BaseCommand):
             )
 
 
-            SucursalUserGroup.objects.get_or_create(
+            BranchUserGroup.objects.get_or_create(
                 user=user,
-                sucursal=sucursal,
+                branch=branch,
                 group=group,
                 estado = 1
             )
 
             user.groups.add(group)
 
-            TipoEntidadeGroup.objects.get_or_create(
-                tipo_entidade=tipo_entidade,
+            EntityTypeGroup.objects.get_or_create(
+                entity_type=entity_type,
                 group=group,
                 estado = 1
             )
 
-            EntidadeGroup.objects.get_or_create(
-                entidade=entidade,
+            EntityGroup.objects.get_or_create(
+                entity=entity,
                 group=group,
                 estado = 1
             )
 
-            SucursalGroup.objects.get_or_create(
-                sucursal=sucursal,
+            BranchGroup.objects.get_or_create(
+                branch=branch,
                 group=group,
                 estado = 1
             )
@@ -177,24 +177,24 @@ class Command(BaseCommand):
         self.stdout.write(self.style.WARNING(f"\n"))
 
         for name in ['django_resaas',]:
-            modulo, _ = Modulo.objects.get_or_create(
-                nome=name,
+            app, _ = App.objects.get_or_create(
+                name=name,
                 estado = 1
             )
 
-            tipo_entidade_modulo, _ = TipoEntidadeModulo.objects.get_or_create(
-                modulo=modulo,
-                tipo_entidade=tipo_entidade,
+            entity_type_app, _ = EntityTypeApp.objects.get_or_create(
+                app=app,
+                entity_type=entity_type,
                 estado = 1
             )
 
-            entidade_modulo, _ = EntidadeModulo.objects.get_or_create(
-                modulo=modulo,
-                entidade=entidade,
+            entity_app, _ = EntityApp.objects.get_or_create(
+                app=app,
+                entity=entity,
                 estado = 1
             )
 
-            self.stdout.write(self.style.WARNING(f"✔ {'Modulo:':20} {modulo.nome}"))
+            self.stdout.write(self.style.WARNING(f"✔ {'App:':20} {app.name}"))
 
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))
@@ -202,9 +202,9 @@ class Command(BaseCommand):
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f"{'Email:':20} {user.email}"))
         self.stdout.write(self.style.SUCCESS(f"{'User:':20} {user.username}"))
-        self.stdout.write(self.style.HTTP_SUCCESS(f"{'TipoEntidade:':20} {tipo_entidade.nome}"))
-        self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entidade:':20} {entidade.nome}"))
-        self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Sucursal:':20} {sucursal.nome}"))
+        self.stdout.write(self.style.HTTP_SUCCESS(f"{'EntityType:':20} {entity_type.name}"))
+        self.stdout.write(self.style.HTTP_NOT_MODIFIED(f"{'Entity:':20} {entity.name}"))
+        self.stdout.write(self.style.HTTP_SERVER_ERROR(f"{'Branch:':20} {branch.name}"))
         self.stdout.write(self.style.WARNING(f"{'Groups:':20} Guest, Admin, Root"))
         self.stdout.write(self.style.ERROR("⚠️ Guarde estas credenciais com segurança"))
         self.stdout.write(self.style.HTTP_INFO(f""))

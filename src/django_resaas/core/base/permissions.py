@@ -8,8 +8,8 @@ from rest_framework.exceptions import PermissionDenied
 from django_resaas.core.utils.api_response import all, ok, fail, warn
 
 from django_resaas.core.utils.translate import Translate
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
-from django_resaas.models.entidade_modulo import EntidadeModulo
+from django_resaas.models.branch_user_group import BranchUserGroup
+from django_resaas.models.entity_app import EntityApp
 
 
 class HasAppPermission(BasePermission):
@@ -56,33 +56,33 @@ def check_permission(request, role):
     if not all([
         request.user,
         request.user.is_authenticated,
-        request.tipo_entidade_id,
-        request.entidade_id,
-        request.sucursal_id,
+        request.entity_type_id,
+        request.entity_id,
+        request.branch_id,
         request.group_id,
         request.lang_id,
     ]):
         return False
 
-    return SucursalUserGroup.objects.filter(
+    return BranchUserGroup.objects.filter(
         user=request.user,
         group_id=request.group_id,
-        sucursal_id=request.sucursal_id,
-        sucursal__entidade_id=request.entidade_id,
-        sucursal__entidade__tipo_entidade_id=request.tipo_entidade_id,
+        branch_id=request.branch_id,
+        branch__entity_id=request.entity_id,
+        branch__entity__entity_type_id=request.entity_type_id,
         group__permissions__codename=role,
     ).exists()
 
 
-def hasModulo(codigo):
+def hasApp(codigo):
     def decorator(func):
         @wraps(func)
         def wrapper(self, request, *args, **kwargs):
-            entidade_id = request.entidade_id
+            entity_id = request.entity_id
 
-            ativo = EntidadeModulo.objects.filter(
-                entidade_id=entidade_id,
-                modulo__codigo=codigo,
+            ativo = EntityApp.objects.filter(
+                entity_id=entity_id,
+                app__codigo=codigo,
                 estado= 1
             ).exists()
 

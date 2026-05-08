@@ -8,7 +8,7 @@ class FileFieldsMixin:
 
     permanent_fields_files = []
 
-    # 🔥 identifica tipo do ficheiro
+    # 🔥 identifica tipo do file
     def _file_kind(self, ext):
         ext = ext.lower()
 

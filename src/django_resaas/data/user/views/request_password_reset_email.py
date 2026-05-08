@@ -19,7 +19,7 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
     serializer_class = ResetPasswordEmailRequestSerializer
 
     def post(self, request):
-        nome = (
+        name = (
             request.META.get('HTTP_ORIGIN', '')
             .split('.')[0]
             .upper()

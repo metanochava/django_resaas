@@ -5,7 +5,7 @@ from django_resaas.core.base.models import TimeModel
 
 class Theme(TimeModel):
 
-    nome = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
     # =========================
     # CORE COLORS (QUASAR)
@@ -116,8 +116,8 @@ class Theme(TimeModel):
         permissions = ()
 
     class RESAAS:
-        label_field = "nome"
-        # route="view_entidade"
+        label_field = "name"
+        # route="view_entity"
 
     def to_dict(self):
         return {
@@ -190,14 +190,14 @@ class Theme(TimeModel):
         }
 
     def __str__(self):
-        return self.nome
+        return self.name
 
 
 
 
 
 class Typography(TimeModel):
-    nome = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
     FONT_FAMILY_CHOICES = [
         ("Roboto", "Roboto"),
@@ -298,7 +298,7 @@ class Typography(TimeModel):
         }
 
     def __str__(self):
-        return self.nome
+        return self.name
 
 
 

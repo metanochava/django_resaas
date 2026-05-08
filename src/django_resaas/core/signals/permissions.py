@@ -9,9 +9,9 @@ from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver
 
 # 🔹 Models do sistema
-from django_resaas.models.pessoa import Pessoa
-from django_resaas.models.tipo_entidade import TipoEntidade
-from django_resaas.models.entidade import Entidade
+from django_resaas.models.person import Person
+from django_resaas.models.entity_type import EntityType
+from django_resaas.models.entity import Entity
 from django_resaas.models.theme import Theme, Typography
 from django_resaas.models.layout_setting import LayoutSetting, AnimationSetting
 from django_resaas.models.user import User
@@ -23,7 +23,7 @@ from django_resaas.models.user import User
 @receiver(post_migrate)
 def create_model_permissions(sender, **kwargs):
     """
-    Cria permissões automaticamente por modelo e garante que
+    Cria permissões automaticamente por model e garante que
     o group root está sempre atualizado.
 
     ✔ list_<model>
@@ -44,9 +44,9 @@ def create_model_permissions(sender, **kwargs):
 
     # ------------------------------------------------------
     # 🔥 FIX CRÍTICO: GARANTE CONTEXTO ANTES DE EXECUTAR
-    # Evita erro: tipo_entidade_id = NULL
+    # Evita erro: entity_type_id = NULL
     # ------------------------------------------------------
-    if not TipoEntidade.objects.exists():
+    if not EntityType.objects.exists():
         return
 
     # ------------------------------------------------------
@@ -98,8 +98,8 @@ def create_model_permissions(sender, **kwargs):
     )
 
     for codename, name in [
-        ("add_modulo", "Can add modulo"),
-        ("change_modulo", "Can change modulo"),
+        ("add_app", "Can add app"),
+        ("change_app", "Can change app"),
         ("view_scaffold", "Can view scaffold"),
         ("view_crud", "Can view crud"),
         ("add_scaffold", "Can add scaffold"),
@@ -123,16 +123,16 @@ def create_model_permissions(sender, **kwargs):
 # ==========================================================
 # USER → PESSOA (AUTO CREATE)
 # ==========================================================
-@receiver(post_save, sender=User, dispatch_uid="criar_pessoa_user")
-def criar_pessoa_automaticamente(sender, instance, created, **kwargs):
+@receiver(post_save, sender=User, dispatch_uid="criar_person_user")
+def criar_person_automaticamente(sender, instance, created, **kwargs):
     """
-    Cria automaticamente um registo Pessoa quando um User é criado.
+    Cria automaticamente um registo Person quando um User é criado.
     """
     if created:
-        Pessoa.objects.get_or_create(
+        Person.objects.get_or_create(
             user=instance,
             defaults={
-                "nome": instance.first_name or "",
+                "name": instance.first_name or "",
                 "apelido": instance.last_name or "",
                 "email": instance.email or "",
             }
@@ -142,27 +142,27 @@ def criar_pessoa_automaticamente(sender, instance, created, **kwargs):
 # ==========================================================
 # USER → PESSOA (SYNC)
 # ==========================================================
-@receiver(post_save, sender=User, dispatch_uid="sync_pessoa_user")
-def sync_pessoa(sender, instance, **kwargs):
+@receiver(post_save, sender=User, dispatch_uid="sync_person_user")
+def sync_person(sender, instance, **kwargs):
     """
-    Mantém sincronizado o modelo Pessoa com o User.
+    Mantém sincronizado o model Person com o User.
     """
-    if hasattr(instance, 'pessoa'):
-        pessoa = instance.pessoa
-        pessoa.nome = instance.first_name or ""
-        pessoa.apelido = instance.last_name or ""
-        pessoa.email = instance.email or ""
-        pessoa.save()
+    if hasattr(instance, 'person'):
+        person = instance.person
+        person.name = instance.first_name or ""
+        person.apelido = instance.last_name or ""
+        person.email = instance.email or ""
+        person.save()
 
 
 # ==========================================================
 # TIPO ENTIDADE → CONFIGURAÇÕES INICIAIS
 # ==========================================================
-@receiver(post_save, sender=TipoEntidade)
+@receiver(post_save, sender=EntityType)
 def criar_thema(sender, instance, created, **kwargs):
     """
     Cria automaticamente configurações iniciais quando
-    uma TipoEntidade é criada.
+    uma EntityType é criada.
     """
     if created and not instance.theme:
 

@@ -15,12 +15,12 @@ def file_path(instance, file_name, pasta=""):
     instance_id = instance.id or uuid.uuid4()
 
     return (
-        f"{instance.entidade.tipo_entidade.id}/"
-        f"{instance.entidade.id}/"
+        f"{instance.entity.entity_type.id}/"
+        f"{instance.entity.id}/"
         f"{instance_id}/"
         f"{pasta}/{unique_name}" if pasta else
-        f"{instance.entidade.tipo_entidade.id}/"
-        f"{instance.entidade.id}/"
+        f"{instance.entity.entity_type.id}/"
+        f"{instance.entity.id}/"
         f"{instance_id}/{unique_name}"
     )
 
@@ -128,16 +128,16 @@ class TimeModel(SoftBaseModel):
 
 
 class BaseModel(TimeModel):
-    entidade = models.ForeignKey(
-        "django_resaas.Entidade",
+    entity = models.ForeignKey(
+        "django_resaas.Entity",
         on_delete=models.CASCADE,
-        related_name="%(class)s_entidade"
+        related_name="%(class)s_entity"
     )
 
-    sucursal = models.ForeignKey(
-        "django_resaas.Sucursal",
+    branch = models.ForeignKey(
+        "django_resaas.Branch",
         on_delete=models.CASCADE,
-        related_name="%(class)s_sucursal"
+        related_name="%(class)s_branch"
     )
 
     class Meta:

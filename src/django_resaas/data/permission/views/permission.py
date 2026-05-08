@@ -18,8 +18,8 @@ from rest_framework.response import Response
 # Local
 # =========================
 from django_resaas.models.user import User
-from django_resaas.models.tipo_entidade_modelo import TipoEntidadeModelo
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
+from django_resaas.models.entity_type_model import EntityTypeModel
+from django_resaas.models.branch_user_group import BranchUserGroup
 from django_resaas.data.permission.serializers.permission import PermissionSerializer
 
 
@@ -33,7 +33,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
 
     # 🔥 QUERYSET BASE OTIMIZADO
     def get_queryset(self):
-        tipo_id = getattr(self.request, "tipo_entidade_id", None)
+        tipo_id = getattr(self.request, "entity_type_id", None)
 
         queryset = (
             Permission.objects
@@ -46,9 +46,9 @@ class PermissionAPIView(viewsets.ModelViewSet):
 
         if tipo_id:
             queryset = queryset.filter(
-                content_type__in=TipoEntidadeModelo.objects.filter(
-                    tipo_entidade_id=tipo_id
-                ).values_list('modelo', flat=True)  # 🔥 CORRETO
+                content_type__in=EntityTypeModel.objects.filter(
+                    entity_type_id=tipo_id
+                ).values_list('model', flat=True)  # 🔥 CORRETO
             )
 
         return queryset.order_by(
@@ -88,8 +88,8 @@ class PermissionAPIView(viewsets.ModelViewSet):
 
         return Response({
             'id': permission.id,
-            'nome': permission.codename,
-            'nomeseparado': permission.name,
+            'name': permission.codename,
+            'nameseparado': permission.name,
             'alert_success': f'Permissão <b>{permission.name}</b> adicionada'
         }, status=status.HTTP_200_OK)
 
@@ -110,8 +110,8 @@ class PermissionAPIView(viewsets.ModelViewSet):
 
         return Response({
             'id': permission.id,
-            'nome': permission.codename,
-            'nomeseparado': permission.name,
+            'name': permission.codename,
+            'nameseparado': permission.name,
             'alert_info': f'Permissão <b>{permission.name}</b> removida'
         }, status=status.HTTP_200_OK)
 
@@ -122,7 +122,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'])
     def addToUser(self, request, id):
         user_id = request.data.get('user')
-        sucursal_id = request.data.get('sucursal')
+        branch_id = request.data.get('branch')
 
         user = User.objects.filter(id=user_id).first()
         group = Group.objects.filter(id=id).first()
@@ -135,8 +135,8 @@ class PermissionAPIView(viewsets.ModelViewSet):
 
         with transaction.atomic():
             # 🔥 evita duplicação
-            SucursalUserGroup.objects.get_or_create(
-                sucursal_id=sucursal_id,
+            BranchUserGroup.objects.get_or_create(
+                branch_id=branch_id,
                 user=user,
                 group=group
             )
@@ -150,7 +150,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST'])
     def removeFromUser(self, request, id):
         user_id = request.data.get('user')
-        sucursal_id = request.data.get('sucursal')
+        branch_id = request.data.get('branch')
 
         user = User.objects.filter(id=user_id).first()
         group = Group.objects.filter(id=id).first()
@@ -162,8 +162,8 @@ class PermissionAPIView(viewsets.ModelViewSet):
             )
 
         with transaction.atomic():
-            SucursalUserGroup.objects.filter(
-                sucursal_id=sucursal_id,
+            BranchUserGroup.objects.filter(
+                branch_id=branch_id,
                 user=user,
                 group=group
             ).delete()

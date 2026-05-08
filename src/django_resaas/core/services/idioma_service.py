@@ -1,10 +1,10 @@
-from django_resaas.models.idioma import Idioma
+from django_resaas.models.language import Language
 from django.db import IntegrityError
 
 
-class IdiomaService:
+class LanguageService:
     """
-    Serviço responsável por inicializar os idiomas base do sistema.
+    Serviço responsável por inicializar os languages base do sistema.
     """
 
     DEFAULT_IDIOMAS = [
@@ -23,29 +23,29 @@ class IdiomaService:
             if stdout:
                 stdout.write(sty(msg) if sty else msg)
 
-        out(f"\n 🌍 Idiomas padrão", style.MIGRATE_HEADING if style else None)
+        out(f"\n 🌍 Languages padrão", style.MIGRATE_HEADING if style else None)
 
-        for nome, code in cls.DEFAULT_IDIOMAS:
+        for name, code in cls.DEFAULT_IDIOMAS:
 
             # 🔥 normalizar
             code = code.lower().strip()
 
             try:
-                idioma, created = Idioma.objects.get_or_create(
+                language, created = Language.objects.get_or_create(
                     code=code,
                     defaults={
-                        "nome": nome,
+                        "name": name,
                         "estado": 1
                     }
                 )
             except IntegrityError:
                 # 🔥 fallback seguro
-                idioma = Idioma.objects.get(code=code)
+                language = Language.objects.get(code=code)
                 created = False
 
             if created:
-                out(f"✔ Idioma criado:\t {idioma.nome} ({idioma.code})",
+                out(f"✔ Language criado:\t {language.name} ({language.code})",
                     style.SUCCESS if style else None)
             else:
-                out(f"✔ Idioma existente:\t {idioma.nome} ({idioma.code})",
+                out(f"✔ Language existente:\t {language.name} ({language.code})",
                     style.WARNING if style else None)

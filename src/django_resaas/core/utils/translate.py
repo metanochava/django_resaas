@@ -16,15 +16,15 @@ class Translate:
     @staticmethod
     def tdc(request_or_lang, text):
         """
-        Traduz uma string com base no idioma atual.
+        Traduz uma string com base no language atual.
         Aceita:
         - request (com header L)
-        - código de idioma (ex: 'pt-pt')
+        - código de language (ex: 'pt-pt')
         - None (fallback)
         """
 
         # -------------------
-        # Resolver idioma
+        # Resolver language
         # -------------------
         lang_code = None
 
@@ -39,7 +39,7 @@ class Translate:
 
         lang_code = str(lang_code).lower().replace('-', '')
 
-        cache_key = f"traducao:{lang_code}"
+        cache_key = f"translation:{lang_code}"
 
         # -------------------
         # Cache
@@ -54,13 +54,13 @@ class Translate:
         # Base de dados (lazy)
         # -------------------
         try:
-            from django_resaas.models.traducao import Traducao
+            from django_resaas.models.translation import Translation
 
-            db_trads = Traducao.objects.filter(
-                idioma__code__iexact=lang_code
+            db_trads = Translation.objects.filter(
+                language__code__iexact=lang_code
             )
             for t in db_trads:
-                traducoes[t.chave] = t.traducao
+                traducoes[t.chave] = t.translation
         except Exception:
             pass
 

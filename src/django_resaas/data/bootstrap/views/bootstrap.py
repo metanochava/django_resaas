@@ -5,12 +5,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-from django_resaas.models.tipo_entidade import TipoEntidade
-from django_resaas.models.entidade import Entidade
-from django_resaas.models.sucursal import Sucursal
-from django_resaas.models.entidade_user import EntidadeUser
-from django_resaas.models.sucursal_user import SucursalUser
-from django_resaas.models.sucursal_user_group import SucursalUserGroup
+from django_resaas.models.entity_type import EntityType
+from django_resaas.models.entity import Entity
+from django_resaas.models.branch import Branch
+from django_resaas.models.entity_user import EntityUser
+from django_resaas.models.branch_user import BranchUser
+from django_resaas.models.branch_user_group import BranchUserGroup
 
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import all
@@ -20,7 +20,7 @@ from django_resaas.core.utils import all
 class TenantAPIView(APIView):
     """
     Bootstrap inicial:
-    TipoEntidade → Entidade → Sucursal → Group
+    EntityType → Entity → Branch → Group
     Tudo associado a um utilizador.
     """
     permission_classes = [IsAuthenticated]
@@ -30,49 +30,49 @@ class TenantAPIView(APIView):
         user = request.user
 
         data = {
-            "tipo_entidade": "Saas",
-            "entidade": "Mytech",
-            "sucursal": "Sede",
+            "entity_type": "Saas",
+            "entity": "Mytech",
+            "branch": "Sede",
             "group": "Admin",
         }
 
         # ------------------------
-        # 1. TipoEntidade
+        # 1. EntityType
         # ------------------------
-        tipo_entidade, _ = TipoEntidade.objects.get_or_create(
-            nome=data["tipo_entidade"],
+        entity_type, _ = EntityType.objects.get_or_create(
+            name=data["entity_type"],
             estado = 1
         )
 
         # ------------------------
-        # 2. Entidade
+        # 2. Entity
         # ------------------------
-        entidade, created_entidade = Entidade.objects.get_or_create(
-            nome=data["entidade"],
-            tipo_entidade=tipo_entidade
+        entity, created_entity = Entity.objects.get_or_create(
+            name=data["entity"],
+            entity_type=entity_type
         )
 
         # ManyToMany → DEPOIS
-        entidade.admins.add(user)
+        entity.admins.add(user)
 
-        EntidadeUser.objects.get_or_create(
+        EntityUser.objects.get_or_create(
             user=user,
-            entidade=entidade,
+            entity=entity,
             estado = 1
         )
 
         # ------------------------
-        # 3. Sucursal
+        # 3. Branch
         # ------------------------
-        sucursal, _ = Sucursal.objects.get_or_create(
-            nome=data["sucursal"],
-            entidade=entidade,
+        branch, _ = Branch.objects.get_or_create(
+            name=data["branch"],
+            entity=entity,
             estado = 1
         )
 
-        SucursalUser.objects.get_or_create(
+        BranchUser.objects.get_or_create(
             user=user,
-            sucursal=sucursal,
+            branch=branch,
             estado = 1
         )
 
@@ -84,9 +84,9 @@ class TenantAPIView(APIView):
             estado = 1
         )
 
-        SucursalUserGroup.objects.get_or_create(
+        BranchUserGroup.objects.get_or_create(
             user=user,
-            sucursal=sucursal,
+            branch=branch,
             group=group,
             estado = 1
         )
@@ -96,6 +96,6 @@ class TenantAPIView(APIView):
         # ------------------------
         # RESPONSE
         # ------------------------
-        return all(request, "Configuração inicial criada com sucesso", data = { "tipo_entidade": tipo_entidade.nome, "entidade": entidade.nome, "sucursal": sucursal.nome,  "group": group.name, "user": user.username, },
+        return all(request, "Configuração inicial criada com sucesso", data = { "entity_type": entity_type.name, "entity": entity.name, "branch": branch.name,  "group": group.name, "user": user.username, },
             status=status.HTTP_201_CREATED
         )

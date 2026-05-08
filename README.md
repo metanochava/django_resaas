@@ -3,7 +3,7 @@
 **django_resaas** é um framework modular para construção de aplicações SaaS multi-tenant em Django, com:
 
 * 🔐 Controle de permissões (RBAC)
-* 🏢 Multi-tenant (Entidade / Sucursal)
+* 🏢 Multi-tenant (Entity / Branch)
 * 🧩 Módulos ativáveis por cliente
 * 💰 Billing por plano (SaaS ready)
 * ♻️ Soft delete + restore
@@ -17,13 +17,13 @@
 ```text
 User
  ↓
-Pessoa
+Person
  ↓
 Funcionario (RH)
  ↓
-Entidade (tenant)
+Entity (tenant)
  ↓
-Sucursal
+Branch
  ↓
 Groups + Permissões
 ```
@@ -32,31 +32,31 @@ Groups + Permissões
 
 # 🧩 Conceitos principais
 
-## 🏢 Entidade (Tenant)
+## 🏢 Entity (Tenant)
 
 Representa o cliente (empresa)
 
-## 🏬 Sucursal
+## 🏬 Branch
 
-Unidade da entidade
+Unidade da entity
 
-## 👤 Pessoa
+## 👤 Person
 
-Dados humanos (nome, email, etc.)
+Dados humanos (name, email, etc.)
 
 ## 🔐 User
 
 Autenticação
 
-## 👥 SucursalUserGroup
+## 👥 BranchUserGroup
 
 Relaciona:
 
 * User
-* Sucursal
+* Branch
 * Group (Django)
 
-👉 Permite múltiplos groups por sucursal
+👉 Permite múltiplos groups por branch
 
 ---
 
@@ -66,17 +66,17 @@ Baseado em:
 
 ```text
 User + Group + Permission (Django)
-+ contexto (Entidade + Sucursal)
++ contexto (Entity + Branch)
 ```
 
 Headers obrigatórios:
 
 ```http
-ET → tipo_entidade
-E  → entidade
-S  → sucursal
+ET → entity_type
+E  → entity
+S  → branch
 G  → group
-L  → idioma
+L  → language
 ```
 
 ---
@@ -91,8 +91,8 @@ from django_resaas import BaseModel
 
 Inclui:
 
-* entidade
-* sucursal
+* entity
+* branch
 * created_at / updated_at
 * soft delete
 * created_by / updated_by
@@ -149,7 +149,7 @@ GET /api/funcionarios/?search=joao
 
 Busca automaticamente em:
 
-* nome
+* name
 * email
 * código
 * relações (FK)
@@ -160,14 +160,14 @@ Busca automaticamente em:
 
 Permite ativar/desativar funcionalidades por cliente.
 
-## Modelos:
+## Models:
 
-* Modulo
-* EntidadeModulo
+* App
+* EntityApp
 
 ## Exemplo:
 
-| Entidade  | Módulo | Estado |
+| Entity  | Módulo | Estado |
 | --------- | ------ | ------ |
 | Empresa A | RH     | ✅      |
 | Empresa A | CRM    | ❌      |
@@ -188,16 +188,16 @@ class FuncionarioView(BaseAPIView):
 
 # 💰 Billing (SaaS)
 
-## Modelos:
+## Models:
 
 * Plano
-* PlanoModulo
-* EntidadePlano
+* PlanoApp
+* EntityPlano
 
 ## Fluxo:
 
 ```text
-Plano → módulos → EntidadePlano → ativa módulos automaticamente
+Plano → módulos → EntityPlano → ativa módulos automaticamente
 ```
 
 ---
@@ -207,7 +207,7 @@ Plano → módulos → EntidadePlano → ativa módulos automaticamente
 Ao mudar plano:
 
 ```python
-sync_modulos_entidade(entidade)
+sync_apps_entity(entity)
 ```
 
 ---
@@ -236,8 +236,8 @@ Proteção automática de arquivos:
 Captura headers:
 
 ```python
-request.entidade_id
-request.sucursal_id
+request.entity_id
+request.branch_id
 request.group_id
 ```
 
@@ -261,7 +261,7 @@ Protege acesso por:
 from django_resaas import BaseModel
 
 class Funcionario(BaseModel):
-    pessoa = models.ForeignKey('django_resaas.Pessoa', on_delete=models.CASCADE)
+    person = models.ForeignKey('django_resaas.Person', on_delete=models.CASCADE)
     cargo = models.CharField(max_length=100)
 ```
 

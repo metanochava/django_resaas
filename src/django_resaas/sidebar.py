@@ -27,49 +27,49 @@ SUBMENUS = [
         # 'crud': { 'module': 'auth', 'model': 'Group' }
     },
     {
-        "menu": "Ficheiro",
+        "menu": "File",
         "icon": "folder_open",  # melhor UX
-        "role": "list_ficheiro",
-        "rota": "list_ficheiro",
-        "add_role": "add_ficheiro",
-        "add_rota": "add_ficheiro",
-        'crud': { 'module': 'django_resaas', 'model': 'Ficheiro' }
+        "role": "list_file",
+        "rota": "list_file",
+        "add_role": "add_file",
+        "add_rota": "add_file",
+        'crud': { 'module': 'django_resaas', 'model': 'File' }
     },
     {
-        "menu": "Traducao",
+        "menu": "Translation",
         "icon": "translate",
-        "role": "list_traducao",
-        "rota": "list_traducao",
-        "add_role": "add_traducao",
-        "add_rota": "add_traducao",
-        'crud': { 'module': 'django_resaas', 'model': 'Traducao' }
+        "role": "list_translation",
+        "rota": "list_translation",
+        "add_role": "add_translation",
+        "add_rota": "add_translation",
+        'crud': { 'module': 'django_resaas', 'model': 'Translation' }
     },
     {
-        "menu": "TipoEntidade",
+        "menu": "EntityType",
         "icon": "apartment",  # mais semântico
-        "role": "list_tipoentidade",
-        "rota": "list_tipoentidade",
-        "add_role": "add_tipoentidade",
-        "add_rota": "add_tipoentidade",
-        # 'crud': { 'module': 'django_resaas', 'model': 'TipoEntidade' }
+        "role": "list_tipoentity",
+        "rota": "list_tipoentity",
+        "add_role": "add_tipoentity",
+        "add_rota": "add_tipoentity",
+        # 'crud': { 'module': 'django_resaas', 'model': 'EntityType' }
     },    
     {
-        "menu": "Entidade",
+        "menu": "Entity",
         "icon": "domain",  # 🔥 empresa
-        "role": "list_entidade",
-        "rota": "list_entidade",
-        "add_role": "add_entidade",
-        "add_rota": "add_entidade",
-        # 'crud': { 'module': 'django_resaas', 'model': 'Entidade' }
+        "role": "list_entity",
+        "rota": "list_entity",
+        "add_role": "add_entity",
+        "add_rota": "add_entity",
+        # 'crud': { 'module': 'django_resaas', 'model': 'Entity' }
     },  
     {
-        "menu": "Sucursal",
+        "menu": "Branch",
         "icon": "store",  # melhor que house
-        "role": "list_sucursal",
-        "rota": "list_sucursal",
-        "add_role": "add_sucursal",
-        "add_rota": "add_sucursal",
-        # 'crud': { 'module': 'django_resaas', 'model': 'Sucursal' }
+        "role": "list_branch",
+        "rota": "list_branch",
+        "add_role": "add_branch",
+        "add_rota": "add_branch",
+        # 'crud': { 'module': 'django_resaas', 'model': 'Branch' }
     }, 
     {
         "menu": "User",
@@ -81,22 +81,22 @@ SUBMENUS = [
         # 'crud': { 'module': 'django_resaas', 'model': 'User' }
     },  
     {
-        "menu": "Modulo",
+        "menu": "App",
         "icon": "view_module",  # 🔥 dev style
-        "role": "list_Modulo",
-        "rota": "list_Modulo",
-        "add_role": "add_Modulo",
-        "add_rota": "add_Modulo",
-        'crud': { 'module': 'django_resaas', 'model': 'Modulo' }
+        "role": "list_App",
+        "rota": "list_App",
+        "add_role": "add_App",
+        "add_rota": "add_App",
+        'crud': { 'module': 'django_resaas', 'model': 'App' }
     },
     {
-        "menu": "Modelo",
+        "menu": "Model",
         "icon": "data_object",  # 🔥 DEV PERFEITO
-        "role": "list_modelo",
-        "rota": "list_modelo",
-        "add_role": "add_modelo",
-        "add_rota": "add_modelo",
-        'crud': { 'module': 'django_resaas', 'model': 'Modelo' }
+        "role": "list_model",
+        "rota": "list_model",
+        "add_role": "add_model",
+        "add_rota": "add_model",
+        'crud': { 'module': 'django_resaas', 'model': 'Model' }
     }, 
     {
         "menu": "Cometario",
@@ -121,10 +121,10 @@ SUBMENUS = [
         "role": "view_scaffold",
         "submenu": [
             {
-                "menu": "Criar Modulo",
+                "menu": "Criar App",
                 "icon": "add_box",
-                "role": "add_modulo",
-                "rota": "add_modulo",
+                "role": "add_app",
+                "rota": "add_app",
             },
             {
                 "menu": "Scaffold",

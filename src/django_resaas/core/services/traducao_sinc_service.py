@@ -1,27 +1,27 @@
 import importlib
 
 from django.apps import apps
-from django_resaas.models.idioma import Idioma
-from django_resaas.models.traducao import Traducao
+from django_resaas.models.language import Language
+from django_resaas.models.translation import Translation
 
 
-class TraducaoSyncService:
+class TranslationSyncService:
     """
-    Sincroniza traduções a partir de módulos app.lang.<idioma>
+    Sincroniza traduções a partir de módulos app.lang.<language>
     para a base de dados.
     """
 
     @classmethod
     def sync(cls, stdout=None, style=None):
-        idiomas = Idioma.objects.all()
+        languages = Language.objects.all()
 
-        for idioma in idiomas:
-            lang_code = idioma.code.lower().replace("", "")
+        for language in languages:
+            lang_code = language.code.lower().replace("", "")
 
             if stdout:
                 stdout.write(
                     style.MIGRATE_HEADING(
-                        f"\n🌍 Sincronizando idioma: {idioma.nome} ({lang_code})"
+                        f"\n🌍 Sincronizando language: {language.name} ({lang_code})"
                     )
                 )
 
@@ -37,7 +37,7 @@ class TraducaoSyncService:
                     continue
 
                 cls._sync_module(
-                    idioma,
+                    language,
                     module.key_value,
                     app.label,
                     stdout,
@@ -45,17 +45,17 @@ class TraducaoSyncService:
                 )
 
     @staticmethod
-    def _sync_module(idioma, traducoes, app_label, stdout=None, style=None):
-        for chave, traducao in traducoes.items():
-            obj, created = Traducao.objects.get_or_create(
-                idioma=idioma,
+    def _sync_module(language, traducoes, app_label, stdout=None, style=None):
+        for chave, translation in traducoes.items():
+            obj, created = Translation.objects.get_or_create(
+                language=language,
                 chave=chave,
-                defaults={"traducao": traducao}
+                defaults={"translation": translation}
             )
 
-            if not created and obj.traducao != traducao:
-                obj.traducao = traducao
-                obj.save(update_fields=["traducao"])
+            if not created and obj.translation != translation:
+                obj.translation = translation
+                obj.save(update_fields=["translation"])
 
                 if stdout:
                     stdout.write(

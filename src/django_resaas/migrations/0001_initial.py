@@ -2,9 +2,9 @@
 
 import django.db.models.deletion
 import django_resaas.core.base.mixins.model.label_value
-import django_resaas.models.documento
-import django_resaas.models.entidade
-import django_resaas.models.tipo_entidade
+import django_resaas.models.document
+import django_resaas.models.entity
+import django_resaas.models.entity_type
 import django_resaas.models.user
 import uuid
 from django.conf import settings
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("nome", models.CharField(max_length=100)),
+                ("name", models.CharField(max_length=100)),
                 ("fek", models.CharField(max_length=255, unique=True)),
                 ("fep", models.CharField(max_length=255)),
                 (
@@ -213,7 +213,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100)),
+                ("name", models.CharField(max_length=100)),
                 ("enable_animations", models.BooleanField(default=True)),
                 (
                     "animation_speed",
@@ -381,7 +381,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Endereco",
+            name="Address",
             fields=[
                 (
                     "id",
@@ -456,7 +456,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Entidade",
+            name="Entity",
             fields=[
                 (
                     "id",
@@ -476,14 +476,14 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(default="-", max_length=100, null=True)),
+                ("name", models.CharField(default="-", max_length=100, null=True)),
                 ("site", models.CharField(default="-", max_length=300, null=True)),
                 (
                     "logo",
                     models.FileField(
                         blank=True,
                         default="logo.png",
-                        upload_to=django_resaas.models.entidade.logo_path,
+                        upload_to=django_resaas.models.entity.logo_path,
                     ),
                 ),
                 (
@@ -542,7 +542,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="EntidadeModelo",
+            name="EntityModel",
             fields=[
                 (
                     "id",
@@ -573,14 +573,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "entidade",
+                    "entity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.entidade",
+                        to="django_resaas.entity",
                     ),
                 ),
                 (
-                    "modelo",
+                    "model",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to="contenttypes.contenttype",
@@ -606,7 +606,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="EntidadeUser",
+            name="EntityUser",
             fields=[
                 (
                     "id",
@@ -637,10 +637,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "entidade",
+                    "entity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.entidade",
+                        to="django_resaas.entity",
                     ),
                 ),
                 (
@@ -670,7 +670,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Ficheiro",
+            name="File",
             fields=[
                 (
                     "id",
@@ -685,14 +685,14 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "ficheiro",
-                    models.FileField(blank=True, null=True, upload_to="ficheiros"),
+                    "file",
+                    models.FileField(blank=True, null=True, upload_to="files"),
                 ),
                 ("size", models.FloatField()),
                 (
-                    "modelo",
+                    "model",
                     models.CharField(
-                        help_text="Nome do modelo que originou o ficheiro",
+                        help_text="Name do model que originou o file",
                         max_length=100,
                         null=True,
                     ),
@@ -749,7 +749,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Idioma",
+            name="Language",
             fields=[
                 (
                     "id",
@@ -769,7 +769,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100)),
+                ("name", models.CharField(max_length=100)),
                 ("code", models.CharField(max_length=10, unique=True)),
                 (
                     "created_by",
@@ -807,7 +807,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to="django_resaas.idioma",
+                to="django_resaas.language",
             ),
         ),
         migrations.CreateModel(
@@ -870,7 +870,7 @@ class Migration(migrations.Migration):
                 ("sidebar_width", models.IntegerField(default=260)),
                 ("toolbar_dense", models.BooleanField(default=False)),
                 ("toolbar_elevated", models.BooleanField(default=True)),
-                ("nome", models.CharField(max_length=101)),
+                ("name", models.CharField(max_length=101)),
                 (
                     "button_style",
                     models.CharField(
@@ -923,7 +923,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="entidade",
+            model_name="entity",
             name="layout_settings",
             field=models.ForeignKey(
                 blank=True,
@@ -933,7 +933,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="ModeloExtra",
+            name="ModelExtra",
             fields=[
                 (
                     "id",
@@ -953,7 +953,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("modelo", models.CharField(max_length=100, null=True)),
+                ("model", models.CharField(max_length=100, null=True)),
                 ("icon", models.CharField(max_length=100, null=True)),
                 ("method", models.CharField(max_length=50, null=True)),
                 ("permission", models.CharField(max_length=100, null=True)),
@@ -989,7 +989,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Modulo",
+            name="App",
             fields=[
                 (
                     "id",
@@ -1009,7 +1009,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100, null=True)),
+                ("name", models.CharField(max_length=100, null=True)),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -1040,7 +1040,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="EntidadeModulo",
+            name="EntityApp",
             fields=[
                 (
                     "id",
@@ -1071,10 +1071,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "entidade",
+                    "entity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.entidade",
+                        to="django_resaas.entity",
                     ),
                 ),
                 (
@@ -1088,10 +1088,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "modulo",
+                    "app",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.modulo",
+                        to="django_resaas.app",
                     ),
                 ),
             ],
@@ -1104,7 +1104,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Sucursal",
+            name="Branch",
             fields=[
                 (
                     "id",
@@ -1124,7 +1124,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100, null=True)),
+                ("name", models.CharField(max_length=100, null=True)),
                 ("rodape", models.CharField(default=".", max_length=600, null=True)),
                 ("icon", models.CharField(default=".", max_length=100, null=True)),
                 ("label", models.CharField(default=".", max_length=100, null=True)),
@@ -1139,19 +1139,19 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "endereco",
+                    "address",
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to="django_resaas.endereco",
+                        to="django_resaas.address",
                     ),
                 ),
                 (
-                    "entidade",
+                    "entity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.entidade",
+                        to="django_resaas.entity",
                     ),
                 ),
                 (
@@ -1174,7 +1174,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="SucursalUser",
+            name="BranchUser",
             fields=[
                 (
                     "id",
@@ -1205,10 +1205,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "sucursal",
+                    "branch",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.sucursal",
+                        to="django_resaas.branch",
                     ),
                 ),
                 (
@@ -1238,7 +1238,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="SucursalUserGroup",
+            name="BranchUserGroup",
             fields=[
                 (
                     "id",
@@ -1275,10 +1275,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "sucursal",
+                    "branch",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.sucursal",
+                        to="django_resaas.branch",
                     ),
                 ),
                 (
@@ -1328,7 +1328,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100)),
+                ("name", models.CharField(max_length=100)),
                 ("primary", models.CharField(default="#1976D2", max_length=50)),
                 ("secondary", models.CharField(default="#26A69A", max_length=50)),
                 ("accent", models.CharField(default="#9C27B0", max_length=50)),
@@ -1424,7 +1424,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="entidade",
+            model_name="entity",
             name="theme",
             field=models.ForeignKey(
                 blank=True,
@@ -1434,7 +1434,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="TipoDocumento",
+            name="DocumentType",
             fields=[
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -1454,7 +1454,7 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("nome", models.CharField(max_length=200)),
+                ("name", models.CharField(max_length=200)),
                 ("detalhes", models.CharField(max_length=200)),
                 (
                     "created_by",
@@ -1486,7 +1486,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="TipoEntidade",
+            name="EntityType",
             fields=[
                 (
                     "id",
@@ -1506,19 +1506,19 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100, null=True)),
+                ("name", models.CharField(max_length=100, null=True)),
                 (
                     "icon",
                     models.FileField(
                         blank=True,
                         default="logo.png",
-                        upload_to=django_resaas.models.tipo_entidade.icon_path,
+                        upload_to=django_resaas.models.entity_type.icon_path,
                     ),
                 ),
                 ("license", models.TextField(default="license")),
                 ("label", models.CharField(max_length=100, null=True)),
                 ("ordem", models.IntegerField(default=2)),
-                ("crair_entidade", models.BooleanField(default=True, null=True)),
+                ("crair_entity", models.BooleanField(default=True, null=True)),
                 (
                     "animation_settings",
                     models.ForeignKey(
@@ -1576,15 +1576,15 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="entidade",
-            name="tipo_entidade",
+            model_name="entity",
+            name="entity_type",
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
-                to="django_resaas.tipoentidade",
+                to="django_resaas.tipoentity",
             ),
         ),
         migrations.CreateModel(
-            name="TipoEntidadeGroup",
+            name="EntityTypeGroup",
             fields=[
                 (
                     "id",
@@ -1621,10 +1621,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "tipo_entidade",
+                    "entity_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipoentidade",
+                        to="django_resaas.tipoentity",
                     ),
                 ),
                 (
@@ -1647,7 +1647,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="TipoEntidadeModelo",
+            name="EntityTypeModel",
             fields=[
                 (
                     "id",
@@ -1678,17 +1678,17 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "modelo",
+                    "model",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to="contenttypes.contenttype",
                     ),
                 ),
                 (
-                    "tipo_entidade",
+                    "entity_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipoentidade",
+                        to="django_resaas.tipoentity",
                     ),
                 ),
                 (
@@ -1711,7 +1711,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="TipoEntidadeModulo",
+            name="EntityTypeApp",
             fields=[
                 (
                     "id",
@@ -1742,17 +1742,17 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "modulo",
+                    "app",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.modulo",
+                        to="django_resaas.app",
                     ),
                 ),
                 (
-                    "tipo_entidade",
+                    "entity_type",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipoentidade",
+                        to="django_resaas.tipoentity",
                     ),
                 ),
                 (
@@ -1775,7 +1775,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Traducao",
+            name="Translation",
             fields=[
                 (
                     "id",
@@ -1796,7 +1796,7 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("chave", models.TextField(blank=True, null=True)),
-                ("traducao", models.TextField(blank=True, null=True)),
+                ("translation", models.TextField(blank=True, null=True)),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -1808,10 +1808,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "idioma",
+                    "language",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.idioma",
+                        to="django_resaas.language",
                     ),
                 ),
                 (
@@ -1854,7 +1854,7 @@ class Migration(migrations.Migration):
                         choices=[(0, "Inativo"), (1, "Activo")], default=0
                     ),
                 ),
-                ("nome", models.CharField(max_length=100)),
+                ("name", models.CharField(max_length=100)),
                 (
                     "font_family",
                     models.CharField(
@@ -1938,7 +1938,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="tipoentidade",
+            model_name="tipoentity",
             name="typography",
             field=models.ForeignKey(
                 blank=True,
@@ -1948,7 +1948,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddField(
-            model_name="entidade",
+            model_name="entity",
             name="typography",
             field=models.ForeignKey(
                 blank=True,
@@ -1983,7 +1983,7 @@ class Migration(migrations.Migration):
                 ("info", models.TextField(null=True)),
                 ("local_lat", models.CharField(max_length=100, null=True)),
                 ("local_lon", models.CharField(max_length=100, null=True)),
-                ("local_nome", models.CharField(max_length=100, null=True)),
+                ("local_name", models.CharField(max_length=100, null=True)),
                 ("is_blocked", models.BooleanField(default=False)),
                 (
                     "created_by",
@@ -2022,7 +2022,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="EntidadeGroup",
+            name="EntityGroup",
             fields=[
                 (
                     "id",
@@ -2053,10 +2053,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "entidade",
+                    "entity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.entidade",
+                        to="django_resaas.entity",
                     ),
                 ),
                 (
@@ -2078,7 +2078,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "permissions": (),
-                "unique_together": {("entidade", "group")},
+                "unique_together": {("entity", "group")},
             },
             bases=(
                 django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
@@ -2086,7 +2086,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Pessoa",
+            name="Person",
             fields=[
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -2106,10 +2106,10 @@ class Migration(migrations.Migration):
                         serialize=False,
                     ),
                 ),
-                ("nome", models.CharField(max_length=100, null=True)),
+                ("name", models.CharField(max_length=100, null=True)),
                 ("apelido", models.CharField(max_length=100, null=True)),
                 (
-                    "nome_completo",
+                    "name_completo",
                     models.CharField(blank=True, max_length=200, null=True),
                 ),
                 (
@@ -2149,13 +2149,13 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "endereco",
+                    "address",
                     models.ForeignKey(
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        related_name="pessoas",
-                        to="django_resaas.endereco",
+                        related_name="persons",
+                        to="django_resaas.address",
                     ),
                 ),
                 (
@@ -2174,17 +2174,17 @@ class Migration(migrations.Migration):
                         blank=True,
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="pessoa",
+                        related_name="person",
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
             options={
-                "verbose_name": "Pessoa",
-                "verbose_name_plural": "Pessoas",
-                "ordering": ["nome"],
+                "verbose_name": "Person",
+                "verbose_name_plural": "Persons",
+                "ordering": ["name"],
                 "indexes": [
-                    models.Index(fields=["nome"], name="django_resa_nome_75d7c2_idx"),
+                    models.Index(fields=["name"], name="django_resa_name_75d7c2_idx"),
                     models.Index(fields=["email"], name="django_resa_email_47cf4d_idx"),
                 ],
             },
@@ -2194,7 +2194,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="SucursalGroup",
+            name="BranchGroup",
             fields=[
                 (
                     "id",
@@ -2231,10 +2231,10 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "sucursal",
+                    "branch",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.sucursal",
+                        to="django_resaas.branch",
                     ),
                 ),
                 (
@@ -2250,7 +2250,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "permissions": (),
-                "unique_together": {("sucursal", "group")},
+                "unique_together": {("branch", "group")},
             },
             bases=(
                 django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
@@ -2258,7 +2258,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="Documento",
+            name="Document",
             fields=[
                 (
                     "id",
@@ -2286,7 +2286,7 @@ class Migration(migrations.Migration):
                     models.FileField(
                         blank=True,
                         null=True,
-                        upload_to=django_resaas.models.documento.documento_path,
+                        upload_to=django_resaas.models.document.document_path,
                     ),
                 ),
                 ("object_id", models.UUIDField()),
@@ -2321,7 +2321,7 @@ class Migration(migrations.Migration):
                     "tipo",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="django_resaas.tipodocumento",
+                        to="django_resaas.tipodocument",
                     ),
                 ),
             ],

@@ -28,7 +28,7 @@ class RegisterAPIView(generics.GenericAPIView):
             'HTTP_ORIGIN',
             'http://mytech.co.mz'
         )
-        nome = origin.split('.')[0].upper().split('/')[-1]
+        name = origin.split('.')[0].upper().split('/')[-1]
 
         data = request.data.copy()
         data['username'] = UserName.Create(
@@ -44,7 +44,7 @@ class RegisterAPIView(generics.GenericAPIView):
 
         logo = FullPath.url(
             None,
-            user.tipo_entidade.icon.name
+            user.entity_type.icon.name
         )
 
         token = RefreshToken.for_user(user).access_token
@@ -54,14 +54,14 @@ class RegisterAPIView(generics.GenericAPIView):
             {
                 'username': user.username,
                 'token': str(token),
-                'entidade': nome,
+                'entity': name,
                 'logo': logo,
                 'origem': origin,
             }
         )
 
         mail = EmailMultiAlternatives(
-            subject=f'{Translate.tdc(request, "Bem-vindo")} {nome}',
+            subject=f'{Translate.tdc(request, "Bem-vindo")} {name}',
             body='',
             to=[user.email],
         )

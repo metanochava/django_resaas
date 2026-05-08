@@ -2,8 +2,8 @@ from django.db import models
 from django_resaas.core.base.models import BaseModel
 
 class Funcionario(BaseModel):
-    pessoa = models.ForeignKey(
-        'django_resaas.Pessoa',
+    person = models.ForeignKey(
+        'django_resaas.Person',
         on_delete=models.CASCADE,
         related_name='funcionarios'
     )
@@ -27,10 +27,10 @@ class Funcionario(BaseModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['pessoa', 'sucursal'],
-                name='unique_pessoa_sucursal'
+                fields=['person', 'branch'],
+                name='unique_person_branch'
             )
         ]
 
     def __str__(self):
-        return f"{self.pessoa.nome_completo} ({self.cargo})"
+        return f"{self.person.name_completo} ({self.cargo})"

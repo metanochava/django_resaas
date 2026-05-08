@@ -2,7 +2,7 @@ from typing import Any
 
 
 LABEL_KEYS = (
-    "nome", "name", "title", "titulo", "descricao", "description", "label",
+    "name", "name", "title", "titulo", "descricao", "description", "label",
     "codigo", "code", "numero", "number", "username", "email"
 )
 

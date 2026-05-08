@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("django_resaas", "0007_alter_layoutsetting_nome"),
+        ("django_resaas", "0007_alter_layoutsetting_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -53,11 +53,11 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "entidade",
+                    "entity",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="%(class)s_entidade",
-                        to="django_resaas.entidade",
+                        related_name="%(class)s_entity",
+                        to="django_resaas.entity",
                     ),
                 ),
                 (
@@ -71,19 +71,19 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "pessoa",
+                    "person",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="funcionarios",
-                        to="django_resaas.pessoa",
+                        to="django_resaas.person",
                     ),
                 ),
                 (
-                    "sucursal",
+                    "branch",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="%(class)s_sucursal",
-                        to="django_resaas.sucursal",
+                        related_name="%(class)s_branch",
+                        to="django_resaas.branch",
                     ),
                 ),
                 (
@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
             options={
                 "constraints": [
                     models.UniqueConstraint(
-                        fields=("pessoa", "sucursal"), name="unique_pessoa_sucursal"
+                        fields=("person", "branch"), name="unique_person_branch"
                     )
                 ],
             },

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django_resaas.core.services.traducao_sinc_service import TraducaoSyncService
+from django_resaas.core.services.translation_sinc_service import TranslationSyncService
 
 
 
@@ -9,8 +9,8 @@ class Command(BaseCommand):
     help = "Bootstrap inicial do SaaS"
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.MIGRATE_HEADING("🚀 Sync Traducao SaaS \n\n"))
+        self.stdout.write(self.style.MIGRATE_HEADING("🚀 Sync Translation SaaS \n\n"))
 
-        TraducaoSyncService.sync( stdout=self.stdout, style=self.style )
+        TranslationSyncService.sync( stdout=self.stdout, style=self.style )
 
-        self.stdout.write(self.style.SUCCESS("\n 🛠 ⚙️ Idiomas Sincronizadas, pronto para uso\n"))
+        self.stdout.write(self.style.SUCCESS("\n 🛠 ⚙️ Languages Sincronizadas, pronto para uso\n"))

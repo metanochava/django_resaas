@@ -14,7 +14,7 @@ from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils.username import UserName
 
 from django_resaas.models.user import User
-from django_resaas.models.pessoa import Pessoa
+from django_resaas.models.person import Person
 
 from django_resaas.data.user.serializers.register import RegisterSerializer
 
@@ -42,7 +42,7 @@ class RegisterMobileAPIView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            nome = (
+            name = (
                 request.META['HTTP_ORIGIN']
                 .split('.')[0]
                 .upper()
@@ -61,8 +61,8 @@ class RegisterMobileAPIView(APIView):
 
             user = User.objects.get(mobile=phone)
 
-            pessoa = Pessoa(user=user)
-            pessoa.save()
+            person = Person(user=user)
+            person.save()
 
         user.counter += 1
         user.save()

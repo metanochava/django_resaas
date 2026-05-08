@@ -4,7 +4,7 @@ from django.db import models
 
 class FrontEnd(models.Model):
 
-    nome = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     fek = models.CharField(max_length=255, unique=True)
     fep = models.CharField(max_length=255)
 
@@ -28,8 +28,8 @@ class FrontEnd(models.Model):
         permissions = ()
 
     class RESAAS:
-        label_field = "nome"
-        # route="view_entidade"
+        label_field = "name"
+        # route="view_entity"
         
     def __str__(self):
-        return self.nome
+        return self.name
