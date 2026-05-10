@@ -179,64 +179,82 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # SYNC MODELOS (🔥 PRINCIPAL)
     # ===============================
+    from django.db import transaction
+
     @action(detail=True, methods=['POST'])
     def syncModels(self, request, id):
         try:
             entity_type = EntityType.objects.get(id=id)
             ids = request.data.get('ids', [])
 
-            # 🔥 validação
+            # ============================
+            # 🔥 VALIDAÇÃO
+            # ============================
             if not isinstance(ids, list):
                 return Response({"error": "ids must be list"}, status=400)
 
-            # 🔥 models atuais
+            try:
+                ids = set(int(i) for i in ids)
+            except Exception:
+                return Response({"error": "ids must be integers"}, status=400)
+
+            # ============================
+            # 🔥 ATUAIS
+            # ============================
             atuais = set(
                 EntityTypeModel.objects.filter(entity_type=entity_type)
                 .values_list('model_id', flat=True)
             )
 
-            novos = set(ids)
+            para_adicionar = ids - atuais
+            para_remover = atuais - ids
 
-            para_adicionar = novos - atuais
-            para_remover = atuais - novos
-
-            # 🔥 evitar N+1
             entitys = list(Entity.objects.filter(entity_type_id=id))
 
             # ============================
-            # ➕ ADICIONAR
+            # 🔥 TRANSAÇÃO
             # ============================
-            if para_adicionar:
-                models_add = ContentType.objects.filter(id__in=para_adicionar)
+            with transaction.atomic():
 
-                # EntityTypeModel
-                EntityTypeModel.objects.bulk_create([
-                    EntityTypeModel(entity_type=entity_type, model=m)
-                    for m in models_add
-                ], ignore_conflicts=True)
+                # ============================
+                # ➕ ADICIONAR
+                # ============================
+                if para_adicionar:
+                    models_add = list(ContentType.objects.filter(id__in=para_adicionar))
 
-                # EntityModel
-                EntityModel.objects.bulk_create([
-                    EntityModel(entity=e, model=m)
-                    for e in entitys
-                    for m in models_add
-                ], ignore_conflicts=True)
+                    # 🔥 validação real
+                    found_ids = set(m.id for m in models_add)
+                    missing = para_adicionar - found_ids
 
-            # ============================
-            # ➖ REMOVER
-            # ============================
-            if para_remover:
-                models_remove = ContentType.objects.filter(id__in=para_remover)
+                    if missing:
+                        return Response({
+                            "error": f"Models not found: {list(missing)}"
+                        }, status=400)
 
-                EntityTypeModel.objects.filter(
-                    entity_type=entity_type,
-                    model__in=models_remove
-                ).delete()
+                    EntityTypeModel.objects.bulk_create([
+                        EntityTypeModel(entity_type=entity_type, model=m)
+                        for m in models_add
+                    ], ignore_conflicts=True)
 
-                EntityModel.objects.filter(
-                    entity__in=entitys,
-                    model__in=models_remove
-                ).delete()
+                    EntityModel.objects.bulk_create([
+                        EntityModel(entity=e, model=m)
+                        for e in entitys
+                        for m in models_add
+                    ], ignore_conflicts=True)
+
+                # ============================
+                # ➖ REMOVER
+                # ============================
+                if para_remover:
+                    EntityTypeModel.objects.filter(
+                        entity_type=entity_type,
+                        model_id__in=para_remover
+                    ).delete()
+
+                    EntityModel.objects.filter(
+                        entity__in=entitys,
+                        model_id__in=para_remover
+                    ).delete()
 
             return Response({
                 "success": True,
@@ -244,14 +262,14 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
                 "removed": list(para_remover),
                 "alert_success": Translate.tdc(
                     request,
-                    "Models sincronizados com sucesso"
+                    "Models synchronized successfully"
                 )
             })
 
         except EntityType.DoesNotExist:
             return Response({
                 "success": False,
-                "error": "EntityType não encontrado"
+                "error": "EntityType not found"
             }, status=404)
 
         except Exception as e:
@@ -259,11 +277,6 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
                 "success": False,
                 "error": str(e)
             }, status=400)
-
-
-
-        
-
 
 
     # ===============================
