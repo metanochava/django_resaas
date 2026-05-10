@@ -22,9 +22,6 @@ from django_resaas.data.person.serializers.person import PersonSerializer
 
 
 
-
-
-
 class UserAPIView(viewsets.ModelViewSet):
     search_fields = ['id','username']
     filter_backends = (filters.SearchFilter,)
