@@ -58,7 +58,7 @@ def create_model_permissions(sender, **kwargs):
     # ------------------------------------------------------
     # GROUP ROOT
     # ------------------------------------------------------
-    admin_group, _ = Group.objects.get_or_create(name="root")
+    admin_group, _ = Group.objects.get_or_create(name="Root")
 
     created_perms = []
 
