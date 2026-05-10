@@ -227,11 +227,11 @@ class UserAPIView(viewsets.ModelViewSet):
         # ===============================
         # 🔥 MODULOS ATIVOS (AGORA CORRETO)
         # ===============================
-        apps = EntityTypeApp.objects.filter(
+        apps_qs = EntityTypeApp.objects.filter(
             entity_type_id=tipo_id
         ).select_related('app')
 
-        names_apps = set(m.app.name for m in apps)
+        names_apps = set(m.app.name for m in apps_qs)
 
         # ===============================
         # 🔥 GERAR MENUS
@@ -272,46 +272,7 @@ class UserAPIView(viewsets.ModelViewSet):
             })
 
         return Response(MENUS, status=status.HTTP_200_OK)
-    # @action(detail=True, methods=['GET'])
-    # def menus(self, request, *args, **kwargs):
-    #     branchUserGroup = BranchUserGroup.objects.filter(user__id = request.user.id, branch__id=request.branch_id, group__id=request.group_id)
-    #     user_perms = []
-    #     if (branchUserGroup):
-    #         group = Group.objects.get(id=branchUserGroup[0].group.id)
-    #         permissions = group.permissions.all()
-    #         for permission in permissions:
-    #             user_perms.append(permission.codename)
-
-    #     MENUS = []
-      
-
-    #     for app in apps.get_app_configs():
-    #         module_name = f"{app.name}.sidebar"
-    #         if not EntityApp.objects.filter(entity__id=request.entity_id, app__name=app.label, app__estado=1, estado=1).exists():
-    #             continue
-
-    #         if not importlib.util.find_spec(module_name):
-    #             continue
-
-    #         sidebar = importlib.import_module(module_name)
-
-    #         # Filtrar submenus recursivamente
-    #         filtered_submenus = self.filter_menu_by_permission(
-    #             sidebar.SUBMENUS,
-    #             user_perms
-    #         )
     
-    #         # Se não tem submenu permitido → ignora menu
-    #         if not filtered_submenus:
-    #             continue
-
-    #         MENUS.append({
-    #             "menu": sidebar.MENU,
-    #             "icon": sidebar.ICON,
-    #             "submenu": filtered_submenus,
-    #         })
-
-    #     return Response(MENUS, status=status.HTTP_200_OK)
 
 
     @action(
@@ -343,7 +304,6 @@ class UserAPIView(viewsets.ModelViewSet):
             for branchUserGroup in branchUserGroups:
                 group = Group.objects.get(id=branchUserGroup.group.id)
                 ar.append({'id': group.id, 'name': group.name})
-
 
         if True:
             return Response(ar, status.HTTP_200_OK)

@@ -23,10 +23,10 @@ class Command(BaseCommand):
         result = BootstrapService.run(entity_type, entity, branch, user, group, stdout=self.stdout, style=self.style)
 
         self.stdout.write(
-            self.style.SUCCESS(f"✔ Superuser criado: \t {user.email} \n")
+            self.style.SUCCESS(f"✔ Superuser created:\t{user.email} \n")
         )
         self.stdout.write(
-            self.style.NOTICE(f"👤 Username: \t {user.username} \n")
+            self.style.NOTICE(f"👤 Username:\t{user.username} \n")
         )
        
-        self.stdout.write(self.style.SUCCESS("\n 🛠 ⚙️ Sistema pronto para uso\n"))
+        self.stdout.write(self.style.SUCCESS("\n 🛠 ⚙️ Ready-to-use system\n"))
