@@ -1,11 +1,11 @@
 from django.db import models
 from django_resaas.core.base.models import BaseModel
 
-class Funcionario(BaseModel):
+class Employee(BaseModel):
     person = models.ForeignKey(
         'django_resaas.Person',
         on_delete=models.CASCADE,
-        related_name='funcionarios'
+        related_name='employees'
     )
 
     codigo = models.CharField(max_length=50)

@@ -19,7 +19,7 @@ User
  ↓
 Person
  ↓
-Funcionario (RH)
+Employee (RH)
  ↓
 Entity (tenant)
  ↓
@@ -134,9 +134,9 @@ CRUD automático com:
 from django_resaas import BaseAPIView, register_view
 
 @register_view(module="rh")
-class FuncionarioView(BaseAPIView):
-    queryset = Funcionario.objects.all()
-    serializer_class = FuncionarioSerializer
+class EmployeeView(BaseAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
 ```
 
 ---
@@ -144,7 +144,7 @@ class FuncionarioView(BaseAPIView):
 # 🔍 Busca dinâmica
 
 ```http
-GET /api/funcionarios/?search=joao
+GET /api/employees/?search=joao
 ```
 
 Busca automaticamente em:
@@ -178,7 +178,7 @@ Permite ativar/desativar funcionalidades por cliente.
 
 ```python
 @register_view(module="rh")
-class FuncionarioView(BaseAPIView):
+class EmployeeView(BaseAPIView):
     ...
 ```
 
@@ -260,7 +260,7 @@ Protege acesso por:
 ```python
 from django_resaas import BaseModel
 
-class Funcionario(BaseModel):
+class Employee(BaseModel):
     person = models.ForeignKey('django_resaas.Person', on_delete=models.CASCADE)
     cargo = models.CharField(max_length=100)
 ```
@@ -272,9 +272,9 @@ class Funcionario(BaseModel):
 ```python
 from django_resaas import BaseSerializer
 
-class FuncionarioSerializer(BaseSerializer):
+class EmployeeSerializer(BaseSerializer):
     class Meta:
-        model = Funcionario
+        model = Employee
         fields = "__all__"
 ```
 
@@ -286,9 +286,9 @@ class FuncionarioSerializer(BaseSerializer):
 from django_resaas import BaseAPIView, register_view
 
 @register_view(module="rh")
-class FuncionarioView(BaseAPIView):
-    queryset = Funcionario.objects.all()
-    serializer_class = FuncionarioSerializer
+class EmployeeView(BaseAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
 ```
 
 ---

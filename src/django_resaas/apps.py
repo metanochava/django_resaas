@@ -9,7 +9,7 @@ def create_django_resaas_groups(sender, **kwargs):
     if kwargs.get("app_config").name != "django_resaas":
         return
 
-    from django.contrib.auth.models import Group
+    from django_resaas.models.group import Group
     GROUPS_WITH_ID = [
         (1, "Guest"),
         (2, "Root"),

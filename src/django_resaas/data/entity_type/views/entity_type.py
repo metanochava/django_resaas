@@ -3,7 +3,7 @@ import importlib.util
 
 from django.apps import apps
 from django.conf import settings as dj_settings
-from django.contrib.auth.models import Group
+from django_resaas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
 
 

@@ -1,4 +1,4 @@
-from django.contrib.auth.models import Group
+from django_resaas.models.group import Group
 from django.db import transaction
 
 from django_resaas.models.entity_type import EntityType
