@@ -141,7 +141,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
                 group=group
             )
 
-            user.groups.add(group)
+            # user.groups.add(group)
 
         return Response({
             'alert_success': f'Perfil <b>{group.name}</b> adicionado'
@@ -168,7 +168,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
                 group=group
             ).delete()
 
-            user.groups.remove(group)
+            # user.groups.remove(group)
 
         return Response({
             'alert_success': f'Perfil <b>{group.name}</b> removido'
