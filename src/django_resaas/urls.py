@@ -88,7 +88,7 @@ routerdjango_resaas.register("languages", LanguageAPIView, basename="languages")
 routerdjango_resaas.register("translations", TranslationAPIView, basename="translations")
 routerdjango_resaas.register("themes", ThemeAPIView, basename="themes")
 routerdjango_resaas.register("layoutsettings", LayoutSettingAPIView, basename="layoutsettings")
-routerdjango_resaas.register("tipodocuments", DocumentTypeAPIView, basename="tipodocuments")
+routerdjango_resaas.register("documenttypes", DocumentTypeAPIView, basename="documenttypes")
 routerdjango_resaas.register("documents", DocumentAPIView, basename="documents")
 
 
