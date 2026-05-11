@@ -15,7 +15,7 @@ class Group(models.Model):
         unique=True
     )
 
-    editable = models.BooleanField()
+    editable = models.BooleanField(default=False)
 
     permissions = models.ManyToManyField(
         Permission,
