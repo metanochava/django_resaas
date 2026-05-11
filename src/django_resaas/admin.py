@@ -167,7 +167,7 @@ class EntityTypeAdmin(BaseAdmin):
 
 @admin.register(User)
 class UserAdmin( BaseAdmin):
-    filter_horizontal = ('permissions',)
+    filter_horizontal = ('groups', 'user_permissions')
     
     def get_list_display(self, request):
         exclude = ['password']
