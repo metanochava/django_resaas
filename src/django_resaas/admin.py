@@ -41,6 +41,9 @@ from django_resaas.models.app import App
 from django_resaas.models.front_end import FrontEnd
 from django_resaas.models.model_extra import ModelExtra
 from django_resaas.models.document import DocumentType, Document
+from django_resaas.models.group import Group
+from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
+
 
 
 # =========================
@@ -61,6 +64,14 @@ class DocumentTypeAdmin(BaseAdmin):
 class DocumentAdmin(BaseAdmin):
     list_display = ('tipo', 'numero', 'data_emissao', 'data_validade')
     list_filter = ('tipo',)
+
+
+
+
+@admin.register(Group)
+class GroupAdmin(BaseGroupAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
 
 @admin.register(Translation)
 class TranslationAdmin(BaseAdmin):
@@ -156,6 +167,7 @@ class EntityTypeAdmin(BaseAdmin):
 
 @admin.register(User)
 class UserAdmin( BaseAdmin):
+    filter_horizontal = ('permissions',)
     
     def get_list_display(self, request):
         exclude = ['password']
