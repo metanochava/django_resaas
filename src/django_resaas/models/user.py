@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from rest_framework_simplejwt.tokens import RefreshToken
 from django_resaas.models.person import Person
 from django_resaas.core.base.models import TimeModel
+from django_resaas.models.group import Group
+from django.contrib.auth.models import Permission
 
 
 class UserManager(BaseUserManager):
@@ -84,6 +86,35 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
     is_verified_email = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+
+
+    is_superuser = models.BooleanField(
+        ("superuser status"),
+        default=False,
+        help_text=(
+            "Designates that this user has all permissions without "
+            "explicitly assigning them."
+        ),
+    )
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=("groups"),
+        blank=True,
+        help_text=_(
+            "The groups this user belongs to. A user will get all permissions "
+            "granted to each of their groups."
+        ),
+        related_name="user_set",
+        related_query_name="user",
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=("user permissions"),
+        blank=True,
+        help_text=("Specific permissions for this user."),
+        related_name="user_set",
+        related_query_name="user",
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
