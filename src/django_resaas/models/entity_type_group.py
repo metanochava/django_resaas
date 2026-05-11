@@ -10,7 +10,7 @@ class EntityTypeGroup(TimeModel):
     )
 
     group = models.ForeignKey(
-        "auth.Group",
+        "django_resaas.Group",
         on_delete=models.CASCADE,
         related_name="group_entity_types"
     )
