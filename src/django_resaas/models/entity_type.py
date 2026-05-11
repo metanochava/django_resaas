@@ -1,6 +1,6 @@
 
 from django.db import models
-from django.contrib.auth.models import Group
+from django_resaas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
 from django_resaas.core.base.models import TimeModel
 

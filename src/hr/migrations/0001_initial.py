@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Funcionario",
+            name="Employee",
             fields=[
                 (
                     "id",
@@ -67,14 +67,14 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="subordinados",
-                        to="rh.funcionario",
+                        to="rh.employee",
                     ),
                 ),
                 (
                     "person",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="funcionarios",
+                        related_name="employees",
                         to="django_resaas.person",
                     ),
                 ),

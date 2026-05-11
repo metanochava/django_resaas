@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from django.contrib.auth.models import Group
+from django_resaas.models.group import Group
 from django_resaas.core.base.serializers import BaseSerializer
 
 class GroupSerializer(BaseSerializer):

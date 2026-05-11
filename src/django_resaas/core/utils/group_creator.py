@@ -3,7 +3,7 @@ def group_creator(groups=None):
         groups = []
 
     # 🔥 IMPORT LAZY
-    from django.contrib.auth.models import Group
+    from django_resaas.models.group import Group
     from django_resaas.models.entity_type import EntityType
     from django_resaas.models.entity import Entity
     from django_resaas.models.entity_type_group import EntityTypeGroup

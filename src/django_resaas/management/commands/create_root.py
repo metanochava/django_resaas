@@ -7,7 +7,7 @@ from django_resaas.models.branch import Branch
 from django_resaas.models.entity_user import EntityUser
 from django_resaas.models.branch_user import BranchUser
 from django_resaas.models.branch_user_group import BranchUserGroup
-from django.contrib.auth.models import Group
+from django_resaas.models.group import Group
 from django_resaas.core.services.frontend_service import FrontEndService
 from django_resaas.core.services.language_service import LanguageService
 from django_resaas.models.app import App

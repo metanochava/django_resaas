@@ -1,7 +1,7 @@
 # =========================
 # Django
 # =========================
-from django.contrib.auth.models import Group, Permission
+from django_resaas.models.group import Group, Permission
 from django.db.models import F
 from django.db import transaction
 

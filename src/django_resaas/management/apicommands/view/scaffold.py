@@ -16,7 +16,7 @@ import time
 
 from importlib import import_module
 from django.conf import settings
-from django.contrib.auth.models import Group, Permission
+from django_resaas.models.group import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 
