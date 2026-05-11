@@ -7,7 +7,7 @@ from django_resaas.core.base.models import TimeModel
 class BranchUserGroup(TimeModel):
     branch = models.ForeignKey('django_resaas.Branch', on_delete=models.CASCADE)
     user = models.ForeignKey('django_resaas.User', on_delete=models.CASCADE)
-    group = models.ForeignKey('auth.Group', on_delete=models.CASCADE)
+    group = models.ForeignKey('django_resaas.Group', on_delete=models.CASCADE)
 
     class Meta:
         permissions = ()

@@ -43,8 +43,7 @@ def profile_image_path(instance, file_name):
     return f'images/users/{instance.id}/{file_name}'
 
 
-class User(AbstractBaseUser, PermissionsMixin, TimeModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class User(AbstractBaseUser, TimeModel):
     perfil = models.ImageField(
         default='user.png',
         upload_to=profile_image_path,
