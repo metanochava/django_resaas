@@ -91,7 +91,7 @@ class TenantAPIView(APIView):
             estado = 1
         )
 
-        user.groups.add(group)
+        # user.groups.add(group)
 
         # ------------------------
         # RESPONSE

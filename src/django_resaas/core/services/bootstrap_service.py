@@ -135,7 +135,7 @@ class BootstrapService:
             estado = 1
         )
 
-        user.groups.add(group)
+        # user.groups.add(group)
 
         BranchUserGroup.objects.get_or_create(
             user=user,
@@ -160,7 +160,7 @@ class BootstrapService:
             estado = 1
         )
 
-        user.groups.add(group)
+        # user.groups.add(group)
 
         
         BranchUserGroup.objects.get_or_create(
