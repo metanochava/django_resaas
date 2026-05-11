@@ -18,8 +18,7 @@ def create_django_resaas_groups(sender, **kwargs):
 
     for gid, gname in GROUPS_WITH_ID:
         group, _ = Group.objects.get_or_create(
-            id=gid,  # 🔥 FORÇA O ID
-            defaults={"name": gname}
+            name= gname
         )
 
 
