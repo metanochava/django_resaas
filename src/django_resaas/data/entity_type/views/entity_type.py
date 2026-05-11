@@ -5,7 +5,8 @@ from django.apps import apps
 from django.conf import settings as dj_settings
 from django_resaas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
-
+from django.contrib.auth.models import Permission
+from django_resaas.data.permission.serializers.permission import PermissionSerializer
 
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
@@ -533,3 +534,36 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         ).delete()
 
         return Response({"success": True})
+
+
+    @action(detail=True, methods=['GET'])
+    def permissions(self, request, id):
+        type_id = EntityType.objects.get(id=id)
+        queryset = (
+            Permission.objects
+            .select_related('content_type')
+            .annotate(
+                content_type_model=F('content_type__model'),
+                content_type_app=F('content_type__app_label')
+            )
+        )
+
+        if type_id:
+            queryset = queryset.filter(
+                content_type__in=EntityTypeModel.objects.filter(
+                    entity_type_id=type_id
+                ).values_list('model', flat=True)  
+            )
+
+
+        serializer = PermissionSerializer(queryset.order_by(
+            'content_type__app_label',
+            'content_type__model',
+            'codename'
+        ), many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+        

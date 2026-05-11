@@ -31,6 +31,15 @@ class PermissionAPIView(viewsets.ModelViewSet):
     serializer_class = PermissionSerializer
     lookup_field = "id"
     pagination_class = None
+    queryset = Permission.objects.all()
+
+
+    def get_queryset(self):
+        return self.queryset.filter().order_by(
+            'content_type__app_label',
+            'content_type__model',
+            'codename'
+        )
 
     # 🔥 QUERYSET BASE OTIMIZADO
     def get_queryset(self):
