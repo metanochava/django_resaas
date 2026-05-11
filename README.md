@@ -133,7 +133,7 @@ CRUD automático com:
 ```python
 from django_resaas import BaseAPIView, register_view
 
-@register_view(module="rh")
+@register_view(module="hr")
 class EmployeeView(BaseAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -177,7 +177,7 @@ Permite ativar/desativar funcionalidades por cliente.
 # 🔐 Proteção automática por módulo
 
 ```python
-@register_view(module="rh")
+@register_view(module="hr")
 class EmployeeView(BaseAPIView):
     ...
 ```
@@ -285,7 +285,7 @@ class EmployeeSerializer(BaseSerializer):
 ```python
 from django_resaas import BaseAPIView, register_view
 
-@register_view(module="rh")
+@register_view(module="hr")
 class EmployeeView(BaseAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
@@ -314,7 +314,7 @@ pip install -e .
 ```python
 INSTALLED_APPS = [
     "django_resaas",
-    "rh",
+    "hr",
 ]
 ```
 

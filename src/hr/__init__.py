@@ -1,3 +1,3 @@
-default_app_config = "rh.apps.RhConfig"
+default_app_config = "hr.apps.HrConfig"
  
         

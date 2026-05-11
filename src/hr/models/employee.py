@@ -21,7 +21,7 @@ class Employee(BaseModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='subordinados'
+        related_name='subordinates'
     )
 
     class Meta:

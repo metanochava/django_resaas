@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.224"
+version = "0.0.225"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -55,7 +55,7 @@ include-package-data = true   # ✅ ESSENCIAL (FALTAVA)
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["django_resaas*"]
+include = ["django_resaas*", "hr*"]
 
 # 🔥 GARANTE QUE TEMPLATES ENTRAM NO BUILD
 [tool.setuptools.package-data]
