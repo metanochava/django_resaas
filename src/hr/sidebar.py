@@ -1,11 +1,11 @@
 
-MENU = "Rh"
+MENU = "Hr"
 ICON = "menu"
 SUBMENUS = [
     {
         "menu": "Dashboard",
         "icon": "dashboard",
-        "role": "view_rh_dashboard",
-        "rota": "view_rh_dashboard",
+        "role": "view_hr_dashboard",
+        "rota": "view_hr_dashboard",
     },
 ]

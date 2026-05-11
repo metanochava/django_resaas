@@ -62,7 +62,7 @@ def write_file(path: Path, content: str):
 def reload_app_models(app_label):
     importlib.invalidate_caches()
 
-    # reload rh.models (para executar o __init__.py novo)
+    # reload .models (para executar o __init__.py novo)
     mod = f"{app_label}.models"
 
     if mod in sys.modules:

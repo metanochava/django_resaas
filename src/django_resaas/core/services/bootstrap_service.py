@@ -68,7 +68,7 @@ class BootstrapService:
             estado = 1
         )
 
-        for name in ['rh']:
+        for name in ['hr']:
             app, _ = App.objects.get_or_create(
                 name=name,
                 estado = 1
