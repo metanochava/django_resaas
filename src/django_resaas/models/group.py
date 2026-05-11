@@ -19,7 +19,8 @@ class Group(models.Model):
 
     permissions = models.ManyToManyField(
         Permission,
-        blank=True
+        blank=True,
+        related_name='resaas_groups'  # 🔥 ESSENCIAL
     )
 
 
