@@ -41,7 +41,8 @@ from django_resaas.models.app import App
 from django_resaas.models.front_end import FrontEnd
 from django_resaas.models.model_extra import ModelExtra
 from django_resaas.models.document import DocumentType, Document
-from django_resaas.models.group import Group
+from django.contrib.auth.models import Group as DjangoGroup
+from django_resaas.models.group import Group as ResaasGroup
 
 
 
@@ -55,12 +56,11 @@ admin.site.site_title = 'Django Rest SaaS'
 admin.site.index_title = 'Django Rest SaaS'
 
 
-from django.contrib.auth.models import Group as DjangoGroup
-try:
-    admin.site.unregister(DjangoGroup)
-except admin.sites.NotRegistered:
-    pass
 
+
+
+if admin.site.is_registered(DjangoGroup):
+    admin.site.unregister(DjangoGroup)
 
 
 @admin.register(DocumentType)
@@ -73,9 +73,7 @@ class DocumentAdmin(BaseAdmin):
     list_filter = ('tipo',)
 
 
-
-
-@admin.register(Group)
+@admin.register(ResaasGroup)
 class GroupAdmin(BaseAdmin):
     filter_horizontal = ('permissions',)
     def get_list_display(self, request): return all_fields(self.model)
