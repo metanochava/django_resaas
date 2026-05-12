@@ -62,6 +62,11 @@ admin.site.index_title = 'Django Rest SaaS'
 if admin.site.is_registered(DjangoGroup):
     admin.site.unregister(DjangoGroup)
 
+try:
+    admin.site.unregister(DjangoGroup)
+except admin.sites.NotRegistered:
+    pass
+
 
 @admin.register(DocumentType)
 class DocumentTypeAdmin(BaseAdmin):
@@ -139,11 +144,11 @@ class EntityModelAdmin(BaseAdmin):
     list_display_links = ('id',)
 
 
-@admin.register(Permission)
-class PermissionAdmin(admin.ModelAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id',)
-    search_fields = ['id', 'name']
+# @admin.register(Permission)
+# class PermissionAdmin(admin.ModelAdmin):
+#     def get_list_display(self, request): return all_fields(self.model)
+#     list_display_links = ('id',)
+#     search_fields = ['id', 'name']
 
 from .models import Person
 
