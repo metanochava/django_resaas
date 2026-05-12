@@ -61,10 +61,7 @@ admin.site.index_title = 'Django Rest SaaS'
 # =========================
 # 🔥 REMOVE GROUP PADRÃO DO DJANGO
 # =========================
-try:
-    admin.site.unregister(DjangoGroup)
-except admin.sites.NotRegistered:
-    pass
+
 
 
 # =========================
