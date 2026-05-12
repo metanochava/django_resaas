@@ -55,6 +55,13 @@ admin.site.site_title = 'Django Rest SaaS'
 admin.site.index_title = 'Django Rest SaaS'
 
 
+from django.contrib.auth.models import Group as DjangoGroup
+try:
+    admin.site.unregister(DjangoGroup)
+except admin.sites.NotRegistered:
+    pass
+
+
 
 @admin.register(DocumentType)
 class DocumentTypeAdmin(BaseAdmin):
