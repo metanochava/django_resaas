@@ -56,15 +56,6 @@ admin.site.index_title = 'Django Rest SaaS'
 
 
 
-
-from django.contrib import admin
-from django.contrib.auth.models import Group
-
-if admin.site.is_registered(Group):
-    admin.site.unregister(Group)
-
-
-
 @admin.register(DocumentType)
 class DocumentTypeAdmin(BaseAdmin):
     list_display = ('name', 'detalhes')
