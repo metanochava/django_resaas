@@ -30,11 +30,34 @@ class UserAPIView(viewsets.ModelViewSet):
     lookup_field = "id"
 
     def get_queryset(self):
-        if (self.request.query_params.get('allPaginado')):
-            return self.queryset.filter().order_by('id')
-        else:
-            self._paginator = None
-            return self.queryset.filter().order_by('id')
+        user = self.request.user
+
+        queryset = User.objects.all().order_by('id')
+
+        # 👑 superuser vê tudo
+        if not user.is_superuser:
+            entity_id = getattr(self.request, "entity_id", None)
+
+            if not entity_id:
+                return User.objects.none()  # segurança
+
+            queryset = queryset.filter(
+                entityuser__entity_id=entity_id
+            ).distinct()
+
+        return queryset
+    
+    # 🔥 override do list
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(
         detail=True,
