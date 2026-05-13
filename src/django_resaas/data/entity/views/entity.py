@@ -63,7 +63,22 @@ class EntityAPIView(viewsets.ModelViewSet):
     queryset = Entity.objects.all()
 
     def get_queryset(self, *args, **kwargs):
-        return self.queryset.order_by('-id')
+        user = self.request.user
+        queryset = super().get_queryset()
+
+        # 👑 superuser → vê tudo
+        if user.is_superuser:
+            return queryset
+
+        # 👤 user normal → filtra por entidade
+        entity_id = getattr(self.request, "entity_id", None)
+
+        if not entity_id:
+            return queryset.none()
+
+        return queryset.filter(
+            entityuser__entity_id=entity_id
+        ).distinct()
 
     def retrieve(self, request, *args, **kwargs):
         try:
