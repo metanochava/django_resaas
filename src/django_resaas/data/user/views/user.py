@@ -20,9 +20,13 @@ from django_resaas.data.branch.serializers.branch import BranchSerializer
 from django_resaas.models.branch_user_group import BranchUserGroup
 from django_resaas.data.person.serializers.person import PersonSerializer
 
+from django.db import transaction
+
+from django_resaas.core.base.views import BaseAPIView
 
 
-class UserAPIView(viewsets.ModelViewSet):
+
+class UserAPIView(BaseAPIView):
     search_fields = ['id','username']
     filter_backends = (filters.SearchFilter,)
     serializer_class = UserSerializer
@@ -58,6 +62,123 @@ class UserAPIView(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    
+    
+    def create(self, request, *args, **kwargs):
+        user = request.user
+
+        with transaction.atomic():
+
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            new_user = serializer.save()
+
+            if not user.is_superuser:
+                entity_id = getattr(request, "entity_id", None)
+
+                if not entity_id:
+                    return Response(
+                        {"error": "Entity não encontrada"},
+                        status=400
+                    )
+
+                EntityUser.objects.get_or_create(
+                    user=new_user,
+                    entity_id=entity_id
+                )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    
+
+    def update(self, request, *args, **kwargs):
+        user = request.user
+        instance = self.get_object()
+
+        # 🔥 segurança: user normal só pode atualizar users da mesma entidade
+        if not user.is_superuser:
+            entity_id = getattr(request, "entity_id", None)
+
+            if not entity_id:
+                return Response(
+                    {"error": "Entity não encontrada"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # 🔥 verifica se o user pertence à entidade
+            pertence = EntityUser.objects.filter(
+                user=instance,
+                entity_id=entity_id
+            ).exists()
+
+            if not pertence:
+                return Response(
+                    {"error": "Sem permissão para atualizar este user"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        with transaction.atomic():
+
+            # 🔥 bloqueia alteração manual de entidade
+            if not user.is_superuser and 'entity' in request.data:
+                return Response(
+                    {"error": "Não permitido alterar entidade"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            serializer = self.get_serializer(
+                instance,
+                data=request.data,
+                partial=kwargs.get('partial', False)
+            )
+            serializer.is_valid(raise_exception=True)
+            updated_user = serializer.save()
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+        instance = self.get_object()
+
+        # 🔥 opcional: impedir apagar a si próprio
+        if instance == user:
+            return Response(
+                {"error": "Não pode apagar o próprio utilizador"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 👑 superuser pode tudo
+        if not user.is_superuser:
+            entity_id = getattr(request, "entity_id", None)
+
+            if not entity_id:
+                return Response(
+                    {"error": "Entity não encontrada"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # 🔥 verifica se o user pertence à entidade corrente
+            pertence = EntityUser.objects.filter(
+                user=instance,
+                entity_id=entity_id
+            ).exists()
+
+            if not pertence:
+                return Response(
+                    {"error": "Sem permissão para apagar este user"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+        # 🔥 apagar
+        instance.delete()
+
+        return Response(
+            {"message": "User apagado com sucesso"},
+            status=status.HTTP_204_NO_CONTENT
+        )
 
     @action(
         detail=True,
