@@ -7,7 +7,7 @@ class TenantContextMiddleware:
     def __call__(self, request):
         request.entity_type_id = request.headers.get('ET')
         request.entity_id = request.headers.get('E')
-        request.branch_id = request.headers.get('S')
+        request.branch_id = request.headers.get('B')
         request.group_id = request.headers.get('G')
         request.lang_id = request.headers.get('L')
 
