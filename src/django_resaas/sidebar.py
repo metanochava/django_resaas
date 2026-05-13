@@ -118,7 +118,7 @@ SUBMENUS = [
     {
         "menu": "Dev",
         "icon": "code",  # 🔥 ESSENCIAL
-        "role": "view_scaffold",
+        "role": "view_dev",
         "submenu": [
             {
                 "menu": "Criar App",
