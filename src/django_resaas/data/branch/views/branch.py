@@ -62,7 +62,21 @@ class  BranchAPIView(viewsets.ModelViewSet):
     lookup_field = "id"
 
     def get_queryset(self):
-        return self.queryset.filter().order_by('-id')
+        user = self.request.user
+
+        queryset = self.queryset.order_by('-id')
+
+        # 👑 superuser vê tudo
+        if user.is_superuser:
+            return queryset
+
+        # 👤 user normal → filtra por entidade
+        entity_id = getattr(self.request, "entity_id", None)
+
+        if not entity_id:
+            return Branch.objects.none()
+
+        return queryset.filter(entity_id=entity_id)
 
     @action(
         detail=True,
