@@ -100,6 +100,7 @@ def create_model_permissions(sender, **kwargs):
     for codename, name in [
         ("add_app", "Can add app"),
         ("change_app", "Can change app"),
+        ("view_dev", "Can view dev"),
         ("view_scaffold", "Can view scaffold"),
         ("view_crud", "Can view crud"),
         ("add_scaffold", "Can add scaffold"),
