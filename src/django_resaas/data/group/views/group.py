@@ -29,9 +29,10 @@ from rest_framework.response import Response
 # Local application (absolute import)
 # =========================
 from django_resaas.data.group.serializers.group import GroupSerializer
+from django_resaas.core.base.views import BaseAPIView
 
 
-class GroupAPIView(viewsets.ModelViewSet):
+class GroupAPIView(BaseAPIView):
     """
     API de gestão de Groups (Profiles / Roles).
     """
@@ -42,6 +43,13 @@ class GroupAPIView(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ["id", "name"]
     pagination_class = None
+
+    method_permission= {
+        'addPermission': 'view',
+        'permissions': 'view',
+        'removePermission': 'view',
+        
+    }
 
     # -------------------------
     # Queryset
