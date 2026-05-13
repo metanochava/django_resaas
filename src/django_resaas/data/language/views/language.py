@@ -28,6 +28,7 @@ from django_resaas.models.language import Language
 from django_resaas.models.translation import Translation
 from django_resaas.data.language.serializers.language import LanguageSerializer
 
+from django_resaas.core.base.views import BaseAPIView
 
 class LanguageAPIView(viewsets.ModelViewSet):
     search_fields = ["id", "name"]
