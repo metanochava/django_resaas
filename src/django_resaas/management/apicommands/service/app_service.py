@@ -235,7 +235,7 @@ SUBMENUS = [
         "menu": "Dashboard",
         "icon": "dashboard",
         "role": "view_{clean_file_name(name)}_dashboard",
-        "rota": "view_{clean_file_name(name)}_dashboard",
+        "route": "view_{clean_file_name(name)}_dashboard",
     }},
 ]
 """)

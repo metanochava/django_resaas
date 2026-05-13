@@ -183,7 +183,7 @@ class UserAPIView(viewsets.ModelViewSet):
                 new = {k: v for k, v in item.items() if k not in {"role", "add_role"}}
 
                 if not add_perm:
-                    new.pop("add_rota", None)
+                    new.pop("add_route", None)
 
                 if sub:
                     new["submenu"] = sub
