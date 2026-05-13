@@ -150,7 +150,8 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
             if not ativo:
                 fail(request, "Módulo '{module}' não ativo")
-
+        else:
+            fail(request, "Módulo '{module}' não definido")
 
         action = self.action
         model = self.get_model()
@@ -159,9 +160,8 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         perm_prefix = perm_map.get(action)
 
         if not perm_prefix:
-            raise PermissionDenied(
-                Translate.tdc(request, 'Permissão não definida para esta ação')
-            )
+            fail(request, 'Permissão não definida para esta ação')
+            
 
         codename = f'{perm_prefix}_{model._meta.model_name}'
 
@@ -176,9 +176,8 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             )
 
         if not request._perm_cache[codename]:
-            raise PermissionDenied(
-                Translate.tdc(request, f'Não autorizado {codename}')
-            )
+            fail(request, f'Não autorizado ')
+            
 
     # -----------------------------------
     # 📊 QUERYSET (SAFE MULTI-TENANT)
