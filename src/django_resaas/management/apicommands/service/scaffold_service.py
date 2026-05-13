@@ -188,9 +188,9 @@ class {name}Admin(admin.ModelAdmin):
             "icon": "list",
             "menu": menu_name,
             "role": f"list_{menu_name.lower()}",
-            "rota": f"list_{menu_name.lower()}",
+            "route": f"list_{menu_name.lower()}",
             "add_role": f"add_{menu_name.lower()}",
-            "add_rota": f"add_{menu_name.lower()}",
+            "add_route": f"add_{menu_name.lower()}",
         }
 
         # evitar duplicado
