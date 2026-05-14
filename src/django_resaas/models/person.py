@@ -97,6 +97,7 @@ class Person(TimeModel):
 
     class RESAAS:
         label_field = "full_name"
+        searchable_fields = ["name", "surname", "email", "full_name"]
         crud = True
         routes={
             'list': "add_person",

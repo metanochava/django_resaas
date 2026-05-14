@@ -586,20 +586,42 @@ class RelationsAPIView(APIView):
 
         qs = Model.objects.all()
 
-        # filtro search (tenta name/name/title/descricao... se existir)
+        from django.db.models import Q, CharField, TextField, EmailField
+
         if search:
             q = Q()
-            for k in LABEL_KEYS:
-                if k == "id":
-                    continue
-                try:
-                    Model._meta.get_field(k)
-                    q |= Q(**{f"{k}__icontains": search})
-                except FieldDoesNotExist:
-                    continue
-                except Exception:
-                    continue
-            # se não achou nenhum campo “label”, cai no str(obj) (sem filtro)
+
+            # 🔥 tenta pegar do RESAAS
+            resaas = getattr(Model, "_resaas", None)
+            searchable_fields = getattr(resaas, "searchable_fields", None)
+
+            # 🔥 fallback (caso não exista)
+            if not searchable_fields:
+                for field in Model._meta.get_fields():
+
+                    # 🔥 campos diretos
+                    if isinstance(field, (CharField, TextField, EmailField)):
+                        q |= Q(**{f"{field.name}__icontains": search})
+
+                    # 🔥 foreign keys simples
+                    elif field.is_relation and field.many_to_one:
+                        try:
+                            rel_model = field.related_model
+
+                            # tenta campo name
+                            if hasattr(rel_model, "name"):
+                                q |= Q(**{f"{field.name}__name__icontains": search})
+
+                        except:
+                            continue
+            else:
+                for field in searchable_fields:
+                    try:
+                        Model._meta.get_field(field)
+                        q |= Q(**{f"{field}__icontains": search})
+                    except:
+                        continue
+
             if q:
                 qs = qs.filter(q)
 
