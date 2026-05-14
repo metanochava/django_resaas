@@ -75,7 +75,7 @@ class Person(TimeModel):
         ]
     
     class RESAAS:
-        label_field = "name"
+        label_field = "name surname"
         crud = True
         routes={
             'list': "add_person",
