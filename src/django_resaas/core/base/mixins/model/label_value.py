@@ -66,21 +66,15 @@ class LabelValueMixin:
 
         if label_field:
             fields = [f for f in re.split(r"[ ,|]+", label_field) if f]
+            print(fields)
 
             values = []
-            cache = {}
 
             for field in fields:
-                if field not in cache:
-                    cache[field] = self._get_attr(field)
-
-                val = cache[field]
-
-                if val not in (None, ""):
-                    values.append(str(val))
+                values.append(str(self._get_attr(field)))
 
             if values:
-                return " ".join(values)
+                return " = ".join(values)
 
         # 🔥 fallback inteligente
         for key in LABEL_KEYS:
