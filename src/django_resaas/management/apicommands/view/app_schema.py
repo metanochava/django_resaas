@@ -26,6 +26,7 @@ from django_resaas.core.utils import ok, fail, warn, all, clean_name, reorder_fi
 from django_resaas.models.app import App
 from django_resaas.models.model_extra import ModelExtra
 from django_resaas.management.apicommands.service.app_service import AppScaffoldService
+from django_resaas.core.base.mixins.model.label_value import LABEL_KEYS
 
 # 🔧 Logger
 logger = logging.getLogger(__name__)
@@ -34,7 +35,6 @@ logger = logging.getLogger(__name__)
 # helpers
 # ==========================================================
 
-LABEL_KEYS = ("name", "name", "title", "descricao", "description", "label", "codigo", "code", "numero", "num", "id")
 def get_route(Model):
     resaas = getattr(Model, "_resaas", None)
     return getattr(resaas, "routes",  {
@@ -604,7 +604,16 @@ class RelationsAPIView(APIView):
 
         qs = qs.order_by("-id")[:50]
 
-        rows = [{"id": o.pk, "value": o.pk, "label": _guess_label_value(o)} for o in qs]
+        # rows = [{"id": o.pk, "value": o.pk, "label": _guess_label_value(o)} for o in qs]
+
+        rows = [
+            {
+                "id": o.pk,
+                "value": o.get_value() if hasattr(o, "get_value") else o.pk,
+                "label": o.get_label() if hasattr(o, "get_label") else str(o),
+            }
+            for o in qs
+        ]
         return Response(rows, status=200)
 
 
