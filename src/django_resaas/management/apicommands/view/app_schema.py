@@ -451,12 +451,15 @@ class AppSchemaAPIView(ModelViewSet):
         if name == "django_resaas":
             return warn(request, "module_protected")
 
+        if name == "hr":
+            return warn(request, "module_protected")
+
         shutil.rmtree(module_path)
 
         AppScaffoldService._remove_from_settings(name)
         AppScaffoldService.delete_front(name)
         App.objects.get(name=name).hard_delete()
-        return ok(request, "module_deleted_success")
+        return ok(request, "Module deleted success")
 
     def create(self, request):
 
@@ -465,18 +468,18 @@ class AppSchemaAPIView(ModelViewSet):
         name = request.data.get("name")
 
         if not name:
-            return fail(request, "module_name_required")
+            return fail(request, "module name required")
+            
         try:
             path = AppScaffoldService.create_back(name)
         except Exception as e:
-            return fail( request,  "module_creation_failed \n "+ str(e),  )
+            return fail( request, str(e),  )
 
         try:
             AppScaffoldService.create_front(name)
             return ok(request, "app created success",  path=path )
-
         except Exception as e:
-            return fail(  request,  "ERROOOOOU \n "+ str(e),  )
+            return fail(  request,  "ERRO \n "+ str(e),  )
 
 
 
@@ -533,7 +536,7 @@ class AppSchemaAPIView(ModelViewSet):
             return fail(request, "model_not_found")
 
         # 🔥 PRIORIDADE
-        start_fields = ['id', 'nid', 'codigo', 'code', 'name', 'name','person']
+        start_fields = ['id', 'nid', 'codigo', 'code', 'nome', 'name','person']
         end_fields = ['estado', 'entity', 'branch', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted_at']
 
         fields = reorder_fields(fields, start_fields, end_fields)
