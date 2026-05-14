@@ -134,7 +134,7 @@ def criar_person_automaticamente(sender, instance, created, **kwargs):
             user=instance,
             defaults={
                 "name": instance.first_name or "",
-                "apelido": instance.last_name or "",
+                "surname": instance.last_name or "",
                 "email": instance.email or "",
             }
         )
@@ -151,7 +151,7 @@ def sync_person(sender, instance, **kwargs):
     if hasattr(instance, 'person'):
         person = instance.person
         person.name = instance.first_name or ""
-        person.apelido = instance.last_name or ""
+        person.surname = instance.last_name or ""
         person.email = instance.email or ""
         person.save()
 

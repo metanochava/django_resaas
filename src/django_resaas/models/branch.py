@@ -24,8 +24,14 @@ class Branch(TimeModel):
         permissions = ()
 
     class RESAAS:
-        label_field = "branch.name"
-        # route="view_entity"
+        label_field = "name"
+        crud = True
+        routes={
+            'list': "add_banch",
+            'view': "view_banch",
+            'add': "add_banch",
+            'change': "change_banch"
+        }
 
 
     def __str__(self):

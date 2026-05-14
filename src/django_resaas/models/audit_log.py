@@ -11,3 +11,10 @@ class AuditLog(TimeModel):
     object_id = models.CharField(max_length=100)
     class RESAAS:
         label_field = "name"
+        crud = True
+        routes={
+            'list': "add_auditlog",
+            'view': "view_auditlog",
+            'add': "add_auditlog",
+            'change': "change_auditlog"
+        }

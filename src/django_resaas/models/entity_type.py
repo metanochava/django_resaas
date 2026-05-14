@@ -27,7 +27,7 @@ class EntityType(TimeModel):
 
     class RESAAS:
         label_field = "name"
-        route="view_entitytype"
+        
     def __str__(self):
         return self.name
 

@@ -14,6 +14,13 @@ class DocumentType(TimeModel):
     detalhes = models.CharField(max_length=200)
     class RESAAS:
         label_field = "name"
+        crud = True
+        routes={
+            'list': "add_documenttype",
+            'view': "view_documenttype",
+            'add': "add_documenttype",
+            'change': "change_documenttype"
+        }
 
     def __str__(self):
         return self.name
@@ -35,5 +42,12 @@ class Document(TimeModel):
         unique_together = ('tipo', 'numero')
     class RESAAS:
         label_field = "numero"
+        crud = True
+        routes={
+            'list': "add_document",
+            'view': "view_document",
+            'add': "add_document",
+            'change': "change_document"
+        }
     def __str__(self):
         return f"{self.tipo.name} - {self.numero}"

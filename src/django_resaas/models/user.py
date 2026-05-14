@@ -130,7 +130,14 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
 
     class RESAAS:
         label_field = "username"
-        route="view_user"
+        
+        crud = True
+        routes={
+            'list': "add_user",
+            'view': "view_user",
+            'add': "add_user",
+            'change': "change_user"
+        }
 
     def __str__(self):
         return self.username

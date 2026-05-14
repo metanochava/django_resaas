@@ -23,8 +23,8 @@ class Person(TimeModel):
 
     # 📌 Dados básicos
     name = models.CharField(max_length=100, null=True)
-    apelido = models.CharField(max_length=100, null=True)
-    name_completo = models.CharField(max_length=200, null=True, blank=True)
+    surname = models.CharField(max_length=100, null=True)
+    full_name = models.CharField(max_length=200, null=True, blank=True)
 
     # 📌 Identificação
     GENERO_CHOICES = [
@@ -76,12 +76,18 @@ class Person(TimeModel):
     
     class RESAAS:
         label_field = "name"
-        route="view_person"
+        crud = True
+        routes={
+            'list': "add_person",
+            'view': "view_person",
+            'add': "add_person",
+            'change': "change_person"
+        }
 
     def save(self, *args, **kwargs):
         # 🔥 Gera name completo automaticamente
-        if self.name and self.apelido:
-            self.name_completo = f"{self.name} {self.apelido}".strip()
+        if self.name and self.surname:
+            self.full_name = f"{self.name} {self.surname}".strip()
 
         # 🔥 Normaliza email
         if self.email:
@@ -98,5 +104,16 @@ class Person(TimeModel):
             )
         return None
 
+    
+    class RESAAS:
+        label_field = "name_completo"
+        crud = True
+        routes={
+            'list': "add_person",
+            'view': "view_person",
+            'add': "add_person",
+            'change': "change_person"
+        }
+
     def __str__(self):
-        return self.name_completo or self.name or "Sem name"
+        return self.full_name or self.name or "Sem name"
