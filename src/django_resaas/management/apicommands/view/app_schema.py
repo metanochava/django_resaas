@@ -605,16 +605,16 @@ class RelationsAPIView(APIView):
 
         qs = qs.order_by("-id")[:50]
 
-        # rows = [{"id": o.pk, "value": o.pk, "label": _guess_label_value(o)} for o in qs]
+        rows = [{"id": o.pk, "value": o.pk, "label": _guess_label_value(o)} for o in qs]
 
-        rows = [
-            {
-                "id": o.pk,
-                "value": o.get_value() if hasattr(o, "get_value") else o.pk,
-                "label": o.get_label() if hasattr(o, "get_label") else str(o),
-            }
-            for o in qs
-        ]
+        # rows = [
+        #     {
+        #         "id": o.pk,
+        #         "value": o.get_value() if hasattr(o, "get_value") else o.pk,
+        #         "label": o.get_label() if hasattr(o, "get_label") else str(o),
+        #     }
+        #     for o in qs
+        # ]
         return Response(rows, status=200)
 
 
