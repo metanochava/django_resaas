@@ -10,7 +10,13 @@ class App(TimeModel):
 
     class RESAAS:
         label_field = "name"
-        # route="view_entity"
+        crud = True
+        routes={
+            'list': "add_app",
+            'view': "view_app",
+            'add': "add_app",
+            'change': "change_app"
+        }
 
     def __str__(self):
         return self.name

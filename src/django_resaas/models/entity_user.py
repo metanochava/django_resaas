@@ -16,5 +16,6 @@ class EntityUser(TimeModel):
         permissions = ()
     class RESAAS:
         label_field = "entity.name"
+        
     def __str__(self):
         return f'{self.entity.name} | {self.user.username}'

@@ -25,7 +25,13 @@ class Address(TimeModel):
         permissions = ()
     class RESAAS:
         label_field = "provincia"
-        
+        crud = True
+        routes={
+            'list': "add_address",
+            'view': "view_address",
+            'add': "add_address",
+            'change': "change_address"
+        }
 
     def __str__(self):
         return ', '.join(filter(None, [

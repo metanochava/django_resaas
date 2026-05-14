@@ -33,4 +33,4 @@ class Employee(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.person.name_completo} ({self.cargo})"
+        return f"{self.person.full_name} ({self.cargo})"
