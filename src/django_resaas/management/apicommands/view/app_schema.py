@@ -400,13 +400,13 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
     return out
 
 
-def _guess_label_value(obj) -> str:
-    for k in LABEL_KEYS:
+def label_value(obj, arr) -> str:
+    print(obj, arr)
+    v = ''
+    for k in arr:
         if hasattr(obj, k):
-            v = getattr(obj, k, None)
-            if v not in (None, ""):
-                return str(v)
-    return str(obj)
+            v = getattr(obj, k, None) + ' '     
+    return str(v)
 
 
 
@@ -627,7 +627,7 @@ class RelationsAPIView(APIView):
 
         qs = qs.order_by("-id")[:50]
 
-        rows = [{"id": o.pk, "value": o.pk, "label": _guess_label_value(o)} for o in qs]
+        rows = [{"id": o.pk, "value": o.pk, "label": label_value(o, o.get_label_field())} for o in qs]
 
         # rows = [
         #     {

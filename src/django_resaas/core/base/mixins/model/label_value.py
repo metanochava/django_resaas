@@ -58,7 +58,16 @@ class LabelValueMixin:
                 return None
         return obj
 
-        
+    
+    def get_label_field(self):
+        resaas = getattr(self.__class__, "_resaas", None)
+        label_field = getattr(resaas, "label_field", None)
+
+        if label_field:
+           return [f for f in re.split(r"[ ,|]+", label_field) if f]
+        else:
+            return [] 
+
 
     def get_label(self):
         resaas = getattr(self.__class__, "_resaas", None)
