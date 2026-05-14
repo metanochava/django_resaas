@@ -64,18 +64,7 @@ class Person(TimeModel):
 
     # 📌 Extra
     observacoes = models.TextField(null=True, blank=True)
-
-    class Meta:
-        verbose_name = 'Person'
-        verbose_name_plural = 'Persons'
-        ordering = ['name']
-        indexes = [
-            models.Index(fields=['name']),
-            models.Index(fields=['email']),
-        ]
     
-    
-
     def save(self, *args, **kwargs):
         # 🔥 Gera name completo automaticamente
         if self.name and self.surname:
@@ -97,6 +86,15 @@ class Person(TimeModel):
         return None
 
 
+    class Meta:
+        verbose_name = 'Person'
+        verbose_name_plural = 'Persons'
+        ordering = ['name']
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['email']),
+        ]
+
     class RESAAS:
         label_field = "name surname"
         crud = True
@@ -108,4 +106,4 @@ class Person(TimeModel):
         }
 
     def __str__(self):
-        return self.full_name or self.name or "Sem name"
+        return self.full_name or self.name or ""
