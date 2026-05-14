@@ -45,6 +45,9 @@ class AppScaffoldService:
 
         if module_path.exists():
             raise CommandError(f"Módulo '{name}' já existe")
+            
+        if name == 'django_resaas' or name == 'hr':
+            raise CommandError(f"Módulo '{name}' já existe")
 
         module_path.mkdir()
 

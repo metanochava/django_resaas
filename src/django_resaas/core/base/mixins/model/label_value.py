@@ -1,9 +1,40 @@
 from typing import Any
+import re
 
 
 LABEL_KEYS = (
-    "name", "name", "title", "titulo", "descricao", "description", "label",
-    "codigo", "code", "numero", "number", "username", "email"
+    # 🔤 Nome / identificação
+    "nome", "name", "title", "titulo", "label",
+    "apelido", "nickname", "alias",
+
+    # 🧾 Descrição
+    "descricao", "description", "resumo", "summary", "detalhes", "details",
+
+    # 🔢 Códigos / números
+    "codigo", "code", "numero", "number", "reference", "ref",
+
+    # 👤 User / pessoa
+    "username", "email", "first_name", "last_name",
+    "nome_completo", "full_name", "display_name",
+
+    # 📞 Contacto
+    "telefone", "phone", "mobile", "celular", "contact", "contacto",
+
+    # 📍 Localização
+    "endereco", "address", "cidade", "city", "pais", "country",
+
+    # 🏢 Organização
+    "empresa", "company", "organizacao", "organization",
+    "entidade", "entity", "sucursal", "branch",
+
+    # 📅 Datas
+    "data", "date", "created_at", "updated_at",
+
+    # ⚙️ Estado
+    "estado", "status", "ativo", "active", "enabled", "disabled",
+
+    # 🔐 Permissões / sistema
+    "role", "perfil", "group", "grupo", "permission", "permissao"
 )
 
 
@@ -35,9 +66,16 @@ class LabelValueMixin:
         label_field = getattr(resaas, "label_field", None)
 
         if label_field:
-            val = self._get_attr(label_field)
-            if val not in (None, ""):
-                return str(val)
+            fields = [f for f in re.split(r"[ ,|]+", label_field) if f]
+
+            values = []
+            for field in fields:
+                val = self._get_attr(field)
+                if val not in (None, ""):
+                    values.append(str(val))
+
+            if values:
+                return " ".join(values)
 
         for key in LABEL_KEYS:
             if hasattr(self, key):
