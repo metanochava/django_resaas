@@ -74,15 +74,7 @@ class Person(TimeModel):
             models.Index(fields=['email']),
         ]
     
-    class RESAAS:
-        label_field = "name surname"
-        crud = True
-        routes={
-            'list': "add_person",
-            'view': "view_person",
-            'add': "add_person",
-            'change': "change_person"
-        }
+    
 
     def save(self, *args, **kwargs):
         # 🔥 Gera name completo automaticamente
@@ -104,9 +96,9 @@ class Person(TimeModel):
             )
         return None
 
-    
+
     class RESAAS:
-        label_field = "name_completo"
+        label_field = "name surname"
         crud = True
         routes={
             'list': "add_person",
