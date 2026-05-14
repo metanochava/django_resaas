@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 # helpers
 # ==========================================================
 
+LABEL_KEYS = ("name", "name", "title", "descricao", "description", "label", "codigo", "code", "numero", "num", "id")
 def get_route(Model):
     resaas = getattr(Model, "_resaas", None)
     return getattr(resaas, "routes",  {
