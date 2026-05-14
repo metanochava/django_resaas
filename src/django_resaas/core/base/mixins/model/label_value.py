@@ -66,7 +66,6 @@ class LabelValueMixin:
 
         if label_field:
             fields = [f for f in re.split(r"[ ,|]+", label_field) if f]
-            print(fields)
 
             values = []
 
@@ -74,7 +73,7 @@ class LabelValueMixin:
                 values.append(str(self._get_attr(field)))
 
             if values:
-                return " = ".join(values)
+                return " ".join(values) 
 
         # 🔥 fallback inteligente
         for key in LABEL_KEYS:

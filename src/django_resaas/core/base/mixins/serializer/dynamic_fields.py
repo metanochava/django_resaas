@@ -14,7 +14,7 @@ class DynamicFieldsMixin:
             exclude = exclude.split(",")
 
         # 🔹 validação
-        if include:
+        if include: 
             valid_fields = set(fields.keys())
             include = [f for f in include if f in valid_fields]
 
