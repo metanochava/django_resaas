@@ -62,26 +62,31 @@ class LabelValueMixin:
 
     def get_label(self):
         resaas = getattr(self.__class__, "_resaas", None)
-
         label_field = getattr(resaas, "label_field", None)
 
         if label_field:
             fields = [f for f in re.split(r"[ ,|]+", label_field) if f]
 
             values = []
+            cache = {}
+
             for field in fields:
-                val = self._get_attr(field)
+                if field not in cache:
+                    cache[field] = self._get_attr(field)
+
+                val = cache[field]
+
                 if val not in (None, ""):
                     values.append(str(val))
 
             if values:
                 return " ".join(values)
 
+        # 🔥 fallback inteligente
         for key in LABEL_KEYS:
-            if hasattr(self, key):
-                val = getattr(self, key, None)
-                if val not in (None, ""):
-                    return str(val)
+            val = getattr(self, key, None)
+            if val not in (None, ""):
+                return str(val)
 
         if hasattr(self, "id") and self.id:
             return f"{self.__class__.__name__} {self.id}"
