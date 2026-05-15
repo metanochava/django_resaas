@@ -106,7 +106,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
         methods=['GET'],
     )
     def getCapasSite(self, request, id):
-        files = Files.objects.filter(branch__id=id, funcionalidade='CapaSite')
+        files = Files.objects.filter(branch__id=id, funcionalidade='Cover')
         files = FileSerializer(files, many=True)
         data = (files.data)
         return Response(data, status=status.HTTP_200_OK)
@@ -130,7 +130,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
         request.data['size'] = uploaded_file.size
         request.data['model'] = 'branch'
         request.data['estado'] = 1
-        request.data['funcionalidade'] = 'CapaSite'
+        request.data['funcionalidade'] = 'Cover'
 
         file = FileGravarSerializer(data=request.data)
         if file.is_valid(raise_exception=True):

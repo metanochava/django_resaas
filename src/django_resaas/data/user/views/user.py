@@ -440,9 +440,9 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['POST'],
     )
-    def removerPerfil(self, request, id ):
+    def removerProfile(self, request, id ):
         user = User.objects.get(id=id)
-        group_id = request.data['perfil']['id']
+        group_id = request.data['profile']['id']
         branch_id = request.data['branch_id']
         branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
         branchUserGroups.delete()
@@ -462,9 +462,9 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['POST'],
     )
-    def adicionarPerfil(self, request, id):
+    def adicionarProfile(self, request, id):
         user = User.objects.get(id=id)
-        group_id = request.data['perfil']['id']
+        group_id = request.data['profile']['id']
         group = Group.objects.get(id=request.group_id)
         branch_id = request.data['branch_id']
         branch = Branch.objects.get(id=request.branch_id)

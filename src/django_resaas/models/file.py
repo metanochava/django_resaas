@@ -12,8 +12,8 @@ class File(TimeModel):
     estado = models.IntegerField(default=1, null=True, choices=((0, 'Inactivo'), (1, 'Activo')))
 
     ESCOLHA = (
-        ('File', 'File'), ('Perfil', 'Perfil'), ('Logo', 'Logo'),
-        ('Foto', 'Foto'), ('CapaSite', 'CapaSite'),
+        ('File', 'File'), ('Profile', 'Profile'), ('Logo', 'Logo'),
+        ('Photo', 'Photo'), ('Cover', 'Cover'),
     )
 
     funcionalidade = models.CharField(max_length=100, null=True, default='File', choices=ESCOLHA)

@@ -325,13 +325,13 @@ class EntityAPIView(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=['GET'])
-    def perfils(self, request, *args, **kwargs):
+    def profiles(self, request, *args, **kwargs):
         entity = self.get_object()
-        perfils = sorted(
+        profiles = sorted(
             [{'id': g.id, 'name': g.name} for g in entity.groups.all()],
             key=lambda x: x['name']
         )
-        return Response(perfils, status=status.HTTP_200_OK)
+        return Response(profiles, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
     def users(self, request, *args, **kwargs):

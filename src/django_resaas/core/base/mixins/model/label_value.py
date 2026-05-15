@@ -34,7 +34,7 @@ LABEL_KEYS = (
     "estado", "status", "ativo", "active", "enabled", "disabled",
 
     # 🔐 Permissões / sistema
-    "role", "perfil", "group", "grupo", "permission", "permissao"
+    "role", "profile", "group", "grupo", "permission", "permissao"
 )
 
 

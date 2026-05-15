@@ -24,4 +24,4 @@ class MeSerializer(BaseSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'perfil', 'mobile', 'language', 'last_login']
+        fields = ['id', 'email', 'username', 'profile', 'mobile', 'language', 'last_login']
