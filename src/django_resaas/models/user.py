@@ -46,7 +46,7 @@ def profile_image_path(instance, file_name):
 
 
 class User(AbstractBaseUser, PermissionsMixin, TimeModel):
-    perfil = models.ImageField(
+    profile = models.ImageField(
         default='user.png',
         upload_to=profile_image_path,
         null=True,

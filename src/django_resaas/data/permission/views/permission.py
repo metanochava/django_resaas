@@ -154,7 +154,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             # user.groups.add(group)
 
         return Response({
-            'alert_success': f'Perfil <b>{group.name}</b> adicionado'
+            'alert_success': f'Profile <b>{group.name}</b> adicionado'
         }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['POST'])
@@ -181,5 +181,5 @@ class PermissionAPIView(viewsets.ModelViewSet):
             # user.groups.remove(group)
 
         return Response({
-            'alert_success': f'Perfil <b>{group.name}</b> removido'
+            'alert_success': f'Profile <b>{group.name}</b> removido'
         }, status=status.HTTP_200_OK)
