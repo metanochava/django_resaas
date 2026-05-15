@@ -26,20 +26,20 @@ from django_resaas.core.base.views import BaseAPIView
 
 
 
-class UserAPIView(BaseAPIView):
+class UserAPIView(viewsets.ModelViewSet):
     search_fields = ['id','username']
     filter_backends = (filters.SearchFilter,)
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = "id"
 
-    method_permission= {
-        'userEntitys': 'view',
-        'userBranchs': 'view',
-        'userGroups': 'view',
-        'permissions': 'view',
-        'menus': 'view',
-    }
+    # method_permission= {
+    #     'userEntitys': 'view',
+    #     'userBranchs': 'view',
+    #     'userGroups': 'view',
+    #     'permissions': 'view',
+    #     'menus': 'view',
+    # }
 
     def get_queryset(self):
         user = self.request.user
