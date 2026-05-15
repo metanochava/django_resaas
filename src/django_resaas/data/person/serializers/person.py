@@ -19,7 +19,6 @@ class PersonSerializer(BaseSerializer):
             return None
         return UserSerializer(obj.user,
             context={
-                **self.context,
                 "include_fields": ["perfil", "email"]  # 👈 escolhe aqui
             }).data
 
