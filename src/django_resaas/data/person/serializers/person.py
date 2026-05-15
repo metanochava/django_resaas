@@ -17,20 +17,28 @@ class PersonSerializer(BaseSerializer):
     def get_me(self, obj):
         if not obj.user:
             return None
-        return UserSerializer(obj.user,
+
+        data = UserSerializer(obj.user,
             context={
                 **self.context,
                 "include_fields": ["perfil"], # 👈 escolhe aqui
                 "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
             }).data
 
+        print(data, data['perfil'], '')
+        return data
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["perfil"] = UserSerializer(instance.user, context={
+
+        valor = UserSerializer(instance.user, context={
                 **self.context,
                 "include_fields": ["perfil"], # 👈 escolhe aqui
                 "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
             }).data if instance.user else None
+
+        print(valor, valor['perfil'])
+        data["perfil"] = valor
         return data
 
 
