@@ -22,11 +22,8 @@ class PersonSerializer(BaseSerializer):
             context={
                 **self.context,
                 "include_fields": ["perfil"], # 👈 escolhe aqui
-                "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
             }).data
-
-        print(data, data['perfil'], '')
-        return data
+        return data['perfil']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -34,11 +31,9 @@ class PersonSerializer(BaseSerializer):
         valor = UserSerializer(instance.user, context={
                 **self.context,
                 "include_fields": ["perfil"], # 👈 escolhe aqui
-                "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
             }).data if instance.user else None
 
-        print(valor, valor['perfil'])
-        data["perfil"] = valor
+        data["perfil"] = valor['perfil']
         return data
 
 
