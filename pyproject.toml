@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.295"
+version = "0.0.296"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
