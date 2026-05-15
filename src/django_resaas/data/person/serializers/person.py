@@ -26,7 +26,7 @@ class PersonSerializer(BaseSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["perfil"] = UserSerializer(instance.user context={
+        data["perfil"] = UserSerializer(instance.user, context={
                 **self.context,
                 "include_fields": ["perfil"], # 👈 escolhe aqui
                 "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
