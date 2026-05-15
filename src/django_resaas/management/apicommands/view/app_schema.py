@@ -477,6 +477,9 @@ class AppSchemaAPIView(ModelViewSet):
             return fail( request, str(e),  )
 
         try:
+            if name in ['hr', 'django_resaas']:
+                return fail(request, "Module {name} protegido")
+
             AppScaffoldService.create_front(name)
             return ok(request, "app created success",  path=path )
         except Exception as e:
