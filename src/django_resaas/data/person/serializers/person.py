@@ -7,7 +7,7 @@ from django_resaas.core.base.serializers import BaseSerializer
 from django_resaas.data.user.serializers.user import UserSerializer
 
 class PersonSerializer(BaseSerializer):
-    perfil_ = UserSerializer(source='user', read_only=True).data.get("perfil")
+    perfil_ = UserSerializer(source='user', read_only=True)
 
     class Meta:
         model = Person
