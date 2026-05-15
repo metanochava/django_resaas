@@ -23,15 +23,18 @@ class PersonSerializer(BaseSerializer):
         }).data
         return data['profile']
 
-    # def to_representation(self, instance):
-    #     data = super().to_representation(instance)
 
-    #     valor = UserSerializer(instance.user, context={
-    #             **self.context,
-    #             "include_fields": ["profile"], # 👈 escolhe aqui
-    #         }).data if instance.user else None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
 
-    #     data["profile"] = valor['profile']
-    #     return data
+        valor = UserSerializer(instance.user, context={
+                **self.context,
+                "include_fields": ["perfil"], # 👈 escolhe aqui
+                "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
+            }).data if instance.user else None
+
+        print(valor, valor['perfil'])
+        data["kkkk"] = valor['perfil']
+        return data
 
 
