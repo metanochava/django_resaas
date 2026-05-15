@@ -145,15 +145,37 @@ def criar_person_automaticamente(sender, instance, created, **kwargs):
 # ==========================================================
 @receiver(post_save, sender=User, dispatch_uid="sync_person_user")
 def sync_person(sender, instance, **kwargs):
-    """
-    Mantém sincronizado o model Person com o User.
-    """
-    if hasattr(instance, 'person'):
-        person = instance.person
+    if getattr(instance, "_skip_sync", False):
+        return
+
+    person = getattr(instance, "person", None)
+
+    if person:
+        person._skip_sync = True
+
         person.name = instance.first_name or ""
         person.surname = instance.last_name or ""
         person.email = instance.email or ""
+
         person.save()
+
+
+
+@receiver(post_save, sender=Person, dispatch_uid="sync_user_person")
+def sync_user(sender, instance, **kwargs):
+    if getattr(instance, "_skip_sync", False):
+        return
+
+    if instance.user:
+        user = instance.user
+
+        user._skip_sync = True
+
+        user.first_name = instance.name or ""
+        user.last_name = instance.surname or ""
+        user.email = instance.email or ""
+
+        user.save()
 
 
 # ==========================================================
