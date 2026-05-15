@@ -19,7 +19,9 @@ class PersonSerializer(BaseSerializer):
             return None
         return UserSerializer(obj.user,
             context={
-                "include_fields": ["perfil", "email"]  # 👈 escolhe aqui
+                **self.context,
+                "include_fields": ["perfil"], # 👈 escolhe aqui
+                "exclude_fields": ["user_permissions", "groups", "created_by", "updated_by", "created_by_id", "updated_by_id"]
             }).data
 
     def to_representation(self, instance):
