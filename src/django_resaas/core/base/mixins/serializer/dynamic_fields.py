@@ -13,10 +13,9 @@ class DynamicFieldsMixin:
         if isinstance(exclude, str):
             exclude = exclude.split(",")
 
-        declared = set(self._declared_fields.keys())
-        if include:
+        # 🔹 validação
+        if include: 
             valid_fields = set(fields.keys())
-            # include = [f for f in include if f in valid_fields or f in declared]
             include = [f for f in include if f in valid_fields]
 
             fields = {k: v for k, v in fields.items() if k in include}
