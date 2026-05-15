@@ -7,15 +7,21 @@ from django_resaas.core.base.serializers import BaseSerializer
 from django_resaas.data.user.serializers.user import UserSerializer
 
 class PersonSerializer(BaseSerializer):
-    perfil_ = UserSerializer(source='user', read_only=True)
+    user_data = UserSerializer(source='user', read_only=True)
+    me = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
         fields = "__all__"
 
+    def get_me(self, obj):
+        if not obj.user:
+            return None
+        return UserSerializer(obj.user).data['perfil']
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data["perfil"] = UserSerializer(instance.user).data.get("perfil") if instance.user else None
+        data["perfil"] = UserSerializer(instance.user).data if instance.user else None
         return data
 
 
