@@ -52,10 +52,13 @@ class LabelValueMixin:
 
     def _get_attr(self, path):
         obj = self
+        valor = obj
         for attr in path.split("."):
             obj = getattr(obj, attr, None)
             if obj is None:
                 return None
+
+        
         return obj
 
     

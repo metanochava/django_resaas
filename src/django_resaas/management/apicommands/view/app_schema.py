@@ -404,7 +404,7 @@ def label_value(obj, arr) -> str:
     v = ''
     for k in arr:
         if hasattr(obj, k):
-            v = v +' '+ obj._get_attr(k)
+            v = v +' '+ str(obj._get_attr(k))
             # v = v +' '+ getattr(obj, k, None)     
     return str(v)
 
