@@ -402,6 +402,7 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
 
 def label_value(obj, arr) -> str:
     v = ''
+    print(arr)
     for k in arr:
         if hasattr(obj, k):
             v = v +' '+ str(obj._get_attr(k))
