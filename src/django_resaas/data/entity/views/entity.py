@@ -784,8 +784,6 @@ class EntityAPIView(viewsets.ModelViewSet):
     # @transaction.atomic
     def groups(self, request, pk=None):
         entity = self.get_object()
-        print(id, 'metano')
-        # entity = Entity.objects.get(id=id)
 
         groups = EntityGroup.objects.filter(
             entity=entity

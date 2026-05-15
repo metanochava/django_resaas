@@ -51,7 +51,6 @@ class LabelValueMixin:
         cls._resaas = getattr(cls, "RESAAS", None)
 
     def _get_attr(self, path):
-        print(self, path)
         obj = self
         valor = obj
         for attr in path.split("."):

@@ -307,7 +307,6 @@ class UserAPIView(viewsets.ModelViewSet):
         per = []
         if (branchUserGroup):
             group = Group.objects.get(id=branchUserGroup[0].group.id)
-            print(group)
             permissions = group.permissions.all()
 
             for permission in permissions:
