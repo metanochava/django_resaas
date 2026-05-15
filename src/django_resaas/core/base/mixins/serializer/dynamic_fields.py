@@ -6,6 +6,7 @@ class DynamicFieldsMixin:
         include = self.context.get("include_fields")
         exclude = self.context.get("exclude_fields", [])
 
+        # 🔹 normalização (query params)
         if isinstance(include, str):
             include = include.split(",")
 
@@ -13,15 +14,14 @@ class DynamicFieldsMixin:
             exclude = exclude.split(",")
 
         declared = set(self._declared_fields.keys())
-
         if include:
             valid_fields = set(fields.keys())
-
-            # 🔥 inclui também campos declarados
-            include = [f for f in include if f in valid_fields or f in declared]
+            # include = [f for f in include if f in valid_fields or f in declared]
+            include = [f for f in include if f in valid_fields]
 
             fields = {k: v for k, v in fields.items() if k in include}
 
+        # 🔹 exclude
         for field in exclude:
             fields.pop(field, None)
 
