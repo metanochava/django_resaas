@@ -302,7 +302,7 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
 
         user = UserSerializer(user)
-        branchUserGroup = BranchUserGroup.objects.get(user__id = id, branch__id=request.branch_id, group__id=request.group_id)
+        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id).first()
         
         per = []
         if (branchUserGroup):
