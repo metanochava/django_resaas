@@ -17,15 +17,9 @@ from django_resaas.models.entity_app import EntityApp
 from django_resaas.models.entity_type_group import EntityTypeGroup
 from django_resaas.models.entity_group import EntityGroup
 from django_resaas.models.branch_group import BranchGroup
+from django_resaas.core.utils.group_creator import GROUPS
 
 User = get_user_model()
-
-GROUPS_WITH_ID = [
-"Guest",
-"Admin",
-"Root",
-]
-
 
 
 
@@ -195,7 +189,7 @@ class Command(BaseCommand):
         # ------------------------
         # 4. Group
         # ------------------------
-        for gname in GROUPS_WITH_ID:
+        for gname in GROUPS:
 
             group, _ = Group.objects.get_or_create(
                 name = gname
@@ -231,7 +225,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.WARNING(f"\n"))
 
-        for name in ['django_resaas',]:
+        for name in ['django_resaas','hr']:
             app, _ = App.objects.get_or_create(
                 name=name,
                 estado = 1

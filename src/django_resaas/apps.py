@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
+from django_resaas.core.utils.group_creator import GROUPS
 
 
 # ==========================================================
@@ -10,13 +11,9 @@ def create_django_resaas_groups(sender, **kwargs):
         return
 
     from django_resaas.models.group import Group
-    GROUPS_WITH_ID = [
-        (1, "Guest"),
-        (2, "Root"),
-        (3, "Admin"),
-    ]
 
-    for gid, gname in GROUPS_WITH_ID:
+
+    for gname in GROUPS:
         group, _ = Group.objects.get_or_create(
             name= gname
         )
