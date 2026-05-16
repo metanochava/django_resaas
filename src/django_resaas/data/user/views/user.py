@@ -302,11 +302,11 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
 
         user = UserSerializer(user)
-        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id)
+        branchUserGroup = BranchUserGroup.objects.get(user__id = id, branch__id=request.branch_id, group__id=request.group_id)
         
         per = []
         if (branchUserGroup):
-            group = Group.objects.get(id=branchUserGroup[0].group.id)
+            group = Group.objects.get(id=branchUserGroup.group.id)
             permissions = group.permissions.all()
 
             for permission in permissions:
