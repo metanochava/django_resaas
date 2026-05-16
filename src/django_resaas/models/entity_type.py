@@ -23,6 +23,7 @@ class EntityType(TimeModel):
 
     
     class Meta:
+        
         permissions = ()
 
     class RESAAS:

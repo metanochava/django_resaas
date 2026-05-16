@@ -13,6 +13,7 @@ class EntityModel(TimeModel):
     model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ("entity", "model")
         permissions = ()
 
     class RESAAS:
