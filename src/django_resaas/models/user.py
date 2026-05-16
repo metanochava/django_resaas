@@ -46,6 +46,14 @@ def profile_image_path(instance, file_name):
 
 
 class User(AbstractBaseUser, PermissionsMixin, TimeModel):
+
+    # 🔥 remove groups padrão
+    groups = None
+
+    # 🔥 remove user_permissions também (opcional)
+    user_permissions = None
+
+    
     profile = models.ImageField(
         default='user.png',
         upload_to=profile_image_path,
