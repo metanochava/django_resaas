@@ -101,12 +101,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    auth_provider = models.CharField(
-        max_length=255,
-        default='email',
-        choices=AUTH_PROVIDERS
-    )
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
