@@ -60,10 +60,6 @@ class Person(TimeModel):
     # 📌 Documents
     documents = GenericRelation('django_resaas.Document')
 
-
-
-    # 📌 Extra
-    observacoes = models.TextField(null=True, blank=True)
     
     def save(self, *args, **kwargs):
         # 🔥 Gera name completo automaticamente

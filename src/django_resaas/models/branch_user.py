@@ -9,6 +9,7 @@ class BranchUser(TimeModel):
     user = models.ForeignKey('django_resaas.User', on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ("branch", "user")
         permissions = ()
 
 

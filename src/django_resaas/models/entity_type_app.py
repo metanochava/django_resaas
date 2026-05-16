@@ -6,6 +6,7 @@ class EntityTypeApp(TimeModel):
     app = models.ForeignKey("django_resaas.App", on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ("entity_type", "app")
         permissions = (
             
         )

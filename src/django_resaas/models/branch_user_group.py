@@ -10,12 +10,7 @@ class BranchUserGroup(TimeModel):
     group = models.ForeignKey('django_resaas.Group', on_delete=models.CASCADE)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['branch', 'user', 'group'],
-                name='unique_branch_user_group'
-            )
-        ]
+        unique_together = ('branch', 'user', 'group')
         permissions = ()
 
     class RESAAS:

@@ -13,6 +13,7 @@ class EntityUser(TimeModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
+        unique_together = ("entity", "user")
         permissions = ()
     class RESAAS:
         label_field = "entity.name"
