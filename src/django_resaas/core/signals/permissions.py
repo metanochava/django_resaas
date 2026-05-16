@@ -190,10 +190,10 @@ def criar_thema(sender, instance, created, **kwargs):
     """
     if created and not instance.theme:
 
-        instance.theme = Theme.objects.create()
-        instance.layout_settings = LayoutSetting.objects.create()
-        instance.animation_settings = AnimationSetting.objects.create()
-        instance.typography = Typography.objects.create()
+        instance.theme = Theme.objects.create(estado=1)
+        instance.layout_settings = LayoutSetting.objects.create(estado=1)
+        instance.animation_settings = AnimationSetting.objects.create(estado=1)
+        instance.typography = Typography.objects.create(estado=1)
 
         instance.save(update_fields=[
             "theme",

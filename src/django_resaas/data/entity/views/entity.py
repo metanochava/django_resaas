@@ -551,7 +551,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
         entity = self.get_object()
-        theme = entity.theme or Theme.objects.create()
+        theme = entity.theme or Theme.objects.create(estado=1)
         if not entity.theme:
             entity.theme = theme
             entity.save()
@@ -584,7 +584,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        layout_settings = entity.layout_settings or LayoutSetting.objects.create()
+        layout_settings = entity.layout_settings or LayoutSetting.objects.create(estado=1)
         if not entity.layout_settings:
             entity.layout_settings = layout_settings
             entity.save()
@@ -625,7 +625,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def typographyPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        typography = entity.typography or Typography.objects.create()
+        typography = entity.typography or Typography.objects.create(estado=1)
         if not entity.typography:
             entity.typography = typography
             entity.save()
@@ -661,7 +661,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def animationSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        animation_settings = entity.animation_settings or AnimationSetting.objects.create()
+        animation_settings = entity.animation_settings or AnimationSetting.objects.create(estado=1)
         if not entity.animation_settings:
             entity.animation_settings = animation_settings
             entity.save()
