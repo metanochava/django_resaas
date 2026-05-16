@@ -1,6 +1,6 @@
 from functools import wraps
 
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Permission
 
 from rest_framework import status
 from rest_framework.permissions import BasePermission

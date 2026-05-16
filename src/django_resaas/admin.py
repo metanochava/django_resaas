@@ -3,7 +3,7 @@
 # =========================
 from django.contrib import admin
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission, Group as DjangoGroup
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.admin import GenericTabularInline
 
 # =========================

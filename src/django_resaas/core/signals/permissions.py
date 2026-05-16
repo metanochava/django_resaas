@@ -3,7 +3,8 @@
 # ==========================================================
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Permission
+from django_resaas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver

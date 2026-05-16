@@ -1,3 +1,9 @@
+GROUPS = [
+"Guest",
+"Admin",
+"Root",
+]
+
 def group_creator(groups=None):
     if groups is None:
         groups = []

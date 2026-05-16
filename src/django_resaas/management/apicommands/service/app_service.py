@@ -10,7 +10,8 @@ from django_resaas.models.entity import Entity
 from django_resaas.models.app import App
 from django_resaas.models.entity_type_app import EntityTypeApp
 from django_resaas.models.entity_app import EntityApp
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Permission
+from django_resaas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
 
 
