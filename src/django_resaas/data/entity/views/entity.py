@@ -192,7 +192,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                     group = te.group,
                     estado = 1
                 )
-                user.groups.add(te.group)
+                # user.groups.add(te.group)
 
             # ------------------------
             # 🔥 SUCURSAL PRINCIPAL

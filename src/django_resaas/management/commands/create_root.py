@@ -203,7 +203,7 @@ class Command(BaseCommand):
                 estado = 1
             )
 
-            user.groups.add(group)
+            # user.groups.add(group)
 
             EntityTypeGroup.objects.get_or_create(
                 entity_type=entity_type,

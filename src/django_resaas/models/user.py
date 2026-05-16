@@ -53,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
     # 🔥 remove user_permissions também (opcional)
     user_permissions = None
 
-    
+
     profile = models.ImageField(
         default='user.png',
         upload_to=profile_image_path,
@@ -96,17 +96,6 @@ class User(AbstractBaseUser, PermissionsMixin, TimeModel):
     is_staff = models.BooleanField(default=False)
 
 
-    groups = models.ManyToManyField(
-        Group,
-        verbose_name=("groups"),
-        blank=True,
-        help_text=(
-            "The groups this user belongs to. A user will get all permissions "
-            "granted to each of their groups."
-        ),
-        related_name="user_set",
-        related_query_name="user",
-    )
 
 
     created_at = models.DateTimeField(auto_now_add=True)
