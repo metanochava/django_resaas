@@ -34,10 +34,10 @@ class DjangoResaasConfig(AppConfig):
         ✔ evita efeitos colaterais
         """
         from django.contrib import admin
-        from django.contrib.auth.models import Group
+        from django.contrib.auth.models import Group as GG
 
         try:
-            admin.site.unregister(Group)
+            admin.site.unregister(GG)
         except admin.sites.NotRegistered:
             pass
 
