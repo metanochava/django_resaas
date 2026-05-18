@@ -150,7 +150,7 @@ class Command(BaseCommand):
         # ------------------------
         entity_type, _ = EntityType.objects.get_or_create(
             name=data["entity_type"],
-            estado = 1
+            state = 1
         )
 
         # ------------------------
@@ -159,7 +159,7 @@ class Command(BaseCommand):
         entity, created_entity = Entity.objects.get_or_create(
             name=data["entity"],
             entity_type=entity_type,
-            estado = 1
+            state = 1
         )
 
         # ManyToMany → DEPOIS
@@ -168,7 +168,7 @@ class Command(BaseCommand):
         EntityUser.objects.get_or_create(
             user=user,
             entity=entity,
-            estado = 1
+            state = 1
         )
 
         # ------------------------
@@ -177,13 +177,13 @@ class Command(BaseCommand):
         branch, _ = Branch.objects.get_or_create(
             name=data["branch"],
             entity=entity,
-            estado = 1
+            state = 1
         )
 
         BranchUser.objects.get_or_create(
             user=user,
             branch=branch,
-            estado = 1
+            state = 1
         )
 
         # ------------------------
@@ -200,7 +200,7 @@ class Command(BaseCommand):
                 user=user,
                 branch=branch,
                 group=group,
-                estado = 1
+                state = 1
             )
 
             # user.groups.add(group)
@@ -208,19 +208,19 @@ class Command(BaseCommand):
             EntityTypeGroup.objects.get_or_create(
                 entity_type=entity_type,
                 group=group,
-                estado = 1
+                state = 1
             )
 
             EntityGroup.objects.get_or_create(
                 entity=entity,
                 group=group,
-                estado = 1
+                state = 1
             )
 
             BranchGroup.objects.get_or_create(
                 branch=branch,
                 group=group,
-                estado = 1
+                state = 1
             )
 
         self.stdout.write(self.style.WARNING(f"\n"))
@@ -228,19 +228,19 @@ class Command(BaseCommand):
         for name in ['django_resaas','hr']:
             app, _ = App.objects.get_or_create(
                 name=name,
-                estado = 1
+                state = 1
             )
 
             entity_type_app, _ = EntityTypeApp.objects.get_or_create(
                 app=app,
                 entity_type=entity_type,
-                estado = 1
+                state = 1
             )
 
             entity_app, _ = EntityApp.objects.get_or_create(
                 app=app,
                 entity=entity,
-                estado = 1
+                state = 1
             )
 
             self.stdout.write(self.style.WARNING(f"✔ {'App:':20} {app.name}"))

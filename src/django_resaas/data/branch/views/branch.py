@@ -129,7 +129,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
 
         request.data['size'] = uploaded_file.size
         request.data['model'] = 'branch'
-        request.data['estado'] = 1
+        request.data['state'] = 1
         request.data['funcionalidade'] = 'Cover'
 
         file = FileGravarSerializer(data=request.data)

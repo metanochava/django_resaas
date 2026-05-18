@@ -117,7 +117,14 @@ class Theme(TimeModel):
 
     class RESAAS:
         label_field = "name"
-        # route="view_entity"
+        searchable_fields = ["name"]
+        crud = True
+        routes={
+            'list': "add_theme",
+            'view': "view_theme",
+            'add': "add_theme",
+            'change': "change_theme"
+        }
 
     def to_dict(self):
         return {
@@ -267,6 +274,17 @@ class Typography(TimeModel):
     class Meta:
         verbose_name = "Typography"
         verbose_name_plural = "Typography"
+
+    class RESAAS:
+        label_field = "name"
+        searchable_fields = ["name"]
+        crud = True
+        routes={
+            'list': "add_typography",
+            'view': "view_typography",
+            'add': "add_typography",
+            'change': "change_typography"
+        }
 
     def to_dict(self):
         return {

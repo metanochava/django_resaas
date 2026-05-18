@@ -10,7 +10,7 @@ class FileSerializer(BaseSerializer):
             'file',
             'size',
             'model',
-            'estado',
+            'state',
             'chamador',
             'funcionalidade',
 

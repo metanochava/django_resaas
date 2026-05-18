@@ -9,7 +9,7 @@ class File(TimeModel):
     size = models.FloatField()
     model = models.CharField(max_length=100, null=True, help_text='Name do model que originou o file')
 
-    estado = models.IntegerField(default=1, null=True, choices=((0, 'Inactivo'), (1, 'Activo')))
+    state = models.IntegerField(default=1, null=True, choices=((0, 'Inactivo'), (1, 'Active')))
 
     ESCOLHA = (
         ('File', 'File'), ('Profile', 'Profile'), ('Logo', 'Logo'),

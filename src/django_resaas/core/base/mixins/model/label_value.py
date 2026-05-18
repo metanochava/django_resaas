@@ -31,7 +31,7 @@ LABEL_KEYS = (
     "data", "date", "created_at", "updated_at",
 
     # ⚙️ Estado
-    "estado", "status", "ativo", "active", "enabled", "disabled",
+    "state", "status", "ativo", "active", "enabled", "disabled",
 
     # 🔐 Permissões / sistema
     "role", "profile", "group", "grupo", "permission", "permissao"

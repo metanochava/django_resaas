@@ -541,7 +541,7 @@ class AppSchemaAPIView(ModelViewSet):
 
         # 🔥 PRIORIDADE
         start_fields = ['id', 'nid', 'codigo', 'code', 'nome', 'name','person']
-        end_fields = ['estado', 'entity', 'branch', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted_at']
+        end_fields = ['state', 'entity', 'branch', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted_at']
 
         fields = reorder_fields(fields, start_fields, end_fields)
 

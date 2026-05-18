@@ -41,7 +41,7 @@ class BootstrapService:
     def create_entity_type(name, stdout=None, style=None):
         tipo, _ = EntityType.objects.get_or_create(
             name=name,
-            estado = 1
+            state = 1
         )
 
         if stdout and style:
@@ -57,7 +57,7 @@ class BootstrapService:
         entity, _ = Entity.objects.get_or_create(
             name=name,
             entity_type=entity_type,
-            estado = 1
+            state = 1
         )
 
         entity.admins.add(user)
@@ -65,25 +65,25 @@ class BootstrapService:
         EntityUser.objects.get_or_create(
             user=user,
             entity=entity,
-            estado = 1
+            state = 1
         )
 
         for name in ['hr']:
             app, _ = App.objects.get_or_create(
                 name=name,
-                estado = 1
+                state = 1
             )
 
             entity_type_app, _ = EntityTypeApp.objects.get_or_create(
                 app=app,
                 entity_type=entity_type,
-                estado = 1
+                state = 1
             )
 
             entity_app, _ = EntityApp.objects.get_or_create(
                 app=app,
                 entity=entity,
-                estado = 1
+                state = 1
             )
 
             stdout.write(style.WARNING(f"✔ {'App:':20} {app.name}"))
@@ -125,14 +125,14 @@ class BootstrapService:
         BranchGroup.objects.get_or_create(
             branch=branch,
             group=group,
-            estado = 1
+            state = 1
         )
 
         # ligar group ao tenant (entity)
         EntityGroup.objects.get_or_create(
             entity=entity,
             group=group,
-            estado = 1
+            state = 1
         )
 
         # user.groups.add(group)
@@ -141,7 +141,7 @@ class BootstrapService:
             user=user,
             branch=branch,
             group=group,
-            estado = 1
+            state = 1
         )
 
         group, _ = Group.objects.get_or_create(name="Guest")
@@ -150,14 +150,14 @@ class BootstrapService:
         BranchGroup.objects.get_or_create(
             branch=branch,
             group=group,
-            estado = 1
+            state = 1
         )
 
         # ligar group ao tenant (entity)
         EntityGroup.objects.get_or_create(
             entity=entity,
             group=group,
-            estado = 1
+            state = 1
         )
 
         # user.groups.add(group)
@@ -167,7 +167,7 @@ class BootstrapService:
             user=user,
             branch=branch,
             group=group,
-            estado = 1
+            state = 1
         )
 
         if stdout and style:

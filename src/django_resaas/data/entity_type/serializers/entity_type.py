@@ -10,8 +10,8 @@ from django_resaas.models.entity_type_group import EntityTypeGroup
 
 class EntityTypeSerializer(BaseSerializer):
     permanent_fields_files = ['icon']
-    estado_display = serializers.CharField(
-        source="get_estado_display",
+    state_display = serializers.CharField(
+        source="get_state_display",
         read_only=True
     )
 

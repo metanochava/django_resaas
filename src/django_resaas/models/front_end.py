@@ -19,9 +19,9 @@ class FrontEnd(models.Model):
         default='read',
     )
 
-    estado = models.IntegerField(
+    state = models.IntegerField(
         default=1,
-        choices=((0, 'Inativo'), (1, 'Ativo')),
+        choices=((0, 'Inactive'), (1, 'Ativo')),
     )
 
     class Meta:

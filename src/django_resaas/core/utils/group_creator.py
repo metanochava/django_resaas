@@ -20,7 +20,7 @@ def group_creator(groups=None):
     # ------------------------------------------------------
     entity_type, _ = EntityType.objects.get_or_create(
         name="SaaS",
-        estado= 1
+        state= 1
     )
 
     # ------------------------------------------------------
@@ -29,7 +29,7 @@ def group_creator(groups=None):
     entity, _ = Entity.objects.get_or_create(
         name="Tenant",
         entity_type=entity_type,  # 🔥 FIX CRÍTICO
-        estado= 1
+        state= 1
     )
 
     # ------------------------------------------------------
@@ -41,13 +41,13 @@ def group_creator(groups=None):
         EntityTypeGroup.objects.get_or_create(
             entity_type=entity_type,
             group=group,
-            defaults={"estado": 1}
+            defaults={"state": 1}
         )
 
         EntityGroup.objects.get_or_create(
             entity=entity,
             group=group,
-            defaults={"estado": 1}
+            defaults={"state": 1}
         )
 
 
