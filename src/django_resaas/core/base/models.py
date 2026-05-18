@@ -118,9 +118,9 @@ class TimeModel(SoftBaseModel):
         related_name="%(class)s_updated"
     )
     
-    estado = models.IntegerField(
+    state = models.IntegerField(
         default=0,
-        choices=((0, 'Inativo'), (1, 'Activo')),
+        choices=((0, 'Inactive'), (1, 'Active')),
     )
 
     class Meta:

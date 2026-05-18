@@ -35,7 +35,7 @@ class LanguageService:
                     code=code,
                     defaults={
                         "name": name,
-                        "estado": 1
+                        "state": 1
                     }
                 )
             except IntegrityError:

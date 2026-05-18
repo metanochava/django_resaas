@@ -50,9 +50,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Ativo")], default=1
+                        choices=[(0, "Inactive"), (1, "Ativo")], default=1
                     ),
                 ),
             ],
@@ -74,9 +74,9 @@ class Migration(migrations.Migration):
                 ),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("password", models.CharField(max_length=128, verbose_name="password")),
@@ -172,9 +172,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -247,9 +247,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100)),
@@ -384,9 +384,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100, null=True)),
@@ -435,9 +435,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("origin", models.URLField(unique=True)),
@@ -477,9 +477,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -538,9 +538,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(default="-", max_length=100, null=True)),
@@ -624,9 +624,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100, null=True)),
@@ -694,9 +694,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100, null=True)),
@@ -784,9 +784,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inactivo"), (1, "Activo")], default=1, null=True
+                        choices=[(0, "Inactivo"), (1, "Active")], default=1, null=True
                     ),
                 ),
                 (
@@ -876,9 +876,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100)),
@@ -938,9 +938,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("dark_mode", models.BooleanField(default=False)),
@@ -1070,9 +1070,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("model", models.CharField(max_length=100, null=True)),
@@ -1126,9 +1126,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100)),
@@ -1262,9 +1262,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("chave", models.TextField(blank=True, null=True)),
@@ -1321,9 +1321,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("name", models.CharField(max_length=100)),
@@ -1445,9 +1445,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("dispositivo", models.TextField(null=True)),
@@ -1509,9 +1509,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -1574,9 +1574,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("numero", models.CharField(max_length=100)),
@@ -1650,9 +1650,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -1715,9 +1715,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -1780,9 +1780,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -1845,9 +1845,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -1910,9 +1910,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -1975,9 +1975,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -2041,9 +2041,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -2106,9 +2106,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -2178,9 +2178,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (
@@ -2234,9 +2234,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 (

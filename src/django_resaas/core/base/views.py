@@ -145,7 +145,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             ativo = EntityApp.objects.filter(
                 entity__id=request.entity_id,
                 app__name=module,
-                estado=1
+                state=1
             ).exists()
 
             if not ativo:

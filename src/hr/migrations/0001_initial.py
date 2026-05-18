@@ -33,9 +33,9 @@ class Migration(migrations.Migration):
                 ("updated_at", models.DateTimeField(auto_now=True)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 (
-                    "estado",
+                    "state",
                     models.IntegerField(
-                        choices=[(0, "Inativo"), (1, "Activo")], default=0
+                        choices=[(0, "Inactive"), (1, "Active")], default=0
                     ),
                 ),
                 ("codigo", models.CharField(max_length=50)),

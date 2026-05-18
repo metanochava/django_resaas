@@ -83,7 +83,7 @@ def hasApp(codigo):
             ativo = EntityApp.objects.filter(
                 entity_id=entity_id,
                 app__codigo=codigo,
-                estado= 1
+                state= 1
             ).exists()
 
             if not ativo:

@@ -28,7 +28,7 @@ class FrontEndService:
                     "name": item["name"],
                     "fep": cls.generate_secret(),
                     "access": item.get("access", "read"),
-                    "estado": 1,
+                    "state": 1,
                 }
             )
 

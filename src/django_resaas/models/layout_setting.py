@@ -128,7 +128,14 @@ class LayoutSetting(TimeModel):
 
     class RESAAS:
         label_field = "name"
-        # route="view_entity"
+        searchable_fields = ["name"]
+        crud = True
+        routes={
+            'list': "add_layoutsetting",
+            'view': "view_layoutsetting",
+            'add': "add_layoutsetting",
+            'change': "change_layoutsetting"
+        }
     
     def __str__(self):
         return self.name
@@ -281,6 +288,17 @@ class AnimationSetting(TimeModel):
     class Meta:
         verbose_name = "Animation Setting"
         verbose_name_plural = "Animation Settings"
+
+    class RESAAS:
+        label_field = "name"
+        searchable_fields = ["name"]
+        crud = True
+        routes={
+            'list': "add_animationsetting",
+            'view': "view_animationsetting",
+            'add': "add_animationsetting",
+            'change': "change_animationsetting"
+        }
 
     def __str__(self):
         return self.name

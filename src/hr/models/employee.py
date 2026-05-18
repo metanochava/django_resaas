@@ -1,22 +1,18 @@
 from django.db import models
 from django_resaas.core.base.models import BaseModel
 
+
 class Employee(BaseModel):
+    # =========================
+    # 🔗 RELATIONSHIPS
+    # =========================
     person = models.ForeignKey(
         'django_resaas.Person',
         on_delete=models.CASCADE,
         related_name='employees'
     )
 
-    codigo = models.CharField(max_length=50)
-    cargo = models.CharField(max_length=100)
-
-    data_admissao = models.DateField()
-    data_saida = models.DateField(null=True, blank=True)
-
-    ativo = models.BooleanField(default=True)
-
-    gestor = models.ForeignKey(
+    manager = models.ForeignKey(
         'self',
         null=True,
         blank=True,
@@ -24,13 +20,27 @@ class Employee(BaseModel):
         related_name='subordinates'
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=['person', 'branch'],
-                name='unique_person_branch'
-            )
-        ]
+    # =========================
+    # 🏷️ CORE FIELDS
+    # =========================
+    code = models.CharField(max_length=50)
+    position = models.CharField(max_length=100)
 
+    # =========================
+    # 📅 DATES
+    # =========================
+    hire_date = models.DateField()
+    termination_date = models.DateField(null=True, blank=True)
+
+
+    # =========================
+    # 🔐 META
+    # =========================
+    class Meta:
+        unique_together =('person', 'branch'),
+
+    # =========================
+    # 🧠 STRING REPRESENTATION
+    # =========================
     def __str__(self):
-        return f"{self.person.full_name} ({self.cargo})"
+        return f"{self.person.full_name} ({self.position})"

@@ -53,7 +53,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             return self.queryset.order_by('ordem')
 
         self._paginator = None
-        return self.queryset.filter(estado=1).order_by('ordem')
+        return self.queryset.filter(state=1).order_by('ordem')
 
     # ===============================
     # USER ENTIDADES
@@ -135,14 +135,14 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         EntityTypeModel.objects.get_or_create(
             entity_type=entity_type,
             model=model,
-            estado=1
+            state=1
         )
 
         for entity in Entity.objects.filter(entity_type_id=id):
             EntityModel.objects.get_or_create(
                 entity=entity,
                 model=model,
-                estado=1
+                state=1
             )
 
         return Response({

@@ -486,7 +486,7 @@ module/
 
 - Audit fields required
 - UUID primary keys
-- Soft delete via estado
+- Soft delete via state
 - Multi-tenant aware
 
 

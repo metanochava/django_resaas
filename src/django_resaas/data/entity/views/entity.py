@@ -165,7 +165,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             entity_app, _ = EntityApp.objects.get_or_create(
                 app=te.app,
                 entity=entity,
-                estado = 1
+                state = 1
             )
 
         for u in data['admins']:
@@ -179,7 +179,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             EntityUser.objects.get_or_create(
                 user=user,
                 entity=entity,
-                estado = 1
+                state = 1
             )
          
             # ------------------------
@@ -190,7 +190,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                 EntityGroup.objects.get_or_create(
                     entity = entity,
                     group = te.group,
-                    estado = 1
+                    state = 1
                 )
                 # user.groups.add(te.group)
 
@@ -200,7 +200,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             branch = Branch.objects.create(
                 name=f"{entity.name} Main",
                 entity=entity,
-                estado = 1,
+                state = 1,
                 icon='...',
                 label='...'
             )
@@ -211,7 +211,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             BranchUser.objects.get_or_create(
                 user=user,
                 branch=branch,
-                estado = 1
+                state = 1
             )
 
             # ------------------------
@@ -222,14 +222,14 @@ class EntityAPIView(viewsets.ModelViewSet):
                 BranchGroup.objects.get_or_create(
                     branch=branch,
                     group=e.group,
-                    estado = 1
+                    state = 1
                 )
 
                 BranchUserGroup.objects.get_or_create(
                     user=user,
                     branch=branch,
                     group=e.group,
-                    estado = 1
+                    state = 1
                 )
             
 
@@ -256,7 +256,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                 {
                     'id': s.id,
                     'name': s.name,
-                    'estado': s.estado
+                    'state': s.state
                 }
                 for s in branchs
             ]
@@ -363,7 +363,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             EntityUser.objects.create(
                 user=user,
                 entity=transformer,
-                estado = 1
+                state = 1
             )
             return Response(
                 {
@@ -427,7 +427,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
         request.data['size'] = uploaded_file.size
         request.data['model'] = 'Entity'
-        request.data['estado'] = 1
+        request.data['state'] = 1
         request.data['funcionalidade'] = 'Logo'
 
         file = FileGravarSerializer(data=request.data)
@@ -551,7 +551,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
         entity = self.get_object()
-        theme = entity.theme or Theme.objects.create(estado=1)
+        theme = entity.theme or Theme.objects.create(state=1)
         if not entity.theme:
             entity.theme = theme
             entity.save()
@@ -584,7 +584,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        layout_settings = entity.layout_settings or LayoutSetting.objects.create(estado=1)
+        layout_settings = entity.layout_settings or LayoutSetting.objects.create(state=1)
         if not entity.layout_settings:
             entity.layout_settings = layout_settings
             entity.save()
@@ -625,7 +625,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def typographyPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        typography = entity.typography or Typography.objects.create(estado=1)
+        typography = entity.typography or Typography.objects.create(state=1)
         if not entity.typography:
             entity.typography = typography
             entity.save()
@@ -661,7 +661,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def animationSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        animation_settings = entity.animation_settings or AnimationSetting.objects.create(estado=1)
+        animation_settings = entity.animation_settings or AnimationSetting.objects.create(state=1)
         if not entity.animation_settings:
             entity.animation_settings = animation_settings
             entity.save()
