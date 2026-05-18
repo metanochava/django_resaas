@@ -75,6 +75,12 @@ def create_model_permissions(sender, **kwargs):
         ct = ContentType.objects.get_for_model(model)
 
         for codename, label in [
+            ("view", "Can view"),       # Nativo
+            ("add", "Can add"),         # Nativo
+            ("change", "Can change"),   # Nativo
+            ("delete", "Can list"),     # Nativo
+
+            
             ("list", "Can list"),
             ("pdf", "Can pdf"),
             ("restore", "Can restore"),
