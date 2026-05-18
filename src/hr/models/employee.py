@@ -24,7 +24,13 @@ class Employee(BaseModel):
     # 🏷️ CORE FIELDS
     # =========================
     code = models.CharField(max_length=50)
-    position = models.CharField(max_length=100)
+    position = models.ForeignKey(
+        'hr.JobPosition',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='employees'
+    )
 
     # =========================
     # 📅 DATES

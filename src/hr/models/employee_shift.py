@@ -1,0 +1,33 @@
+from django.db import models
+from django_resaas.core.base.models import BaseModel
+
+
+
+class EmployeeShift(BaseModel):
+    employee = models.ForeignKey(
+        'hr.Employee',
+        on_delete=models.CASCADE,
+        related_name='shifts'
+    )
+
+    shift = models.ForeignKey(
+        'hr.Shift',
+        on_delete=models.CASCADE,
+        related_name='employees'
+    )
+
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('employee', 'shift', 'start_date')
+
+    class RESAAS:
+        label_field = "employee.person.full_name"
+        searchable_fields = ["employee.person.full_name", "shift.name"]
+        crud = True
+
+    def __str__(self):
+        return f"{self.employee} → {self.shift}"

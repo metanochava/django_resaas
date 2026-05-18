@@ -1,0 +1,38 @@
+from django.db import models
+from django_resaas.core.base.models import BaseModel
+
+
+class SalaryComponent(BaseModel):
+    TYPE_CHOICES = [
+        ('earning', 'Earning'),
+        ('deduction', 'Deduction'),
+    ]
+
+    CALCULATION_CHOICES = [
+        ('fixed', 'Fixed'),
+        ('percentage', 'Percentage'),
+        ('formula', 'Formula'),
+    ]
+
+    name = models.CharField(max_length=150)
+    code = models.CharField(max_length=50)
+    component_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    calculation_type = models.CharField(max_length=20, choices=CALCULATION_CHOICES, default='fixed')
+
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+    is_taxable = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ('entity', 'code')
+        ordering = ['name']
+
+    class RESAAS:
+        label_field = "name"
+        searchable_fields = ["name", "code"]
+        crud = True
+
+    def __str__(self):
+        return self.name
