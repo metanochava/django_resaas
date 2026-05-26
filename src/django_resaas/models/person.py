@@ -27,26 +27,26 @@ class Person(TimeModel):
     full_name = models.CharField(max_length=200, null=True, blank=True)
 
     # 📌 Identificação
-    GENERO_CHOICES = [
+    GENDER_CHOICES = [
         ('M', 'Masculino'),
         ('F', 'Feminino'),
         ('O', 'Outro'),
     ]
 
-    genero = models.CharField(
+    gender = models.CharField(
         max_length=1,
-        choices=GENERO_CHOICES,
+        choices=GENDER_CHOICES,
         null=True,
         blank=True
     )
 
-    data_nascimento = models.DateField(null=True, blank=True)
-    nacionalidade = models.CharField(max_length=100, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    nationality = models.CharField(max_length=100, null=True, blank=True)
 
     # 📌 Contactos
     email = models.EmailField(null=True, blank=True, unique=True)
-    telefone = models.CharField(max_length=20, null=True, blank=True)
-    telefone_alternativo = models.CharField(max_length=20, null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
+    alternative_phone = models.CharField(max_length=20, null=True, blank=True)
 
     # 📌 Endereço
     address = models.ForeignKey(
@@ -74,10 +74,10 @@ class Person(TimeModel):
 
     def idade(self):
         from datetime import date
-        if self.data_nascimento:
+        if self.date_of_birth:
             today = date.today()
-            return today.year - self.data_nascimento.year - (
-                (today.month, today.day) < (self.data_nascimento.month, self.data_nascimento.day)
+            return today.year - self.date_of_birth.year - (
+                (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
             )
         return None
 
