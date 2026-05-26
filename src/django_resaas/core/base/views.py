@@ -32,8 +32,6 @@ from django_resaas.core.utils import build_select_data
 
 def build_search_query(Model, search, depth=1):
     q = Q()
-    qs = Model.objects.all()
-
     if search:
         # 🔥 tenta pegar do RESAAS
         resaas = getattr(Model, "_resaas", None)
@@ -66,6 +64,20 @@ def build_search_query(Model, search, depth=1):
                 except:
                     continue
 
+
+        # # relações (FK)
+        # if depth > 0:
+        #     for f in Model._meta.get_fields():
+        #         if isinstance(f, (ForeignKey, OneToOneField)):
+        #             rel_model = f.related_model
+
+        #             for field in candidates:
+        #                 try:
+        #                     rel_model._meta.get_field(field)
+        #                     q |= Q(**{f"{f.name}__{field}__icontains": search})
+        #                 except FieldDoesNotExist:
+        #                     continue
+
         return q
 
 
@@ -82,19 +94,6 @@ def build_search_query(Model, search, depth=1):
     #         q |= Q(**{f"{field}__icontains": search})
     #     except FieldDoesNotExist:
     #         continue
-
-    # # relações (FK)
-    # if depth > 0:
-    #     for f in Model._meta.get_fields():
-    #         if isinstance(f, (ForeignKey, OneToOneField)):
-    #             rel_model = f.related_model
-
-    #             for field in candidates:
-    #                 try:
-    #                     rel_model._meta.get_field(field)
-    #                     q |= Q(**{f"{f.name}__{field}__icontains": search})
-    #                 except FieldDoesNotExist:
-    #                     continue
 
     # return q
 
@@ -139,6 +138,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         'destroy': 'delete',
         'restore': 'restore',
         'hard_delete': 'hard_delete',
+        'pdf': 'pdf',
     }
 
     # -----------------------------------
