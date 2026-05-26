@@ -28,9 +28,9 @@ class Person(TimeModel):
 
     # 📌 Identificação
     GENDER_CHOICES = [
-        ('M', 'Masculino'),
-        ('F', 'Feminino'),
-        ('O', 'Outro'),
+        ('M', 'Masculine'),
+        ('F', 'Feminine'),
+        ('O', 'Others'),
     ]
 
     gender = models.CharField(
@@ -72,7 +72,7 @@ class Person(TimeModel):
 
         super().save(*args, **kwargs)
 
-    def idade(self):
+    def age(self):
         from datetime import date
         if self.date_of_birth:
             today = date.today()

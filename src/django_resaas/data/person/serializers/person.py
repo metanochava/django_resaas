@@ -9,6 +9,7 @@ from django_resaas.data.user.serializers.user import UserSerializer
 class PersonSerializer(BaseSerializer):
     # user_data = UserSerializer(source='user', read_only=True) # nao descomentar
     profile = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
 
     class Meta:
         model = Person
@@ -22,6 +23,9 @@ class PersonSerializer(BaseSerializer):
             context={  **self.context, "include_fields": ["profile"], # 👈 escolhe aqui
         }).data
         return data['profile']
+
+    def get_age(self, obj):
+        return obj.age()
 
     # def to_representation(self, instance):
     #     data = super().to_representation(instance)
