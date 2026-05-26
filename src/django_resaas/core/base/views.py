@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
 from django.db.models import Q, ForeignKey, OneToOneField
+from django.db.models import CharField, TextField, EmailField
 from django.core.exceptions import FieldDoesNotExist
 
 from rest_framework.viewsets import ModelViewSet
@@ -31,34 +32,71 @@ from django_resaas.core.utils import build_select_data
 
 def build_search_query(Model, search, depth=1):
     q = Q()
+    qs = Model.objects.all()
 
-    candidates = [
-        "name", "name", "title", "descricao", "description",
-        "username", "email", "codigo", "code"
-    ]
+    if search:
+        # 🔥 tenta pegar do RESAAS
+        resaas = getattr(Model, "_resaas", None)
+        search_fields = getattr(resaas, "search_fields", None)
 
-    # campos locais
-    for field in candidates:
-        try:
-            Model._meta.get_field(field)
-            q |= Q(**{f"{field}__icontains": search})
-        except FieldDoesNotExist:
-            continue
+        # 🔥 fallback (caso não exista)
+        if not search_fields:
+            for field in Model._meta.get_fields():
 
-    # relações (FK)
-    if depth > 0:
-        for f in Model._meta.get_fields():
-            if isinstance(f, (ForeignKey, OneToOneField)):
-                rel_model = f.related_model
+                # 🔥 campos diretos
+                if isinstance(field, (CharField, TextField, EmailField)):
+                    q |= Q(**{f"{field.name}__icontains": search})
 
-                for field in candidates:
+                # 🔥 foreign keys simples
+                elif field.is_relation and field.many_to_one:
                     try:
-                        rel_model._meta.get_field(field)
-                        q |= Q(**{f"{f.name}__{field}__icontains": search})
-                    except FieldDoesNotExist:
-                        continue
+                        rel_model = field.related_model
 
-    return q
+                        # tenta campo name
+                        if hasattr(rel_model, "name"):
+                            q |= Q(**{f"{field.name}__name__icontains": search})
+
+                    except:
+                        continue
+        else:
+            for field in search_fields:
+                try:
+                    Model._meta.get_field(field)
+                    q |= Q(**{f"{field}__icontains": search})
+                except:
+                    continue
+
+        return q
+
+
+
+    # candidates = [
+    #     "name", "name", "title", "descricao", "description",
+    #     "username", "email", "codigo", "code"
+    # ]
+
+    # # campos locais
+    # for field in candidates:
+    #     try:
+    #         Model._meta.get_field(field)
+    #         q |= Q(**{f"{field}__icontains": search})
+    #     except FieldDoesNotExist:
+    #         continue
+
+    # # relações (FK)
+    # if depth > 0:
+    #     for f in Model._meta.get_fields():
+    #         if isinstance(f, (ForeignKey, OneToOneField)):
+    #             rel_model = f.related_model
+
+    #             for field in candidates:
+    #                 try:
+    #                     rel_model._meta.get_field(field)
+    #                     q |= Q(**{f"{f.name}__{field}__icontains": search})
+    #                 except FieldDoesNotExist:
+    #                     continue
+
+    # return q
 
 
 # -----------------------------------

@@ -33,7 +33,7 @@ class ShiftSchedule(BaseModel):
 
     class RESAAS:
         label_field = "employee.person.full_name"
-        searchable_fields = ["employee.person.full_name", "shift.name"]
+        search_fields = ["employee.person.full_name", "shift.name"]
         crud = True  # 👉 podes desativar se for automático
 
     def __str__(self):

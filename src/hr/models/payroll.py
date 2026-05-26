@@ -38,7 +38,7 @@ class Payroll(BaseModel):
 
     class RESAAS:
         label_field = "employee.person.full_name"
-        searchable_fields = ["employee.person.full_name"]
+        search_fields = ["employee.person.full_name"]
         crud = True
 
     def __str__(self):

@@ -26,7 +26,7 @@ class EmployeeShift(BaseModel):
 
     class RESAAS:
         label_field = "employee.person.full_name"
-        searchable_fields = ["employee.person.full_name", "shift.name"]
+        search_fields = ["employee.person.full_name", "shift.name"]
         crud = True
 
     def __str__(self):
