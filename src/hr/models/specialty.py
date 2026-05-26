@@ -22,7 +22,7 @@ class Specialty(BaseModel):
     # =========================
     class RESAAS:
         label_field = "title"
-        searchable_fields = ["title", "code"]
+        search_fields = ["title", "code"]
         crud = True
         routes = {
             'list': "list_specialty",

@@ -128,7 +128,7 @@ class LayoutSetting(TimeModel):
 
     class RESAAS:
         label_field = "name"
-        searchable_fields = ["name"]
+        search_fields = ["name"]
         crud = True
         routes={
             'list': "add_layoutsetting",
@@ -291,7 +291,7 @@ class AnimationSetting(TimeModel):
 
     class RESAAS:
         label_field = "name"
-        searchable_fields = ["name"]
+        search_fields = ["name"]
         crud = True
         routes={
             'list': "add_animationsetting",

@@ -37,7 +37,7 @@ class Shift(BaseModel):
     # =========================
     class RESAAS:
         label_field = "name"
-        searchable_fields = ["name", "code"]
+        search_fields = ["name", "code"]
         crud = True
         routes = {
             'list': "list_shift",

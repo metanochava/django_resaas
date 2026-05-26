@@ -596,10 +596,10 @@ class RelationsAPIView(APIView):
 
             # 🔥 tenta pegar do RESAAS
             resaas = getattr(Model, "_resaas", None)
-            searchable_fields = getattr(resaas, "searchable_fields", None)
+            search_fields = getattr(resaas, "search_fields", None)
 
             # 🔥 fallback (caso não exista)
-            if not searchable_fields:
+            if not search_fields:
                 for field in Model._meta.get_fields():
 
                     # 🔥 campos diretos
@@ -618,7 +618,7 @@ class RelationsAPIView(APIView):
                         except:
                             continue
             else:
-                for field in searchable_fields:
+                for field in search_fields:
                     try:
                         Model._meta.get_field(field)
                         q |= Q(**{f"{field}__icontains": search})

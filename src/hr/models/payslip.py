@@ -15,7 +15,7 @@ class Payslip(BaseModel):
 
     class RESAAS:
         label_field = "payroll.employee.person.full_name"
-        searchable_fields = ["payroll.employee.person.full_name"]
+        search_fields = ["payroll.employee.person.full_name"]
         crud = True
 
     def __str__(self):

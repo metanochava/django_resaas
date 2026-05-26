@@ -31,7 +31,7 @@ class SalaryComponent(BaseModel):
 
     class RESAAS:
         label_field = "name"
-        searchable_fields = ["name", "code"]
+        search_fields = ["name", "code"]
         crud = True
 
     def __str__(self):
