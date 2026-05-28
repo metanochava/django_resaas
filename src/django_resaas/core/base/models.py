@@ -131,13 +131,15 @@ class BaseModel(TimeModel):
     entity = models.ForeignKey(
         "django_resaas.Entity",
         on_delete=models.CASCADE,
-        related_name="%(class)s_entity"
+        related_name="%(class)s_entity",
+        editable=False
     )
 
     branch = models.ForeignKey(
         "django_resaas.Branch",
         on_delete=models.CASCADE,
-        related_name="%(class)s_branch"
+        related_name="%(class)s_branch",
+        editable=False
     )
 
     class Meta:
