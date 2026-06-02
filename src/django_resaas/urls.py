@@ -111,13 +111,16 @@ routerdjango_resaas.register("apps", AppAPIView, basename="apps")
 routerdjango_resaas.register("resaasapps", AppSchemaAPIView, basename="resaasapps")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
 
+from hr import urls
+
+
 
 
 
 urlpatterns = [
 
     path('', home, name='home'),
-    path('', include(router.urls)),
+    path('hr', urls), # nao funciona
 
     path("deploy/github/", deploy_github),
     path("deploy/status/", deploy_status),
