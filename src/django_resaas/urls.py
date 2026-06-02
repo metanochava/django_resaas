@@ -73,10 +73,10 @@ from django_resaas.data.pdf.views.invoice import invoice_pdf
 
 from django_resaas.view import home
 from django_resaas.view import deploy_github, deploy_status, deploy_releases, deploy_logs, deploy_rollback
-
-
 from django_resaas.core.utils.autoload_urls import build_saas_urls
-router, extra_patterns = build_saas_urls()
+
+
+
 
 # ─────────────────────────────
 # Router
@@ -110,7 +110,6 @@ routerdjango_resaas.register("models", ModelAPIView, basename="models")
 routerdjango_resaas.register("apps", AppAPIView, basename="apps")
 routerdjango_resaas.register("resaasapps", AppSchemaAPIView, basename="resaasapps")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
-
 from hr import urls
 
 
@@ -120,7 +119,7 @@ from hr import urls
 urlpatterns = [
 
     path('', home, name='home'),
-    path('hr', urls), # nao funciona
+    path('hrr', urls), # nao funciona
 
     path("deploy/github/", deploy_github),
     path("deploy/status/", deploy_status),
@@ -128,7 +127,7 @@ urlpatterns = [
     path("deploy/logs/", deploy_logs),
     path("deploy/rollback/", deploy_rollback),
     
-    path("hr/", include(routerdjango_resaas.urls)),
+
     path("django_resaas/", include(routerdjango_resaas.urls)),
     path("auth/", include(routerauth.urls)),
     path("django_resaas/relations/", RelationsAPIView.as_view()),
