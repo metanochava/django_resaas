@@ -45,6 +45,18 @@ class Employee(BaseModel):
     class Meta:
         unique_together =('person', 'branch'),
 
+    
+    class RESAAS:
+        label_field = "person.name"
+        searchable_fields = ["code", "person.name"]
+        crud = True
+        routes={
+            'list': "add_employee",
+            'view': "view_employee",
+            'add': "add_employee",
+            'change': "change_employee"
+        }
+
     # =========================
     # 🧠 STRING REPRESENTATION
     # =========================
