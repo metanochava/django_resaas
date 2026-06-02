@@ -68,6 +68,7 @@ from django_resaas.data.layout_setting.views.layout_setting import LayoutSetting
 from django_resaas.management.apicommands.view.scaffold import ScaffoldAPIView
 from django_resaas.management.apicommands.view.app_schema import AppSchemaAPIView, RelationsAPIView
 
+
 from django_resaas.data.pdf.views.invoice import invoice_pdf
 
 from django_resaas.view import home
@@ -100,6 +101,7 @@ routerdjango_resaas.register("entitys", EntityAPIView, basename="entitys")
 routerdjango_resaas.register("branchs", BranchAPIView, basename="sucursais")
 routerdjango_resaas.register("users", UserAPIView, basename="users")
 routerdjango_resaas.register("persons", PersonAPIView, basename="persons")
+
 
 routerauth.register("groups", GroupAPIView, basename="groups")
 routerauth.register("permissions", PermissionAPIView, basename="permissions")
