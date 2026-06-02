@@ -19,5 +19,17 @@ class JobPosition(BaseModel):
         ordering = ['title']
         unique_together = ('entity', 'title')
 
+    class RESAAS:
+        label_field = "title"
+        searchable_fields = ["code", "title"]
+        crud = True
+        routes={
+            'list': "add_jobposition",
+            'view': "view_jobposition",
+            'add': "add_jobposition",
+            'change': "change_jobposition"
+        }
+
+
     def __str__(self):
         return self.title
