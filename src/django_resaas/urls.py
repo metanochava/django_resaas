@@ -110,7 +110,7 @@ routerdjango_resaas.register("models", ModelAPIView, basename="models")
 routerdjango_resaas.register("apps", AppAPIView, basename="apps")
 routerdjango_resaas.register("resaasapps", AppSchemaAPIView, basename="resaasapps")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
-from hr import urls
+
 
 
 
@@ -119,7 +119,7 @@ from hr import urls
 urlpatterns = [
 
     path('', home, name='home'),
-    path('hrr', urls), # nao funciona
+    path('hr/', include('hr.urls')),
 
     path("deploy/github/", deploy_github),
     path("deploy/status/", deploy_status),
