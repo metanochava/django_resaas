@@ -442,11 +442,10 @@ class UserAPIView(viewsets.ModelViewSet):
     def removeGroup(self, request, id ):
         user = User.objects.get(id=id)
         group_id = request.data['group']
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=group_id).first().delete()
+        branchUserGroup = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=group_id).first().delete()
         ar = []
 
         return Response(ar, status.HTTP_200_OK)
-
 
 
     @action(
@@ -457,8 +456,11 @@ class UserAPIView(viewsets.ModelViewSet):
         user = User.objects.get(id=id)
         group = Group.objects.get(id=request.data['group'])
         branch = Branch.objects.get(id=request.branch_id)
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=branch.id, group__id=group.id).first()
-        if None==branchUserGroups:
+        branchUserGroup = BranchUserGroup.objects.filter(user__id=id, branch__id=branch.id, group__id=group.id).first()
+        if branchUserGroup:
+            branchUserGroup.deleted_at = None
+            branchUserGroup.save()
+        else:
             branchUserGroup = BranchUserGroup()
             branchUserGroup.user = user
             branchUserGroup.group = group
