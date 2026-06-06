@@ -448,24 +448,52 @@ class UserAPIView(viewsets.ModelViewSet):
         return Response(ar, status.HTTP_200_OK)
 
 
+
     @action(
         detail=True,
         methods=['POST'],
     )
     def addGroup(self, request, id):
-        user = User.objects.get(id=id)
-        group = Group.objects.get(id=request.data['group'])
-        branch = Branch.objects.get(id=request.branch_id)
-        branchUserGroup = BranchUserGroup.objects.filter(user__id=id, branch__id=branch.id, group__id=group.id).first()
-        if branchUserGroup:
-            branchUserGroup.deleted_at = None
-            branchUserGroup.save()
-        else:
-            branchUserGroup = BranchUserGroup()
-            branchUserGroup.user = user
-            branchUserGroup.group = group
-            branchUserGroup.branch = branch
-            branchUserGroup.save()
-     
-        return Response(ar, status.HTTP_200_OK)
 
+        user = User.objects.get(id=id)
+
+        group = Group.objects.get(id=request.data['group'])
+
+        branch = Branch.objects.get(id=request.branch_id)
+
+        branchUserGroup = BranchUserGroup.all_objects.filter(
+            user_id=user.id,
+            branch_id=branch.id,
+            group_id=group.id
+        ).first()
+
+        if branchUserGroup:
+
+            if branchUserGroup.deleted_at:
+
+                branchUserGroup.deleted_at = None
+
+                branchUserGroup.save(update_fields=['deleted_at'])
+
+            message = 'Grupo associado com sucesso'
+
+        else:
+
+            branchUserGroup = BranchUserGroup.objects.create(
+                user=user,
+                group=group,
+                branch=branch
+            )
+
+            message = 'Grupo adicionado com sucesso'
+
+        return Response(
+            {
+                'id': branchUserGroup.id,
+                'user': str(user.id),
+                'group': str(group.id),
+                'branch': str(branch.id),
+                'alert_success': message,
+            },
+            status=status.HTTP_200_OK
+        )
