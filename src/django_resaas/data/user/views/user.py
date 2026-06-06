@@ -455,10 +455,9 @@ class UserAPIView(viewsets.ModelViewSet):
     )
     def addGroup(self, request, id):
         user = User.objects.get(id=id)
-        group_id = request.data['group']
-        group = Group.objects.get(id=request.group_id)
+        group = Group.objects.get(id=request.data['group'])
         branch = Branch.objects.get(id=request.branch_id)
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=group_id).first()
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=branch.id, group__id=group.id).first()
         if None==branchUserGroups:
             branchUserGroup = BranchUserGroup()
             branchUserGroup.user = user
