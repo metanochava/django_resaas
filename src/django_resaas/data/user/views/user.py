@@ -442,18 +442,11 @@ class UserAPIView(viewsets.ModelViewSet):
     def removeGroup(self, request, id ):
         user = User.objects.get(id=id)
         group_id = request.data['group']
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
-        branchUserGroups.delete()
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=group_id).first().delete()
         ar = []
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id)
-        if (branchUserGroups):
-            for branchUserGroup in branchUserGroups:
-                group = Group.objects.get(id=branchUserGroup.group.id)
-                ar.append({'id': group.id, 'name': group.name})
 
-        if True:
-            return Response(ar, status.HTTP_200_OK)
-        return Response([], status.HTTP_400_BAD_REQUEST)
+        return Response(ar, status.HTTP_200_OK)
+
 
 
     @action(
@@ -465,31 +458,13 @@ class UserAPIView(viewsets.ModelViewSet):
         group_id = request.data['group']
         group = Group.objects.get(id=request.group_id)
         branch = Branch.objects.get(id=request.branch_id)
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
-
+        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=group_id).first()
         if None==branchUserGroups:
             branchUserGroup = BranchUserGroup()
             branchUserGroup.user = user
             branchUserGroup.group = group
             branchUserGroup.branch = branch
             branchUserGroup.save()
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id)
+     
+        return Response(ar, status.HTTP_200_OK)
 
-        ar = []
-        if (branchUserGroups):
-            for branchUserGroup in branchUserGroups:
-                group = Group.objects.get(id=branchUserGroup.group.id)
-                ar.append({'id': group.id, 'name': group.name})
-
-
-        if True:
-            return Response(ar, status.HTTP_200_OK)
-        return Response([], status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-
-
-    
