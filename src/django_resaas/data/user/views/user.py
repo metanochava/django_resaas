@@ -439,7 +439,7 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['POST'],
     )
-    def removerProfile(self, request, id ):
+    def removeGroup(self, request, id ):
         user = User.objects.get(id=id)
         group_id = request.data['profile']['id']
         branch_id = request.data['branch_id']
@@ -461,7 +461,7 @@ class UserAPIView(viewsets.ModelViewSet):
         detail=True,
         methods=['POST'],
     )
-    def adicionarProfile(self, request, id):
+    def addGroup(self, request, id):
         user = User.objects.get(id=id)
         group_id = request.data['profile']['id']
         group = Group.objects.get(id=request.group_id)
@@ -489,3 +489,9 @@ class UserAPIView(viewsets.ModelViewSet):
         return Response([], status.HTTP_400_BAD_REQUEST)
 
 
+
+
+
+
+
+    

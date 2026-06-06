@@ -456,22 +456,6 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # 🔥 GROUPS (FINAL LIMPO)
     # ===============================
 
-    @action(detail=True, methods=['GET'])
-    def groups(self, request, id):
-        tipo = EntityType.objects.get(id=id)
-
-        groups = EntityTypeGroup.objects.filter(
-            entity_type=tipo
-        ).select_related('group')
-
-        return Response([
-            {
-                "id": g.group.id,
-                "name": g.group.name
-            }
-            for g in groups
-        ], status=status.HTTP_200_OK)
-
 
     @action(detail=True, methods=['POST'])
     def createGroup(self, request, id):
@@ -501,6 +485,21 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             "name": group.name
         })
 
+    @action(detail=True, methods=['GET'])
+    def groups(self, request, id):
+        tipo = EntityType.objects.get(id=id)
+
+        groups = EntityTypeGroup.objects.filter(
+            entity_type=tipo
+        ).select_related('group')
+
+        return Response([
+            {
+                "id": g.group.id,
+                "name": g.group.name
+            }
+            for g in groups
+        ], status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'])
     def addGroup(self, request, id):
