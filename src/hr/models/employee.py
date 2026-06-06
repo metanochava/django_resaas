@@ -153,7 +153,7 @@ class Employee(BaseModel):
     def __str__(self):
 
         position = (
-            self.position.label
+            self.position
             if self.position
             else "Sem Cargo"
         )
