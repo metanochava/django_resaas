@@ -118,7 +118,7 @@ class Employee(BaseModel):
 
     class RESAAS:
 
-        label_field = "person"
+        label_field = "code person.full_name"
 
         searchable_fields = [
 
