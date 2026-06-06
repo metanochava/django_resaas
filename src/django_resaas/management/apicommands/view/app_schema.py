@@ -26,7 +26,6 @@ from django_resaas.core.utils import ok, fail, warn, all, clean_name, reorder_fi
 from django_resaas.models.app import App
 from django_resaas.models.model_extra import ModelExtra
 from django_resaas.management.apicommands.service.app_service import AppScaffoldService
-# from django_resaas.core.base.mixins.model.label_value import LABEL_KEYS
 
 # 🔧 Logger
 logger = logging.getLogger(__name__)
@@ -404,8 +403,7 @@ def label_value(obj, arr) -> str:
     v = ''
     for k in arr:
         if hasattr(obj, k):
-            v = v +' '+ str(obj._get_attr(k))
-            # v = v +' '+ getattr(obj, k, None)     
+            v = v +' '+ str(obj._get_attr(k)) 
     return str(v)
 
 

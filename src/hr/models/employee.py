@@ -47,7 +47,7 @@ class Employee(BaseModel):
 
     
     class RESAAS:
-        label_field = "person.name"
+        label_field = "person"
         searchable_fields = ["code", "person.name"]
         crud = True
         routes={

@@ -57,8 +57,6 @@ class LabelValueMixin:
             obj = getattr(obj, attr, None)
             if obj is None:
                 return None
-
-        
         return obj
 
     
