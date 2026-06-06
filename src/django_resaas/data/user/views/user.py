@@ -441,8 +441,7 @@ class UserAPIView(viewsets.ModelViewSet):
     )
     def removeGroup(self, request, id ):
         user = User.objects.get(id=id)
-        group_id = request.data['profile']['id']
-        branch_id = request.data['branch_id']
+        group_id = request.data['group']
         branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
         branchUserGroups.delete()
         ar = []
@@ -463,9 +462,8 @@ class UserAPIView(viewsets.ModelViewSet):
     )
     def addGroup(self, request, id):
         user = User.objects.get(id=id)
-        group_id = request.data['profile']['id']
+        group_id = request.data['group']
         group = Group.objects.get(id=request.group_id)
-        branch_id = request.data['branch_id']
         branch = Branch.objects.get(id=request.branch_id)
         branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=request.group_id).first()
 
