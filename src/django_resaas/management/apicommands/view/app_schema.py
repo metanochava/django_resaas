@@ -233,38 +233,38 @@ def _get_resaas_field_config(field_obj):
 # ==========================================================
 def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
     ui = {}
-    component = "q-input"
+    component = "s-input"
     props = {}
 
     # ---------------- FILE ----------------
     if ftype == "FileField":
-        component = "q-file"
+        component = "s-file"
         ui["isFile"] = True
         cfg = _get_resaas_field_config(field_obj)
         props["accept"] = cfg.get("accept", "*")
 
     elif ftype == "ImageField":
-        component = "q-image"
+        component = "s-image"
         ui["isImage"] = True
         cfg = _get_resaas_field_config(field_obj)
         props["accept"] = cfg.get("accept", "image/*")
 
     # ---------------- RELATIONS ----------------
     elif ftype in ["ForeignKey", "OneToOneField"]:
-        component = "q-select"
+        component = "s-select"
         ui["isRelation"] = True
 
     elif ftype == "ManyToManyField":
-        component = "q-multiselect"
+        component = "s-multiselect"
         ui["isRelation"] = True
 
     # ---------------- BOOLEAN ----------------
     elif ftype == "BooleanField":
-        component = "q-toggle"
+        component = "s-toggle"
 
     # ---------------- NUMBERS ----------------
     elif ftype in ["IntegerField", "FloatField", "DecimalField"]:
-        component = "q-input"
+        component = "s-input"
         props["type"] = "number"
 
         if payload.get("min") is not None:
@@ -275,7 +275,7 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- TEXT (🔥 EDITOR) ----------------
     elif ftype == "TextField":
-        component = "q-editor"
+        component = "s-editor"
         ui["isRichText"] = True
 
         props["toolbar"] = [
@@ -288,7 +288,7 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- CHAR ----------------
     elif ftype == "CharField":
-        component = "q-input"
+        component = "s-input"
 
         if payload.get("max_length"):
             props["maxlength"] = payload["max_length"]
