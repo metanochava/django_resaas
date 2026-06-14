@@ -31,7 +31,7 @@ def make_barcode_b64(value: str) -> str:
 
 def PDF(template_path, request, doc=None, download=False, **context):
     doc = doc or {"name": "pdf"}
-
+    context["request"] = request
     if template_path.split('.')[-1] =='html':
         html = render_to_string(template_path, context)
     else:
