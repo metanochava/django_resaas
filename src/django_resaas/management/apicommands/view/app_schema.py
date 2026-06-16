@@ -282,8 +282,9 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
             ["bold", "italic", "underline"],
             ["quote", "unordered", "ordered"],
             ["link"],
-            ["undo", "redo"]
+            ["undo", "redo", "fullscreen"]
         ]
+        
         props["minHeight"] = "150px"
 
     # ---------------- CHAR ----------------
