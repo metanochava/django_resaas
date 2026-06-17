@@ -236,6 +236,7 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
     component = "s-input"
     props = {}
 
+    
     # ---------------- FILE ----------------
     if ftype == "FileField":
         component = "s-file"
@@ -296,6 +297,18 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
         if payload.get("min_length"):
             props["minlength"] = payload["min_length"]
+
+    # ---------------- DATE ----------------
+    elif ftype == "DateField":
+        component = "s-date"
+
+    # ---------------- TIME ----------------
+    elif ftype == "TimeField":
+        component = "s-time"
+
+    # ---------------- DATETIME ----------------
+    elif ftype == "DateTimeField":
+        component = "s-datetime"
 
     result = {
         "component": component,
