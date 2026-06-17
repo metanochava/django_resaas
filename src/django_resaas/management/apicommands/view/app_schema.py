@@ -236,13 +236,6 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
     component = ""
     props = {}
 
-     # ---------------- CHOICES ----------------
-    if payload.get("choices"):
-        component = "s-select"
-    else:
-        component = "s-input"
-
-    # restante lógica...
     
     # ---------------- FILE ----------------
     if ftype == "FileField":
@@ -272,7 +265,10 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- NUMBERS ----------------
     elif ftype in ["IntegerField", "FloatField", "DecimalField"]:
-        component = "s-input"
+        if payload.get("choices"):
+            component = "s-select"
+        else:
+            component = "s-input"
         props["type"] = "number"
 
         if payload.get("min") is not None:
@@ -297,8 +293,11 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- CHAR ----------------
     elif ftype == "CharField":
-        component = "s-input"
-
+        if payload.get("choices"):
+            component = "s-select"
+        else:
+            component = "s-input"
+            
         if payload.get("max_length"):
             props["maxlength"] = payload["max_length"]
 
