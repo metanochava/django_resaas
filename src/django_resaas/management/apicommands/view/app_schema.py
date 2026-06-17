@@ -233,9 +233,16 @@ def _get_resaas_field_config(field_obj):
 # ==========================================================
 def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
     ui = {}
-    component = "s-input"
+    component = ""
     props = {}
 
+     # ---------------- CHOICES ----------------
+    if payload.get("choices"):
+        component = "s-select"
+    else:
+        component = "s-input"
+
+    # restante lógica...
     
     # ---------------- FILE ----------------
     if ftype == "FileField":
