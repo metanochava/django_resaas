@@ -118,9 +118,9 @@ class TimeModel(SoftBaseModel):
         related_name="%(class)s_updated"
     )
     
-    state = models.BooleanField(
-        default=False,
-        choices=((False, 'Inactive'), (True, 'Active')),
+    state = models.CharField(
+        default='Inactive',
+        choices=(('Inactive', 'Inactive'), ('Active', 'Active')),
     )
 
     class Meta:
