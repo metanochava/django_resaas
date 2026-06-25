@@ -23,7 +23,7 @@ from django_resaas.models.entity_app import EntityApp
 
 from .mixins.view.select import SelectMixin
 from django_resaas.core.utils import build_select_data
-
+from django.db import models
 
 
 # -----------------------------------
@@ -64,39 +64,7 @@ def build_search_query(Model, search, depth=1):
                 except:
                     continue
 
-
-        # # relações (FK)
-        # if depth > 0:
-        #     for f in Model._meta.get_fields():
-        #         if isinstance(f, (ForeignKey, OneToOneField)):
-        #             rel_model = f.related_model
-
-        #             for field in candidates:
-        #                 try:
-        #                     rel_model._meta.get_field(field)
-        #                     q |= Q(**{f"{f.name}__{field}__icontains": search})
-        #                 except FieldDoesNotExist:
-        #                     continue
-
         return q
-
-
-
-    # candidates = [
-    #     "name", "name", "title", "descricao", "description",
-    #     "username", "email", "codigo", "code"
-    # ]
-
-    # # campos locais
-    # for field in candidates:
-    #     try:
-    #         Model._meta.get_field(field)
-    #         q |= Q(**{f"{field}__icontains": search})
-    #     except FieldDoesNotExist:
-    #         continue
-
-    # return q
-
 
 # -----------------------------------
 # 🧩 VIEW REGISTRY
@@ -126,7 +94,8 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     """
 
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = "__all__"
+    # filterset_fields = "__all__"
+    filterset_fields = []
     ordering_fields = "__all__"
 
     permission_action_map = {
@@ -144,6 +113,29 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # -----------------------------------
     # 🔍 SEARCH
     # -----------------------------------
+    def get_filterset_class(self):
+        self.filterset_fields = self.get_filterset_fields()
+        return super().get_filterset_class()
+    
+    def get_filterset_fields(self):
+
+        model = self.get_model()
+
+        return [
+
+            f.name
+
+            for f in model._meta.fields
+
+            if not isinstance(
+                f,
+                (
+                    models.FileField,
+                    models.ImageField,
+                ),
+            )
+
+        ]
 
     def apply_dynamic_search(self, qs):
         search = (self.request.query_params.get("search") or "").strip()
