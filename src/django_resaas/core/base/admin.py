@@ -153,5 +153,36 @@ class BaseAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+def save_model(self, request, obj, form, change):
 
+    #
+    # Utilizador
+    #
+
+    if hasattr(obj, "created_by_id") and not obj.created_by_id:
+        obj.created_by = request.user
+
+    if hasattr(obj, "updated_by_id"):
+        obj.updated_by = request.user
+
+    #
+    # Entity
+    #
+
+    if hasattr(obj, "entity_id") and not obj.entity_id:
+        obj.entity_id = getattr(request, "entity_id", None)
+
+    #
+    # Branch
+    #
+
+    if hasattr(obj, "branch_id") and not obj.branch_id:
+        obj.branch_id = getattr(request, "branch_id", None)
+
+    super().save_model(
+        request,
+        obj,
+        form,
+        change,
+    )
     
