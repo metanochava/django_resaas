@@ -132,15 +132,47 @@ class BaseModel(TimeModel):
         "django_resaas.Entity",
         on_delete=models.CASCADE,
         related_name="%(class)s_entity",
-        editable=False
+        editable=False,
     )
 
     branch = models.ForeignKey(
         "django_resaas.Branch",
         on_delete=models.CASCADE,
         related_name="%(class)s_branch",
-        editable=False
+        editable=False,
     )
 
     class Meta:
         abstract = True
+
+    def ensure_tenant(self):
+        if not self.entity_id:
+            Entity = apps.get_model("django_resaas", "Entity")
+
+            entity = Entity.objects.order_by("created_at").first()
+
+            if entity:
+                self.entity = entity
+
+        if not self.branch_id:
+            Branch = apps.get_model("django_resaas", "Branch")
+
+            branch = None
+
+            if self.entity_id:
+                branch = (
+                    Branch.objects
+                    .filter(entity_id=self.entity_id)
+                    .order_by("created_at")
+                    .first()
+                )
+
+            if not branch:
+                branch = Branch.objects.order_by("created_at").first()
+
+            if branch:
+                self.branch = branch
+
+    def save(self, *args, **kwargs):
+        self.ensure_tenant()
+        super().save(*args, **kwargs)
