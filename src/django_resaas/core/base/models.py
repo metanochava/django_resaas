@@ -4,6 +4,10 @@ import uuid
 from django.utils import timezone
 import os 
 from .mixins.model.label_value import LabelValueMixin
+from django.apps import apps
+
+
+
 
 
 def file_path(instance, file_name, pasta=""):
