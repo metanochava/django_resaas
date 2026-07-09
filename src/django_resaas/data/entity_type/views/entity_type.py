@@ -40,13 +40,20 @@ from django_resaas.data.entity_type.serializers.entity_type import (
 )
 
 
-class EntityTypeAPIView(BaseAPIView):
+class EntityTypeAPIView(viewsets.ModelViewSet):
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
 
     serializer_class = EntityTypeSerializer
     queryset = EntityType.objects.all()
     lookup_field = 'id'
+
+    def get_queryset(self):
+        if self.request.query_params.get('all'):
+            return self.queryset.order_by('ordem')
+
+        self._paginator = None
+        return self.queryset.filter().order_by('ordem')
 
     # ===============================
     # USER ENTIDADES
