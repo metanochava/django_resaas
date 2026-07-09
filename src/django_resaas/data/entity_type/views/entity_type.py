@@ -48,11 +48,6 @@ class EntityTypeAPIView(BaseAPIView):
     queryset = EntityType.objects.all()
     lookup_field = 'id'
 
-
-    def get_queryset(self):
-        self._paginator = None
-        return self.queryset.filter().order_by('ordem')
-
     # ===============================
     # USER ENTIDADES
     # ===============================
