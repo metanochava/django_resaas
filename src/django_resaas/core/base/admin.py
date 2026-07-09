@@ -94,16 +94,16 @@ class BaseAdmin(admin.ModelAdmin):
     # 🔎 SEARCH AUTOMÁTICO
     # -----------------------------------
 
-    def get_search_fields(self, request):
-        candidates = [
-            "name", "name", "title", "descricao",
-            "codigo", "email", "username"
-        ]
+    # def get_search_fields(self, request):
+    #     candidates = [
+    #         "name", "name", "title", "descricao",
+    #         "codigo", "email", "username"
+    #     ]
 
-        return [
-            f.name for f in self.model._meta.fields
-            if f.name in candidates
-        ]
+    #     return [
+    #         f.name for f in self.model._meta.fields
+    #         if f.name in candidates
+    #     ]
 
     # -----------------------------------
     # 🧩 FILTROS AUTOMÁTICOS
