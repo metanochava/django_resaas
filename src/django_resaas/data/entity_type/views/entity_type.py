@@ -45,7 +45,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
 
     serializer_class = EntityTypeSerializer
-    queryset = EntityType.objects.all()
+    queryset = EntityType.all_objects.all()
     lookup_field = 'id'
 
     def get_queryset(self):
@@ -53,7 +53,11 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             return self.queryset.order_by('ordem')
 
         self._paginator = None
-        return self.queryset.filter().order_by('ordem')
+        if self.request.query_params.get('alive'):
+            return self.queryset.filter(deleted_at__isnull=True).order_by('ordem')
+
+        if self.request.query_params.get('deleted'):
+            return self.queryset.filter(deleted_at__isnull=False).order_by('ordem')
 
     # ===============================
     # USER ENTIDADES
