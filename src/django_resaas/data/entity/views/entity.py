@@ -56,7 +56,7 @@ from django_resaas.core.services.disc_manager import DiskManegarService
 from django_resaas.core.base.views import BaseAPIView
 
 
-class EntityAPIView(BaseAPIView):
+class EntityAPIView(viewsets.ModelViewSet):
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
     serializer_class = EntitySerializer
