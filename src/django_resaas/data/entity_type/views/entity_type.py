@@ -49,6 +49,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
+        print(self.request.query_params, self.request.query_params.get('all'))
         if self.request.query_params.get('all'):
             return self.queryset.order_by('ordem')
 
