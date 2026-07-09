@@ -32,6 +32,7 @@ from django_resaas.data.layout_setting.serializers.layout_setting import LayoutS
 
 from django_resaas.models.entity_type_group import EntityTypeGroup  # 🔥 NOVO
 from django_resaas.models.entity_group import EntityGroup
+from django_resaas.core.base.views import BaseAPIView
 
 
 from django_resaas.data.entity_type.serializers.entity_type import (
@@ -39,7 +40,7 @@ from django_resaas.data.entity_type.serializers.entity_type import (
 )
 
 
-class EntityTypeAPIView(viewsets.ModelViewSet):
+class EntityTypeAPIView(BaseAPIView):
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
 
@@ -49,9 +50,6 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
 
     def get_queryset(self):
-        if self.request.query_params.get('all'):
-            return self.queryset.order_by('ordem')
-
         self._paginator = None
         return self.queryset.filter().order_by('ordem')
 
