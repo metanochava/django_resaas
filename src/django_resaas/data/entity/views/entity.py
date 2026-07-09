@@ -61,6 +61,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     serializer_class = EntitySerializer
     queryset = Entity.objects.all()
+  
 
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
@@ -551,7 +552,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
         entity = self.get_object()
-        theme = entity.theme or Theme.objects.create(state=1)
+        theme = entity.theme or Theme.objects.create(state="Active")
         if not entity.theme:
             entity.theme = theme
             entity.save()
@@ -584,7 +585,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        layout_settings = entity.layout_settings or LayoutSetting.objects.create(state=1)
+        layout_settings = entity.layout_settings or LayoutSetting.objects.create(state="Active")
         if not entity.layout_settings:
             entity.layout_settings = layout_settings
             entity.save()
@@ -625,7 +626,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def typographyPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        typography = entity.typography or Typography.objects.create(state=1)
+        typography = entity.typography or Typography.objects.create(state="Active")
         if not entity.typography:
             entity.typography = typography
             entity.save()
@@ -661,7 +662,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     @action(detail=True, methods=['PUT'])
     def animationSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
-        animation_settings = entity.animation_settings or AnimationSetting.objects.create(state=1)
+        animation_settings = entity.animation_settings or AnimationSetting.objects.create(state="Active")
         if not entity.animation_settings:
             entity.animation_settings = animation_settings
             entity.save()

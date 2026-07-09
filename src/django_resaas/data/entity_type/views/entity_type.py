@@ -49,11 +49,11 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
 
     def get_queryset(self):
-        if self.request.query_params.get('all'):
+        if self.request.query_params.get('All'):
             return self.queryset.order_by('ordem')
 
         self._paginator = None
-        return self.queryset.filter(state=1).order_by('ordem')
+        return self.queryset.filter(state="Active").order_by('ordem')
 
     # ===============================
     # USER ENTIDADES
@@ -135,14 +135,14 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         EntityTypeModel.objects.get_or_create(
             entity_type=entity_type,
             model=model,
-            state=1
+            state="Active"
         )
 
         for entity in Entity.objects.filter(entity_type_id=id):
             EntityModel.objects.get_or_create(
                 entity=entity,
                 model=model,
-                state=1
+                state="Active"
             )
 
         return Response({
