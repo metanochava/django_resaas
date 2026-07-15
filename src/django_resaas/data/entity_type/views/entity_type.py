@@ -49,16 +49,19 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     lookup_field = 'id'
 
     def get_queryset(self):
-        print(self.request.query_params, self.request.query_params.get('all'))
+        # print(self.request.query_params, self.request.query_params.get('all'), self.request.query_params.get('objects'))
+        result = self.queryset.order_by('ordem')
         if self.request.query_params.get('objects')=='all':
-            return self.queryset.order_by('ordem')
+            result = self.queryset.order_by('ordem')
 
         self._paginator = None
         if self.request.query_params.get('objects')=='alive':
-            return self.queryset.filter(deleted_at__isnull=True).order_by('ordem')
+            result = self.queryset.filter(deleted_at__isnull=True).order_by('ordem')
 
         if self.request.query_params.get('objects')=='deleted':
-            return self.queryset.filter(deleted_at__isnull=False).order_by('ordem')
+            result = self.queryset.filter(deleted_at__isnull=False).order_by('ordem')
+
+        return result
 
     # ===============================
     # USER ENTIDADES
