@@ -34,7 +34,6 @@ class Person(TimeModel):
     ]
 
     gender = models.CharField(
-        max_length=1,
         choices=GENDER_CHOICES,
         null=True,
         blank=True
