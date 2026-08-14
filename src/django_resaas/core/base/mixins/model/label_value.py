@@ -61,7 +61,7 @@ class LabelValueMixin:
 
     
     def get_label_field(self):
-        resaas = getattr(self.__class__, "_resaas", None)
+        resaas = getattr(self.__class__, "RESAAS", None)
         label_field = getattr(resaas, "label_field", None)
 
         if label_field:
@@ -71,7 +71,7 @@ class LabelValueMixin:
 
 
     def get_label(self):
-        resaas = getattr(self.__class__, "_resaas", None)
+        resaas = getattr(self.__class__, "RESAAS", None)
         label_field = getattr(resaas, "label_field", None)
 
         if label_field:
@@ -97,7 +97,7 @@ class LabelValueMixin:
         return self.__class__.__name__
 
     def get_value(self):
-        resaas = getattr(self.__class__, "_resaas", None)
+        resaas = getattr(self.__class__, "RESAAS", None)
 
         value_field = getattr(resaas, "value_field", "id")
 

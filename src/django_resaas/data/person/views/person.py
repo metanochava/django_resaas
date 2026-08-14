@@ -12,7 +12,7 @@ from django_resaas.data.person.serializers.person import PersonSerializer
 
 class  PersonAPIView(BaseAPIView):
 
-    # filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter,)
     
     serializer_class = PersonSerializer
     queryset = Person.objects.all()
