@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 # LABEL_KEYS = ("name", "name", "title", "descricao", "description", "label", "codigo", "code", "numero", "num", "id")
 def get_route(Model):
-    resaas = getattr(Model, "_resaas", None)
+    resaas = getattr(Model, "RESAAS", None)
     return getattr(resaas, "routes",  {
         'list': f"list_{Model._meta.model_name}",
         'add': f"add_{Model._meta.model_name}",
@@ -45,7 +45,7 @@ def get_route(Model):
         })
 
 def get_crud(Model):
-    resaas = getattr(Model, "_resaas", None)
+    resaas = getattr(Model, "RESAAS", None)
     return getattr(resaas, "crud",  True)
  
 def _normalize_model_name(model: str) -> str:
@@ -615,7 +615,7 @@ class RelationsAPIView(APIView):
             q = Q()
 
             # 🔥 tenta pegar do RESAAS
-            resaas = getattr(Model, "_resaas", None)
+            resaas = getattr(Model, "RESAAS", None)
             search_fields = getattr(resaas, "search_fields", None)
 
             # 🔥 fallback (caso não exista)

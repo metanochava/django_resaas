@@ -33,7 +33,7 @@ from django.db import models
 #     q = Q()
 #     if search:
 #         # 🔥 tenta pegar do RESAAS
-#         resaas = getattr(Model, "_resaas", None)
+#         resaas = getattr(Model, "RESAAS", None)
 #         search_fields = getattr(resaas, "search_fields", None)
 
 #         # 🔥 fallback (caso não exista)
@@ -131,7 +131,7 @@ def build_search_query(Model, search):
 
     resaas = getattr(
         Model,
-        "_resaas",
+        "RESAAS",
         None
     )
 
