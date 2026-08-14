@@ -25,46 +25,169 @@ from .mixins.view.select import SelectMixin
 from django_resaas.core.utils import build_select_data
 from django.db import models
 
-
 # -----------------------------------
 # 🔍 SEARCH BUILDER
 # -----------------------------------
 
-def build_search_query(Model, search, depth=1):
+# def build_search_query(Model, search, depth=1):
+#     q = Q()
+#     if search:
+#         # 🔥 tenta pegar do RESAAS
+#         resaas = getattr(Model, "_resaas", None)
+#         search_fields = getattr(resaas, "search_fields", None)
+
+#         # 🔥 fallback (caso não exista)
+#         if not search_fields:
+#             for field in Model._meta.get_fields():
+
+#                 # 🔥 campos diretos
+#                 if isinstance(field, (CharField, TextField, EmailField)):
+#                     q |= Q(**{f"{field.name}__icontains": search})
+
+#                 # 🔥 foreign keys simples
+#                 elif field.is_relation and field.many_to_one:
+#                     try:
+#                         rel_model = field.related_model
+
+#                         # tenta campo name
+#                         if hasattr(rel_model, "name"):
+#                             q |= Q(**{f"{field.name}__name__icontains": search})
+
+#                     except:
+#                         continue
+#         else:
+#             for field in search_fields:
+#                 try:
+#                     Model._meta.get_field(field)
+#                     q |= Q(**{f"{field}__icontains": search})
+#                 except:
+#                     continue
+
+#         return q
+
+
+
+
+
+
+# ============================================================
+# VERIFICAR SE UM CAMPO DE PESQUISA É VÁLIDO
+# ============================================================
+
+def is_valid_search_field(Model, field_path):
+
+    parts = field_path.split("__")
+
+    current_model = Model
+
+    for index, part in enumerate(parts):
+
+        try:
+            field = current_model._meta.get_field(part)
+
+        except FieldDoesNotExist:
+            return False
+
+        # último campo
+        if index == len(parts) - 1:
+
+            return isinstance(
+                field,
+                (
+                    CharField,
+                    TextField,
+                    EmailField,
+                )
+            )
+
+        # ainda existem campos depois deste
+        # portanto este precisa ser uma relação
+        if not field.is_relation:
+            return False
+
+        current_model = field.related_model
+
+        if current_model is None:
+            return False
+
+    return False
+
+
+# ============================================================
+# GERAR QUERY DE PESQUISA
+# ============================================================
+
+def build_search_query(Model, search):
+
     q = Q()
-    if search:
-        # 🔥 tenta pegar do RESAAS
-        resaas = getattr(Model, "_resaas", None)
-        search_fields = getattr(resaas, "search_fields", None)
 
-        # 🔥 fallback (caso não exista)
-        if not search_fields:
-            for field in Model._meta.get_fields():
+    if not search:
+        return q
 
-                # 🔥 campos diretos
-                if isinstance(field, (CharField, TextField, EmailField)):
-                    q |= Q(**{f"{field.name}__icontains": search})
 
-                # 🔥 foreign keys simples
-                elif field.is_relation and field.many_to_one:
-                    try:
-                        rel_model = field.related_model
+    # --------------------------------------------------------
+    # CONFIGURAÇÃO _resaas DO MODEL
+    # --------------------------------------------------------
 
-                        # tenta campo name
-                        if hasattr(rel_model, "name"):
-                            q |= Q(**{f"{field.name}__name__icontains": search})
+    resaas = getattr(
+        Model,
+        "_resaas",
+        None
+    )
 
-                    except:
-                        continue
-        else:
-            for field in search_fields:
-                try:
-                    Model._meta.get_field(field)
-                    q |= Q(**{f"{field}__icontains": search})
-                except:
-                    continue
+    search_fields = getattr(
+        resaas,
+        "search_fields",
+        None
+    )
+
+
+    # --------------------------------------------------------
+    # SE O MODEL DEFINIU search_fields
+    # --------------------------------------------------------
+
+    if search_fields:
+
+        for field in search_fields:
+
+            if not is_valid_search_field(
+                Model,
+                field
+            ):
+                continue
+
+            q |= Q(
+                **{
+                    f"{field}__icontains": search
+                }
+            )
 
         return q
+
+
+    # --------------------------------------------------------
+    # FALLBACK AUTOMÁTICO
+    # --------------------------------------------------------
+
+    for field in Model._meta.get_fields():
+
+        # campos texto do próprio model
+        if isinstance(
+            field,
+            (
+                CharField,
+                TextField,
+                EmailField,
+            )
+        ):
+
+            q |= Q(
+                **{
+                    f"{field.name}__icontains": search
+                }
+            )
+
+    return q
 
 # -----------------------------------
 # 🧩 VIEW REGISTRY
@@ -87,13 +210,15 @@ def registerView(name=None, module=None):
 # -----------------------------------
 
 class BaseAPIView(SelectMixin, ModelViewSet):
-
-
     """
     ViewSet base multi-tenant com controlo automático de permissões.
     """
 
-    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filter_backends = [
+        DjangoFilterBackend,
+        # SearchFilter,
+        OrderingFilter
+    ]
     # filterset_fields = "__all__"
     filterset_fields = []
     ordering_fields = "__all__"
@@ -138,15 +263,30 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         ]
 
     def apply_dynamic_search(self, qs):
-        search = (self.request.query_params.get("search") or "").strip()
+
+        search = (
+            self.request
+            .query_params
+            .get("search", "")
+            .strip()
+        )
 
         if not search:
             return qs
 
         Model = qs.model
-        q = build_search_query(Model, search, depth=1)
 
-        return qs.filter(q)
+        q = build_search_query(
+            Model,
+            search
+        )
+
+        # Se nenhum campo pesquisável foi encontrado,
+        # não devolver todos os registos.
+        if not q.children:
+            return qs.none()
+
+        return qs.filter(q).distinct()
 
     # -----------------------------------
     # 🧠 MODEL
@@ -214,34 +354,78 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # -----------------------------------
 
     def get_queryset(self):
+
         qs = super().get_queryset()
+
         Model = qs.model
 
-        # 🔥 aplica tenant só se existir no model
+
+        # ========================================================
+        # TENANT
+        # ========================================================
+
         if hasattr(Model, "entity_id"):
-            qs = qs.filter(entity_id=self.request.entity_id)
+            qs = qs.filter(
+                entity_id=self.request.entity_id
+            )
 
         if hasattr(Model, "branch_id"):
-            qs = qs.filter(branch_id=self.request.branch_id)
+            qs = qs.filter(
+                branch_id=self.request.branch_id
+            )
 
-        objects_filter = (self.request.query_params.get("objects") or "").strip()
 
-        # ver todos
-        if objects_filter == "all" and hasattr(Model, "all_objects"):
+        # ========================================================
+        # OBJECTS
+        # ========================================================
+
+        objects_filter = (
+            self.request
+            .query_params
+            .get("objects", "")
+            .strip()
+        )
+
+
+        # TODOS
+        if (
+            objects_filter == "all"
+            and hasattr(Model, "all_objects")
+        ):
+
             qs = Model.all_objects.all()
 
-        # só apagados
-        elif objects_filter == "deleted" and hasattr(Model, "deleted_objects"):
+
+        # APAGADOS
+        elif (
+            objects_filter == "deleted"
+            and hasattr(Model, "deleted_objects")
+        ):
+
             qs = Model.deleted_objects.all()
 
-        # reaplicar tenant após troca de manager
+
+        # ========================================================
+        # REAPLICAR TENANT
+        # ========================================================
+
         if hasattr(Model, "entity_id"):
-            qs = qs.filter(entity_id=self.request.entity_id)
+            qs = qs.filter(
+                entity_id=self.request.entity_id
+            )
 
         if hasattr(Model, "branch_id"):
-            qs = qs.filter(branch_id=self.request.branch_id)
+            qs = qs.filter(
+                branch_id=self.request.branch_id
+            )
+
+
+        # ========================================================
+        # SEARCH
+        # ========================================================
 
         qs = self.apply_dynamic_search(qs)
+
 
         return qs
 
