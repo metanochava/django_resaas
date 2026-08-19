@@ -23,7 +23,7 @@ from .mixins.view.select import SelectMixin
 from django_resaas.core.utils import build_select_data
 from django.db import models
 
-
+from django.template.loader import select_template
 
 from django_filters.rest_framework import (
     DjangoFilterBackend,
@@ -492,3 +492,149 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         # 🔥 comportamento normal (inalterado)
         return super().list(request, *args, **kwargs)
+
+
+
+
+    # -----------------------------------
+    # 📄 PDF
+    # -----------------------------------
+
+
+    def get_pdf_template(self):
+
+        model = self.get_model()._meta.model_name
+        module = self.module_name
+
+        templates = []
+
+        # Template explicitamente configurado
+        if getattr(self, "pdf_template", None):
+            templates.append(self.pdf_template)
+
+        # Template automático do módulo
+        templates.append(
+            f"{module}/{model}.html"
+        )
+
+        # Default django_resaas
+        templates.append(
+            "django_resaas/pdf/detail.html"
+        )
+
+        return select_template(
+            templates
+        ).template.name
+
+
+    def get_pdflist_template(self):
+
+        model = self.get_model()._meta.model_name
+        module = self.module_name
+
+        templates = []
+
+        if getattr(self, "pdflist_template", None):
+            templates.append(
+                self.pdflist_template
+            )
+
+        templates.append(
+            f"{module}/{model}_list.html"
+        )
+
+        templates.append(
+            "django_resaas/pdf/list.html"
+        )
+
+        return select_template(
+            templates
+        ).template.name
+
+
+        
+    def get_pdf_context(
+        self,
+        request,
+        instance
+    ):
+
+        return {
+            "object": instance,
+            "entity": getattr(
+                instance,
+                "entity",
+                None
+            ),
+            "data_emissao": timezone.now().date(),
+        }
+
+
+    def get_pdflist_context(
+        self,
+        request,
+        queryset
+    ):
+
+        return {
+            "objects": queryset,
+            "entity": getattr(
+                request,
+                "entity",
+                None
+            ),
+            "data_emissao": timezone.now().date(),
+        }
+
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="pdf"
+    )
+    def pdf(self, request, pk=None, *args, **kwargs):
+
+        instance = self.get_object()
+
+        template = self.get_pdf_template()
+
+        context = self.get_pdf_context(
+            request=request,
+            instance=instance
+        )
+
+        return PDF(
+            template,
+            request,
+            **context
+        )
+
+
+    # -----------------------------------
+    # 📄 PDF LIST
+    # -----------------------------------
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="pdflist"
+    )
+    def pdflist(self, request, *args, **kwargs):
+
+        queryset = self.filter_queryset(
+            self.get_queryset()
+        )
+
+        template = self.get_pdflist_template()
+
+        context = self.get_pdflist_context(
+            request=request,
+            queryset=queryset
+        )
+
+        return PDF(
+            template,
+            request,
+            **context
+        )
+

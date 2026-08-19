@@ -83,6 +83,7 @@ def create_model_permissions(sender, **kwargs):
             
             ("list", "Can list"),
             ("pdf", "Can pdf"),
+            ("pdf_list", "Can pdf list"),
             ("restore", "Can restore"),
             ("hard_delete", "Can hard delete"),
         ]:
