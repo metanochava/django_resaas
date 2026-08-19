@@ -168,7 +168,6 @@ def registerView(name=None, module=None):
 
 
 
-
 class DynamicFilterBackend(DjangoFilterBackend):
 
     def get_filterset_class(self, view, queryset=None):
@@ -178,7 +177,7 @@ class DynamicFilterBackend(DjangoFilterBackend):
 
         Model = queryset.model
 
-        fields = [
+        filter_fields = [
             field.name
             for field in Model._meta.fields
             if not isinstance(
@@ -190,11 +189,22 @@ class DynamicFilterBackend(DjangoFilterBackend):
             )
         ]
 
-        class AutoFilterSet(FilterSet):
+        Meta = type(
+            "Meta",
+            (),
+            {
+                "model": Model,
+                "fields": filter_fields,
+            }
+        )
 
-            class Meta:
-                model = Model
-                fields = fields
+        AutoFilterSet = type(
+            f"{Model.__name__}AutoFilterSet",
+            (FilterSet,),
+            {
+                "Meta": Meta
+            }
+        )
 
         return AutoFilterSet
 
