@@ -235,6 +235,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         'restore': 'restore',
         'hard_delete': 'hard_delete',
         'pdf': 'pdf',
+        'pdf_list': 'pdf_list',
     }
 
     # -----------------------------------
