@@ -12,8 +12,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_filters.rest_framework import DjangoFilterBackend
-
 from django_resaas.core.base.permissions import isPermited
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import ok, fail  # noqa
@@ -25,49 +23,12 @@ from .mixins.view.select import SelectMixin
 from django_resaas.core.utils import build_select_data
 from django.db import models
 
-# -----------------------------------
-# 🔍 SEARCH BUILDER
-# -----------------------------------
-
-# def build_search_query(Model, search, depth=1):
-#     q = Q()
-#     if search:
-#         # 🔥 tenta pegar do RESAAS
-#         resaas = getattr(Model, "RESAAS", None)
-#         search_fields = getattr(resaas, "search_fields", None)
-
-#         # 🔥 fallback (caso não exista)
-#         if not search_fields:
-#             for field in Model._meta.get_fields():
-
-#                 # 🔥 campos diretos
-#                 if isinstance(field, (CharField, TextField, EmailField)):
-#                     q |= Q(**{f"{field.name}__icontains": search})
-
-#                 # 🔥 foreign keys simples
-#                 elif field.is_relation and field.many_to_one:
-#                     try:
-#                         rel_model = field.related_model
-
-#                         # tenta campo name
-#                         if hasattr(rel_model, "name"):
-#                             q |= Q(**{f"{field.name}__name__icontains": search})
-
-#                     except:
-#                         continue
-#         else:
-#             for field in search_fields:
-#                 try:
-#                     Model._meta.get_field(field)
-#                     q |= Q(**{f"{field}__icontains": search})
-#                 except:
-#                     continue
-
-#         return q
 
 
-
-
+from django_filters.rest_framework import (
+    DjangoFilterBackend,
+    FilterSet,
+)
 
 
 # ============================================================
@@ -205,6 +166,38 @@ def registerView(name=None, module=None):
     return decorator
 
 
+
+
+
+class DynamicFilterBackend(DjangoFilterBackend):
+
+    def get_filterset_class(self, view, queryset=None):
+
+        if queryset is None:
+            return None
+
+        Model = queryset.model
+
+        fields = [
+            field.name
+            for field in Model._meta.fields
+            if not isinstance(
+                field,
+                (
+                    models.FileField,
+                    models.ImageField,
+                )
+            )
+        ]
+
+        class AutoFilterSet(FilterSet):
+
+            class Meta:
+                model = Model
+                fields = fields
+
+        return AutoFilterSet
+
 # -----------------------------------
 # 🚀 BASE API VIEW
 # -----------------------------------
@@ -215,13 +208,12 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     """
 
     filter_backends = [
-        DjangoFilterBackend,
-        # SearchFilter,
+        DynamicFilterBackend,
         OrderingFilter
     ]
-    # filterset_fields = "__all__"
-    filterset_fields = []
+
     ordering_fields = "__all__"
+
 
     permission_action_map = {
         'list': 'list',
@@ -238,29 +230,6 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # -----------------------------------
     # 🔍 SEARCH
     # -----------------------------------
-    def get_filterset_class(self):
-        self.filterset_fields = self.get_filterset_fields()
-        return super().get_filterset_class()
-    
-    def get_filterset_fields(self):
-
-        model = self.get_model()
-
-        return [
-
-            f.name
-
-            for f in model._meta.fields
-
-            if not isinstance(
-                f,
-                (
-                    models.FileField,
-                    models.ImageField,
-                ),
-            )
-
-        ]
 
     def apply_dynamic_search(self, qs):
 
