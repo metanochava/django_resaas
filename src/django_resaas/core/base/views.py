@@ -17,7 +17,7 @@ from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils import ok, fail  # noqa
 from django_resaas.core.base.registry import VIEW_REGISTRY
 from django_resaas.models.entity_app import EntityApp
-
+from django_resaas.models.entity import Entity
 
 from .mixins.view.select import SelectMixin
 from django_resaas.core.utils import build_select_data
@@ -564,7 +564,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # 📄 PDF HELPERS
     # -----------------------------------
 
-    def get_logo_b64(self, request):
+    def get_request_entity(self, request):
 
         entity_id = getattr(
             request,
@@ -577,9 +577,19 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         try:
 
-            entity = Entity.objects.get(
+            return Entity.objects.get(
                 id=entity_id
             )
+
+        except Entity.DoesNotExist:
+            return None
+
+    def get_logo_b64(self, entity):
+
+        if not entity:
+            return None
+
+        try:
 
             if (
                 entity.logo
@@ -611,16 +621,19 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         instance
     ):
 
-        entity = getattr(
-            instance,
-            "entity",
-            None
+        # Entidade que está a fazer a requisição
+        entity = self.get_request_entity(
+            request
         )
+
 
         return {
             "object": instance,
+
+            # entidade da requisição
             "entity": entity,
 
+            # logo da entidade da requisição
             "logo_b64": self.get_logo_b64(
                 entity
             ),
@@ -640,42 +653,124 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # -----------------------------------
     # 📄 PDF LIST CONTEXT
     # -----------------------------------
-
     def get_pdflist_context(
         self,
         request,
         queryset
     ):
 
-        entity = getattr(
-            request,
-            "entity",
-            None
+        # Entidade que está a fazer a requisição
+        entity = self.get_request_entity(
+            request
         )
 
-        # fallback caso request.entity não exista
-        if not entity:
+        Model = self.get_model()
 
-            first = queryset.first()
+        # -----------------------------------
+        # CAMPOS PARA O PDF
+        # -----------------------------------
 
-            if first:
-                entity = getattr(
-                    first,
-                    "entity",
+        ignore_fields = {
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "deleted_at",
+        }
+
+        fields = [
+            field
+            for field in Model._meta.fields
+            if field.name not in ignore_fields
+        ]
+
+        # -----------------------------------
+        # CABEÇALHOS
+        # -----------------------------------
+
+        pdf_fields = [
+            {
+                "name": field.name,
+                "label": str(
+                    field.verbose_name
+                ).title(),
+            }
+            for field in fields
+        ]
+
+        # -----------------------------------
+        # LINHAS
+        # -----------------------------------
+
+        pdf_rows = []
+
+        for instance in queryset:
+
+            row = []
+
+            for field in fields:
+
+                value = getattr(
+                    instance,
+                    field.name,
                     None
                 )
 
+                # ForeignKey / OneToOne
+                if field.is_relation:
+                    value = (
+                        str(value)
+                        if value
+                        else "-"
+                    )
+
+                # None
+                elif value is None:
+                    value = "-"
+
+                row.append(value)
+
+            pdf_rows.append(row)
+
+        # -----------------------------------
+        # IDENTIFICADOR DO RELATÓRIO
+        # -----------------------------------
+
+        entity_id = (
+            entity.pk
+            if entity
+            else "report"
+        )
+
         return {
+            # queryset original
             "objects": queryset,
+
+            # dados preparados para o template default
+            "pdf_fields": pdf_fields,
+            "pdf_rows": pdf_rows,
+
+            # entidade da requisição
             "entity": entity,
 
+            # logo
             "logo_b64": self.get_logo_b64(
                 entity
             ),
 
+            # QR do relatório/entidade
+            "qr_b64": make_qr_b64(
+                str(entity_id)
+            ),
+
+            # barcode do relatório/entidade
+            "barcode_b64": make_barcode_b64(
+                str(entity_id)
+            ),
+
+            # emissão
             "data_emissao": timezone.now().date(),
         }
-
 
     @action(
         detail=True,

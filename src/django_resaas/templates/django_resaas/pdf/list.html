@@ -1,1 +1,545 @@
-List 
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+
+<meta charset="UTF-8">
+
+<style>
+
+  /* =========================================================
+     PAGE
+  ========================================================= */
+
+  @page {
+
+    size: A4 landscape;
+
+    margin-top: 120px;
+    margin-bottom: 90px;
+    margin-left: 35px;
+    margin-right: 35px;
+
+
+    @bottom-right {
+
+      content: counter(page) " - " counter(pages);
+
+      font-size: 12px;
+
+      color: #2563eb;
+
+      font-family: Arial, sans-serif;
+
+      font-weight: bold;
+
+      margin-right: 5px;
+
+      margin-bottom: 3px;
+
+    }
+
+  }
+
+
+  * {
+    box-sizing: border-box;
+  }
+
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+
+  body {
+
+    font-family: Arial, sans-serif;
+
+    font-size: 12px;
+
+    color: #333;
+
+  }
+
+
+  /* =========================================================
+     HEADER
+  ========================================================= */
+
+  .header {
+
+    position: fixed;
+
+    top: -95px;
+
+    left: 0;
+    right: 0;
+
+    height: 90px;
+
+    border-bottom: 1px solid #ddd;
+
+    background: white;
+
+  }
+
+
+  .header-table {
+
+    width: 100%;
+
+    height: 90px;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+  }
+
+
+  .header-table td {
+
+    vertical-align: middle;
+
+  }
+
+
+  .logo {
+
+    width: 100px;
+
+  }
+
+
+  .logo img {
+
+    width: 85px;
+
+    height: 85px;
+
+    object-fit: contain;
+
+  }
+
+
+  .title {
+
+    text-align: center;
+
+  }
+
+
+  .title h1 {
+
+    margin: 0;
+
+    font-size: 21px;
+
+    color: #2563eb;
+
+  }
+
+
+  .subtitle {
+
+    margin-top: 4px;
+
+    color: #777;
+
+    font-size: 14px;
+
+  }
+
+
+  .header-right {
+
+    width: 100px;
+
+    text-align: right;
+
+    font-size: 11px;
+
+    color: #777;
+
+  }
+
+
+  /* =========================================================
+     CONTENT
+  ========================================================= */
+
+  .content {
+
+    width: 100%;
+
+  }
+
+
+  /* =========================================================
+     TABLE
+  ========================================================= */
+
+  .list-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+  }
+
+
+  .list-table thead {
+
+    display: table-header-group;
+
+  }
+
+
+  .list-table tr {
+
+    page-break-inside: avoid;
+
+  }
+
+
+  .list-table th {
+
+    background: #2563eb;
+
+    color: white;
+
+    text-align: left;
+
+    padding: 7px 6px;
+
+    font-size: 11px;
+
+    border: 1px solid #ddd;
+
+  }
+
+
+  .list-table td {
+
+    padding: 6px;
+
+    border: 1px solid #ddd;
+
+    vertical-align: top;
+
+    font-size: 11px;
+
+  }
+
+
+  .list-table tbody tr:nth-child(even) {
+
+    background: #f5f7fa;
+
+  }
+
+
+  /* =========================================================
+     TOTAL
+  ========================================================= */
+
+  .total {
+
+    margin-top: 10px;
+
+    font-size: 11px;
+
+    color: #666;
+
+    text-align: right;
+
+  }
+
+
+  /* =========================================================
+     FOOTER
+  ========================================================= */
+
+  .footer {
+
+    position: fixed;
+
+    bottom: -58px;
+
+    left: 0;
+    right: 0;
+
+    height: 48px;
+
+    border-top: 1px solid #ddd;
+
+    background: white;
+
+    padding-top: 5px;
+
+    font-size: 11px;
+
+    color: #777;
+
+  }
+
+
+  .footer-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+  }
+
+
+  .footer-left {
+    text-align: left;
+  }
+
+
+  .footer-right {
+    text-align: right;
+  }
+
+
+  .footer-center {
+
+    text-align: center;
+
+    font-size: 10px;
+
+  }
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     HEADER
+========================================================= -->
+
+<div class="header">
+
+  <table class="header-table">
+
+    <tr>
+
+      <!-- LOGO -->
+
+      <td class="logo">
+
+        {% if logo_b64 %}
+
+          <img
+            src="data:image/png;base64,{{ logo_b64 }}"
+          >
+
+        {% endif %}
+
+      </td>
+
+
+      <!-- TITLE -->
+
+      <td class="title">
+
+        <h1>
+
+          {% if title %}
+
+            {{ title }}
+
+          {% else %}
+
+            Listagem
+
+          {% endif %}
+
+        </h1>
+
+
+        <div class="subtitle">
+
+          {% if entity %}
+
+            {{ entity.name }}
+
+          {% endif %}
+
+        </div>
+
+      </td>
+
+
+      <!-- DATE -->
+
+      <td class="header-right">
+
+        {{ data_emissao|date:"d/m/Y" }}
+
+      </td>
+
+    </tr>
+
+  </table>
+
+</div>
+
+
+
+<!-- =========================================================
+     CONTENT
+========================================================= -->
+
+<div class="content">
+
+
+  {% if objects %}
+
+    <table class="list-table">
+
+      <!-- ===================================================
+           HEADER DAS COLUNAS
+      ==================================================== -->
+
+      <thead>
+
+        <tr>
+
+          {% for field in pdf_fields %}
+
+            <th>
+
+              {{ field.label }}
+
+            </th>
+
+          {% endfor %}
+
+        </tr>
+
+      </thead>
+
+
+      <!-- ===================================================
+           BODY
+      ==================================================== -->
+
+      <tbody>
+
+        {% for row in pdf_rows %}
+
+          <tr>
+
+            {% for value in row %}
+
+              <td>
+
+                {{ value|default:"-" }}
+
+              </td>
+
+            {% endfor %}
+
+          </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+
+    <div class="total">
+
+      Total:
+      {{ objects|length }}
+
+    </div>
+
+
+  {% else %}
+
+    <div
+      style="
+        text-align:center;
+        padding-top:50px;
+        color:#777;
+      "
+    >
+
+      Sem dados
+
+    </div>
+
+  {% endif %}
+
+
+</div>
+
+
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+
+<div class="footer">
+
+  <table class="footer-table">
+
+    <tr>
+
+      <td class="footer-left">
+
+        {% if entity %}
+
+          {{ entity.name }}
+
+        {% endif %}
+
+      </td>
+
+
+      <td class="footer-right">
+
+        {{ data_emissao|date:"d/m/Y" }}
+
+      </td>
+
+    </tr>
+
+
+    {% if entity.rodape %}
+
+      <tr>
+
+        <td
+          colspan="2"
+          class="footer-center"
+        >
+
+          {{ entity.rodape|safe }}
+
+        </td>
+
+      </tr>
+
+    {% endif %}
+
+  </table>
+
+</div>
+
+
+</body>
+
+</html>
