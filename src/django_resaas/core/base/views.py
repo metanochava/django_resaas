@@ -20,7 +20,8 @@ from django_resaas.models.entity_app import EntityApp
 from django_resaas.models.entity import Entity
 
 from .mixins.view.select import SelectMixin
-from django_resaas.core.utils import build_select_data, ResaasPagination
+from django_resaas.core.utils import build_select_data
+from django_resaas.core.utils.pagination import ResaasPagination
 from django.db import models
 
 from django.template.loader import select_template
