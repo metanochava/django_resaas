@@ -620,114 +620,60 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         instance
     ):
 
-        # -----------------------------------
-        # ENTIDADE DA REQUISIÇÃO
-        # -----------------------------------
-
         entity = self.get_request_entity(
             request
         )
 
-
-        # -----------------------------------
-        # CAMPOS IGNORADOS
-        # -----------------------------------
-
-        ignore_fields = {
-            "created_at",
-            "updated_at",
-            "created_by",
-            "updated_by",
-            "deleted_at",
-        }
-
-
-        # -----------------------------------
-        # CAMPOS DO PDF
-        # -----------------------------------
-
-        pdf_fields = []
-
-        for field in instance._meta.fields:
-
-            if field.name in ignore_fields:
-                continue
-
-            value = getattr(
-                instance,
-                field.name,
-                None
-            )
-
-            # ForeignKey / OneToOne
-            if field.is_relation:
-                value = (
-                    str(value)
-                    if value
-                    else "-"
-                )
-
-            # Choices
-            elif field.choices:
-
-                display_method = getattr(
-                    instance,
-                    f"get_{field.name}_display",
-                    None
-                )
-
-                if display_method:
-                    value = display_method()
-
-            # None
-            elif value is None:
-                value = "-"
-
-            pdf_fields.append({
-                "name": field.name,
-                "label": str(
-                    field.verbose_name
-                ).title(),
-                "value": value,
-            })
-
-
-        # -----------------------------------
-        # CONTEXT
-        # -----------------------------------
+        now = timezone.now()
 
         return {
             "object": instance,
 
-            # dados preparados para template default
-            "pdf_fields": pdf_fields,
-
-            # entidade da requisição
             "entity": entity,
 
-            # logo da entidade
             "logo_b64": self.get_logo_b64(
                 entity
             ),
 
-            # QR do objecto
             "qr_b64": make_qr_b64(
                 str(instance.pk)
             ),
 
-            # barcode do objecto
             "barcode_b64": make_barcode_b64(
                 str(instance.pk)
             ),
 
-            # emissão
-            "data_emissao": timezone.now().date(),
+            "data_emissao": now.date(),
+
+            # =====================================
+            # PDF METADATA
+            # =====================================
+
+            "pdf_title": str(instance),
+
+            "pdf_author": (
+                entity.name
+                if entity
+                else "RESAAS"
+            ),
+
+            "pdf_subject": (
+                f"Documento de {self.get_model()._meta.verbose_name}"
+            ),
+
+            "pdf_keywords": (
+                f"{self.module_name}, "
+                f"{self.get_model()._meta.model_name}, "
+                f"RESAAS"
+            ),
+
+            "pdf_created": now.isoformat(),
+
+            "pdf_modified": now.isoformat(),
+
+            "pdf_generator": "RESAAS / WeasyPrint",
         }
 
-
-    # -----------------------------------
-    # 📄 PDF LIST CONTEXT
-    # -----------------------------------
 
     def get_pdflist_context(
         self,
@@ -735,20 +681,13 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         queryset
     ):
 
-        # -----------------------------------
-        # ENTIDADE DA REQUISIÇÃO
-        # -----------------------------------
-
         entity = self.get_request_entity(
             request
         )
 
         Model = self.get_model()
 
-
-        # -----------------------------------
-        # CAMPOS IGNORADOS
-        # -----------------------------------
+        now = timezone.now()
 
         ignore_fields = {
             "created_at",
@@ -758,21 +697,11 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             "deleted_at",
         }
 
-
-        # -----------------------------------
-        # CAMPOS PARA O PDF
-        # -----------------------------------
-
         fields = [
             field
             for field in Model._meta.fields
             if field.name not in ignore_fields
         ]
-
-
-        # -----------------------------------
-        # CABEÇALHOS
-        # -----------------------------------
 
         pdf_fields = [
             {
@@ -783,11 +712,6 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             }
             for field in fields
         ]
-
-
-        # -----------------------------------
-        # LINHAS
-        # -----------------------------------
 
         pdf_rows = []
 
@@ -803,15 +727,14 @@ class BaseAPIView(SelectMixin, ModelViewSet):
                     None
                 )
 
-                # ForeignKey / OneToOne
                 if field.is_relation:
+
                     value = (
                         str(value)
                         if value
                         else "-"
                     )
 
-                # Choices
                 elif field.choices:
 
                     display_method = getattr(
@@ -823,7 +746,6 @@ class BaseAPIView(SelectMixin, ModelViewSet):
                     if display_method:
                         value = display_method()
 
-                # None
                 elif value is None:
                     value = "-"
 
@@ -831,51 +753,67 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
             pdf_rows.append(row)
 
-
-        # -----------------------------------
-        # IDENTIFICADOR DO RELATÓRIO
-        # -----------------------------------
-
         entity_id = (
             entity.pk
             if entity
             else "report"
         )
 
-
-        # -----------------------------------
-        # CONTEXT
-        # -----------------------------------
+        model_label = str(
+            Model._meta.verbose_name_plural
+        ).title()
 
         return {
-
-            # queryset original
             "objects": queryset,
 
-            # dados preparados
             "pdf_fields": pdf_fields,
             "pdf_rows": pdf_rows,
 
-            # entidade da requisição
             "entity": entity,
 
-            # logo da entidade
             "logo_b64": self.get_logo_b64(
                 entity
             ),
 
-            # QR do relatório
             "qr_b64": make_qr_b64(
                 str(entity_id)
             ),
 
-            # barcode do relatório
             "barcode_b64": make_barcode_b64(
                 str(entity_id)
             ),
 
-            # emissão
-            "data_emissao": timezone.now().date(),
+            "data_emissao": now.date(),
+
+            # =====================================
+            # PDF METADATA
+            # =====================================
+
+            "pdf_title": (
+                f"Lista de {model_label}"
+            ),
+
+            "pdf_author": (
+                entity.name
+                if entity
+                else "RESAAS"
+            ),
+
+            "pdf_subject": (
+                f"Listagem de {model_label}"
+            ),
+
+            "pdf_keywords": (
+                f"{self.module_name}, "
+                f"{Model._meta.model_name}, "
+                f"listagem, RESAAS"
+            ),
+
+            "pdf_created": now.isoformat(),
+
+            "pdf_modified": now.isoformat(),
+
+            "pdf_generator": "RESAAS / WeasyPrint",
         }
     @action(
         detail=True,
