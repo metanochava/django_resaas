@@ -2,33 +2,17 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 
 from django_resaas.core.utils.translate import Translate
-
-from rest_framework.views import APIView
-from rest_framework import status
-
 from django_resaas.data.user.serializers.me import MeSerializer
 
 
-class MeAPIView(APIView):
+class MeAPIView(generics.GenericAPIView):
+    serializer_class = MeSerializer
 
-    def get(self, request, *args, **kwargs):
-
-        if not request.user.is_authenticated:
-
-            return Response(
-                {
-                    "detail": "Não autenticado"
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        serializer = MeSerializer(
+    def get(self, request):
+        print(request, request.user, "so para testar ")
+        serializer = self.serializer_class(
             request.user,
-            context={
-                "request": request
-            }
+            context={'request': request}
         )
-
         data = serializer.data.copy()
-
-        return Response(data)
+        return Response( data, status=status.HTTP_200_OK)
