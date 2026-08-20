@@ -4,38 +4,14 @@ from rest_framework.response import Response
 from django_resaas.core.utils.translate import Translate
 from django_resaas.data.user.serializers.me import MeSerializer
 
-from rest_framework_simplejwt.authentication import JWTAuthentication
-
 
 class MeAPIView(generics.GenericAPIView):
-
     serializer_class = MeSerializer
 
-    def get(self, request, *args, **kwargs):
-
-        print(
-            "AUTHENTICATORS:",
-            [
-                type(auth).__name__
-                for auth in self.get_authenticators()
-            ]
+    def get(self, request):
+        serializer = self.serializer_class(
+            request.user,
+            context={'request': request}
         )
-
-        print(
-            "USER:",
-            request.user
-        )
-
-        print(
-            "AUTH:",
-            request.auth
-        )
-
-        print(
-            "AUTHORIZATION:",
-            request.headers.get(
-                "Authorization"
-            )
-        )
-
-        return Response({})
+        data = serializer.data.copy()
+        return Response( data, status=status.HTTP_200_OK)
