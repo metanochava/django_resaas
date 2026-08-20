@@ -25,3 +25,54 @@ class MeSerializer(BaseSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'username', 'profile', 'mobile', 'language', 'last_login']
+
+
+
+from django_resaas.core.base.serializers import BaseSerializer
+from django_resaas.models.user import User
+from rest_framework import serializers
+from django_resaas.models.language import Language
+
+
+class MeSerializer(BaseSerializer):
+
+    language = serializers.SerializerMethodField()
+
+    def get_language(self, obj):
+
+        # AnonymousUser ou qualquer objecto sem language
+        language = getattr(
+            obj,
+            "language",
+            None
+        )
+
+        if not language:
+
+            language = Language.objects.filter(
+                code=language.code
+            ).first()
+
+            if not language:
+                return None
+
+        return {
+            "id": language.id,
+            "name": language.name,
+            "code": language.code,
+        }
+
+
+    class Meta:
+
+        model = User
+
+        fields = [
+            "id",
+            "email",
+            "username",
+            "profile",
+            "mobile",
+            "language",
+            "last_login",
+        ]
