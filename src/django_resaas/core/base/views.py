@@ -20,7 +20,7 @@ from django_resaas.models.entity_app import EntityApp
 from django_resaas.models.entity import Entity
 
 from .mixins.view.select import SelectMixin
-from django_resaas.core.utils import build_select_data
+from django_resaas.core.utils import build_select_data, ResaasPagination
 from django.db import models
 
 from django.template.loader import select_template
@@ -223,6 +223,8 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     ViewSet base multi-tenant com controlo automático de permissões.
     """
 
+    pagination_class = ResaasPagination
+
     filter_backends = [
         DynamicFilterBackend,
         OrderingFilter
@@ -274,6 +276,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             return qs.none()
 
         return qs.filter(q).distinct()
+
 
     # -----------------------------------
     # 🧠 MODEL
