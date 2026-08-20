@@ -4,6 +4,42 @@
 
 <meta charset="UTF-8">
 
+<meta charset="UTF-8">
+
+<title>
+  {{ pdf_title|default:"Documento RESAAS" }}
+</title>
+
+<meta
+  name="author"
+  content="{{ pdf_author|default:'RESAAS' }}"
+>
+
+<meta
+  name="description"
+  content="{{ pdf_subject|default:'Documento gerado pelo RESAAS' }}"
+>
+
+<meta
+  name="keywords"
+  content="{{ pdf_keywords|default:'RESAAS' }}"
+>
+
+<meta
+  name="generator"
+  content="{{ pdf_generator|default:'RESAAS / WeasyPrint' }}"
+>
+
+<meta
+  name="dcterms.created"
+  content="{{ pdf_created }}"
+>
+
+<meta
+  name="dcterms.modified"
+  content="{{ pdf_modified }}"
+>
+
 <style>
 
   @page {
