@@ -30,6 +30,12 @@ from django_filters.rest_framework import (
     FilterSet,
 )
 
+from django_resaas.core.utils import (
+    make_qr_b64,
+    make_barcode_b64,
+    png_bytes_to_b64,
+    PDF
+)
 
 # ============================================================
 # VERIFICAR SE UM CAMPO DE PESQUISA É VÁLIDO
@@ -224,7 +230,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
     ordering_fields = "__all__"
 
-
+    # method : permission
     permission_action_map = {
         'list': 'list',
         'retrieve': 'view',
@@ -234,8 +240,9 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         'destroy': 'delete',
         'restore': 'restore',
         'hard_delete': 'hard_delete',
+
         'pdf': 'pdf',
-        'pdf_list': 'pdf_list',
+        'pdflist': 'pdf_list',
     }
 
     # -----------------------------------
@@ -553,22 +560,86 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
 
         
+    # -----------------------------------
+    # 📄 PDF HELPERS
+    # -----------------------------------
+
+    def get_logo_b64(self, request):
+
+        entity_id = getattr(
+            request,
+            "entity_id",
+            None
+        )
+
+        if not entity_id:
+            return None
+
+        try:
+
+            entity = Entity.objects.get(
+                id=entity_id
+            )
+
+            if (
+                entity.logo
+                and entity.logo.path
+            ):
+
+                with open(
+                    entity.logo.path,
+                    "rb"
+                ) as f:
+
+                    return png_bytes_to_b64(
+                        f.read()
+                    )
+
+        except Exception:
+            pass
+
+        return None
+
+
+    # -----------------------------------
+    # 📄 PDF CONTEXT
+    # -----------------------------------
+
     def get_pdf_context(
         self,
         request,
         instance
     ):
 
+        entity = getattr(
+            instance,
+            "entity",
+            None
+        )
+
         return {
             "object": instance,
-            "entity": getattr(
-                instance,
-                "entity",
-                None
+            "entity": entity,
+
+            "logo_b64": self.get_logo_b64(
+                entity
             ),
+
+            "qr_b64": make_qr_b64(
+                str(instance.pk)
+            ),
+
+            "barcode_b64": make_barcode_b64(
+                str(instance.pk)
+            ),
+
             "data_emissao": timezone.now().date(),
         }
 
+
+    # -----------------------------------
+    # 📄 PDF LIST CONTEXT
+    # -----------------------------------
 
     def get_pdflist_context(
         self,
@@ -576,13 +647,32 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         queryset
     ):
 
+        entity = getattr(
+            request,
+            "entity",
+            None
+        )
+
+        # fallback caso request.entity não exista
+        if not entity:
+
+            first = queryset.first()
+
+            if first:
+                entity = getattr(
+                    first,
+                    "entity",
+                    None
+                )
+
         return {
             "objects": queryset,
-            "entity": getattr(
-                request,
-                "entity",
-                None
+            "entity": entity,
+
+            "logo_b64": self.get_logo_b64(
+                entity
             ),
+
             "data_emissao": timezone.now().date(),
         }
 

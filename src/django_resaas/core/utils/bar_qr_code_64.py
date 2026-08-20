@@ -38,7 +38,6 @@ def PDF(template_path, request, doc=None, download=False, **context):
         html = template_path
 
 
-
     pdf = HTML(string=html, base_url=request.build_absolute_uri("/")).write_pdf()
 
     filename = doc.get("name", "pdf").replace(" ", "_")
