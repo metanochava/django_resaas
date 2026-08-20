@@ -614,60 +614,23 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # -----------------------------------
     # 📄 PDF CONTEXT
     # -----------------------------------
-
     def get_pdf_context(
         self,
         request,
         instance
     ):
 
-        # Entidade que está a fazer a requisição
+        # -----------------------------------
+        # ENTIDADE DA REQUISIÇÃO
+        # -----------------------------------
+
         entity = self.get_request_entity(
             request
         )
 
-
-        return {
-            "object": instance,
-
-            # entidade da requisição
-            "entity": entity,
-
-            # logo da entidade da requisição
-            "logo_b64": self.get_logo_b64(
-                entity
-            ),
-
-            "qr_b64": make_qr_b64(
-                str(instance.pk)
-            ),
-
-            "barcode_b64": make_barcode_b64(
-                str(instance.pk)
-            ),
-
-            "data_emissao": timezone.now().date(),
-        }
-
-
-    # -----------------------------------
-    # 📄 PDF LIST CONTEXT
-    # -----------------------------------
-    def get_pdflist_context(
-        self,
-        request,
-        queryset
-    ):
-
-        # Entidade que está a fazer a requisição
-        entity = self.get_request_entity(
-            request
-        )
-
-        Model = self.get_model()
 
         # -----------------------------------
-        # CAMPOS PARA O PDF
+        # CAMPOS IGNORADOS
         # -----------------------------------
 
         ignore_fields = {
@@ -678,11 +641,134 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             "deleted_at",
         }
 
+
+        # -----------------------------------
+        # CAMPOS DO PDF
+        # -----------------------------------
+
+        pdf_fields = []
+
+        for field in instance._meta.fields:
+
+            if field.name in ignore_fields:
+                continue
+
+            value = getattr(
+                instance,
+                field.name,
+                None
+            )
+
+            # ForeignKey / OneToOne
+            if field.is_relation:
+                value = (
+                    str(value)
+                    if value
+                    else "-"
+                )
+
+            # Choices
+            elif field.choices:
+
+                display_method = getattr(
+                    instance,
+                    f"get_{field.name}_display",
+                    None
+                )
+
+                if display_method:
+                    value = display_method()
+
+            # None
+            elif value is None:
+                value = "-"
+
+            pdf_fields.append({
+                "name": field.name,
+                "label": str(
+                    field.verbose_name
+                ).title(),
+                "value": value,
+            })
+
+
+        # -----------------------------------
+        # CONTEXT
+        # -----------------------------------
+
+        return {
+            "object": instance,
+
+            # dados preparados para template default
+            "pdf_fields": pdf_fields,
+
+            # entidade da requisição
+            "entity": entity,
+
+            # logo da entidade
+            "logo_b64": self.get_logo_b64(
+                entity
+            ),
+
+            # QR do objecto
+            "qr_b64": make_qr_b64(
+                str(instance.pk)
+            ),
+
+            # barcode do objecto
+            "barcode_b64": make_barcode_b64(
+                str(instance.pk)
+            ),
+
+            # emissão
+            "data_emissao": timezone.now().date(),
+        }
+
+
+    # -----------------------------------
+    # 📄 PDF LIST CONTEXT
+    # -----------------------------------
+
+    def get_pdflist_context(
+        self,
+        request,
+        queryset
+    ):
+
+        # -----------------------------------
+        # ENTIDADE DA REQUISIÇÃO
+        # -----------------------------------
+
+        entity = self.get_request_entity(
+            request
+        )
+
+        Model = self.get_model()
+
+
+        # -----------------------------------
+        # CAMPOS IGNORADOS
+        # -----------------------------------
+
+        ignore_fields = {
+            "created_at",
+            "updated_at",
+            "created_by",
+            "updated_by",
+            "deleted_at",
+        }
+
+
+        # -----------------------------------
+        # CAMPOS PARA O PDF
+        # -----------------------------------
+
         fields = [
             field
             for field in Model._meta.fields
             if field.name not in ignore_fields
         ]
+
 
         # -----------------------------------
         # CABEÇALHOS
@@ -697,6 +783,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             }
             for field in fields
         ]
+
 
         # -----------------------------------
         # LINHAS
@@ -724,6 +811,18 @@ class BaseAPIView(SelectMixin, ModelViewSet):
                         else "-"
                     )
 
+                # Choices
+                elif field.choices:
+
+                    display_method = getattr(
+                        instance,
+                        f"get_{field.name}_display",
+                        None
+                    )
+
+                    if display_method:
+                        value = display_method()
+
                 # None
                 elif value is None:
                     value = "-"
@@ -731,6 +830,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
                 row.append(value)
 
             pdf_rows.append(row)
+
 
         # -----------------------------------
         # IDENTIFICADOR DO RELATÓRIO
@@ -742,28 +842,34 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             else "report"
         )
 
+
+        # -----------------------------------
+        # CONTEXT
+        # -----------------------------------
+
         return {
+
             # queryset original
             "objects": queryset,
 
-            # dados preparados para o template default
+            # dados preparados
             "pdf_fields": pdf_fields,
             "pdf_rows": pdf_rows,
 
             # entidade da requisição
             "entity": entity,
 
-            # logo
+            # logo da entidade
             "logo_b64": self.get_logo_b64(
                 entity
             ),
 
-            # QR do relatório/entidade
+            # QR do relatório
             "qr_b64": make_qr_b64(
                 str(entity_id)
             ),
 
-            # barcode do relatório/entidade
+            # barcode do relatório
             "barcode_b64": make_barcode_b64(
                 str(entity_id)
             ),
@@ -771,7 +877,6 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             # emissão
             "data_emissao": timezone.now().date(),
         }
-
     @action(
         detail=True,
         methods=["get"],
