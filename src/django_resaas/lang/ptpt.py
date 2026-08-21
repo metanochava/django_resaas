@@ -282,4 +282,186 @@ key_value = {
     "ImageField": "Imagem",
     "JSONField": "JSON / Dados livres",
     "MoneyField": "Dinheiro",
+
+
+    # =========================================================
+    # QUASAR / UI
+    # =========================================================
+
+    "OK": "OK",
+    "Set": "Definir",
+    "Accept": "Aceitar",
+    "Decline": "Recusar",
+    "Done": "Concluído",
+    "Expand": "Expandir",
+    "Collapse": "Recolher",
+    "Show": "Mostrar",
+    "Hide": "Ocultar",
+    "More": "Mais",
+    "Less": "Menos",
+    "Options": "Opções",
+    "Settings": "Definições",
+    "Menu": "Menu",
+    "Home": "Início",
+    "Dashboard": "Painel",
+    "Help": "Ajuda",
+
+    # =========================================================
+    # TABLE / PAGINATION
+    # =========================================================
+
+    "Selected records": "Registos seleccionados",
+    "of": "de",
+    "Rows": "Linhas",
+    "Row": "Linha",
+    "Column": "Coluna",
+    "Select all": "Seleccionar todos",
+    "Deselect all": "Desseleccionar todos",
+    "Show all": "Mostrar todos",
+    "Hide all": "Ocultar todos",
+
+    # =========================================================
+    # FILTER / SEARCH
+    # =========================================================
+
+    "Show filters": "Mostrar filtros",
+    "Hide filters": "Ocultar filtros",
+    "More options": "Mais opções",
+    "Clear search": "Limpar pesquisa",
+    "Search by": "Pesquisar por",
+    "Filter by": "Filtrar por",
+    "Contains": "Contém",
+    "Starts with": "Começa por",
+    "Ends with": "Termina em",
+    "Equal to": "Igual a",
+    "Not equal to": "Diferente de",
+
+    # =========================================================
+    # FORM / VALIDATION
+    # =========================================================
+
+    "Invalid field": "Campo inválido",
+    "Invalid email": "E-mail inválido",
+    "Invalid date": "Data inválida",
+    "Invalid number": "Número inválido",
+    "Minimum value": "Valor mínimo",
+    "Maximum value": "Valor máximo",
+    "Minimum length": "Comprimento mínimo",
+    "Maximum length": "Comprimento máximo",
+    "Must match": "Deve corresponder",
+    "Please select an option": "Seleccione uma opção",
+    "Please enter a value": "Introduza um valor",
+
+    # =========================================================
+    # CONFIRMATIONS
+    # =========================================================
+
+    "Confirm action": "Confirmar acção",
+    "Confirm restore": "Confirmar restauração",
+    "Confirm permanent deletion": "Confirmar eliminação permanente",
+    "This action cannot be undone": "Esta acção não pode ser anulada",
+    "Are you sure you want to continue?": "Tem a certeza de que deseja continuar?",
+
+    # =========================================================
+    # NETWORK / REQUESTS
+    # =========================================================
+
+    "Connecting...": "A ligar...",
+    "Processing...": "A processar...",
+    "Saving...": "A guardar...",
+    "Uploading...": "A carregar...",
+    "Downloading...": "A descarregar...",
+    "Request failed": "Falha no pedido",
+    "Network error": "Erro de rede",
+    "Server error": "Erro do servidor",
+    "Connection lost": "Ligação perdida",
+    "Connection restored": "Ligação restabelecida",
+    "Try again": "Tentar novamente",
+
+    # =========================================================
+    # FILES / UPLOAD
+    # =========================================================
+
+    "Drop files here": "Largue os ficheiros aqui",
+    "Browse files": "Procurar ficheiros",
+    "Selected files": "Ficheiros seleccionados",
+    "File too large": "Ficheiro demasiado grande",
+    "Invalid file type": "Tipo de ficheiro inválido",
+    "Upload successful": "Carregamento concluído com sucesso",
+    "Upload failed": "Falha no carregamento",
+
+    # =========================================================
+    # PDF / DOCUMENTS
+    # =========================================================
+
+    "Generate PDF": "Gerar PDF",
+    "Download PDF": "Descarregar PDF",
+    "Print PDF": "Imprimir PDF",
+    "PDF document": "Documento PDF",
+    "Document title": "Título do documento",
+    "Author": "Autor",
+    "Subject": "Assunto",
+    "Keywords": "Palavras-chave",
+
+    # =========================================================
+    # USER / SESSION
+    # =========================================================
+
+    "My profile": "O meu perfil",
+    "My account": "A minha conta",
+    "Sign in": "Iniciar sessão",
+    "Sign out": "Terminar sessão",
+    "Authentication required": "Autenticação necessária",
+    "Invalid credentials": "Credenciais inválidas",
+    "Token expired": "Token expirado",
+    "Refresh token": "Actualizar token",
+
+    # =========================================================
+    # PERMISSIONS
+    # =========================================================
+
+    "Allowed": "Permitido",
+    "Not allowed": "Não permitido",
+    "Read": "Ler",
+    "Write": "Escrever",
+    "Read only": "Apenas leitura",
+    "Full access": "Acesso total",
+
+    # =========================================================
+    # MULTI-TENANT
+    # =========================================================
+
+    "Select entity": "Seleccionar entidade",
+    "Current entity": "Entidade actual",
+    "Current branch": "Sucursal actual",
+    "Select group": "Seleccionar grupo",
+    "Current group": "Grupo actual",
+    "Entity type": "Tipo de entidade",
+
+    # =========================================================
+    # DATE / TIME
+    # =========================================================
+
+    "Now": "Agora",
+    "This week": "Esta semana",
+    "This month": "Este mês",
+    "This year": "Este ano",
+    "Date range": "Intervalo de datas",
+    "Start time": "Hora de início",
+    "End time": "Hora de fim",
+
+    # =========================================================
+    # COMMON BUSINESS FIELDS
+    # =========================================================
+
+    "Address": "Endereço",
+    "City": "Cidade",
+    "Country": "País",
+    "Province": "Província",
+    "District": "Distrito",
+    "Postal code": "Código postal",
+    "Website": "Website",
+    "Notes": "Notas",
+    "Reference": "Referência",
+
 }
