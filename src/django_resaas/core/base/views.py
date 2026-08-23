@@ -290,6 +290,59 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         custom_map = getattr(self, 'method_permission', {})
         return {**self.permission_action_map, **custom_map}
 
+    # ============================================================
+    # 🔐 RESOLVE ACTION PERMISSION
+    # ============================================================
+
+    def get_action_permission(self):
+
+        action_name = getattr(
+            self,
+            "action",
+            None
+        )
+
+        if not action_name:
+            return None
+
+
+        # ========================================================
+        # RESAAS CUSTOM ACTION
+        # ========================================================
+
+        method = getattr(
+            self,
+            action_name,
+            None
+        )
+
+        metadata = getattr(
+            method,
+            "_resaas_action",
+            None
+        )
+
+        if metadata:
+
+            # O nome da função é o prefixo da permission
+            #
+            # discharge()
+            #     ↓
+            # discharge_paciente
+
+            return action_name
+
+
+        # ========================================================
+        # DEFAULT / LEGACY ACTION
+        # ========================================================
+
+        permission_map = self.get_method_permission()
+
+        return permission_map.get(
+            action_name
+        )
+
     # -----------------------------------
     # 🔐 PERMISSIONS (COM CACHE)
     # -----------------------------------
@@ -314,17 +367,38 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         else:
             fail(request, "Módulo '{module}' não definido")
 
+        # ========================================================
+        # ACTION / MODEL
+        # ========================================================
+
         action = self.action
+
         model = self.get_model()
 
-        perm_map = self.get_method_permission()
-        perm_prefix = perm_map.get(action)
+
+        # ========================================================
+        # RESOLVE PERMISSION
+        # ========================================================
+
+        perm_prefix = self.get_action_permission()
 
         if not perm_prefix:
-            fail(request, 'Permissão não definida para esta ação')
-            
 
-        codename = f'{perm_prefix}_{model._meta.model_name}'
+            return fail(
+                request,
+                "Permissão não definida para esta ação",
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+
+        # ========================================================
+        # CODENAME
+        # ========================================================
+
+        codename = (
+            f"{perm_prefix}_"
+            f"{model._meta.model_name}"
+        )
 
         # 🔥 cache de permissões
         if not hasattr(request, "_perm_cache"):
