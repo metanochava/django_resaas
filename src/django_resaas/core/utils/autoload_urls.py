@@ -1,22 +1,12 @@
-from rest_framework.routers import DefaultRouter
-from rest_framework.viewsets import ViewSetMixin
 from django.urls import path
 
+from rest_framework.routers import DefaultRouter
+from rest_framework.viewsets import ViewSetMixin
+
 from django_resaas.core.base.registry import VIEW_REGISTRY
-from django_resaas.core.services.action_registry_service import ActionRegistryService
 
 
 def build_saas_urls():
-
-    # =========================================================
-    # SINCRONIZAR RESAAS ACTIONS
-    # =========================================================
-
-    ActionRegistryService.sync()
-
-    # =========================================================
-    # ROUTER
-    # =========================================================
 
     router = DefaultRouter()
 
