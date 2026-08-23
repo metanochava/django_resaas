@@ -39,7 +39,7 @@ from django_resaas.models.file import File
 from django_resaas.models.user_login import UserLogin
 from django_resaas.models.app import App
 from django_resaas.models.front_end import FrontEnd
-from django_resaas.models.model_extra import ModelExtra
+from django_resaas.models.model_extra_action import ModelExtraAction
 
 from django_resaas.models.theme import Theme, Typography
 from django_resaas.models.layout_setting import LayoutSetting, AnimationSetting
@@ -236,8 +236,8 @@ class LanguageAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
 
 
-@admin.register(ModelExtra)
-class ModelExtraAdmin(BaseAdmin):
+@admin.register(ModelExtraAction)
+class ModelExtraActionAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
 
 

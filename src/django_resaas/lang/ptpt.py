@@ -41,6 +41,7 @@ key_value = {
     # =========================================================
 
     "Actions": "Acções",
+    "Action": "Acção",
     "Create": "Criar",
     "Add": "Adicionar",
     "New": "Novo",
@@ -99,6 +100,8 @@ key_value = {
     "Selected": "Seleccionado",
     "Total": "Total",
     "Results": "Resultados",
+
+
 
 
     # =========================================================
@@ -463,5 +466,49 @@ key_value = {
     "Website": "Website",
     "Notes": "Notas",
     "Reference": "Referência",
+
+
+    "Reload data": "Recarregar dados",
+
+
+    "Custom": "Personalizado",
+
+    "Download data list as PDF": "Baixar lista de dados em PDF",
+
+    # =========================================================
+    # RECORD FILTER
+    # =========================================================
+
+    "Show active": "Mostrar activos",
+    "Show deleted": "Mostrar eliminados",
+
+
+    # =========================================================
+    # COLUMNS
+    # =========================================================
+
+    "Select visible columns": "Seleccionar colunas visíveis",
+
+
+
+    # =========================================================
+    # FILTERS / OPTIONS
+    # =========================================================
+
+    "Show more options": "Mostrar mais opções",
+
+
+    # =========================================================
+    # ACTIONS
+    # =========================================================
+
+    "Delete permanently": "Eliminar permanentemente",
+
+
+    "Click to see more options": "Clique para ver mais opções",
+
+
+    "Activate": "Activar",
+    "Deactivate": "Desactivar",
 
 }

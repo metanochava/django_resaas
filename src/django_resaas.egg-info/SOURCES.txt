@@ -135,7 +135,7 @@ src/django_resaas/models/entity_user.py
 src/django_resaas/models/file.py
 src/django_resaas/models/front_end.py
 src/django_resaas/models/language.py
-src/django_resaas/models/model_extra.py
+src/django_resaas/models/model_extra_action.py
 src/django_resaas/models/app.py
 src/django_resaas/models/person.py
 src/django_resaas/models/branch.py
