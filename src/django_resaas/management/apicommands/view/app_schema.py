@@ -548,45 +548,84 @@ class AppSchemaAPIView(ModelViewSet):
     # GET /api/django_resaas/app/<module>/<model>/schema/
     # lista campos detalhados
     # ======================================================
-    @action(detail=True, methods=["get"], url_path=r"(?P<model>[^/.]+)/schema")
+    
+
+    # GET /api/django_resaas/app/<module>/<model>/schema/
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path=r"(?P<model>[^/.]+)/schema",
+    )
     def model_schema(self, request, pk=None, model=None):
         module = pk
-        Model = _get_model(module, model)
-        fields = _schema_fields(Model)
 
         try:
             Model = apps.get_model(module, model)
         except LookupError:
             return fail(request, "model_not_found")
 
-        # 🔥 PRIORIDADE
-        start_fields = ['id', 'nid', 'codigo', 'code', 'nome', 'name','person']
-        end_fields = ['state', 'entity', 'branch', 'created_by', 'updated_by', 'created_at', 'updated_at', 'deleted_at']
+        app_label = Model._meta.app_label
+        model_name = Model._meta.model_name
 
-        fields = reorder_fields(fields, start_fields, end_fields)
+        fields = reorder_fields(
+            _schema_fields(Model),
+            [
+                "id",
+                "nid",
+                "codigo",
+                "code",
+                "nome",
+                "name",
+                "person",
+            ],
+            [
+                "state",
+                "entity",
+                "branch",
+                "created_by",
+                "updated_by",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+            ],
+        )
 
-        actions = []
+        extras = ModelExtraAction.objects.filter(
+            app=app_label,
+            model=model_name,
+            visible=True,
+        ).order_by("order", "action")
 
-        for m in ModelExtraAction.objects.filter(model=model):
-            actions.append({
-                'icon': m.icon,
-                'model': m.model,
-                'method': m.method,
-                'permission': m.permission,
-                'url': m.url,
-                'details': m.details,
-            })
+        actions = [
+            {
+                "action": extra.action,
+                "app": extra.app,
+                "model": extra.model,
+                "label": extra.label,
+                "icon": extra.icon,
+                "tooltip": extra.tooltip,
+                "position": extra.position,
+                "order": extra.order,
+                "visible": extra.visible,
+                "method": extra.method,
+                "url": extra.url,
+                "details": extra.details,
+                "permission": extra.permission,
+            }
+            for extra in extras
+        ]
 
         return all(
             request,
-            module=module,
-            model=model,
+            module=app_label,
+            model=model_name,
             fields=fields,
             actions=actions,
-            config= {
-                'crud': get_crud(Model),
-                'routes': get_route(Model)
-            } 
+            config={
+                "crud": get_crud(Model),
+                "routes": get_route(Model),
+            },
         )
 
 
