@@ -330,16 +330,17 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             #     ↓
             # discharge_paciente
 
-            return action_name
+            return metadata.get(
+                "action",
+                action_name
+            )
 
 
         # ========================================================
         # DEFAULT / LEGACY ACTION
         # ========================================================
 
-        permission_map = self.get_method_permission()
-
-        return permission_map.get(
+        return self.get_method_permission().get(
             action_name
         )
 
@@ -528,37 +529,61 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # ♻️ RESTORE
     # -----------------------------------
 
-    @action(detail=True, methods=["post"], url_path="restore")
-    def restore(self, request, pk=None):
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="restore"
+    )
+    def restore(
+        self,
+        request,
+        pk=None
+    ):
+
         Model = self.get_model()
-        instance = get_object_or_404(Model.all_objects, pk=pk)
 
-        codename = f"restore_{Model._meta.model_name}"
+        instance = get_object_or_404(
+            Model.all_objects,
+            pk=pk
+        )
 
-        if not isPermited(request=request, role=codename):
-            raise PermissionDenied("Não autorizado")
+        instance.restore(
+            user=request.user
+        )
 
-        instance.restore(user=request.user)
-
-        return ok(request, "Restored com sucesso")
+        return ok(
+            request,
+            "Restored com sucesso"
+        )
 
     # -----------------------------------
     # 💀 HARD DELETE
     # -----------------------------------
 
-    @action(detail=True, methods=["delete"], url_path="hard_delete")
-    def hard_delete(self, request, pk=None):
+    @action(
+        detail=True,
+        methods=["delete"],
+        url_path="hard_delete"
+    )
+    def hard_delete(
+        self,
+        request,
+        pk=None
+    ):
+
         Model = self.get_model()
-        instance = get_object_or_404(Model.all_objects, pk=pk)
 
-        codename = f"hard_delete_{Model._meta.model_name}"
-
-        if not isPermited(request=request, role=codename):
-            raise PermissionDenied("Não autorizado")
+        instance = get_object_or_404(
+            Model.all_objects,
+            pk=pk
+        )
 
         instance.hard_delete()
 
-        return ok(request, "Apagado para sempre com sucesso")
+        return ok(
+            request,
+            "Apagado para sempre com sucesso"
+        )
 
     
     def list(self, request, *args, **kwargs):
