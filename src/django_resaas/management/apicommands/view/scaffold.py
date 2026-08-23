@@ -25,7 +25,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAdminUser
 from rest_framework.decorators import action
 
-from django_resaas.models.model_extra import ModelExtra
+from django_resaas.models.model_extra_action import ModelExtraAction
 from django_resaas.core.base.views import registerView
 from django_resaas.core.utils import all, ok, fail, warn, clean_class_name, clean_file_name, safe_write, clean_lower
 
@@ -318,11 +318,11 @@ def ensure_permissions(module, model, extras):
 
     perms = defaults + extras
 
-    ModelExtra.objects.filter(model=model).delete()
+    ModelExtraAction.objects.filter(model=model).delete()
 
     for p in perms:
         # p = {'method': 'get', 'permission': 'pdf', 'url': '', 'details': True}
-        ModelExtra.objects.get_or_create(
+        ModelExtraAction.objects.get_or_create(
             model=model,
             icon=p['icon'],
             method=p['method'],

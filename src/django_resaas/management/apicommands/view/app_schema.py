@@ -24,7 +24,7 @@ from django_resaas.core.base.views import registerView
 from django_resaas.core.base.permissions import hasPermission
 from django_resaas.core.utils import ok, fail, warn, all, clean_name, reorder_fields, clean_class_name
 from django_resaas.models.app import App
-from django_resaas.models.model_extra import ModelExtra
+from django_resaas.models.model_extra_action import ModelExtraAction
 from django_resaas.management.apicommands.service.app_service import AppScaffoldService
 
 # 🔧 Logger
@@ -567,7 +567,7 @@ class AppSchemaAPIView(ModelViewSet):
 
         actions = []
 
-        for m in ModelExtra.objects.filter(model=model):
+        for m in ModelExtraAction.objects.filter(model=model):
             actions.append({
                 'icon': m.icon,
                 'model': m.model,

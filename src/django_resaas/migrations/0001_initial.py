@@ -1066,7 +1066,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.CreateModel(
-            name="ModelExtra",
+            name="ModelExtraAction",
             fields=[
                 (
                     "id",
