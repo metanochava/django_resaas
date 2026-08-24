@@ -27,6 +27,8 @@ from django_resaas.models.app import App
 from django_resaas.models.model_extra_action import ModelExtraAction
 from django_resaas.management.apicommands.service.app_service import AppScaffoldService
 
+from django_resaas.core.schema import  ResaasSchemaBuilder 
+
 # 🔧 Logger
 logger = logging.getLogger(__name__)
 
