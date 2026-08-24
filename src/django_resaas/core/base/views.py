@@ -38,8 +38,6 @@ from django_resaas.core.utils import (
     PDF
 )
 
-from rest_framework.exceptions import PermissionDenied
-
 # ============================================================
 # VERIFICAR SE UM CAMPO DE PESQUISA É VÁLIDO
 # ============================================================
@@ -351,114 +349,72 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # -----------------------------------
 
     def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
 
-        super().initial(
-            request,
-            *args,
-            **kwargs
-        )
+        # -----------------------------------
+        # 🔐 CHECK MODULE
+        # -----------------------------------
+        module = getattr(self, "module_name", None)
 
-        # ================================================
-        # MODULE
-        # ================================================
+        if module:
+            ativo = EntityApp.objects.filter(
+                entity__id=request.entity_id,
+                app__name=module,
+                state="Active"
+            ).exists()
 
-        module = getattr(
-            self,
-            "module_name",
-            None
-        )
+            if not ativo:
+                fail(request, "Módulo '{module}' não ativo")
+        else:
+            fail(request, "Módulo '{module}' não definido")
 
-        if not module:
-            raise PermissionDenied(
-                "Módulo não definido"
-            )
+        # ========================================================
+        # ACTION / MODEL
+        # ========================================================
 
-        active = EntityApp.objects.filter(
-            entity__id=request.entity_id,
-            app__name=module,
-            state="Active"
-        ).exists()
-
-        if not active:
-            raise PermissionDenied(
-                f"Módulo '{module}' não ativo"
-            )
-
-        # ================================================
-        # ACTION
-        # ================================================
-
-        action = getattr(
-            self,
-            "action",
-            None
-        )
-
-        if not action:
-            raise PermissionDenied(
-                "Ação não definida"
-            )
-
-        # ================================================
-        # MODEL
-        # ================================================
+        action = self.action
 
         model = self.get_model()
 
-        # ================================================
-        # PERMISSION
-        # ================================================
 
-        perm_prefix = (
-            self.get_action_permission()
-        )
+        # ========================================================
+        # RESOLVE PERMISSION
+        # ========================================================
+
+        perm_prefix = self.get_action_permission()
 
         if not perm_prefix:
-            raise PermissionDenied(
-                f"Permissão não definida para a ação '{action}'"
+
+            return fail(
+                request,
+                "Permissão não definida para esta ação",
+                status=status.HTTP_403_FORBIDDEN
             )
 
-        # ================================================
+
+        # ========================================================
         # CODENAME
-        # ================================================
+        # ========================================================
 
         codename = (
             f"{perm_prefix}_"
             f"{model._meta.model_name}"
         )
 
-        # ================================================
-        # CACHE
-        # ================================================
-
-        if not hasattr(
-            request,
-            "_perm_cache"
-        ):
+        # 🔥 cache de permissões
+        if not hasattr(request, "_perm_cache"):
             request._perm_cache = {}
 
-        # ================================================
-        # CHECK
-        # ================================================
-
         if codename not in request._perm_cache:
-
-            request._perm_cache[codename] = (
-                isPermited(
-                    request=request,
-                    role=codename
-                )
+            request._perm_cache[codename] = isPermited(
+                request=request,
+                role=codename
             )
-
-        # ================================================
-        # DENIED
-        # ================================================
 
         if not request._perm_cache[codename]:
+            fail(request, f'Não autorizado ')
+            
 
-            raise PermissionDenied(
-                f"Não autorizado: {codename}"
-            )
     # -----------------------------------
     # 📊 QUERYSET (SAFE MULTI-TENANT)
     # -----------------------------------
