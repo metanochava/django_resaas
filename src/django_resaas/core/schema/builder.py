@@ -6,6 +6,8 @@ from django_resaas.models.model_extra_action import (
 
 
 class ResaasSchemaBuilder:
+
+
     """
     Construtor oficial do RESAAS Schema.
 
