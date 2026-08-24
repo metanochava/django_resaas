@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from django_resaas.core.utils.translate import Translate
 from django_resaas.core.utils.clean import clean_name
+from rest_framework.exceptions import PermissionDenied
+            
 
 class ApiResponse:
 
@@ -24,10 +26,11 @@ class ApiResponse:
 
     @classmethod
     def fail(cls, request, key, status=400, **extra):
-        return Response({
-            "alert_error": cls._msg(request, key),
-            **extra
-        }, status=status)
+        raise PermissionDenied( cls._msg(request, key) )
+        # return Response({
+        #     "alert_error": cls._msg(request, key),
+        #     **extra
+        # }, status=status)
 
     @classmethod
     def warn(cls, request, key, status=200, **extra):
