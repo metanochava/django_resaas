@@ -26,11 +26,8 @@ class ApiResponse:
 
     @classmethod
     def fail(cls, request, key, status=400, **extra):
-        # raise PermissionDenied( cls._msg(request, key) )
-        return Response({
-            "alert_error": cls._msg(request, key),
-            **extra
-        }, status=status)
+        raise PermissionDenied( cls._msg(request, key) )
+
 
     @classmethod
     def warn(cls, request, key, status=200, **extra):
