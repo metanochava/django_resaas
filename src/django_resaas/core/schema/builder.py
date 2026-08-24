@@ -268,6 +268,9 @@ class ResaasSchemaBuilder:
                 "url":
                     extra.url,
 
+                "autorequest":
+                    extra.autorequest,
+
                 # endpoint já resolvido pelo backend
                 "endpoint":
                     endpoint,
@@ -425,6 +428,8 @@ class ResaasSchemaBuilder:
                 100,
                 200,
                 500,
+                1000,
+                0
             ],
 
             "default_ordering":

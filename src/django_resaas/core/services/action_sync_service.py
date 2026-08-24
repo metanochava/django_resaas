@@ -119,6 +119,7 @@ class ActionSyncService:
                 "position": metadata.get("position"),
                 "order": metadata.get("order", 0),
                 "visible": metadata.get("visible", True),
+                "autorequest": metadata.get("autorequest", False),
                 "method": method,
                 "details": metadata.get("detail", False),
                 "url": metadata.get("url_path") or action_name,

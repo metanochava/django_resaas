@@ -17,6 +17,8 @@ class ModelExtraAction(TimeModel):
     order = models.IntegerField(default=0)
     visible = models.BooleanField(default=True)
 
+    autorequest = models.BooleanField(default=False)
+
     # API
     method = models.CharField(max_length=50, null=True)
     details = models.BooleanField(default=False)
