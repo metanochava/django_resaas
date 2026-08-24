@@ -11,6 +11,7 @@ def resaas_action(
     position=None,
     order=0,
     visible=True,
+    autorequest=False,
     url_path=None,
     url_name=None,
 ):
@@ -81,6 +82,8 @@ def resaas_action(
             "order": order,
 
             "visible": visible,
+
+            "autorequest": bool(autorequest),
 
             "methods": methods,
 

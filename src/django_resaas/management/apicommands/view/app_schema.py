@@ -315,7 +315,7 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
 
     # ---------------- DATETIME ----------------
     elif ftype == "DateTimeField":
-        component = "s-datetime"
+        component = "s-date-time"
 
     if payload.get("choices"):
         component = "s-select"
@@ -571,84 +571,6 @@ class AppSchemaAPIView(ModelViewSet):
 
         schema = ResaasSchemaBuilder(Model=Model, fields=fields).build()
         return all(request, **schema)
-
-    # @action(
-    #     detail=True,
-    #     methods=["get"],
-    #     url_path=r"(?P<model>[^/.]+)/schema",
-    # )
-    # def model_schema(self, request, pk=None, model=None):
-    #     module = pk
-
-    #     try:
-    #         Model = apps.get_model(module, model)
-    #     except LookupError:
-    #         return fail(request, "model_not_found")
-
-    #     app_label = Model._meta.app_label
-    #     model_name = Model._meta.model_name
-
-    #     fields = reorder_fields(
-    #         _schema_fields(Model),
-    #         [
-    #             "id",
-    #             "nid",
-    #             "codigo",
-    #             "code",
-    #             "nome",
-    #             "name",
-    #             "person",
-    #         ],
-    #         [
-    #             "state",
-    #             "entity",
-    #             "branch",
-    #             "created_by",
-    #             "updated_by",
-    #             "created_at",
-    #             "updated_at",
-    #             "deleted_at",
-    #         ],
-    #     )
-
-    #     extras = ModelExtraAction.objects.filter(
-    #         app=app_label,
-    #         model=model_name,
-    #         visible=True,
-    #     ).order_by("order", "action")
-
-    #     actions = [
-    #         {
-    #             "action": extra.action,
-    #             "app": extra.app,
-    #             "model": extra.model,
-    #             "label": extra.label,
-    #             "icon": extra.icon,
-    #             "tooltip": extra.tooltip,
-    #             "position": extra.position,
-    #             "order": extra.order,
-    #             "visible": extra.visible,
-    #             "method": extra.method,
-    #             "url": extra.url,
-    #             "details": extra.details,
-    #             "permission": extra.permission,
-    #         }
-    #         for extra in extras
-    #     ]
-
-    #     return all(
-    #         request,
-    #         module=app_label,
-    #         model=model_name,
-    #         fields=fields,
-    #         actions=actions,
-    #         config={
-    #             "crud": get_crud(Model),
-    #             "routes": get_route(Model),
-    #         },
-    #     )
-
-
     
 
 
