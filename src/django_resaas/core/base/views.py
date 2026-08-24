@@ -364,9 +364,9 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             ).exists()
 
             if not ativo:
-                fail(request, f"Módulo <br>'{module}'</b> não ativo", status=403)
+                return fail(request, f"Módulo <b>'{module}'</b> não ativo", status=403)
         else:
-            fail(request, f"Módulo '{module}' não definido", status=403)
+            return fail(request, f"Módulo <b>'{module}'</b> não definido", status=403)
 
         # ========================================================
         # ACTION / MODEL
