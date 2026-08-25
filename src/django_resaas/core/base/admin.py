@@ -150,6 +150,9 @@ class BaseAdmin(admin.ModelAdmin):
         if hasattr(obj, "entity_id") and not obj.entity_id:
             obj.entity_id = getattr(request, "entity_id", None)
 
+        if hasattr(obj, "branch_id") and not obj.branch_id:
+            obj.branch_id = getattr(request, "branch_id", None)
+
         super().save_model(request, obj, form, change)
 
 

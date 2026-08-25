@@ -1,3 +1,5 @@
+from pathlib import Path
+
 
 def find_settings_with_my_apps():
     """

@@ -8,8 +8,8 @@ class UserService:
 
     @staticmethod
     def get_or_create_superuser(stdout=None, style=None):
-        email = input("Digite o email: ")
-        username = input("Digite o username: ")
+        email = input("Enter the email: ")
+        username = input("Enter the username: ")
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
@@ -23,19 +23,21 @@ class UserService:
         if created:
             # 🔐 pedir password pelo teclado (sem mostrar)
             while True:
-                password = getpass.getpass("🔐 Password do superuser: ")
-                password_confirm = getpass.getpass("Confirme a password: ")
+                password = getpass.getpass("🔐 Superuser password: ")
+                password_confirm = getpass.getpass("Confirm the password: ")
 
                 if not password:
-                    self.stdout.write(
-                        self.style.ERROR("A password não pode estar vazia")
-                    )
+                    if stdout and style:
+                        stdout.write(
+                            style.ERROR("Password cannot be empty")
+                        )
                     continue
 
                 if password != password_confirm:
-                    self.stdout.write(
-                        self.style.ERROR("As passwords não coincidem")
-                    )
+                    if stdout and style:
+                        stdout.write(
+                            style.ERROR("Passwords do not match")
+                        )
                     continue
 
                 break
@@ -44,7 +46,7 @@ class UserService:
         else:
             if stdout and style:
                 stdout.write(
-                    style.WARNING("✔  Superuser já existe \n ")
+                    style.WARNING("✔  Superuser already exists \n ")
                 )
                 stdout.write(style.WARNING(f"✉️ Email: \t {user.email}"))
                 stdout.write(style.SUCCESS(f"👤Username: \t {user.username} \n"))

@@ -13,6 +13,18 @@ DEFAULTS = {
 }
 
 
+def _lookup(source, path):
+    value = source
+
+    for key in path.split('.'):
+        if isinstance(value, dict) and key in value:
+            value = value[key]
+        else:
+            return None, False
+
+    return value, True
+
+
 def get_setting(path, default=None):
     """
     Exemplo:
@@ -21,10 +33,14 @@ def get_setting(path, default=None):
     """
     config = getattr(settings, 'DJANGO_REST_AUTH', {})
 
-    for key in path.split('.'):
-        if isinstance(config, dict) and key in config:
-            config = config[key]
-        else:
-            return default
+    value, found = _lookup(config, path)
 
-    return config
+    if found:
+        return value
+
+    value, found = _lookup(DEFAULTS, path)
+
+    if found:
+        return value
+
+    return default

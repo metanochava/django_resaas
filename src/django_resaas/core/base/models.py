@@ -123,6 +123,7 @@ class TimeModel(SoftBaseModel):
     )
     
     state = models.CharField(
+        max_length=8,
         default='Inactive',
         choices=(('Inactive', 'Inactive'), ('Active', 'Active')),
     )

@@ -1,9 +1,7 @@
 import base64
-from datetime import datetime
 
 import pyotp
 
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import status
@@ -11,17 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django_resaas.core.utils.translate import Translate
+from django_resaas.core.utils.generate_key_otp import generateKeyOTP
 from django_resaas.models.user import User
-
-
-class generateKeyOTP:
-    @staticmethod
-    def returnValue(phone):
-        return (
-            str(phone)
-            + str(datetime.date(datetime.now()))
-            + settings.OTP_KEY
-        )
 
 
 EXPIRY_TIME = 120  # segundos

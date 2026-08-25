@@ -2,7 +2,8 @@ import os
 import tempfile
 
 def safe_write(path, content, mode="w"):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    directory = os.path.dirname(path) or "."
+    os.makedirs(directory, exist_ok=True)
 
     encoding = None if "b" in mode else "utf-8"
 
@@ -12,7 +13,7 @@ def safe_write(path, content, mode="w"):
 
     with tempfile.NamedTemporaryFile(
         delete=False,
-        dir=os.path.dirname(path),
+        dir=directory,
         mode="w" if "b" not in mode else "wb",
         encoding=encoding
     ) as tmp:
