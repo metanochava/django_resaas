@@ -16,7 +16,7 @@ class TranslationSyncService:
         languages = Language.objects.all()
 
         for language in languages:
-            lang_code = language.code.lower().replace("", "")
+            lang_code = language.code.lower().replace("-", "")
 
             if stdout:
                 stdout.write(

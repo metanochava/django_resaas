@@ -86,7 +86,8 @@ class BootstrapService:
                 state = 1
             )
 
-            stdout.write(style.WARNING(f"✔ {'App:':20} {app.name}"))
+            if stdout and style:
+                stdout.write(style.WARNING(f"✔ {'App:':20} {app.name}"))
 
         if stdout and style:
             stdout.write(style.SUCCESS(f"✔ {'Entity:':20} {entity.name}"))
@@ -119,19 +120,19 @@ class BootstrapService:
     @staticmethod
     def create_group(user,entity, branch, group, stdout=None, style=None):
 
-        group, _ = Group.objects.get_or_create(name=group)
+        requested_group, _ = Group.objects.get_or_create(name=group)
 
         # ligar group à branch
         BranchGroup.objects.get_or_create(
             branch=branch,
-            group=group,
+            group=requested_group,
             state = 1
         )
 
         # ligar group ao tenant (entity)
         EntityGroup.objects.get_or_create(
             entity=entity,
-            group=group,
+            group=requested_group,
             state = 1
         )
 
@@ -140,39 +141,39 @@ class BootstrapService:
         BranchUserGroup.objects.get_or_create(
             user=user,
             branch=branch,
-            group=group,
+            group=requested_group,
             state = 1
         )
 
-        group, _ = Group.objects.get_or_create(name="Guest")
+        guest_group, _ = Group.objects.get_or_create(name="Guest")
 
         # ligar group à branch
         BranchGroup.objects.get_or_create(
             branch=branch,
-            group=group,
+            group=guest_group,
             state = 1
         )
 
         # ligar group ao tenant (entity)
         EntityGroup.objects.get_or_create(
             entity=entity,
-            group=group,
+            group=guest_group,
             state = 1
         )
 
         # user.groups.add(group)
 
-        
+
         BranchUserGroup.objects.get_or_create(
             user=user,
             branch=branch,
-            group=group,
+            group=guest_group,
             state = 1
         )
 
         if stdout and style:
-            stdout.write(style.SUCCESS(f"✔ {'Groups:':20} Guest e Admin"))
+            stdout.write(style.SUCCESS(f"✔ {'Groups:':20} Guest and Admin"))
             stdout.write(style.SUCCESS(f"✔ {'EntityGroup':20} OK"))
             stdout.write(style.SUCCESS(f"✔ {'BranchGroup':20} OK"))
 
-        return group
+        return requested_group

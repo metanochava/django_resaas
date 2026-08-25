@@ -546,8 +546,16 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         Model = self.get_model()
 
+        queryset = Model.all_objects.all()
+
+        if hasattr(Model, "entity_id"):
+            queryset = queryset.filter(entity_id=request.entity_id)
+
+        if hasattr(Model, "branch_id"):
+            queryset = queryset.filter(branch_id=request.branch_id)
+
         instance = get_object_or_404(
-            Model.all_objects,
+            queryset,
             pk=pk
         )
 
@@ -577,8 +585,16 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         Model = self.get_model()
 
+        queryset = Model.all_objects.all()
+
+        if hasattr(Model, "entity_id"):
+            queryset = queryset.filter(entity_id=request.entity_id)
+
+        if hasattr(Model, "branch_id"):
+            queryset = queryset.filter(branch_id=request.branch_id)
+
         instance = get_object_or_404(
-            Model.all_objects,
+            queryset,
             pk=pk
         )
 

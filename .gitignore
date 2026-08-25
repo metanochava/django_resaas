@@ -1,3 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+build/
+dist/
+
+# Virtualenv
+venv/
+.venv/
+
+# Django
+*.sqlite3
+/src/staticfiles/
+
+# Secrets / env
+.env
+*.env
+
 # Sync .project/sourceTexts/ folder (source text files)
 
 # Don't sync user-specific SQLite databases
@@ -47,3 +67,6 @@ copilot-messages.log
 # System files
 .DS_Store
 .project/attachments/files/**
+
+# Misc build artifacts
+a.out

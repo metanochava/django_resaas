@@ -78,7 +78,7 @@ def create_model_permissions(sender, **kwargs):
             ("view", "Can view"),       # Nativo
             ("add", "Can add"),         # Nativo
             ("change", "Can change"),   # Nativo
-            ("delete", "Can list"),     # Nativo
+            ("delete", "Can delete"),   # Nativo
 
             
             ("list", "Can list"),

@@ -39,6 +39,9 @@ class RepresentationMixin:
         # 🔥 CAMPOS DIRETOS
         # ----------------------------
         for field in instance._meta.fields:
+            if field.name not in self.fields:
+                continue
+
             value = getattr(instance, field.name, None)
 
             # 🔥 FILE FIELDS
@@ -79,6 +82,9 @@ class RepresentationMixin:
         # 🔥 MANY TO MANY (MELHORADO)
         # ----------------------------
         for field in instance._meta.many_to_many:
+            if field.name not in self.fields:
+                continue
+
             manager = getattr(instance, field.name)
 
             data[field.name] = [
