@@ -356,6 +356,11 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         # -----------------------------------
         module = getattr(self, "module_name", None)
 
+        
+
+        if not request.entity_id:
+            return fail( request,  f"{request.user}, you are not associated with any entity.",  status=403  )
+
         if module:
             ativo = EntityApp.objects.filter(
                 entity__id=request.entity_id,
@@ -364,9 +369,9 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             ).exists()
 
             if not ativo:
-                return fail(request, f"Módulo <b>'{module}'</b> não ativo", status=403)
+                return fail(request, f"Module <b>'{module}'</b> is not active.", status=403)
         else:
-            return fail(request, f"Módulo <b>'{module}'</b> não definido", status=403)
+            return fail(request, f"Module <b>'{module}'</b> is not defined.", status=403)
 
         # ========================================================
         # ACTION / MODEL
@@ -384,10 +389,9 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         perm_prefix = self.get_action_permission()
 
         if not perm_prefix:
-
             return fail(
                 request,
-                "Permissão não definida para esta ação",
+                "Permission is not defined for this action.",
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -412,7 +416,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             )
 
         if not request._perm_cache[codename]:
-            fail(request, f'Não autorizado ')
+            fail(request, f"Unauthorized")
             
 
     # -----------------------------------
@@ -553,7 +557,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         return ok(
             request,
-            "Restored com sucesso"
+            "Restored successfully"
         )
 
     # -----------------------------------
@@ -582,7 +586,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         return ok(
             request,
-            "Apagado para sempre com sucesso"
+            "Permanently deleted successfully"
         )
 
     
