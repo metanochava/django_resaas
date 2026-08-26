@@ -10,7 +10,7 @@ from barcode.writer import ImageWriter
 from PIL import Image
 from django.db import transaction
 
-
+from django.db.models import Q
 from django.conf import settings
 from django_resaas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
@@ -62,23 +62,19 @@ class EntityAPIView(viewsets.ModelViewSet):
     serializer_class = EntitySerializer
     queryset = Entity.objects.all()
   
-
     def get_queryset(self, *args, **kwargs):
         user = self.request.user
         queryset = super().get_queryset()
 
-        # 👑 superuser → vê tudo
+        if not user.is_authenticated:
+            return queryset.none()
+
         if user.is_superuser:
             return queryset
 
-        # 👤 user normal → filtra por entidade
-        entity_id = getattr(self.request, "entity_id", None)
-
-        if not entity_id:
-            return queryset.none()
-
         return queryset.filter(
-            entityuser__entity_id=entity_id
+            Q(admins=user)
+            | Q(entityuser__user=user, entityuser__deleted_at__isnull=True)
         ).distinct()
 
     def retrieve(self, request, *args, **kwargs):
