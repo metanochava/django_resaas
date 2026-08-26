@@ -355,10 +355,10 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
-        if request.tenant_context_error:
+        if getattr(request, "tenant_context_error", None):
             raise PermissionDenied(str(request.tenant_context_error))
 
-        if not request.tenant_context:
+        if not getattr(request, "tenant_context", None):
             raise PermissionDenied("RESAAS context is required.")
 
         ResaasContextService.validate_for_user(request.user, request.tenant_context)
