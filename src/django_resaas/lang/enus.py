@@ -6,7 +6,7 @@ key_value = {
     # =========================================================
 
     "Send comment or feedback": "Send comment or feedback",
-    "Have feedback or suggestions? We had be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.": "Have feedback or suggestions? We had be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.",
+    "Have feedback or suggestions? We would be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.": "Have feedback or suggestions? We would be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.",
 
     # =========================================================
     # PRIVACY / LEGAL

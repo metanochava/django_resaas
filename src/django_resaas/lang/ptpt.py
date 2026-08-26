@@ -619,7 +619,7 @@ key_value = {
     # =========================================================
 
     "Send comment or feedback": "Enviar comentário ou sugestão",
-    "Have feedback or suggestions? We had be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.": "Tem comentários ou sugestões? Teremos todo o gosto em ouvi-lo(a). Não inclua palavras-passe, dados pessoais sensíveis ou informação confidencial da organização. <br>Precisa de ajuda? Visite o Centro de Ajuda ou contacte a equipa de suporte da sua organização.",
+    "Have feedback or suggestions? We would be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.": "Tem comentários ou sugestões? Teremos todo o gosto em ouvi-lo(a). Não inclua palavras-passe, dados pessoais sensíveis ou informação confidencial da organização. <br>Precisa de ajuda? Visite o Centro de Ajuda ou contacte a equipa de suporte da sua organização.",
 
     # =========================================================
     # PRIVACY / LEGAL
