@@ -20,6 +20,6 @@ class LogoutSerializer(serializers.Serializer):
             raise AuthenticationFailed(
                 Translate.tdc(
                     self.request,
-                    'Token inválido ou expirado'
+                    'Invalid or expired token'
                 )
             )

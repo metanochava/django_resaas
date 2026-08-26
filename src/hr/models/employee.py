@@ -64,7 +64,7 @@ class Employee(BaseModel):
         if self.manager and self.manager == self:
 
             raise ValidationError({
-                "manager": "Um funcionário não pode ser gestor de si próprio."
+                "manager": "An employee cannot be their own manager."
             })
 
         if (
@@ -75,7 +75,7 @@ class Employee(BaseModel):
 
             raise ValidationError({
                 "termination_date":
-                "A data de saída não pode ser inferior à data de admissão."
+                "The termination date cannot be earlier than the hire date."
             })
 
     # ==========================================

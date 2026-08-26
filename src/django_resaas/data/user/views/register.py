@@ -61,7 +61,7 @@ class RegisterAPIView(generics.GenericAPIView):
         )
 
         mail = EmailMultiAlternatives(
-            subject=f'{Translate.tdc(request, "Bem-vindo")} {name}',
+            subject=f'{Translate.tdc(request, "Welcome")} {name}',
             body='',
             to=[user.email],
         )
@@ -75,7 +75,7 @@ class RegisterAPIView(generics.GenericAPIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Erro ao enviar o email'
+                        'Error sending the email'
                     )
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -85,7 +85,7 @@ class RegisterAPIView(generics.GenericAPIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Conta criada com sucesso'
+                    'Account created successfully'
                 ),
                 'data': json.loads(
                     json.dumps(

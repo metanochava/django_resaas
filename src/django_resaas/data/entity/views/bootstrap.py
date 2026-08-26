@@ -31,7 +31,7 @@ class BootstrapAPIView(BaseAPIView):
         # =========================
         if not all([entity_type, entity_name, branch_name, user_id]):
             return Response(
-                {"error": "Campos obrigatórios: entity_type, entity, branch, user_id"},
+                {"error": "Required fields: entity_type, entity, branch, user_id"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -42,7 +42,7 @@ class BootstrapAPIView(BaseAPIView):
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response(
-                {"error": "User não encontrado"},
+                {"error": "User not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -53,7 +53,7 @@ class BootstrapAPIView(BaseAPIView):
 
         if Entity.objects.exists():
             return Response(
-                {"error": "Sistema já inicializado"},
+                {"error": "System already initialized"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -77,7 +77,7 @@ class BootstrapAPIView(BaseAPIView):
             TranslationService.load_defaults()
 
             return Response({
-                "message": "Sistema pronto 🚀",
+                "message": "System ready 🚀",
                 "user": {
                     "id": user.id,
                     "email": user.email,

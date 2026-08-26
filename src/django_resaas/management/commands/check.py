@@ -13,19 +13,19 @@ FORBIDDEN = [
 
 
 class Command(BaseCommand):
-    help = "Verifica se o projeto segue o padrão MetanoStack"
+    help = "Checks whether the project follows the MetanoStack standard"
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--path",
             type=str,
             default=".",
-            help="Caminho do projeto (default: .)"
+            help="Project path (default: .)"
         )
         parser.add_argument(
             "--strict",
             action="store_true",
-            help="Falha o comando se encontrar erros"
+            help="Fail the command if errors are found"
         )
 
     def handle(self, *args, **options):

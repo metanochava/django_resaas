@@ -51,17 +51,17 @@ class LoginSerializer(serializers.Serializer):
 
         if not user:
             raise AuthenticationFailed(
-                Translate.tdc(request, "Credenciais inválidas")
+                Translate.tdc(request, "Invalid credentials")
             )
 
         if not user.is_active:
             raise AuthenticationFailed(
-                Translate.tdc(request, "Conta desactivada")
+                Translate.tdc(request, "Account deactivated")
             )
 
         if not user.is_verified_email:
             raise AuthenticationFailed(
-                Translate.tdc(request, "Email não verificado")
+                Translate.tdc(request, "Email not verified")
             )
 
         return {

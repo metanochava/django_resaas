@@ -473,7 +473,7 @@ key_value = {
 
     "Custom": "Personalizado",
 
-    "Download data list as PDF": "Baixar lista de dados em PDF",
+    "Download data list as PDF": "Descarregar lista de dados em PDF",
 
     # =========================================================
     # RECORD FILTER
@@ -510,5 +510,108 @@ key_value = {
 
     "Activate": "Activar",
     "Deactivate": "Desactivar",
+    "Health": "Saúde",
+
+    # =========================================================
+    # ADMIN
+    # =========================================================
+
+    "Restore selected": "Restaurar seleccionados",
+    "Soft delete selected": "Eliminação suave dos seleccionados",
+    "Deleted": "Eliminado",
+
+    # =========================================================
+    # AUTHENTICATION (EXTRA)
+    # =========================================================
+
+    "Bad Credentials": "Credenciais inválidas",
+    "Account deactivated": "Conta desactivada",
+    "Email not verified": "E-mail não verificado",
+    "Invalid or expired token": "Token inválido ou expirado",
+    "Invalid token": "Token inválido",
+    "The current password is incorrect": "A palavra-passe actual está incorrecta",
+    "The password must be at least 8 characters long": "A palavra-passe deve ter pelo menos 8 caracteres",
+    "Password changed successfully": "Palavra-passe alterada com sucesso",
+    "Password reset successfully": "Palavra-passe redefinida com sucesso",
+    "Password reset": "Redefinição de palavra-passe",
+    "Invalid or expired OTP": "OTP inválido ou expirado",
+    "The username must contain only alphanumeric characters": "O nome de utilizador deve conter apenas caracteres alfanuméricos",
+    "Login history loaded successfully": "Histórico de login carregado com sucesso",
+    "Logout successful": "Sessão terminada com sucesso",
+    "Email not provided": "E-mail não fornecido",
+    "If the email exists, we will send instructions": "Se o e-mail existir, enviaremos instruções",
+    "Error sending the email": "Erro ao enviar o e-mail",
+    "We sent a link to reset your password": "Enviámos um link para redefinir a sua palavra-passe",
+    "The token is not valid, please request a new one": "O token não é válido, solicite um novo",
+    "Account created successfully": "Conta criada com sucesso",
+    "The number does not exist": "O número não existe",
+    "Do not share this code": "Não partilhe este código",
+    "Error sending the OTP": "Erro ao enviar o OTP",
+    "We sent an OTP to your number": "Enviámos um OTP para o seu número",
+    "Authorized successfully": "Autorizado com sucesso",
+    "Account activated successfully": "Conta activada com sucesso",
+    "Activation expired": "Activação expirada",
+
+    # =========================================================
+    # PERMISSIONS / ACCESS (EXTRA)
+    # =========================================================
+
+    "Not authorized": "Não autorizado",
+    "No permission for this route": "Sem permissão para esta rota",
+    "No permission for this operation": "Sem permissão para esta operação",
+    "No permission to update this user": "Sem permissão para actualizar este utilizador",
+    "No permission to delete this user": "Sem permissão para eliminar este utilizador",
+    "Not allowed to change entity": "Não permitido alterar a entidade",
+    "Cannot delete your own user": "Não pode eliminar o seu próprio utilizador",
+    "Module not active": "Módulo não activo",
+
+    # =========================================================
+    # API MESSAGES
+    # =========================================================
+
+    "Initial configuration created successfully": "Configuração inicial criada com sucesso",
+    "Unable to upload file<br><b>Contact the administrator</b>": "Não foi possível carregar o ficheiro<br><b>Contacte o administrador</b>",
+    "Required fields: entity_type, entity, branch, user_id": "Campos obrigatórios: entity_type, entity, branch, user_id",
+    "User not found": "Utilizador não encontrado",
+    "System already initialized": "Sistema já inicializado",
+    "System ready 🚀": "Sistema pronto 🚀",
+    "Entity created successfully": "Entidade criada com sucesso",
+    "Entity not found": "Entidade não encontrada",
+    "name is required": "o nome é obrigatório",
+    "EntityType not found": "Tipo de entidade não encontrado",
+    "codename and name are required": "codename e nome são obrigatórios",
+    "codename is required": "codename é obrigatório",
+    "Permission not found": "Permissão não encontrada",
+    "User deleted successfully": "Utilizador eliminado com sucesso",
+    "Group linked successfully": "Grupo associado com sucesso",
+    "Group added successfully": "Grupo adicionado com sucesso",
+
+    # =========================================================
+    # FILE ERRORS (KEYS)
+    # =========================================================
+
+    "FILE_NOT_FOUND": "Ficheiro não encontrado",
+    "FILE_REMOVED_SUCCESS": "Ficheiro removido com sucesso",
+    "ENTITY_NOT_PROVIDED": "Entidade não fornecida",
+    "FILE_NOT_PROVIDED": "Ficheiro não fornecido",
+    "INSUFFICIENT_SPACE": "Espaço insuficiente",
+
+    # =========================================================
+    # SCAFFOLD / VALIDATION (EXTRA)
+    # =========================================================
+
+    "Field is required": "O campo é obrigatório",
+    "Module or model name cannot be empty!": "O nome do módulo ou do modelo não pode estar vazio!",
+    "You need at least one field to create a Model": "Precisa de pelo menos um campo para criar um Modelo",
+    "There is a field with no name attribute.<br> Please check": "Existe um campo sem o atributo nome.<br> Por favor verifique",
+    "Model created successfully": "Modelo criado com sucesso",
+    "Migrations completed successfully": "Migrações concluídas com sucesso",
+
+    # =========================================================
+    # VALIDATION (HR)
+    # =========================================================
+
+    "An employee cannot be their own manager.": "Um funcionário não pode ser o seu próprio gestor.",
+    "The termination date cannot be earlier than the hire date.": "A data de cessação não pode ser anterior à data de admissão.",
 
 }

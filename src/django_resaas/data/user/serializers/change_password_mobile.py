@@ -30,7 +30,7 @@ class ChangePasswordMobileAPIView(generics.GenericAPIView):
                 {
                     'alert_success': Translate.tdc(
                         request,
-                        'Senha redefinida com sucesso'
+                        'Password reset successfully'
                     )
                 },
                 status=status.HTTP_202_ACCEPTED
@@ -40,7 +40,7 @@ class ChangePasswordMobileAPIView(generics.GenericAPIView):
             {
                 'alert_error': Translate.tdc(
                     request,
-                    'OTP inválido ou expirado'
+                    'Invalid or expired OTP'
                 )
             },
             status=status.HTTP_400_BAD_REQUEST

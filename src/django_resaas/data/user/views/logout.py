@@ -18,7 +18,7 @@ class LogoutAPIView(generics.GenericAPIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Logout efectuado com sucesso'
+                    'Logout successful'
                 )
             },
             status=status.HTTP_200_OK

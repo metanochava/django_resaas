@@ -124,7 +124,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
         uploaded_file = request.FILES['file']
 
         if DiskManegarService.freeSpace(branch.entity.id, request.FILES['file']):
-            resposta = {'alert_error': 'Nao e possivel fazer upload de file<br><b>Contacte o adminstrador</b>'}
+            resposta = {'alert_error': 'Unable to upload file<br><b>Contact the administrator</b>'}
             return Response(resposta , status=status.HTTP_400_BAD_REQUEST)
 
         request.data['size'] = uploaded_file.size
@@ -238,9 +238,9 @@ class  BranchAPIView(viewsets.ModelViewSet):
             'logo':logo,
             'titulo': Translate.tdc(lingua, 'QR'),
             'name': Translate.tdc(lingua, 'Branch'),
-            'de': Translate.tdc(lingua, 'de'),
-            'morada': Translate.tdc(lingua, 'Morada'),
-            'pagina': Translate.tdc(lingua, 'Pagina')
+            'de': Translate.tdc(lingua, 'of'),
+            'morada': Translate.tdc(lingua, 'Address'),
+            'pagina': Translate.tdc(lingua, 'Page')
         }
 
         return Response(context, status=status.HTTP_200_OK)

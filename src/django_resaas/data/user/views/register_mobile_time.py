@@ -13,7 +13,7 @@ from django_resaas.core.utils.generate_key_otp import generateKeyOTP
 from django_resaas.models.user import User
 
 
-EXPIRY_TIME = 120  # segundos
+EXPIRY_TIME = 120  # seconds
 
 
 class RegisterMobileTimeAPIView(APIView):
@@ -38,7 +38,7 @@ class RegisterMobileTimeAPIView(APIView):
                 to__=phone,
                 text__=Translate.tdc(
                     request,
-                    'Não partilhe este código'
+                    'Do not share this code'
                 ) + f':\nOTP {otp.now()}'
             )
         except Exception:
@@ -46,7 +46,7 @@ class RegisterMobileTimeAPIView(APIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Erro ao enviar o OTP'
+                        'Error sending the OTP'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -56,7 +56,7 @@ class RegisterMobileTimeAPIView(APIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Enviámos um OTP para o seu número'
+                    'We sent an OTP to your number'
                 ),
                 'data': {'otp': otp.now()}
             },
@@ -74,7 +74,7 @@ class RegisterMobileTimeAPIView(APIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Utilizador não encontrado'
+                        'User not found'
                     )
                 },
                 status=status.HTTP_404_NOT_FOUND
@@ -91,7 +91,7 @@ class RegisterMobileTimeAPIView(APIView):
                 {
                     'alert_success': Translate.tdc(
                         request,
-                        'Autorizado com sucesso'
+                        'Authorized successfully'
                     )
                 },
                 status=status.HTTP_200_OK
@@ -101,7 +101,7 @@ class RegisterMobileTimeAPIView(APIView):
             {
                 'alert_error': Translate.tdc(
                     request,
-                    'OTP inválido ou expirado'
+                    'Invalid or expired OTP'
                 )
             },
             status=status.HTTP_400_BAD_REQUEST

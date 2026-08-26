@@ -70,7 +70,7 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
                 mail = EmailMultiAlternatives(
                     subject=Translate.tdc(
                         request,
-                        'Redefinição de palavra-passe'
+                        'Password reset'
                     ),
                     body='',
                     to=[email],
@@ -86,7 +86,7 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
                     {
                         'alert_error': Translate.tdc(
                             request,
-                            'Erro ao enviar o email'
+                            'Error sending the email'
                         )
                     },
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -96,7 +96,7 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Enviámos um link para redefinir a sua palavra-passe'
+                    'We sent a link to reset your password'
                 )
             },
             status=status.HTTP_200_OK

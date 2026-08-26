@@ -156,7 +156,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response({
             'id': model.id,
             'model': model.model,
-            'alert_success': Translate.tdc(request, f'Aplicação <b>{model.model}</b> criada com sucesso')
+            'alert_success': Translate.tdc(request, f'Application <b>{model.model}</b> created successfully')
         }, status=status.HTTP_201_CREATED)
 
     # ===============================
@@ -181,7 +181,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response({
             'id': model.id,
             'model': model.model,
-            'alert_success': Translate.tdc(request, f'Aplicação <b>{model.model}</b> removida com sucesso')
+            'alert_success': Translate.tdc(request, f'Application <b>{model.model}</b> removed successfully')
         }, status=status.HTTP_201_CREATED)
 
  
@@ -253,14 +253,14 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
                 "removed": list(para_remover),
                 "alert_success": Translate.tdc(
                     request,
-                    "Models sincronizados com sucesso"
+                    "Models synced successfully"
                 )
             })
 
         except EntityType.DoesNotExist:
             return Response({
                 "success": False,
-                "error": "EntityType não encontrado"
+                "error": "EntityType not found"
             }, status=404)
 
         except Exception as e:
@@ -471,7 +471,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
         name = request.data.get("name")
         if not name:
-            return Response({"error": "name é obrigatório"}, status=400)
+            return Response({"error": "name is required"}, status=400)
 
         group = Group.objects.create(name=name)
 

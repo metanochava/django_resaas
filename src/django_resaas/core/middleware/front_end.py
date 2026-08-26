@@ -28,7 +28,7 @@ class FrontEndMiddleware:
             fep = request.headers.get('FEP')
 
             if not fek or not fep:
-                return self._unauthorized('Nao autorizado')
+                return self._unauthorized('Not authorized')
 
             frontend = FrontEnd.objects.filter(fek=fek, fep=fep).first()
 
@@ -40,11 +40,11 @@ class FrontEndMiddleware:
 
             # 🔐 validar URL
             if not self._has_url_permission(frontend, scope):
-                return self._forbidden('Sem permissão para esta rota')
+                return self._forbidden('No permission for this route')
 
             # 🔐 validar método HTTP
             if not self._has_method_permission(frontend, request.method):
-                return self._forbidden('Sem permissão para esta operação')
+                return self._forbidden('No permission for this operation')
 
         return self.get_response(request)
 

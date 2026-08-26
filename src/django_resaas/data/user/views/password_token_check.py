@@ -37,7 +37,7 @@ class PasswordTokenCheckAPIView(generics.GenericAPIView):
             if redirect_url and len(redirect_url) > 3:
                 return CustomRedirect(
                     f'{redirect_url}?token_valid=True'
-                    f'&message=Credenciais válidas'
+                    f'&message=Valid credentials'
                     f'&uidb64={uidb64}&token={token}'
                 )
 
@@ -50,7 +50,7 @@ class PasswordTokenCheckAPIView(generics.GenericAPIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'O token não é válido, solicite um novo'
+                        'The token is not valid, please request a new one'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST

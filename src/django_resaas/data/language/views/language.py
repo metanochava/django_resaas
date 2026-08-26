@@ -63,7 +63,7 @@ class LanguageAPIView(viewsets.ModelViewSet):
 
         response = serializer.data
         response["alert_success"] = (
-            f"%-{response['name']}-% foi actualizado com sucesso"
+            f"%-{response['name']}-% updated successfully"
         )
 
         return Response(response, status=status.HTTP_200_OK)
@@ -78,7 +78,7 @@ class LanguageAPIView(viewsets.ModelViewSet):
 
         response = serializer.data
         response["alert_success"] = (
-            f"%-{response['name']}-% foi criado com sucesso"
+            f"%-{response['name']}-% created successfully"
         )
 
         return Response(response, status=status.HTTP_201_CREATED)

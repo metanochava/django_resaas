@@ -20,7 +20,7 @@ class ChangePasswordEmailAPIView(generics.GenericAPIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'A senha atual está incorreta'
+                        'The current password is incorrect'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -31,7 +31,7 @@ class ChangePasswordEmailAPIView(generics.GenericAPIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'A senha deve ter no mínimo 8 caracteres'
+                        'The password must be at least 8 characters long'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -45,7 +45,7 @@ class ChangePasswordEmailAPIView(generics.GenericAPIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Senha alterada com sucesso'
+                    'Password changed successfully'
                 )
             },
             status=status.HTTP_202_ACCEPTED
