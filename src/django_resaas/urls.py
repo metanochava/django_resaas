@@ -75,6 +75,8 @@ from django_resaas.view import home
 from django_resaas.view import deploy_github, deploy_status, deploy_releases, deploy_logs, deploy_rollback
 from django_resaas.core.utils.autoload_urls import build_saas_urls
 
+from django_resaas.data.context.views.context import ResaasContextAPIView
+
 
 
 
@@ -119,6 +121,8 @@ routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
 urlpatterns = [
 
     path('', home, name='home'),
+    path(  "resaas/context/", ResaasContextAPIView.as_view(), name="resaas_context" ),
+    
     path('hr/', include('hr.urls')),
 
     path("deploy/github/", deploy_github),
