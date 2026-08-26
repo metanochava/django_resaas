@@ -176,6 +176,8 @@ key_value = {
     "New password": "Nouveau mot de passe",
     "Confirm password": "Confirmer le mot de passe",
     "Forgot password?": "Mot de passe oublié ?",
+    "Forgot my password": "Olvidé mi contraseña",
+    "Register": "Registrarse",
     "Reset password": "Réinitialiser le mot de passe",
     "Change password": "Modifier le mot de passe",
     "Last Login": "Dernière connexion",
