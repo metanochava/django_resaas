@@ -592,5 +592,17 @@ key_value = {
     "An employee cannot be their own manager.": "Un employé ne peut pas être son propre responsable.",
     "The termination date cannot be earlier than the hire date.": "La date de fin de contrat ne peut pas être antérieure à la date d’embauche.",
 
+    # =========================================================
+    # FEEDBACK
+    # =========================================================
+
+    "Send comment or feedback": "Envoyer un commentaire ou un retour",
+    "Have feedback or suggestions? We had be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organizations support team.": "Vous avez des commentaires ou des suggestions ? Nous serions ravis de vous lire. Veuillez ne pas inclure de mots de passe, de données personnelles sensibles ni d’informations confidentielles de l’organisation. <br>Besoin d’aide ? Consultez le Centre d’aide ou contactez l’équipe d’assistance de votre organisation.",
+
+    # =========================================================
+    # PRIVACY / LEGAL
+    # =========================================================
+
+    "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br>  We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.": "Certaines informations relatives au compte, à l’entité, à la succursale et au système peuvent être collectées et traitées afin de fournir une assistance, de diagnostiquer et de résoudre des problèmes techniques, de maintenir la sécurité et d’améliorer la qualité de nos services. Ces informations peuvent être partagées avec des administrateurs autorisés ou des prestataires de services lorsque cela est nécessaire, conformément à la Politique de confidentialité et aux Conditions d’utilisation applicables. <br>  Nous pourrons vous contacter par e-mail ou par d’autres canaux de communication autorisés si des informations supplémentaires sont nécessaires ou pour vous fournir des mises à jour concernant votre demande. Pour toute question relative à la confidentialité, à la protection des données ou à des questions juridiques, veuillez contacter votre organisation ou l’administrateur système compétent.",
+
 }
-commm
