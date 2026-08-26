@@ -88,7 +88,7 @@ def hasApp(codigo):
 
             if not ativo:
                 return fail(request,
-                   "Módulo não activo",
+                   "Module not active",
                     status=status.HTTP_403_FORBIDDEN
                 )
 

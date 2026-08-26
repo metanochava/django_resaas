@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.db import models
 
 # mantém tuas funções
-@admin.action(description="Restaurar selecionados")
+@admin.action(description="Restore selected")
 def restore_selected(modeladmin, request, queryset):
     queryset.restore()
 
-@admin.action(description="Soft delete selecionados")
+@admin.action(description="Soft delete selected")
 def soft_delete_selected(modeladmin, request, queryset):
     queryset.soft_delete()
 
@@ -45,7 +45,7 @@ class BaseAdmin(admin.ModelAdmin):
         return obj.deleted_at is not None
 
     is_deleted.boolean = True
-    is_deleted.short_description = "Apagado"
+    is_deleted.short_description = "Deleted"
 
     # -----------------------------------
     # 🎨 HIGHLIGHT LINHAS APAGADAS

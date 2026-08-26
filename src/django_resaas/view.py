@@ -104,11 +104,11 @@ def deploy_github(request):
         tag = ref.split("refs/tags/")[1]
 
     if not tag:
-        return JsonResponse({"error": "tag ausente (envia ref refs/tags/<tag> ou tag=<tag>)"}, status=400)
+        return JsonResponse({"error": "missing tag (send ref refs/tags/<tag> or tag=<tag>)"}, status=400)
 
     script_path = getattr(settings, "DEPLOY_FILE_PATH", "/var/www/lib/deploy.sh")
 
-    _write_status("running", f"Deploy iniciado: {tag}", {"tag": tag})
+    _write_status("running", f"Deploy started: {tag}", {"tag": tag})
 
     # executa deploy.sh <tag>
     with open(LOG_FILE, "a") as log:
@@ -118,7 +118,7 @@ def deploy_github(request):
             stderr=subprocess.STDOUT,
         )
 
-    return JsonResponse({"message": "Deploy iniciado", "tag": tag})
+    return JsonResponse({"message": "Deploy started", "tag": tag})
 
 
 def deploy_status(request):
@@ -150,26 +150,26 @@ def deploy_rollback(request):
     releases = _list_releases(limit=100)
     active_idx = next((i for i, r in enumerate(releases) if r["active"]), None)
     if active_idx is None:
-        return JsonResponse({"error": "não foi possível detectar release ativa"}, status=400)
+        return JsonResponse({"error": "could not detect the active release"}, status=400)
 
     # releases está em ordem “mais recente primeiro”
     # rollback para a próxima da lista (mais antiga)
     if active_idx + 1 >= len(releases):
-        return JsonResponse({"error": "não existe release anterior"}, status=400)
+        return JsonResponse({"error": "no previous release exists"}, status=400)
 
     target = releases[active_idx + 1]["path"]
 
-    _write_status("running", "Rollback iniciado", {"target": target})
+    _write_status("running", "Rollback started", {"target": target})
 
     os.system(f"ln -sfn {target} {CURRENT_LINK}")
     os.system("systemctl restart gunicorn_dev_back")
 
-    _write_status("success", "Rollback concluído", {"target": target, "current": _current_release()})
-    return JsonResponse({"message": "Rollback concluído", "current": _current_release(), "target": target})
+    _write_status("success", "Rollback completed", {"target": target, "current": _current_release()})
+    return JsonResponse({"message": "Rollback completed", "current": _current_release(), "target": target})
 
 
 def home(request):
-    return HttpResponse("Página inicial funcionando 🚀")
+    return HttpResponse("Home page working 🚀")
 
 
 # 🔐 Token de segurança
@@ -203,13 +203,13 @@ LOG="/tmp/deploy.log"
 TAG="$1"
 
 if [ -z "$TAG" ]; then
-  echo "❌ Precisas passar a TAG. Ex: ./deploy.sh v1.2.0" | tee -a "$LOG"
+  echo "❌ You must pass the TAG. Ex: ./deploy.sh v1.2.0" | tee -a "$LOG"
   exit 1
 fi
 
 # ====== LOCK ======
 if [ -f "$LOCK" ]; then
-  echo "🚫 Deploy já em execução" | tee -a "$LOG"
+  echo "🚫 Deploy already running" | tee -a "$LOG"
   exit 1
 fi
 trap "rm -f $LOCK" EXIT
@@ -255,7 +255,7 @@ ln -sfn "$NEW_RELEASE" "$CURRENT"
 # ====== RESTART ======
 systemctl restart "$SERVICE"
 
-echo "✅ Deploy concluído: $TAG" | tee -a "$LOG"
+echo "✅ Deploy completed: $TAG" | tee -a "$LOG"
 """
 
 # =========================
@@ -300,7 +300,7 @@ def deploy(request):
     try:
         ensure_script(script_path)
 
-        write_status("running", "Deploy iniciado")
+        write_status("running", "Deploy started")
 
         subprocess.Popen(
             [script_path],
@@ -308,7 +308,7 @@ def deploy(request):
             stderr=subprocess.STDOUT,
         )
 
-        return JsonResponse({"message": "🚀 Deploy iniciado"})
+        return JsonResponse({"message": "🚀 Deploy started"})
 
     except Exception as e:
         write_status("error", str(e))
@@ -333,7 +333,7 @@ def deploy_logs(request):
         return HttpResponse("Unauthorized", status=403)
 
     if not os.path.exists(LOG_FILE):
-        return HttpResponse("Sem logs ainda")
+        return HttpResponse("No logs yet")
 
     with open(LOG_FILE) as f:
         return HttpResponse(f.read(), content_type="text/plain")
@@ -349,7 +349,7 @@ def rollback(request):
     releases = sorted(os.listdir(RELEASES_DIR))
 
     if len(releases) < 2:
-        return JsonResponse({"error": "Sem versão anterior"}, status=400)
+        return JsonResponse({"error": "No previous version"}, status=400)
 
     previous = releases[-2]
     previous_path = f"{RELEASES_DIR}/{previous}"
@@ -359,7 +359,7 @@ def rollback(request):
         os.system("systemctl restart gunicorn_dev_back")
 
         return JsonResponse({
-            "message": "Rollback realizado",
+            "message": "Rollback completed",
             "version": previous
         })
 
@@ -377,7 +377,7 @@ def deploy_tenant(request, tenant):
     tenant_path = f"/var/www/{tenant}"
 
     if not os.path.exists(tenant_path):
-        return JsonResponse({"error": "Tenant não existe"}, status=404)
+        return JsonResponse({"error": "Tenant does not exist"}, status=404)
 
     try:
         subprocess.Popen(
@@ -386,7 +386,7 @@ def deploy_tenant(request, tenant):
             stderr=subprocess.STDOUT,
         )
 
-        return JsonResponse({"message": f"Deploy iniciado para {tenant}"})
+        return JsonResponse({"message": f"Deploy started for {tenant}"})
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)

@@ -443,19 +443,19 @@ class ScaffoldAPIView(ViewSet):
         perms  = request.data.get("permissions", [])
 
         if not module or not model:
-            return fail(request, "Name do módulo ou model não po-de estar vazio!")
+            return fail(request, "Module or model name cannot be empty!")
         if not fields:
-            return fail(request, "Tem de ter pelo menos um campo para criar Model")
-        
+            return fail(request, "You need at least one field to create a Model")
+
         for f in fields:
             if f['name'] == '':
-                return fail(request, "Ha campo sem atributo name.<br> Melhor verificar")
+                return fail(request, "There is a field with no name attribute.<br> Please check")
             if f['type'] == '':
-                return fail(request, "O campo <b>"+ f['name'] + "</b> esta sem atributo tipo de dado.<br> Melhor Colocar. ")
+                return fail(request, "The field <b>"+ f['name'] + "</b> has no data type attribute.<br> Please set one. ")
 
             if f['choices']:
                 if not 'default' in f:
-                    return fail(request, "O campo <b>"+ f['name'] + "</b> tem opcoes.<br>  Nessa ordem eh nessecario colocar uma opcao por defeito")
+                    return fail(request, "The field <b>"+ f['name'] + "</b> has options.<br>  In that case a default option is required")
 
 
 
@@ -499,15 +499,15 @@ class ScaffoldAPIView(ViewSet):
         perms  = request.data.get("permissions", [])
 
         if not module or not model:
-            return fail(request, "Name do módulo ou model não pode estar vazio!")
+            return fail(request, "Module or model name cannot be empty!")
         if not fields:
-            return fail(request, "Tem de ter pelo menos um campo para criar Model")
+            return fail(request, "You need at least one field to create a Model")
 
         for f in fields:
             if f['name'] == '':
-                return fail(request, "Ha campo sem atributo name.<br> Melhor verificar")
+                return fail(request, "There is a field with no name attribute.<br> Please check")
             if f['type'] == '':
-                return fail(request, "O campo <b>"+ f['name'] + "</b> esta sem atributo tipo de dado.<br> Melhor Colocar. ")
+                return fail(request, "The field <b>"+ f['name'] + "</b> has no data type attribute.<br> Please set one. ")
 
 
         fobjs = [Field(**f) for f in fields]
@@ -530,7 +530,7 @@ class ScaffoldAPIView(ViewSet):
 
         add_route(module, model)
 
-        return ok(request, 'Model Criado com sucesso', status=201, out='migrate')
+        return ok(request, 'Model created successfully', status=201, out='migrate')
 
 
 
@@ -542,7 +542,7 @@ class ScaffoldAPIView(ViewSet):
         call_command("makemigrations", module, stdout=out)
         call_command("migrate", stdout=out)
         
-        return ok(request, 'Migracoes feitas com sucesso', status=201, out= out.getvalue()+'.')
+        return ok(request, 'Migrations completed successfully', status=201, out= out.getvalue()+'.')
     
     @action(detail=False, methods=["post"])
     def permissions(self, request):

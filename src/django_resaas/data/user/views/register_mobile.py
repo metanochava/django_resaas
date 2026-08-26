@@ -36,7 +36,7 @@ class RegisterMobileAPIView(APIView):
                     {
                         'alert_error': Translate.tdc(
                             request,
-                            'O número não existe'
+                            'The number does not exist'
                         ) + f' <br><b>{phone}</b>'
                     },
                     status=status.HTTP_400_BAD_REQUEST
@@ -77,7 +77,7 @@ class RegisterMobileAPIView(APIView):
                 to__='+258' + phone,
                 text__=Translate.tdc(
                     request,
-                    'Não partilhe este código'
+                    'Do not share this code'
                 ) + f':\nOTP {otp.at(user.counter)}'
             )
         except Exception as exc:
@@ -85,7 +85,7 @@ class RegisterMobileAPIView(APIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Erro ao enviar o OTP'
+                        'Error sending the OTP'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -95,7 +95,7 @@ class RegisterMobileAPIView(APIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Enviámos um OTP para o seu número'
+                    'We sent an OTP to your number'
                 ) + f' <br><b>{phone}</b>',
                 'data': {'otp': otp.at(user.counter)},
             },
@@ -113,7 +113,7 @@ class RegisterMobileAPIView(APIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Utilizador não encontrado'
+                        'User not found'
                     )
                 },
                 status=status.HTTP_404_NOT_FOUND
@@ -131,7 +131,7 @@ class RegisterMobileAPIView(APIView):
                 {
                     'alert_success': Translate.tdc(
                         request,
-                        'Autorizado com sucesso'
+                        'Authorized successfully'
                     ),
                     'data': {
                         'id': user.id,
@@ -146,7 +146,7 @@ class RegisterMobileAPIView(APIView):
             {
                 'alert_error': Translate.tdc(
                     request,
-                    'OTP inválido ou expirado'
+                    'Invalid or expired OTP'
                 )
             },
             status=status.HTTP_400_BAD_REQUEST

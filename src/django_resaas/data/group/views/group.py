@@ -100,7 +100,7 @@ class GroupAPIView(viewsets.ModelViewSet):
             {
                 "id": group.id,
                 "name": group.name,
-                "alert_success": f'%-{group.name}-% foi actualizado com sucesso',
+                "alert_success": f'%-{group.name}-% updated successfully',
             },
             status=status.HTTP_202_ACCEPTED,
         )
@@ -116,7 +116,7 @@ class GroupAPIView(viewsets.ModelViewSet):
 
         return Response(
             {
-                "alert_success": f"<b>{name}</b> foi apagado com sucesso"
+                "alert_success": f"<b>{name}</b> deleted successfully"
             },
             status=status.HTTP_202_ACCEPTED,
         )
@@ -134,7 +134,7 @@ class GroupAPIView(viewsets.ModelViewSet):
 
         if not codename or not name:
             return Response(
-                {"alert_error": "codename e name são obrigatórios"},
+                {"alert_error": "codename and name are required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -156,7 +156,7 @@ class GroupAPIView(viewsets.ModelViewSet):
                 "id": permission.id,
                 "codename": permission.codename,
                 "name": permission.name,
-                "alert_success": f'Permissão <b>{permission.name}</b> adicionada com sucesso',
+                "alert_success": f'Permission <b>{permission.name}</b> added successfully',
             },
             status=status.HTTP_201_CREATED,
         )
@@ -173,7 +173,7 @@ class GroupAPIView(viewsets.ModelViewSet):
 
         if not codename:
             return Response(
-                {"alert_error": "codename é obrigatório"},
+                {"alert_error": "codename is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -181,7 +181,7 @@ class GroupAPIView(viewsets.ModelViewSet):
             permission = Permission.objects.get(codename=codename)
         except Permission.DoesNotExist:
             return Response(
-                {"alert_error": "Permissão não encontrada"},
+                {"alert_error": "Permission not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
@@ -193,7 +193,7 @@ class GroupAPIView(viewsets.ModelViewSet):
                 "id": permission.id,
                 "codename": permission.codename,
                 "name": permission.name,
-                "alert_success": f'Permissão <b>{permission.name}</b> removida com sucesso',
+                "alert_success": f'Permission <b>{permission.name}</b> removed successfully',
             },
             status=status.HTTP_200_OK,
         )

@@ -96,6 +96,6 @@ class TenantAPIView(APIView):
         # ------------------------
         # RESPONSE
         # ------------------------
-        return all(request, "Configuração inicial criada com sucesso", data = { "entity_type": entity_type.name, "entity": entity.name, "branch": branch.name,  "group": group.name, "user": user.username, },
+        return all(request, "Initial configuration created successfully", data = { "entity_type": entity_type.name, "entity": entity.name, "branch": branch.name,  "group": group.name, "user": user.username, },
             status=status.HTTP_201_CREATED
         )

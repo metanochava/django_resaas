@@ -193,7 +193,7 @@ class DjangoResaasConfig(AppConfig):
         except Exception as e:
 
             print(
-                f"⚠️ Erro ao carregar permissions signals: {e}"
+                f"⚠️ Error loading permissions signals: {e}"
             )
 
 
@@ -214,7 +214,7 @@ class DjangoResaasConfig(AppConfig):
         except Exception as e:
 
             print(
-                f"⚠️ Erro ao carregar action signals: {e}"
+                f"⚠️ Error loading action signals: {e}"
             )
 
 
@@ -238,5 +238,5 @@ class DjangoResaasConfig(AppConfig):
         except Exception as e:
 
             print(
-                f"⚠️ Erro ao carregar admin: {e}"
+                f"⚠️ Error loading admin: {e}"
             )

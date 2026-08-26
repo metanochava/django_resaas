@@ -23,7 +23,7 @@ class LanguageService:
             if stdout:
                 stdout.write(sty(msg) if sty else msg)
 
-        out(f"\n 🌍 Languages padrão", style.MIGRATE_HEADING if style else None)
+        out(f"\n 🌍 Default languages", style.MIGRATE_HEADING if style else None)
 
         for name, code in cls.DEFAULT_IDIOMAS:
 
@@ -44,8 +44,8 @@ class LanguageService:
                 created = False
 
             if created:
-                out(f"✔ Language criado:\t {language.name} ({language.code})",
+                out(f"✔ Language created:\t {language.name} ({language.code})",
                     style.SUCCESS if style else None)
             else:
-                out(f"✔ Language existente:\t {language.name} ({language.code})",
+                out(f"✔ Language already exists:\t {language.name} ({language.code})",
                     style.WARNING if style else None)

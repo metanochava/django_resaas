@@ -122,7 +122,7 @@ class Command(BaseCommand):
 
             if password != password_confirm:
                 self.stdout.write(
-                    self.style.ERROR("As passwords não coincidem")
+                    self.style.ERROR("Passwords do not match")
                 )
                 continue
 

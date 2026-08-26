@@ -32,7 +32,7 @@ class VerifyEmail(views.APIView):
                 {
                     'alert_success': Translate.tdc(
                         request,
-                        'Conta activada com sucesso'
+                        'Account activated successfully'
                     )
                 },
                 status=status.HTTP_200_OK
@@ -43,7 +43,7 @@ class VerifyEmail(views.APIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Activação expirada'
+                        'Activation expired'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
@@ -54,7 +54,7 @@ class VerifyEmail(views.APIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Token inválido'
+                        'Invalid token'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST

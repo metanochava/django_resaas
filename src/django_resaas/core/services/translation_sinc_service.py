@@ -21,7 +21,7 @@ class TranslationSyncService:
             if stdout:
                 stdout.write(
                     style.MIGRATE_HEADING(
-                        f"\n🌍 Sincronizando language: {language.name} ({lang_code})"
+                        f"\n🌍 Syncing language: {language.name} ({lang_code})"
                     )
                 )
 
@@ -60,20 +60,20 @@ class TranslationSyncService:
                 if stdout:
                     stdout.write(
                         style.SUCCESS(
-                            f"🔁 Atualizada [{app_label}]: {chave}"
+                            f"🔁 Updated [{app_label}]: {chave}"
                         )
                     )
             elif created:
                 if stdout:
                     stdout.write(
                         style.SUCCESS(
-                            f"✔ Criada [{app_label}]: {chave}"
+                            f"✔ Created [{app_label}]: {chave}"
                         )
                     )
             else:
                 if stdout:
                     stdout.write(
                         style.WARNING(
-                            f"✔ Existente [{app_label}]: {chave}"
+                            f"✔ Already exists [{app_label}]: {chave}"
                         )
                     )

@@ -45,10 +45,10 @@ class AppScaffoldService:
         module_path = base / name
 
         if module_path.exists():
-            raise CommandError(f"Módulo '{name}' já existe")
-            
+            raise CommandError(f"Module '{name}' already exists")
+
         if name == 'django_resaas' or name == 'hr':
-            raise CommandError(f"Módulo '{name}' já existe")
+            raise CommandError(f"Module '{name}' already exists")
 
         module_path.mkdir()
 
@@ -89,7 +89,7 @@ class AppScaffoldService:
         # 1. VALIDAR EXISTÊNCIA
         # =====================================
         if not module_path.exists():
-            raise CommandError(f"Módulo '{name}' não existe")
+            raise CommandError(f"Module '{name}' does not exist")
 
         # =====================================
         # 2. REMOVER PASTA
@@ -263,7 +263,7 @@ SUBMENUS = [
         match = re.search(pattern, text)
 
         if not match:
-            raise CommandError("MY_APPS não encontrado")
+            raise CommandError("MY_APPS not found")
 
         block = match.group(0)
 
@@ -288,7 +288,7 @@ SUBMENUS = [
         router_file = base.parent / 'front' / 'src' / 'router' / 'routes.js'
 
         if not router_file.exists():
-            raise CommandError(f"Arquivo não encontrado: {router_file}")
+            raise CommandError(f"File not found: {router_file}")
 
         text = router_file.read_text(encoding="utf-8")
         # 🔥 names
@@ -318,7 +318,7 @@ SUBMENUS = [
         match = re.search(pattern, text, re.S)
 
         if not match:
-            raise CommandError("children routes não encontrados")
+            raise CommandError("children routes not found")
 
         block = match.group(1)
 
@@ -342,7 +342,7 @@ SUBMENUS = [
         router_file = base.parent / 'front' / 'src' / 'router' / 'routes.js'
 
         if not router_file.exists():
-            raise CommandError(f"Arquivo não encontrado: {router_file}")
+            raise CommandError(f"File not found: {router_file}")
 
         text = router_file.read_text(encoding="utf-8")
 

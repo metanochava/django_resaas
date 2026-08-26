@@ -87,7 +87,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
                 if not entity_id:
                     return Response(
-                        {"error": "Entity não encontrada"},
+                        {"error": "Entity not found"},
                         status=400
                     )
 
@@ -110,7 +110,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
             if not entity_id:
                 return Response(
-                    {"error": "Entity não encontrada"},
+                    {"error": "Entity not found"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -122,16 +122,16 @@ class UserAPIView(viewsets.ModelViewSet):
 
             if not pertence:
                 return Response(
-                    {"error": "Sem permissão para atualizar este user"},
+                    {"error": "No permission to update this user"},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
         with transaction.atomic():
 
-            # 🔥 bloqueia alteração manual de entidade
+            # blocks manual entity change
             if not user.is_superuser and 'entity' in request.data:
                 return Response(
-                    {"error": "Não permitido alterar entidade"},
+                    {"error": "Not allowed to change entity"},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
@@ -151,10 +151,10 @@ class UserAPIView(viewsets.ModelViewSet):
         user = request.user
         instance = self.get_object()
 
-        # 🔥 opcional: impedir apagar a si próprio
+        # optional: prevent deleting yourself
         if instance == user:
             return Response(
-                {"error": "Não pode apagar o próprio utilizador"},
+                {"error": "Cannot delete your own user"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -164,11 +164,11 @@ class UserAPIView(viewsets.ModelViewSet):
 
             if not entity_id:
                 return Response(
-                    {"error": "Entity não encontrada"},
+                    {"error": "Entity not found"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # 🔥 verifica se o user pertence à entidade corrente
+            # checks if the user belongs to the current entity
             pertence = EntityUser.objects.filter(
                 user=instance,
                 entity_id=entity_id
@@ -176,15 +176,15 @@ class UserAPIView(viewsets.ModelViewSet):
 
             if not pertence:
                 return Response(
-                    {"error": "Sem permissão para apagar este user"},
+                    {"error": "No permission to delete this user"},
                     status=status.HTTP_403_FORBIDDEN
                 )
 
-        # 🔥 apagar
+        # delete
         instance.delete()
 
         return Response(
-            {"message": "User apagado com sucesso"},
+            {"message": "User deleted successfully"},
             status=status.HTTP_204_NO_CONTENT
         )
 
@@ -253,7 +253,7 @@ class UserAPIView(viewsets.ModelViewSet):
             su.branch  = branch
             su.save()
             # data = json.loads(json.dumps(paciente.data, cls=DjangoJSONEncoder))
-        add = {'alert_success':  '<b>' + branch.name+ '</b> foi adicionado com sucesso'}
+        add = {'alert_success':  '<b>' + branch.name+ '</b> was added successfully'}
             # data.update(add)
         return Response(add, status = status.HTTP_201_CREATED)
     
@@ -267,7 +267,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
         userBranchs = BranchUser.objects.get(user__id=id, branch__id= branch.id, branch__entity__entity_type__id=request.entity_type_id, branch__entity__id=request.entity_id)
         userBranchs.delete()
-        add = {'alert_success': '<b>' + branch.name+ '</b> foi removido com sucesso'}
+        add = {'alert_success': '<b>' + branch.name+ '</b> was removed successfully'}
         return Response(add, status = status.HTTP_200_OK)
 
     @action(
@@ -475,7 +475,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
                 branchUserGroup.save(update_fields=['deleted_at'])
 
-            message = 'Grupo associado com sucesso'
+            message = 'Group linked successfully'
 
         else:
 
@@ -485,7 +485,7 @@ class UserAPIView(viewsets.ModelViewSet):
                 branch=branch
             )
 
-            message = 'Grupo adicionado com sucesso'
+            message = 'Group added successfully'
 
         return Response(
             {

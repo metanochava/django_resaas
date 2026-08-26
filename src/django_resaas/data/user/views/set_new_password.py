@@ -14,7 +14,7 @@ class SetNewPasswordAPIView(generics.GenericAPIView):
         return Response(
             {
                 'alert_success': True,
-                'message': 'Senha redefinida com sucesso'
+                'message': 'Password reset successfully'
             },
             status=status.HTTP_200_OK
         )

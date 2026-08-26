@@ -23,7 +23,7 @@ class LoginsAPIView(generics.GenericAPIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Histórico de logins carregado com sucesso'
+                    'Login history loaded successfully'
                 ),
                 'data': user_logins.data
             },

@@ -38,7 +38,7 @@ class TranslationService:
             except Language.DoesNotExist:
                 if stdout:
                     stdout.write(
-                        style.ERROR(f"✖ Language não encontrado: {code}")
+                        style.ERROR(f"✖ Language not found: {code}")
                     )
                 continue
 

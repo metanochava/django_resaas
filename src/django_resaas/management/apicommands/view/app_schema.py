@@ -175,7 +175,7 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
     if payload.get("required"):
         rules.append({
             "type": "required",
-            "message": "Campo obrigatório"
+            "message": "Field is required"
         })
 
     # ---------------- MIN LENGTH ----------------
@@ -183,7 +183,7 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
         rules.append({
             "type": "min_length",
             "value": payload["min_length"],
-            "message": f"Mínimo {payload['min_length']} caracteres"
+            "message": f"Minimum {payload['min_length']} characters"
         })
 
     # ---------------- MAX LENGTH ----------------
@@ -191,7 +191,7 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
         rules.append({
             "type": "max_length",
             "value": payload["max_length"],
-            "message": f"Máximo {payload['max_length']} caracteres"
+            "message": f"Maximum {payload['max_length']} characters"
         })
 
     # ---------------- MIN VALUE ----------------
@@ -199,7 +199,7 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
         rules.append({
             "type": "min",
             "value": payload["min"],
-            "message": f"Valor mínimo {payload['min']}"
+            "message": f"Minimum value {payload['min']}"
         })
 
     # ---------------- MAX VALUE ----------------
@@ -207,14 +207,14 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
         rules.append({
             "type": "max",
             "value": payload["max"],
-            "message": f"Valor máximo {payload['max']}"
+            "message": f"Maximum value {payload['max']}"
         })
 
     # ---------------- EMAIL ----------------
     if ftype == "EmailField":
         rules.append({
             "type": "email",
-            "message": "Email inválido"
+            "message": "Invalid email"
         })
 
     return rules
@@ -500,12 +500,12 @@ class AppSchemaAPIView(ModelViewSet):
 
         try:
             if name in ['hr', 'django_resaas']:
-                return fail(request, "Module {name} protegido")
+                return fail(request, "Module {name} is protected")
 
             AppScaffoldService.create_front(name)
             return ok(request, "app created success",  path=path )
         except Exception as e:
-            return fail(  request,  "ERRO \n "+ str(e),  )
+            return fail(  request,  "ERROR \n "+ str(e),  )
 
 
 

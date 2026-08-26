@@ -21,7 +21,7 @@ class RegisterSerializer(serializers.ModelSerializer):
                 {
                     'username': Translate.tdc(
                         request,
-                        'O name de utilizador deve conter apenas caracteres alfanuméricos'
+                        'The username must contain only alphanumeric characters'
                     )
                 }
             )

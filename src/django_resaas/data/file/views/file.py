@@ -48,7 +48,7 @@ class FileAPIView(viewsets.ModelViewSet):
                 {
                     "alert_error": Translate.tdc(
                         request,
-                        "FICHEIRO_NAO_ENCONTRADO",
+                        "FILE_NOT_FOUND",
                     )
                 },
                 status=status.HTTP_404_NOT_FOUND,
@@ -66,7 +66,7 @@ class FileAPIView(viewsets.ModelViewSet):
             {
                 "alert_success": Translate.tdc(
                     request,
-                    "FICHEIRO_REMOVIDO_SUCESSO",
+                    "FILE_REMOVED_SUCCESS",
                 )
             },
             status=status.HTTP_200_OK,
@@ -100,7 +100,7 @@ class FileAPIView(viewsets.ModelViewSet):
                 {
                     "alert_error": Translate.tdc(
                         request,
-                        "ENTIDADE_NAO_INFORMADA",
+                        "ENTITY_NOT_PROVIDED",
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -112,7 +112,7 @@ class FileAPIView(viewsets.ModelViewSet):
                 {
                     "alert_error": Translate.tdc(
                         request,
-                        "FICHEIRO_NAO_INFORMADO",
+                        "FILE_NOT_PROVIDED",
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -123,7 +123,7 @@ class FileAPIView(viewsets.ModelViewSet):
                 {
                     "alert_error": Translate.tdc(
                         request,
-                        "ESPACO_INSUFICIENTE",
+                        "INSUFFICIENT_SPACE",
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST,
@@ -150,7 +150,7 @@ class FileAPIView(viewsets.ModelViewSet):
                 {
                     "alert_error": Translate.tdc(
                         request,
-                        "ENTIDADE_NAO_INFORMADA",
+                        "ENTITY_NOT_PROVIDED",
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST,

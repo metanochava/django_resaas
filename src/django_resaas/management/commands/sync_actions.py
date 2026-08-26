@@ -10,8 +10,8 @@ from django_resaas.core.services.action_sync_service import (
 class Command(BaseCommand):
 
     help = (
-        "Sincroniza as @resaas_action com "
-        "ModelExtraAction e as Permissions do Django."
+        "Syncs @resaas_action with "
+        "ModelExtraAction and Django Permissions."
     )
 
 
@@ -23,7 +23,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.NOTICE(
-                "A sincronizar RESAAS Actions..."
+                "Syncing RESAAS Actions..."
             )
         )
 
@@ -35,8 +35,8 @@ class Command(BaseCommand):
 
             self.stdout.write(
                 self.style.WARNING(
-                    "VIEW_REGISTRY está vazio. "
-                    "Nenhuma View foi encontrada."
+                    "VIEW_REGISTRY is empty. "
+                    "No View was found."
                 )
             )
 
@@ -60,7 +60,7 @@ class Command(BaseCommand):
             modules_count += 1
 
             self.stdout.write(
-                f"\nMódulo: {module}"
+                f"\nModule: {module}"
             )
 
             for name, view_class in views.items():
@@ -89,7 +89,7 @@ class Command(BaseCommand):
 
             self.stderr.write(
                 self.style.ERROR(
-                    "\nErro ao sincronizar "
+                    "\nError syncing "
                     f"RESAAS Actions: {exc}"
                 )
             )
@@ -105,15 +105,15 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                "RESAAS Actions sincronizadas "
-                "com sucesso."
+                "RESAAS Actions synced "
+                "successfully."
             )
         )
 
         self.stdout.write(
-            f"Módulos encontrados: {modules_count}"
+            f"Modules found: {modules_count}"
         )
 
         self.stdout.write(
-            f"Views encontradas: {views_count}"
+            f"Views found: {views_count}"
         )

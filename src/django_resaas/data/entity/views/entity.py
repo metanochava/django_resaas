@@ -239,7 +239,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         # ------------------------
         return ok(
             request,
-            "Entity criada com sucesso",
+            "Entity created successfully",
             entity_type=entity_type.name,
             entity=entity.name,
             branch=branch.name,
@@ -305,7 +305,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             {
                 'id': model.id,
                 'model': model.model,
-                'alert_info': f'App <b>{model.app_label}</b> criado com sucesso'
+                'alert_info': f'App <b>{model.app_label}</b> created successfully'
             },
             status=status.HTTP_201_CREATED
         )
@@ -320,7 +320,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             {
                 'id': model.id,
                 'model': model.model,
-                'alert_info': f'App <b>{model.app_label}</b> removido com sucesso'
+                'alert_info': f'App <b>{model.app_label}</b> removed successfully'
             },
             status=status.HTTP_201_CREATED
         )
@@ -368,14 +368,14 @@ class EntityAPIView(viewsets.ModelViewSet):
             )
             return Response(
                 {
-                    "alert_seccess": f"O user {user.username} adicionado com sucesso!"
+                    "alert_seccess": f"User {user.username} added successfully!"
                 },
                 status=status.HTTP_201_CREATED
             )
 
         return Response(
             {
-                "alert_seccess": f"O user {user.username} ja existe!"
+                "alert_seccess": f"User {user.username} already exists!"
             },
             status=status.HTTP_201_CREATED
         )
@@ -412,7 +412,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         uploaded_file = request.FILES['file']
 
         if DiskManegarService.freeSpace(entity.id, request.FILES['file']):
-            resposta = {'alert_error': 'Nao e possivel fazer upload de file<br><b>Contacte o adminstrador</b>'}
+            resposta = {'alert_error': 'Unable to upload file<br><b>Contact the administrator</b>'}
             return Response(resposta , status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -568,7 +568,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                 setattr(theme, key, value)
         theme.save()
         theme = ThemeSerializer(theme).data
-        return ok(request, 'Cores actualizadas com sucesso!',theme=theme)
+        return ok(request, 'Colors updated successfully!',theme=theme)
 
     @action(detail=True, methods=['GET'])
     def layoutSettingsGet(self, request, *args, **kwargs):
@@ -603,7 +603,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
         layout_settings.save()
         layout_settings = LayoutSettingSerializer(layout_settings).data
-        return ok(request, 'Layout actualizado com sucesso!',layout_settings=layout_settings)
+        return ok(request, 'Layout updated successfully!',layout_settings=layout_settings)
 
 
 
@@ -642,7 +642,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                 setattr(typography, key, value)
         typography.save()
         typography = TypographySerializer(typography).data
-        return ok(request, 'Fonte actualizada com sucesso!',typography=typography)
+        return ok(request, 'Font updated successfully!',typography=typography)
 
 
 
@@ -680,7 +680,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
         animation_settings.save()
         animation_settings = AnimationSettingSerializer(animation_settings).data
-        return ok(request, 'Animacao actualizado com sucesso!',animation_settings=animation_settings)
+        return ok(request, 'Animation updated successfully!',animation_settings=animation_settings)
 
 
 
@@ -695,36 +695,36 @@ class EntityAPIView(viewsets.ModelViewSet):
         # invoice = Invoice.objects.get(id=invoice_id)
         # Exemplo de dados (substituir por dados reais)
         company = {
-            "name": "Minha Empresa Lda",
-            "address": "Rua X, Luanda, Angola",
+            "name": "My Company Ltd",
+            "address": "Street X, Luanda, Angola",
             "nif": "5000000000",
             "phone": "+244 900 000 000",
             "email": "finance@empresa.co.ao",
         }
 
         customer = {
-            "name": "Cliente Exemplo",
+            "name": "Example Client",
             "nif": "4000000000",
-            "address": "Rua Y, Benguela, Angola",
+            "address": "Street Y, Benguela, Angola",
             "email": "cliente@email.com",
             "phone": "+244 999 999 999",
         }
 
         doc = {
-            "type": "FATURA",
+            "type": "INVOICE",
             "number": "FT 2026/000123",
             "date": "2026-02-05",
             "due_date": "2026-02-10",
             "currency": "AOA",
-            "payment_method": "Transferência",
+            "payment_method": "Bank transfer",
             "reference": "REF-001",
-            "notes": "Obrigado pela preferência.",
+            "notes": "Thank you for your business.",
         }
 
         lines = [
-            {"name":"Produto A", "sku":"A-001", "note":"", "qty":2, "unit_price":"10.000,00", "vat_rate":14, "total":"22.800,00"},
-            {"name":"Serviço B", "sku":"S-100", "note":"Mensal", "qty":1, "unit_price":"50.000,00", "vat_rate":14, "total":"57.000,00"},
-            {"name":"Serviço B", "sku":"S-100", "note":"Mensal", "qty":1, "unit_price":"50.000,00", "vat_rate":14, "total":"57.000,00"},
+            {"name":"Product A", "sku":"A-001", "note":"", "qty":2, "unit_price":"10.000,00", "vat_rate":14, "total":"22.800,00"},
+            {"name":"Service B", "sku":"S-100", "note":"Monthly", "qty":1, "unit_price":"50.000,00", "vat_rate":14, "total":"57.000,00"},
+            {"name":"Service B", "sku":"S-100", "note":"Monthly", "qty":1, "unit_price":"50.000,00", "vat_rate":14, "total":"57.000,00"},
         ]
 
         totals = {
@@ -777,7 +777,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
         name = request.data.get("name")
         if not name:
-            return Response({"error": "name é obrigatório"}, status=400)
+            return Response({"error": "name is required"}, status=400)
 
         group = Group.objects.create(name=name)
 

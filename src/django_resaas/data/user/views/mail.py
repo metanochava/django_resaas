@@ -18,8 +18,8 @@ from django_resaas.core.utils.templates import render_email_template
 
 class MailAPIView(generics.GenericAPIView):
     """
-    Envio de email genérico para redefinição de palavra-passe.
-    Responsabilidade única: gerar link e enviar email HTML.
+    Generic email sending for password reset.
+    Single responsibility: generate the link and send the HTML email.
     """
     serializer_class = ResetPasswordEmailRequestSerializer
 
@@ -31,19 +31,19 @@ class MailAPIView(generics.GenericAPIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Email não informado'
+                        'Email not provided'
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         if not User.objects.filter(email=email).exists():
-            # Resposta neutra por segurança
+            # Neutral response for security
             return Response(
                 {
                     'alert_success': Translate.tdc(
                         request,
-                        'Se o email existir, enviaremos instruções'
+                        'If the email exists, we will send instructions'
                     )
                 },
                 status=status.HTTP_200_OK
@@ -87,7 +87,7 @@ class MailAPIView(generics.GenericAPIView):
             mail = EmailMultiAlternatives(
                 subject=Translate.tdc(
                     request,
-                    'Redefinição de palavra-passe'
+                    'Password reset'
                 ),
                 body='',
                 to=[email],
@@ -103,7 +103,7 @@ class MailAPIView(generics.GenericAPIView):
                 {
                     'alert_error': Translate.tdc(
                         request,
-                        'Erro ao enviar o email'
+                        'Error sending the email'
                     )
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -113,7 +113,7 @@ class MailAPIView(generics.GenericAPIView):
             {
                 'alert_success': Translate.tdc(
                     request,
-                    'Enviámos um link para redefinir a sua palavra-passe'
+                    'We sent a link to reset your password'
                 )
             },
             status=status.HTTP_200_OK

@@ -100,7 +100,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             'id': permission.id,
             'name': permission.codename,
             'nameseparado': permission.name,
-            'alert_success': f'Permissão <b>{permission.name}</b> adicionada'
+            'alert_success': f'Permission <b>{permission.name}</b> added'
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['POST'])
@@ -122,7 +122,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             'id': permission.id,
             'name': permission.codename,
             'nameseparado': permission.name,
-            'alert_info': f'Permissão <b>{permission.name}</b> removida'
+            'alert_info': f'Permission <b>{permission.name}</b> removed'
         }, status=status.HTTP_200_OK)
 
     # ==========================================================
@@ -154,7 +154,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             # user.groups.add(group)
 
         return Response({
-            'alert_success': f'Profile <b>{group.name}</b> adicionado'
+            'alert_success': f'Profile <b>{group.name}</b> added'
         }, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['POST'])
@@ -181,5 +181,5 @@ class PermissionAPIView(viewsets.ModelViewSet):
             # user.groups.remove(group)
 
         return Response({
-            'alert_success': f'Profile <b>{group.name}</b> removido'
+            'alert_success': f'Profile <b>{group.name}</b> removed'
         }, status=status.HTTP_200_OK)

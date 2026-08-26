@@ -12,20 +12,20 @@ class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        data = request.data.copy()  # ✅ agora é mutável
+        data = request.data.copy()  # now mutable
         identifier = data.get("identifier")
         password = data.get("password")
         data['id'] = identifier
         
 
-        # 🔐 validações defensivas
+        # defensive validations
         if not isinstance(identifier, str) or not isinstance(password, str):
             return Response(
-                {"alert_error": "Credenciais inválidas"},
+                {"alert_error": "Invalid credentials"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # 🔐 validação defensiva mínima
+        # minimal defensive validation
 
         serializer = self.serializer_class(
             data=data,
@@ -45,7 +45,7 @@ class LoginAPIView(generics.GenericAPIView):
         # user_login.is_valid(raise_exception=True)
         # user_login.save()
         
-        response = serializer.data.copy()   # ← dados do serializer
+        response = serializer.data.copy()   # serializer data
 
         return Response(
             response,
