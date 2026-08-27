@@ -49,6 +49,13 @@ class EntityType(TimeModel):
         help_text='Default icon used by this entity type.'
     )
 
+    display_logo_login = models.BooleanField(
+        default=True,
+        null=True,
+        blank=True,
+        help_text='Display the entity type logo on the login page.'
+    )
+
     license = models.TextField(
         default='license',
         help_text='License information associated with this entity type.'
