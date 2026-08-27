@@ -55,7 +55,7 @@ Every multi-tenant SaaS app ends up needing the same set of building blocks. `dj
 | CRUD written from scratch for every resource | `BaseAPIView` gives full CRUD in ~5 lines |
 | Destructive delete with no way back | Native soft delete + restore + hard delete |
 | Custom search per endpoint | Automatic dynamic search (`?search=`) |
-| "All or nothing" modules | Per-client, per-plan module activation |
+| "All or nothing" modules | Per-client module activation (`App` + `EntityApp`) |
 | Translations scattered across the code | Central i18n system (DB + `lang/` files) |
 
 ---
@@ -67,8 +67,7 @@ Every multi-tenant SaaS app ends up needing the same set of building blocks. `dj
 * ⚡ **Automatic CRUD** — `BaseAPIView` with pagination, ordering, filtering and permissions built in
 * 🔎 **Dynamic search** — automatic search across text fields and relations
 * ♻️ **Soft delete** — `delete()` / `restore()` / `hard_delete()` + dedicated managers
-* 🧩 **Per-client modules** — toggle features on/off without a deploy
-* 💰 **SaaS-ready billing** — plans → modules → automatic activation per entity
+* 🧩 **Per-client modules** — toggle features on/off per entity without a deploy (`App` + `EntityApp`)
 * 📎 **Files & PDF** — secure uploads, automatic metadata, PDF generation (WeasyPrint)
 * 🔑 **JWT auth + 2FA** — `simplejwt`, OTP (`pyotp`) and QR codes built in
 * 🌍 **Built-in i18n** — file-based translations (`pt-pt`, `en-us`, `es-es`, `fr-fr`) and database-backed
@@ -251,7 +250,7 @@ GET /api/employees/?search=john
 
 ---
 
-## 🧩 Per-client modules + billing
+## 🧩 Per-client modules
 
 Each `Entity` only sees the modules it has activated:
 
@@ -260,15 +259,16 @@ Each `Entity` only sees the modules it has activated:
 | Company A | HR | ✅ |
 | Company A | CRM | ❌ |
 
-Billing flow:
-
-```text
-Plan → plan modules → EntityPlan → automatically activates modules on the Entity
-```
+Activation is a direct `App` ↔ `Entity` link via `EntityApp` (toggled with its `state` field):
 
 ```python
-sync_apps_entity(entity)  # syncs modules when the plan changes
+EntityApp.objects.get_or_create(app=app, entity=entity, state=1)
 ```
+
+> There is no plan-based billing layer yet (no `Plan`/`EntityPlan` model, no automatic
+> plan-to-module sync) - that's tracked under [Roadmap](#-roadmap). Module activation today is a
+> direct per-entity toggle, as used by `python manage.py create_root` (see
+> [`docs/development/management-commands.md`](docs/development/management-commands.md)).
 
 ---
 
@@ -328,11 +328,13 @@ python manage.py check_metano       # validates compliance with the MetanoStack 
 
 Full technical documentation lives in [`docs/`](docs/README.md):
 
-- [Architecture](docs/architecture/overview.md) · [Multi-tenancy](docs/architecture/multi-tenancy.md) · [Request lifecycle](docs/architecture/request-lifecycle.md)
+- [Architecture](docs/architecture/overview.md) · [Multi-tenancy](docs/architecture/multi-tenancy.md) · [Request lifecycle](docs/architecture/request-lifecycle.md) · [Middleware](docs/architecture/middleware.md)
+- [Schema 1.0 contract](docs/api/schema-contract.md) · [Public API reference](docs/api/public-api-reference.md)
 - [BaseAPIView](docs/api/base-api-view.md) · [Search](docs/api/search.md) · [Filters & pagination](docs/api/filters-pagination.md)
 - [Permissions](docs/security/permissions.md)
 - [Soft delete](docs/features/soft-delete.md) · [Files & PDF](docs/features/files-pdf.md)
-- [Creating a new resource](docs/development/creating-resource.md)
+- [Creating a new resource](docs/development/creating-resource.md) · [Management commands](docs/development/management-commands.md)
+- [The hr app](docs/hr/overview.md)
 - [Git Flow & releases](docs/deployment/releases.md)
 - [Troubleshooting](docs/troubleshooting/common-errors.md)
 

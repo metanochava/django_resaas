@@ -1,45 +1,46 @@
-# Pesquisa Dinâmica
+# Dynamic Search
 
-A API recebe o termo através de:
+The API receives the search term via:
 
 ``` text
 ?search=metano
 ```
 
-## Campos configurados
+## Configured fields
 
-Se o model possuir:
+If the model has:
 
 ``` python
 class RESAAS:
     search_fields = ["name", "surname"]
 ```
 
-a pesquisa deve produzir condições equivalentes a:
+the search should produce conditions equivalent to:
 
 ``` python
 Q(name__icontains="metano") |
 Q(surname__icontains="metano")
 ```
 
-## Relações
+## Relations
 
-Quando suportado pelo validador de campos, uma configuração pode
-utilizar caminhos como:
+When supported by the field validator, a configuration can use paths
+such as:
 
 ``` python
 search_fields = [
-    "codigo",
+    "code",
     "employee__person__full_name",
 ]
 ```
 
-## Query vazia
+## Empty query
 
-É importante não transformar uma pesquisa inválida num `Q()` vazio
-seguido de `qs.filter(Q())`, pois isso não restringe o queryset.
+It's important not to turn an invalid search into an empty `Q()`
+followed by `qs.filter(Q())`, since that doesn't restrict the queryset
+at all.
 
-## Exemplo de utilização
+## Usage example
 
 ``` text
 /api/django_resaas/persons?search=m&page=1&page_size=10

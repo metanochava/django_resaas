@@ -1,28 +1,28 @@
-# Soft Delete, Restore e Hard Delete
+# Soft Delete, Restore and Hard Delete
 
 ## Soft delete
 
-Em vez de eliminar imediatamente um registo, o sistema pode marcar
+Instead of immediately deleting a record, the system can mark
 `deleted_at`.
 
-## Listagem
+## Listing
 
-O parâmetro `objects` pode selecionar diferentes managers:
+The `objects` parameter can select different managers:
 
 ``` text
 ?objects=all
 ?objects=deleted
 ```
 
-Depois da troca de manager, os filtros de entidade e sucursal devem ser
-reaplicados.
+After switching managers, the entity and branch filters must be
+reapplied.
 
 ## Restore
 
-Uma action `restore` recupera uma instância apagada, desde que o
-utilizador tenha a permissão correspondente.
+A `restore` action recovers a deleted instance, provided the user has
+the corresponding permission.
 
 ## Hard delete
 
-`hard_delete` remove definitivamente a instância. Deve ser protegido por
-uma permissão específica.
+`hard_delete` permanently removes the instance. It must be protected by
+a specific permission.

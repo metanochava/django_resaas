@@ -1,9 +1,8 @@
-# Configuração RESAAS nos Models
+# RESAAS Configuration on Models
 
-Os models podem declarar metadados específicos do framework através de
-`class RESAAS`.
+Models can declare framework-specific metadata through `class RESAAS`.
 
-Exemplo:
+Example:
 
 ``` python
 class RESAAS:
@@ -14,20 +13,19 @@ class RESAAS:
 
 ## `label_field`
 
-Define os campos utilizados para construir uma representação legível da
-instância.
+Defines the fields used to build a human-readable representation of the
+instance.
 
 ## `search_fields`
 
-Define explicitamente os campos onde a pesquisa textual deve atuar.
+Explicitly defines the fields on which text search should operate.
 
 ## `crud`
 
-Indica que o recurso participa no mecanismo CRUD do framework, quando
-essa opção é utilizada pela aplicação.
+Indicates that the resource participates in the framework's CRUD
+mechanism, when that option is used by the application.
 
-## Recomendação
+## Recommendation
 
-Quando um model precisa de uma pesquisa controlada, declare
-`search_fields` explicitamente em vez de depender de um fallback
-genérico.
+When a model needs controlled search, declare `search_fields` explicitly
+instead of relying on a generic fallback.

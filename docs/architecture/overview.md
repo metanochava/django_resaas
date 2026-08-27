@@ -1,11 +1,11 @@
-# Arquitetura do Backend
+# Backend Architecture
 
-## Visão geral
+## Overview
 
-O backend segue uma arquitetura em camadas:
+The backend follows a layered architecture:
 
 ``` text
-Cliente / Frontend
+Client / Frontend
        |
        v
 REST API / Router
@@ -13,9 +13,9 @@ REST API / Router
        v
 BaseAPIView
        |
-       +---- Permissões
+       +---- Permissions
        +---- Multi-tenancy
-       +---- Pesquisa/Filtros
+       +---- Search/Filters
        |
        v
 Serializer
@@ -24,27 +24,27 @@ Serializer
 Model
        |
        v
-Base de Dados
+Database
 ```
 
-## Responsabilidades
+## Responsibilities
 
 ### View
 
-Recebe a requisição, determina a ação, restringe o queryset e coordena
-serializer e resposta.
+Receives the request, determines the action, restricts the queryset and
+coordinates the serializer and the response.
 
 ### Serializer
 
-Valida os dados de entrada e transforma instâncias Django em dados
-apropriados para a API.
+Validates input data and turns Django instances into data suitable for the
+API.
 
 ### Model
 
-Representa os dados persistentes e as relações do domínio.
+Represents persistent data and domain relationships.
 
-### Componentes base
+### Base components
 
-O framework concentra comportamentos repetidos em classes e utilitários
-comuns para evitar que cada aplicação volte a implementar CRUD, tenant,
-permissões e representação.
+The framework concentrates repeated behavior into shared classes and
+utilities so that each application doesn't reimplement CRUD, tenancy,
+permissions and representation from scratch.
