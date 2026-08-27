@@ -9,6 +9,7 @@ Esta pasta contém a documentação técnica do framework backend
 -   [Multi-tenancy](architecture/multi-tenancy.md)
 -   [Ciclo de uma requisição](architecture/request-lifecycle.md)
 -   [Models e RESAAS](models/resaas-config.md)
+-   [Schema 1.0 (contrato RESAAS)](api/schema-contract.md)
 -   [BaseAPIView](api/base-api-view.md)
 -   [Pesquisa](api/search.md)
 -   [Filtros e paginação](api/filters-pagination.md)
