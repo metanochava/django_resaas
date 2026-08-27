@@ -304,7 +304,8 @@ python manage.py create_entity     # creates a new Entity (tenant)
 python manage.py create_root       # creates the root user
 python manage.py sync_language     # loads the default languages
 python manage.py sync_actions      # syncs views registered in VIEW_REGISTRY
-python manage.py check             # validates compliance with the MetanoStack standard
+python manage.py check              # Django's system check framework
+python manage.py check_metano       # validates compliance with the MetanoStack standard
 ```
 
 ---

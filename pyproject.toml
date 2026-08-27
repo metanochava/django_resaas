@@ -44,6 +44,13 @@ dependencies = [
   "django-money",
 ]
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-django>=4.8",
+  "factory_boy>=3.3",
+]
+
 [project.urls]
 Homepage = "https://github.com/metanochava/django_resaas"
 Repository = "https://github.com/metanochava/django_resaas"
@@ -62,3 +69,9 @@ include = ["django_resaas*", "hr*"]
 "django_resaas" = [
   "templates/**/*"
 ]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "dev.settings"
+pythonpath = ["src"]
+addopts = "-q"
+testpaths = ["src"]

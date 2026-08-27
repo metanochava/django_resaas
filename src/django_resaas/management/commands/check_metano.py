@@ -1,5 +1,3 @@
-# seu_app/management/commands/check_metano.py
-
 import pathlib
 import sys
 from django.core.management.base import BaseCommand, CommandError
