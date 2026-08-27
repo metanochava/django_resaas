@@ -188,24 +188,62 @@ class UserAPIView(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
-    @action(
-        detail=True,
-        methods=['GET'],
-    )
-    def userEntitys(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
-        user = UserSerializer(user)
+    # @action(
+    #     detail=True,
+    #     methods=['GET'],
+    # )
+    # def userEntitys(self, request, id, *args, **kwargs):
+    #     user = User.objects.get(id=id)
+    #     user = UserSerializer(user)
 
-        ar = []
-        userEntitys = EntityUser.objects.filter(user__id=id, entity__entity_type__id=request.entity_type_id)
-        if (userEntitys):
-            for userEntity in userEntitys:
-                entity = Entity.objects.get(id=userEntity.entity.id)
-                entity = EntitySerializer(entity, context={'request': request})
-                ar.append({'id': entity.data['id'], 'entityType': entity.data['entity_type'],  'name': entity.data['name'], 'created_at': entity.data['created_at'].split('-')[0], 'logo': entity.data['logo']})
+    #     ar = []
+    #     userEntitys = EntityUser.objects.filter(user__id=id, entity__entity_type__id=request.entity_type_id)
+    #     if (userEntitys):
+    #         for userEntity in userEntitys:
+    #             entity = Entity.objects.get(id=userEntity.entity.id)
+    #             entity = EntitySerializer(entity, context={'request': request})
+    #             ar.append({'id': entity.data['id'], 'entityType': entity.data['entity_type'],  'name': entity.data['name'], 'created_at': entity.data['created_at'].split('-')[0], 'logo': entity.data['logo']})
            
 
-        return Response(ar, status.HTTP_200_OK)
+    #     return Response(ar, status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=["GET"])
+    def userEntitys(self, request, id, *args, **kwargs):
+        user = User.objects.get(id=id)
+
+        if not request.user.is_superuser and str(request.user.id) != str(user.id):
+            return Response(
+                {"detail": "You cannot access entities from another user."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        entities = Entity.objects.filter(
+            Q(admins=user)
+            | Q(entityuser__user=user, entityuser__deleted_at__isnull=True)
+        ).select_related("entity_type").distinct().order_by("name")
+
+        result = []
+
+        for entity in entities:
+            data = EntitySerializer(
+                entity,
+                context={"request": request},
+            ).data
+
+            result.append({
+                "id": data["id"],
+                "entityType": data["entity_type"],
+                "name": data["name"],
+                "created_at": (
+                    data["created_at"].split("-")[0]
+                    if data.get("created_at")
+                    else None
+                ),
+                "logo": data.get("logo"),
+            })
+
+        return Response(result, status=status.HTTP_200_OK)
 
     @action(
         detail=True,
