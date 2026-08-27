@@ -179,23 +179,49 @@ That's enough to automatically get: full CRUD, multi-tenant isolation, permissio
 
 ## 🔐 Multi-tenancy & RBAC
 
-Tenant context and permissions travel via headers, resolved by `TenantContextMiddleware`:
+Tenant context is never trusted from raw client-supplied values. It travels as a single **signed, short-lived token**, issued by the API after checking the user actually has access to the `Entity`/`Branch`/`Group` requested.
+
+**1. Issue a context**, once the user is authenticated:
 
 ```http
-ET → entity_type
-E  → entity
-S  → branch
-G  → group
-L  → language
+POST /api/resaas/context/
+Authorization: Bearer <access_token>
+
+{
+  "entity_id": "...",
+  "branch_id": "...",   // optional
+  "group_id": "..."     // optional
+}
 ```
 
+`ResaasContextService` validates access (via `EntityUser` / `BranchUser` / `BranchUserGroup`, with a superuser/entity-admin bypass) and signs the result with `django.core.signing` — versioned and bound to a TTL (1h by default, `RESAAS_CONTEXT_TTL` setting):
+
+```json
+{ "token": "<signed-context-token>", "context": { "entity_id": "...", "branch_id": "...", "group_id": "..." } }
+```
+
+**2. Send it back on every request**, alongside auth and language — three headers, one job each:
+
+| Header | Purpose |
+|---|---|
+| `Authorization` | `Bearer <JWT>` — **who** you are |
+| `X-RESAAS-Context` | signed tenant context — **where** you're operating (`entity`/`branch`/`group`) |
+| `L` | active language id |
+
+`TenantContextMiddleware` decodes the token and verifies its signature and expiry on every request, exposing:
+
 ```python
+request.entity_type_id
 request.entity_id
 request.branch_id
 request.group_id
 ```
 
+`BaseAPIView` then re-validates that the context still belongs to the authenticated user (`ResaasContextService.validate_for_user`) before touching the queryset — a forged, expired, or replayed token from another user/tenant is rejected even if it was valid at issue time.
+
 If a resource's module isn't active for the `Entity`, access is blocked automatically — no extra code in the view.
+
+> ⚠️ **Breaking change from earlier versions:** the old scheme (raw `ET` / `E` / `S` / `G` headers sent directly by the client) has been replaced by the signed `X-RESAAS-Context` token above. If you're upgrading, swap those headers for a call to `POST /resaas/context/` and forward the returned token instead.
 
 ---
 
@@ -250,8 +276,8 @@ sync_apps_entity(entity)  # syncs modules when the plan changes
 
 | Middleware | Responsibility |
 |---|---|
-| `TenantContextMiddleware` | Resolves `entity`, `branch`, `group` and `language` from headers |
-| `FrontEndMiddleware` | Protects access via frontend key and route/HTTP-method permissions |
+| `TenantContextMiddleware` | Decodes the signed `X-RESAAS-Context` token and resolves `entity`, `branch`, `group` (`L` header for language) |
+| `FrontEndMiddleware` | Protects access via `FEK`/`FEP` frontend credentials and route/HTTP-method permissions |
 | `FileAccessMiddleware` | Controls access to protected files and media |
 
 ---
