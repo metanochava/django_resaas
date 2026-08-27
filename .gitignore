@@ -14,6 +14,10 @@ venv/
 *.sqlite3
 /src/staticfiles/
 
+# Uploaded media (user/tenant content - never commit)
+/src/mediafiles/*
+!/src/mediafiles/.gitkeep
+
 # Secrets / env
 .env
 *.env

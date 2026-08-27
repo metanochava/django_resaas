@@ -25,15 +25,11 @@ dependencies = [
   "Django==5.2.10",
   "djangorestframework==3.16.1",
   "djangorestframework_simplejwt==5.5.1",
-  "rest-framework-simplejwt==0.0.2",
-  "drf-writable-nested==0.7.2",
   "Pillow",
   "pyotp",
   "qrcode[pil]>=7.4.2",
   "python-barcode==0.15.1",
   "black",
-  "questionary==2.1.1",
-  "rich",
   "gunicorn",
   "weasyprint",
   "django-money",
@@ -41,7 +37,6 @@ dependencies = [
   "django-cors-headers",
   "psycopg[binary]",
   "django-filter",
-  "django-money",
 ]
 
 [project.optional-dependencies]
@@ -67,6 +62,9 @@ include = ["django_resaas*", "hr*"]
 # 🔥 GARANTE QUE TEMPLATES ENTRAM NO BUILD
 [tool.setuptools.package-data]
 "django_resaas" = [
+  "templates/**/*"
+]
+"hr" = [
   "templates/**/*"
 ]
 
