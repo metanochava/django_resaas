@@ -31,7 +31,8 @@ LANGUAGE_CODE = 'EN-US'
 
 MY_APPS = [
     'django_resaas',
-    "hr"
+    "hr",
+    "dev.demo",
 ]
 
 
