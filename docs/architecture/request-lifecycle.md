@@ -1,4 +1,4 @@
-# Ciclo de uma Requisição
+# Request Lifecycle
 
 ``` text
 HTTP Request
@@ -6,9 +6,9 @@ HTTP Request
    v
 initial()
    |
-   +-- verifica módulo
-   +-- determina permissão
-   +-- verifica autorização
+   +-- checks module
+   +-- determines permission
+   +-- checks authorization
    |
    v
 get_queryset()
@@ -16,7 +16,7 @@ get_queryset()
    +-- entity
    +-- branch
    +-- objects=all/deleted
-   +-- pesquisa
+   +-- search
    |
    v
 DjangoFilterBackend / Ordering
@@ -33,15 +33,15 @@ HTTP Response
 
 ## Create
 
-Em criação, `perform_create()` pode preencher automaticamente
-`created_by`, `updated_by`, `entity_id` e `branch_id`.
+On creation, `perform_create()` can automatically fill in `created_by`,
+`updated_by`, `entity_id` and `branch_id`.
 
 ## Update
 
-Em atualização, `perform_update()` deve atualizar o utilizador
-responsável pela alteração.
+On update, `perform_update()` must update the user responsible for the
+change.
 
 ## Delete
 
-Quando o model suporta soft delete, a remoção lógica deve preservar o
-registo para posterior recuperação.
+When the model supports soft delete, logical removal must preserve the
+record for later recovery.

@@ -1,35 +1,35 @@
-# Filtros, Ordenação e Paginação
+# Filters, Ordering and Pagination
 
-## Filtros
+## Filters
 
-O `DjangoFilterBackend` permite filtros por query parameters para campos
-elegíveis.
+`DjangoFilterBackend` allows filtering by query parameters for eligible
+fields.
 
-Exemplo:
+Example:
 
 ``` text
 ?state=Active
 ```
 
-## Combinação
+## Combining
 
-Pesquisa e filtros podem ser combinados:
+Search and filters can be combined:
 
 ``` text
 ?search=dias&state=Active&page=1&page_size=10
 ```
 
-## Ordenação
+## Ordering
 
-Quando `ordering_fields = "__all__"` está ativo, os campos permitidos
-podem ser utilizados pelo mecanismo de ordenação do DRF.
+When `ordering_fields = "__all__"` is active, the allowed fields can be
+used by DRF's ordering mechanism.
 
-## Paginação
+## Pagination
 
-Parâmetros usuais:
+Usual parameters:
 
 -   `page`
 -   `page_size`
 
-A resposta paginada deve manter a estrutura definida pela configuração
-global do projeto.
+The paginated response must keep the structure defined by the project's
+global configuration.

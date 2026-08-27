@@ -162,8 +162,11 @@ class EntityAPIView(viewsets.ModelViewSet):
             entity_app, _ = EntityApp.objects.get_or_create(
                 app=te.app,
                 entity=entity,
-                state = 1
+                defaults={"state": "Active"},
             )
+            if entity_app.state != "Active":
+                entity_app.state = "Active"
+                entity_app.save(update_fields=["state"])
 
         for u in data['admins']:
             user = User.objects.get(id = u)

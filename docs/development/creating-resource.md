@@ -1,9 +1,9 @@
-# Criar um Novo Recurso Backend
+# Creating a New Backend Resource
 
 ## 1. Model
 
 ``` python
-class Paciente(...):
+class Patient(...):
     ...
 
     class RESAAS:
@@ -13,29 +13,28 @@ class Paciente(...):
 
 ## 2. Serializer
 
-Criar um serializer do model reutilizando a base do framework sempre que
-possível.
+Create a serializer for the model, reusing the framework's base classes
+whenever possible.
 
 ## 3. View
 
 ``` python
-@registerView("pacientes")
-class PacienteAPIView(BaseAPIView):
-    queryset = Paciente.objects.all()
-    serializer_class = PacienteSerializer
+@registerView("patients")
+class PatientAPIView(BaseAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
 ```
 
-## 4. Rotas
+## 4. Routes
 
-Registar a view no router utilizado pela aplicação.
+Register the view on the router used by the application.
 
-## 5. Permissões
+## 5. Permissions
 
-Confirmar que existem os codenames necessários para list, view, add,
-change e delete.
+Confirm that the necessary codenames exist for list, view, add, change
+and delete.
 
-## 6. Testes
+## 6. Tests
 
-Testar pelo menos: - isolamento por entidade; - isolamento por
-sucursal; - pesquisa; - filtros; - criação; - atualização; - remoção; -
-permissões.
+Test at least: - entity isolation; - branch isolation; - search; -
+filters; - creation; - update; - removal; - permissions.

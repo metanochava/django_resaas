@@ -71,8 +71,11 @@ class BootstrapService:
         for name in ['hr']:
             app, _ = App.objects.get_or_create(
                 name=name,
-                state = 1
+                defaults={"state": "Active"},
             )
+            if app.state != "Active":
+                app.state = "Active"
+                app.save(update_fields=["state"])
 
             entity_type_app, _ = EntityTypeApp.objects.get_or_create(
                 app=app,
@@ -83,8 +86,11 @@ class BootstrapService:
             entity_app, _ = EntityApp.objects.get_or_create(
                 app=app,
                 entity=entity,
-                state = 1
+                defaults={"state": "Active"},
             )
+            if entity_app.state != "Active":
+                entity_app.state = "Active"
+                entity_app.save(update_fields=["state"])
 
             if stdout and style:
                 stdout.write(style.WARNING(f"✔ {'App:':20} {app.name}"))

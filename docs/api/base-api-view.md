@@ -1,24 +1,24 @@
 # BaseAPIView
 
-`BaseAPIView` é a base comum das APIs REST.
+`BaseAPIView` is the common base for the REST APIs.
 
-## Principais responsabilidades
+## Main responsibilities
 
--   CRUD através de `ModelViewSet`;
--   filtros;
--   ordenação;
--   pesquisa dinâmica;
--   permissões;
+-   CRUD through `ModelViewSet`;
+-   filters;
+-   ordering;
+-   dynamic search;
+-   permissions;
 -   multi-tenancy;
--   auditoria;
+-   auditing;
 -   soft delete;
 -   restore;
 -   hard delete;
 -   select mode.
 
-## Mapeamento de permissões
+## Permission mapping
 
-Exemplo:
+Example:
 
 ``` python
 permission_action_map = {
@@ -33,10 +33,10 @@ permission_action_map = {
 }
 ```
 
-Para um model `Paciente`, a criação pode exigir `add_paciente`, a
-alteração `change_paciente` e a remoção `delete_paciente`.
+For a `Patient` model, creation may require `add_patient`, updating
+`change_patient` and removal `delete_patient`.
 
 ## Queryset
 
-O `get_queryset()` deve ser o ponto central para garantir isolamento
-tenant antes da listagem e pesquisa.
+`get_queryset()` must be the central point that guarantees tenant
+isolation before listing and search.

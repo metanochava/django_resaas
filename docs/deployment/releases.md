@@ -1,14 +1,14 @@
-# Git Flow e Releases
+# Git Flow and Releases
 
-## Antes de iniciar
+## Before starting
 
-Verificar se existe uma release aberta:
+Check whether a release is already open:
 
 ``` bash
 git branch -a | grep release
 ```
 
-## Fluxo
+## Flow
 
 ``` text
 develop
@@ -23,13 +23,13 @@ release/x.y.z
    +--> tag
 ```
 
-## Regra importante
+## Important rule
 
-O bump da versão não deve acontecer antes de verificar se já existe uma
-release pendente. Caso contrário, podem surgir commits de versão sem a
-respetiva branch de release.
+The version bump must not happen before checking whether a release is
+already pending. Otherwise, version-bump commits can end up without a
+matching release branch.
 
-## Diagnóstico
+## Diagnostics
 
 ``` bash
 git status

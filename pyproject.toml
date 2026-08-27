@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.437"
+version = "0.0.438"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -25,15 +25,11 @@ dependencies = [
   "Django==5.2.10",
   "djangorestframework==3.16.1",
   "djangorestframework_simplejwt==5.5.1",
-  "rest-framework-simplejwt==0.0.2",
-  "drf-writable-nested==0.7.2",
   "Pillow",
   "pyotp",
   "qrcode[pil]>=7.4.2",
   "python-barcode==0.15.1",
   "black",
-  "questionary==2.1.1",
-  "rich",
   "gunicorn",
   "weasyprint",
   "django-money",
@@ -41,7 +37,13 @@ dependencies = [
   "django-cors-headers",
   "psycopg[binary]",
   "django-filter",
-  "django-money",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-django>=4.8",
+  "factory_boy>=3.3",
 ]
 
 [project.urls]
@@ -62,3 +64,12 @@ include = ["django_resaas*", "hr*"]
 "django_resaas" = [
   "templates/**/*"
 ]
+"hr" = [
+  "templates/**/*"
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "dev.settings"
+pythonpath = ["src"]
+addopts = "-q"
+testpaths = ["src"]

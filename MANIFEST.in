@@ -1,9 +1,5 @@
 # django_resaas templates
 recursive-include src/django_resaas/templates *.html *.css *.js
 
-# django_resaas static
-recursive-include src/django_resaas/static *
-
-# outras apps (se precisares)
-recursive-include src/ds/templates *
-recursive-include src/ds/static *
+# hr templates
+recursive-include src/hr/templates *.html *.css *.js

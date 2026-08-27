@@ -27,6 +27,7 @@ router, extra_patterns = build_saas_urls()
 urlpatterns = [
     path('api/', include(router.urls)),
     path('api/', include('django_resaas.urls')),
+    path('api/demo/', include('dev.demo.urls')),
     path('admin/', admin.site.urls),
 ]
 

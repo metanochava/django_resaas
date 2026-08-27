@@ -1,7 +1,6 @@
 # Multi-tenancy
 
-O RESAAS trabalha com contexto de tenant. Uma requisição pode
-transportar:
+RESAAS works with a tenant context. A request can carry:
 
 -   `entity_type_id`
 -   `entity_id`
@@ -9,13 +8,12 @@ transportar:
 -   `group_id`
 -   `lang_id`
 
-## Regra principal
+## Main rule
 
-Um model que possui `entity_id` deve ser filtrado pela entidade ativa.
-Um model que possui `branch_id` deve também ser filtrado pela sucursal
-ativa.
+A model that has `entity_id` must be filtered by the active entity.
+A model that has `branch_id` must also be filtered by the active branch.
 
-Exemplo conceptual:
+Conceptual example:
 
 ``` python
 if hasattr(Model, "entity_id"):
@@ -25,10 +23,10 @@ if hasattr(Model, "branch_id"):
     qs = qs.filter(branch_id=self.request.branch_id)
 ```
 
-Quando o manager é trocado, por exemplo para `all_objects` ou
-`deleted_objects`, os filtros tenant devem ser reaplicados.
+When the manager is swapped, for example to `all_objects` or
+`deleted_objects`, the tenant filters must be reapplied.
 
-## Objetivo
+## Purpose
 
-A finalidade é impedir que uma requisição de uma entidade consulte
-acidentalmente dados pertencentes a outra entidade.
+The goal is to prevent a request from one entity from accidentally
+accessing data belonging to another entity.

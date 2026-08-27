@@ -1,26 +1,26 @@
-# Troubleshooting Backend
+# Backend Troubleshooting
 
-## Pesquisa devolve todos os registos
+## Search returns every record
 
-Verificar:
+Check:
 
-1.  se `search` chega em `request.query_params`;
-2.  se `RESAAS.search_fields` está a ser lido;
-3.  se o `Q` contém condições;
-4.  se outro backend não está a substituir o comportamento;
-5.  o SQL final através de `print(qs.query)`.
+1.  whether `search` arrives in `request.query_params`;
+2.  whether `RESAAS.search_fields` is being read;
+3.  whether the `Q` object actually contains conditions;
+4.  whether another backend isn't overriding the behavior;
+5.  the final SQL via `print(qs.query)`.
 
-## Release já existente
+## Release already exists
 
-Mensagem:
+Message:
 
 ``` text
 Fatal: There is an existing release branch
 ```
 
-Resolver a release existente antes de iniciar outra.
+Resolve the existing release before starting another one.
 
-## Permissão negada
+## Permission denied
 
-Confirmar: - módulo ativo; - entidade correta; - codename; - associação
-do utilizador/grupo; - resultado de `isPermited()`.
+Confirm: - module active; - correct entity; - codename; - user/group
+association; - the result of `isPermited()`.

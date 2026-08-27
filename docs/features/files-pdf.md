@@ -1,24 +1,24 @@
-# Ficheiros e PDF
+# Files and PDF
 
-## Ficheiros
+## Files
 
-O framework pode representar `FileField` e `ImageField` com informação
-útil, como URL, nome, extensão, tamanho e tipo MIME.
+The framework can represent `FileField` and `ImageField` with useful
+information such as URL, name, extension, size and MIME type.
 
 ## Upload
 
-Os caminhos devem evitar colisões de nomes e respeitar a organização por
-entidade/aplicação quando definida.
+Paths must avoid name collisions and respect the organization by
+entity/application when defined.
 
 ## PDF
 
-A camada de utilitários pode incluir:
+The utilities layer can include:
 
--   geração de PDF;
+-   PDF generation;
 -   QR Code;
 -   barcode;
--   conversão de PNG para Base64;
--   templates de documentos.
+-   PNG-to-Base64 conversion;
+-   document templates.
 
-As aplicações devem concentrar a apresentação específica nos seus
-templates e reutilizar os utilitários comuns.
+Applications should keep their specific presentation in their own
+templates and reuse the common utilities.

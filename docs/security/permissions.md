@@ -1,29 +1,29 @@
-# Permissões
+# Permissions
 
-O backend é a autoridade final para autorização.
+The backend is the final authority for authorization.
 
-## Processo
+## Process
 
-1.  Identificar a ação da view.
-2.  Converter a ação num prefixo de permissão.
-3.  Obter o nome técnico do model.
-4.  Construir o codename.
-5.  Verificar com `isPermited()`.
+1.  Identify the view's action.
+2.  Convert the action into a permission prefix.
+3.  Get the model's technical name.
+4.  Build the codename.
+5.  Check it with `isPermited()`.
 
-Exemplo:
+Example:
 
 ``` text
-create + paciente -> add_paciente
-update + paciente -> change_paciente
-destroy + paciente -> delete_paciente
+create + patient -> add_patient
+update + patient -> change_patient
+destroy + patient -> delete_patient
 ```
 
 ## Cache
 
-Uma cache por request pode evitar verificações repetidas do mesmo
-codename durante a mesma requisição.
+A per-request cache can avoid repeated checks of the same codename
+during the same request.
 
-## Módulo
+## Module
 
-Além da permissão, a aplicação pode verificar se o módulo correspondente
-está ativo para a entidade.
+Besides the permission itself, the application can check whether the
+corresponding module is active for the entity.

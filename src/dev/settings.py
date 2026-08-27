@@ -15,11 +15,11 @@ API = os.environ.get("START_API_URL")
 # BASE
 # --------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-dev-only-change-me")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'django_resaas.User'
 DEBUG = int(os.environ.get("DEBUG", default=0))
-TIME_ZONE = os.environ.get("TIME_ZONE")
+TIME_ZONE = os.environ.get("TIME_ZONE", "UTC")
 LANGUAGE_CODE = 'EN-US'
 
 
@@ -31,7 +31,8 @@ LANGUAGE_CODE = 'EN-US'
 
 MY_APPS = [
     'django_resaas',
-    "hr"
+    "hr",
+    "dev.demo",
 ]
 
 
@@ -59,13 +60,13 @@ INSTALLED_APPS = MY_APPS + [
 # URLs e Hosts
 # --------------------------
 PORT = os.environ.get("PORT")
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [h for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h] or ["*"]
 CORS_ORIGIN_ALLOW_ALL = False
 # CORS_ALLOWED_ORIGINS = get_cors_origins()
-CORS_ALLOW_HEADERS = list(default_headers) + os.environ.get("CORS_ALLOW_HEADERS", "").split(",")
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+CORS_ALLOW_HEADERS = list(default_headers) + [h for h in os.environ.get("CORS_ALLOW_HEADERS", "").split(",") if h]
+CORS_ALLOWED_ORIGINS = [o for o in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",") if o]
 CORS_ORIGIN_WHITELIST = CORS_ALLOWED_ORIGINS
-CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
 
 
 # --------------------------

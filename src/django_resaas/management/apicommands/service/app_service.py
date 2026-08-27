@@ -198,8 +198,11 @@ admin.site.index_title = '{clean_name(name)}'
         
         app, _ = App.objects.get_or_create(
             name=name,
-            state = 1
+            defaults={"state": "Active"},
         )
+        if app.state != "Active":
+            app.state = "Active"
+            app.save(update_fields=["state"])
 
         entity_type_app, _ = EntityTypeApp.objects.get_or_create(
             app=app,
@@ -210,8 +213,11 @@ admin.site.index_title = '{clean_name(name)}'
         entity_app, _ = EntityApp.objects.get_or_create(
             app=app,
             entity=entity,
-            state = 1
+            defaults={"state": "Active"},
         )
+        if entity_app.state != "Active":
+            entity_app.state = "Active"
+            entity_app.save(update_fields=["state"])
 
         
         ct, _ = ContentType.objects.get_or_create(
