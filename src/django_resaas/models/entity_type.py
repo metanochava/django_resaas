@@ -38,67 +38,95 @@ class EntityType(TimeModel):
 
     name = models.CharField(
         max_length=100,
-        null=True
+        null=True,
+        help_text='Name of the entity type.'
     )
 
     icon = models.FileField(
         upload_to=icon_path,
         default='logo.png',
-        blank=True
+        blank=True,
+        help_text='Default icon used by this entity type.'
     )
 
     license = models.TextField(
-        default='license'
+        default='license',
+        help_text='License information associated with this entity type.'
     )
 
     label = models.CharField(
         max_length=100,
-        null=True
+        null=True,
+        help_text='Display label used to identify this entity type.'
     )
 
     ordem = models.IntegerField(
-        default=2
+        default=2,
+        help_text='Display order of this entity type.'
     )
 
     crair_entity = models.BooleanField(
         null=True,
-        default=True
+        default=True,
+        help_text='Allow entities to be created for this entity type.'
     )
 
     # =========================================================
     # LOGIN DEFAULT CONFIG
     #
     # EntityType fornece os valores padrão.
+    # Entity pode sobrescrever estes valores.
     # =========================================================
 
     login_position = models.CharField(
         max_length=30,
         choices=LOGIN_POSITION_CHOICES,
-        default='center'
+        default='center',
+        help_text=(
+            'Default position of the login form. '
+            'Entities may override this setting.'
+        )
     )
 
     login_background_type = models.CharField(
         max_length=20,
         choices=LOGIN_BACKGROUND_TYPE_CHOICES,
-        default='color'
+        default='color',
+        help_text=(
+            'Default background type used on the login page. '
+            'Entities may override this setting.'
+        )
     )
 
     login_background_color = models.CharField(
         max_length=50,
         default='#ffffff',
-        blank=True
+        blank=True,
+        help_text=(
+            'Default login background color, for example #ffffff. '
+            'Used when the background type is Color.'
+        )
     )
 
     login_background_gradient = models.CharField(
         max_length=500,
         null=True,
-        blank=True
+        blank=True,
+        help_text=(
+            'Default CSS gradient used on the login page, for example '
+            'linear-gradient(135deg, #1976d2, #26a69a). '
+            'Used when the background type is Gradient.'
+        )
     )
 
     login_background_image = models.FileField(
         upload_to=login_background_path,
         null=True,
-        blank=True
+        blank=True,
+        help_text=(
+            'Default background image displayed on the login page. '
+            'Used when the background type is Image.'
+        )
     )
 
     login_background_overlay = models.FloatField(
@@ -106,7 +134,11 @@ class EntityType(TimeModel):
         validators=[
             MinValueValidator(0),
             MaxValueValidator(1)
-        ]
+        ],
+        help_text=(
+            'Default dark overlay opacity applied to the login background. '
+            'Use a value between 0 and 1.'
+        )
     )
 
     # =========================================================
@@ -117,28 +149,32 @@ class EntityType(TimeModel):
         'django_resaas.Theme',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Default visual theme used by this entity type.'
     )
 
     layout_settings = models.ForeignKey(
         'django_resaas.LayoutSetting',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Default layout configuration used by this entity type.'
     )
 
     typography = models.ForeignKey(
         'django_resaas.Typography',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Default typography configuration used by this entity type.'
     )
 
     animation_settings = models.ForeignKey(
         'django_resaas.AnimationSetting',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Default animation configuration used by this entity type.'
     )
 
     # =========================================================
