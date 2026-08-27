@@ -5,7 +5,7 @@ from django.apps import apps
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from django.db.models import Q
 from django_resaas.models.group import Group
 from django_resaas.models.user import User
 from django_resaas.models.entity import Entity
