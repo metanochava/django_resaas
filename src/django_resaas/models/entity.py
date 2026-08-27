@@ -77,6 +77,12 @@ class Entity(TimeModel):
         blank=True
     )
 
+    display_logo_login = models.BooleanField(
+        default=True,
+        null=True,
+        blank=True
+    )
+
     # =========================================================
     # LOGIN
     #
