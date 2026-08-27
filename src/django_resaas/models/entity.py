@@ -40,13 +40,15 @@ class Entity(TimeModel):
     name = models.CharField(
         max_length=100,
         null=True,
-        default='-'
+        default='-',
+        help_text='Name of the entity.'
     )
 
     site = models.CharField(
         max_length=300,
         null=True,
-        default='-'
+        default='-',
+        help_text='Website or domain associated with the entity.'
     )
 
     # =========================================================
@@ -56,37 +58,41 @@ class Entity(TimeModel):
     logo = models.FileField(
         upload_to=logo_path,
         default='logo.png',
-        blank=True
+        blank=True,
+        help_text='Logo displayed for this entity.'
     )
 
     display_logo = models.BooleanField(
         default=True,
         null=True,
-        blank=True
+        blank=True,
+        help_text='Display the entity logo in the application.'
     )
 
     display_bar = models.BooleanField(
         default=True,
         null=True,
-        blank=True
+        blank=True,
+        help_text='Display the application bar for this entity.'
     )
 
     display_qr = models.BooleanField(
         default=True,
         null=True,
-        blank=True
+        blank=True,
+        help_text='Display the QR code when available.'
     )
 
     display_logo_login = models.BooleanField(
         default=True,
         null=True,
-        blank=True
+        blank=True,
+        help_text='Display the entity logo on the login page.'
     )
 
     # =========================================================
     # LOGIN
     #
-    # IMPORTANTE:
     # NULL = herdar configuração do EntityType
     # =========================================================
 
@@ -95,7 +101,11 @@ class Entity(TimeModel):
         choices=LOGIN_POSITION_CHOICES,
         null=True,
         blank=True,
-        default=None
+        default=None,
+        help_text=(
+            'Position of the login form. '
+            'Leave empty to inherit from the entity type.'
+        )
     )
 
     login_background_type = models.CharField(
@@ -103,28 +113,44 @@ class Entity(TimeModel):
         choices=LOGIN_BACKGROUND_TYPE_CHOICES,
         null=True,
         blank=True,
-        default=None
+        default=None,
+        help_text=(
+            'Type of background used on the login page. '
+            'Leave empty to inherit from the entity type.'
+        )
     )
 
     login_background_color = models.CharField(
         max_length=50,
         null=True,
         blank=True,
-        default=None
+        default=None,
+        help_text=(
+            'Background color for the login page, for example #ffffff. '
+            'Used when the background type is Color.'
+        )
     )
 
     login_background_gradient = models.CharField(
         max_length=500,
         null=True,
         blank=True,
-        default=None
+        default=None,
+        help_text=(
+            'CSS gradient used as the login background, for example '
+            'linear-gradient(135deg, #1976d2, #26a69a).'
+        )
     )
 
     login_background_image = models.FileField(
         upload_to=login_background_path,
         null=True,
         blank=True,
-        default=None
+        default=None,
+        help_text=(
+            'Background image displayed on the login page. '
+            'Used when the background type is Image.'
+        )
     )
 
     login_background_overlay = models.FloatField(
@@ -134,7 +160,12 @@ class Entity(TimeModel):
         validators=[
             MinValueValidator(0),
             MaxValueValidator(1)
-        ]
+        ],
+        help_text=(
+            'Dark overlay opacity applied to the login background. '
+            'Use a value between 0 and 1. '
+            'Leave empty to inherit from the entity type.'
+        )
     )
 
     # =========================================================
@@ -143,7 +174,8 @@ class Entity(TimeModel):
 
     entity_type = models.ForeignKey(
         'django_resaas.EntityType',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        help_text='Entity type associated with this entity.'
     )
 
     # =========================================================
@@ -154,28 +186,32 @@ class Entity(TimeModel):
         'django_resaas.Theme',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Visual theme used by this entity.'
     )
 
     layout_settings = models.ForeignKey(
         'django_resaas.LayoutSetting',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Layout configuration used by this entity.'
     )
 
     typography = models.ForeignKey(
         'django_resaas.Typography',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Typography configuration used by this entity.'
     )
 
     animation_settings = models.ForeignKey(
         'django_resaas.AnimationSetting',
         null=True,
         blank=True,
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
+        help_text='Animation configuration used by this entity.'
     )
 
     # =========================================================
@@ -183,7 +219,8 @@ class Entity(TimeModel):
     # =========================================================
 
     admins = models.ManyToManyField(
-        User
+        User,
+        help_text='Users with administrative access to this entity.'
     )
 
     # =========================================================
@@ -192,7 +229,8 @@ class Entity(TimeModel):
 
     rodape = models.CharField(
         max_length=2000,
-        null=True
+        null=True,
+        help_text='Footer text displayed for this entity.'
     )
 
     # =========================================================
@@ -201,17 +239,20 @@ class Entity(TimeModel):
 
     disc_space = models.FloatField(
         default=1048576.0,
-        null=True
+        null=True,
+        help_text='Maximum disk space allocated to this entity.'
     )
 
     disc_used_space = models.FloatField(
         default=0.0,
-        null=True
+        null=True,
+        help_text='Disk space currently used by this entity.'
     )
 
     disc_free_space = models.FloatField(
         default=1048576.0,
-        null=True
+        null=True,
+        help_text='Remaining disk space available to this entity.'
     )
 
     # =========================================================
@@ -256,9 +297,6 @@ class Entity(TimeModel):
 
     # =========================================================
     # LOGIN BACKGROUND OVERRIDE
-    #
-    # Retorna None quando Entity não definiu background.
-    # Assim o frontend pode herdar de EntityType.
     # =========================================================
 
     @property
@@ -298,9 +336,6 @@ class Entity(TimeModel):
 
     # =========================================================
     # LOGIN CONFIG OVERRIDE
-    #
-    # Aqui NÃO colocamos defaults.
-    # EntityType é responsável pelos defaults.
     # =========================================================
 
     @property
