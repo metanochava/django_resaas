@@ -15,7 +15,7 @@ SUBMENUS = [
         "route": "list_employee",
         "add_role": "add_employee",
         "add_route": "add_employee",
-        "crud": {"module": "hr", "model": "Employee"},
+        # "crud": {"module": "hr", "model": "Employee"},
     },
     {
         "menu": "Department",
@@ -24,7 +24,7 @@ SUBMENUS = [
         "route": "list_department",
         "add_role": "add_department",
         "add_route": "add_department",
-        "crud": {"module": "hr", "model": "Department"},
+        # "crud": {"module": "hr", "model": "Department"},
     },
     {
         "menu": "Job Position",
@@ -33,7 +33,7 @@ SUBMENUS = [
         "route": "list_jobposition",
         "add_role": "add_jobposition",
         "add_route": "add_jobposition",
-        "crud": {"module": "hr", "model": "JobPosition"},
+        # "crud": {"module": "hr", "model": "JobPosition"},
     },
     {
         "menu": "Contract",
@@ -42,7 +42,7 @@ SUBMENUS = [
         "route": "list_contract",
         "add_role": "add_contract",
         "add_route": "add_contract",
-        "crud": {"module": "hr", "model": "Contract"},
+        # "crud": {"module": "hr", "model": "Contract"},
     },
     {
         "menu": "Specialty",
@@ -51,7 +51,7 @@ SUBMENUS = [
         "route": "list_specialty",
         "add_role": "add_specialty",
         "add_route": "add_specialty",
-        "crud": {"module": "hr", "model": "Specialty"},
+        # "crud": {"module": "hr", "model": "Specialty"},
     },
     {
         "menu": "Employee Specialty",
@@ -60,7 +60,7 @@ SUBMENUS = [
         "route": "list_employeespecialty",
         "add_role": "add_employeespecialty",
         "add_route": "add_employeespecialty",
-        "crud": {"module": "hr", "model": "EmployeeSpecialty"},
+        # "crud": {"module": "hr", "model": "EmployeeSpecialty"},
     },
     {
         "menu": "Shift",
@@ -69,7 +69,7 @@ SUBMENUS = [
         "route": "list_shift",
         "add_role": "add_shift",
         "add_route": "add_shift",
-        "crud": {"module": "hr", "model": "Shift"},
+        # "crud": {"module": "hr", "model": "Shift"},
     },
     {
         "menu": "Employee Shift",
@@ -78,7 +78,7 @@ SUBMENUS = [
         "route": "list_employeeshift",
         "add_role": "add_employeeshift",
         "add_route": "add_employeeshift",
-        "crud": {"module": "hr", "model": "EmployeeShift"},
+        # "crud": {"module": "hr", "model": "EmployeeShift"},
     },
     {
         "menu": "Shift Schedule",
@@ -87,7 +87,7 @@ SUBMENUS = [
         "route": "list_shiftschedule",
         "add_role": "add_shiftschedule",
         "add_route": "add_shiftschedule",
-        "crud": {"module": "hr", "model": "ShiftSchedule"},
+        # "crud": {"module": "hr", "model": "ShiftSchedule"},
     },
     {
         "menu": "Attendance",
@@ -96,7 +96,7 @@ SUBMENUS = [
         "route": "list_attendance",
         "add_role": "add_attendance",
         "add_route": "add_attendance",
-        "crud": {"module": "hr", "model": "Attendance"},
+        # "crud": {"module": "hr", "model": "Attendance"},
     },
     {
         "menu": "Salary Component",
@@ -105,7 +105,7 @@ SUBMENUS = [
         "route": "list_salarycomponent",
         "add_role": "add_salarycomponent",
         "add_route": "add_salarycomponent",
-        "crud": {"module": "hr", "model": "SalaryComponent"},
+        # "crud": {"module": "hr", "model": "SalaryComponent"},
     },
     {
         "menu": "Employee Salary",
@@ -114,7 +114,7 @@ SUBMENUS = [
         "route": "list_employeesalary",
         "add_role": "add_employeesalary",
         "add_route": "add_employeesalary",
-        "crud": {"module": "hr", "model": "EmployeeSalary"},
+        # "crud": {"module": "hr", "model": "EmployeeSalary"},
     },
     {
         "menu": "Payroll Period",
@@ -123,7 +123,7 @@ SUBMENUS = [
         "route": "list_payrollperiod",
         "add_role": "add_payrollperiod",
         "add_route": "add_payrollperiod",
-        "crud": {"module": "hr", "model": "PayrollPeriod"},
+        # "crud": {"module": "hr", "model": "PayrollPeriod"},
     },
     {
         "menu": "Payroll",
@@ -132,7 +132,7 @@ SUBMENUS = [
         "route": "list_payroll",
         "add_role": "add_payroll",
         "add_route": "add_payroll",
-        "crud": {"module": "hr", "model": "Payroll"},
+        # "crud": {"module": "hr", "model": "Payroll"},
     },
     {
         "menu": "Payroll Item",
@@ -141,7 +141,7 @@ SUBMENUS = [
         "route": "list_payrollitem",
         "add_role": "add_payrollitem",
         "add_route": "add_payrollitem",
-        "crud": {"module": "hr", "model": "PayrollItem"},
+        # "crud": {"module": "hr", "model": "PayrollItem"},
     },
     {
         "menu": "Payslip",
@@ -150,6 +150,6 @@ SUBMENUS = [
         "route": "list_payslip",
         "add_role": "add_payslip",
         "add_route": "add_payslip",
-        "crud": {"module": "hr", "model": "Payslip"},
+        # "crud": {"module": "hr", "model": "Payslip"},
     },
 ]
