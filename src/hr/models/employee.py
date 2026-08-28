@@ -120,7 +120,7 @@ class Employee(BaseModel):
 
         label_field = "code"
 
-        searchable_fields = [
+        search_fields = [
 
             "code",
 

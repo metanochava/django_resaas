@@ -159,6 +159,19 @@ urlpatterns = [
 
 ]
 
+# ─────────────────────────────
+# Autoloaded resources (VIEW_REGISTRY)
+# ─────────────────────────────
+# Must run after urlpatterns above (specifically after `include('hr.urls')`)
+# has imported every app's views and run their @registerView decorators.
+# Any app's views decorated with @registerView (e.g. hr's) only get routed
+# here - dev/urls.py already did this, but an app that installs
+# django_resaas and includes only this urls.py did not, so its registered
+# resources never appeared there.
+saas_router, saas_extra_patterns = build_saas_urls()
+urlpatterns += saas_router.urls
+urlpatterns += saas_extra_patterns
+
 
 
 

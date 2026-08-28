@@ -19,5 +19,10 @@ class Department(BaseModel):
         ordering = ['name']
         unique_together = ('entity', 'name')
 
+    class RESAAS:
+        label_field = "name"
+        search_fields = ["name", "code"]
+        crud = True
+
     def __str__(self):
         return self.name

@@ -27,5 +27,10 @@ class Contract(BaseModel):
     class Meta:
         ordering = ['-start_date']
 
+    class RESAAS:
+        label_field = "employee.person.full_name"
+        search_fields = ["employee.person.full_name", "contract_type"]
+        crud = True
+
     def __str__(self):
         return f"{self.employee} - {self.contract_type}"
