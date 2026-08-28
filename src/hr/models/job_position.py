@@ -21,7 +21,7 @@ class JobPosition(BaseModel):
 
     class RESAAS:
         label_field = "title"
-        searchable_fields = ["code", "title"]
+        search_fields = ["code", "title"]
         crud = True
         routes={
             'list': "add_jobposition",

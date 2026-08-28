@@ -22,5 +22,10 @@ class PayrollItem(BaseModel):
     class Meta:
         ordering = ['component__name']
 
+    class RESAAS:
+        label_field = "description"
+        search_fields = ["description", "component.name"]
+        crud = True
+
     def __str__(self):
         return f"{self.payroll} - {self.component}"

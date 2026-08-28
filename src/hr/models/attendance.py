@@ -33,3 +33,11 @@ class Attendance(BaseModel):
 
     class Meta:
         unique_together = ('employee', 'date')
+
+    class RESAAS:
+        label_field = "employee.person.full_name"
+        search_fields = ["employee.person.full_name", "status"]
+        crud = True
+
+    def __str__(self):
+        return f"{self.employee} - {self.date} ({self.status})"

@@ -17,5 +17,10 @@ class EmployeeSpecialty(BaseModel):
     class Meta:
         unique_together = ('employee', 'specialty')
 
+    class RESAAS:
+        label_field = "employee.person.full_name"
+        search_fields = ["employee.person.full_name", "specialty.title"]
+        crud = True
+
     def __str__(self):
         return f"{self.employee} - {self.specialty}"
