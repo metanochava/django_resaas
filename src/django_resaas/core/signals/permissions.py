@@ -72,8 +72,8 @@ def create_module_permissions():
             )
 
 
-
-def create_model_permissions():
+@receiver(post_migrate)
+def create_model_permissions(sender, **kwargs):
     """
     Cria permissões automaticamente por model e garante que
     o group root está sempre atualizado.
@@ -179,13 +179,11 @@ def create_model_permissions():
     # ======================================================
     admin_group.permissions.add(*created_perms)
 
-
-@receiver(post_migrate)
-def sync_permissions(sender, **kwargs):
-
-    create_model_permissions()
-
     create_module_permissions()
+
+
+
+
 
 # ==========================================================
 # USER → PESSOA (AUTO CREATE)
