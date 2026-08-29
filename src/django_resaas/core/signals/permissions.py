@@ -21,7 +21,58 @@ from django_resaas.models.user import User
 # ==========================================================
 # POST MIGRATE - CRIAÇÃO DE PERMISSÕES
 # ==========================================================
-@receiver(post_migrate)
+
+
+MODULE_PERMISSIONS = {
+    "django_resaas": [
+        {
+            "codename": "view_django_resaas_dashboard",
+            "name": "Can view Django RESAAS dashboard",
+        }
+    ],
+
+    "hr": [
+        {
+            "codename": "view_hr_dashboard",
+            "name": "Can view HR dashboard",
+        }
+    ],
+}
+
+
+def create_module_permissions():
+
+    for app_label, permissions in MODULE_PERMISSIONS.items():
+
+        app_config = apps.get_app_config(app_label)
+
+        Model = next(
+            iter(
+                app_config.get_models()
+            ),
+            None
+        )
+
+        if not Model:
+            continue
+
+        content_type = (
+            ContentType.objects
+            .get_for_model(Model)
+        )
+
+        for item in permissions:
+
+            Permission.objects.update_or_create(
+                codename=item["codename"],
+                content_type=content_type,
+                defaults={
+                    "name": item["name"]
+                }
+            )
+
+
+
 def create_model_permissions(sender, **kwargs):
     """
     Cria permissões automaticamente por model e garante que
@@ -128,6 +179,13 @@ def create_model_permissions(sender, **kwargs):
     # ======================================================
     admin_group.permissions.add(*created_perms)
 
+
+@receiver(post_migrate)
+def sync_permissions(sender, **kwargs):
+
+    create_model_permissions()
+
+    create_module_permissions()
 
 # ==========================================================
 # USER → PESSOA (AUTO CREATE)
