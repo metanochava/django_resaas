@@ -29,7 +29,12 @@ class Contract(BaseModel):
 
     class RESAAS:
         label_field = "employee.person.full_name"
-        search_fields = ["employee.person.full_name", "contract_type"]
+
+        search_fields = [
+            "employee__person__full_name",
+            "contract_type"
+        ]
+
         crud = True
 
     def __str__(self):
