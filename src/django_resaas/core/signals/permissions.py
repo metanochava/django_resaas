@@ -73,7 +73,7 @@ def create_module_permissions():
 
 
 
-def create_model_permissions(sender, **kwargs):
+def create_model_permissions():
     """
     Cria permissões automaticamente por model e garante que
     o group root está sempre atualizado.
