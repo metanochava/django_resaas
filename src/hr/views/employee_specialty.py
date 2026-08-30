@@ -6,7 +6,7 @@ from hr.models.employee_specialty import EmployeeSpecialty
 from hr.serializers.employee_specialty import EmployeeSpecialtySerializer
 
 
-@registerView('employeespecialties')
+@registerView('employeespecialtys')
 class EmployeeSpecialtyAPIView(BaseAPIView):
     queryset = EmployeeSpecialty.objects.all()
     serializer_class = EmployeeSpecialtySerializer
