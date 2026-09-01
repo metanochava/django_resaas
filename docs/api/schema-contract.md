@@ -67,7 +67,8 @@ schema = ResaasSchemaBuilder(Model=SomeModel, fields=serialized_field_list).buil
       "visible": true,
       "method": "POST",               // the single method the UI should submit this action with - always one value, never comma-joined
       "methods": ["POST"],            // every HTTP method DRF actually routes to the handler (from `@resaas_action(methods=[...])`); "method" above is always methods[0]
-      "details": true,               // detail action -> ".../{id}/archive/"
+      "detail": true,                // conceptual/API name (matches DRF's own `detail=`) - always equal to "details"
+      "details": true,               // kept for backward compatibility with existing frontend code; detail action -> ".../{id}/archive/"
       "url": null,
       "autorequest": false,
       "endpoint": "django_resaas/groups/{id}/archive/",

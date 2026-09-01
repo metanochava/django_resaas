@@ -14,6 +14,7 @@ def resaas_action(
     autorequest=False,
     url_path=None,
     url_name=None,
+    permission=None,
 ):
     """
     Decorator RESAAS para declarar actions customizadas
@@ -21,8 +22,10 @@ def resaas_action(
 
     Regras:
     - o nome da função identifica a action;
-    - o nome da função também será usado para gerar
-      o codename da permission;
+    - por omissão, o nome da função também é usado para gerar o
+      codename da permission (f"{action_name}_{model_name}"); passa
+      `permission=` explicitamente para reutilizar uma permission já
+      existente noutra action/model;
     - este decorator NÃO grava na base de dados;
     - apenas guarda metadata no método;
     - a persistência é responsabilidade do ActionSyncService.
@@ -96,6 +99,9 @@ def resaas_action(
             "managed_by": "decorator",
 
         }
+
+        if permission:
+            metadata["permission"] = permission
 
 
         # =================================================

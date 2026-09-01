@@ -283,6 +283,17 @@ class ResaasSchemaBuilder:
                 "methods":
                     declared_methods,
 
+                # "detail" is the conceptual/API name going forward
+                # (matches DRF's own @action(detail=...) and the
+                # decorator's `detail=` kwarg); "details" is kept
+                # alongside it, unchanged, since the DB field and
+                # existing frontend code (resolveActionEndpoint in
+                # utils/schema.js) already depend on it. Both always
+                # carry the same value - drop "details" only once every
+                # consumer has moved to "detail".
+                "detail":
+                    extra.details,
+
                 "details":
                     extra.details,
 

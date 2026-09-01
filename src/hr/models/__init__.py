@@ -3,6 +3,7 @@
 from .employee import Employee
 from .department import Department
 from .job_position import JobPosition
+from .contract import Contract
 
 from .specialty import Specialty
 from .employee_specialty import EmployeeSpecialty
