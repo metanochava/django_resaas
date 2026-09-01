@@ -124,6 +124,70 @@ curl -X POST -H "Authorization: Bearer $JWT" -H "X-RESAAS-Context: $CTX" -H "L: 
   `docs/api/schema-contract.md` exactly — `ui.icon`, `filters.search_fields`, and `model.endpoint`
   all come straight from `Product`'s `RESAAS` config.
 
+## Adding a custom action
+
+`@resaas_action` (real signature, `core/decorators/action.py`) turns a method into both a routable
+DRF action and an entry in the Schema 1.0 `actions` list, kept in sync by `ActionSyncService`. Were
+`ProductAPIView` to add one:
+
+```python
+# dev/demo/views.py
+from django_resaas.core.decorators.action import resaas_action
+
+@registerView(module="demo")
+class ProductAPIView(BaseAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+    @resaas_action(
+        methods=["post"],
+        detail=True,
+        label="Discontinue",
+        icon="mdi-cancel",
+        permission="discontinue_product",   # optional - omit to default to discontinue_product anyway
+    )
+    def discontinue(self, request, pk=None):
+        ...
+```
+
+After the next `post_migrate` (or `manage.py sync_actions`), the schema's `actions` list would
+carry `{"action": "discontinue", "label": "Discontinue", "method": "POST", "detail": true,
+"endpoint": "demo/products/{id}/discontinue/", "permission": "discontinue_product", ...}` - see
+[`docs/api/schema-contract.md`](../docs/api/schema-contract.md) for the full shape, and
+[`docs/development/creating-resource.md`](../docs/development/creating-resource.md) for the
+manual/decorator ownership rules that protect a hand-configured action or permission from being
+silently overwritten.
+
+## Frontend integration (quasar_resaas)
+
+Given the two headers above (`X-RESAAS-Context`, `L`) and a JWT already in place, a `quasar_resaas`
+app consumes this exact API with:
+
+```javascript
+// stores/ProductStore.js - createBaseStore is re-exported from the
+// package root (index.js), not a "./base/*" subpath - package.json's
+// own "exports" map only allows ".", "./auto-imports" and "./core/*"
+import { createBaseStore } from 'quasar_resaas'
+
+export const useProductStore = createBaseStore('product', {
+  app: 'demo',
+  model: 'Product',
+})
+```
+
+```javascript
+const Product = useProductStore()
+await Product.init()          // loadSchema() + loadData() - fields/actions/permissions/pagination
+                               // all come from the schema endpoint above, not re-derived locally
+await Product.create()        // POST, then reloads the current page from the server
+await Product.update()        // PATCH by default - Product.update({ method: 'put' }) for a full replace
+```
+
+`Product.safeUrl` resolves to the schema's own `model.endpoint` once `loadSchema()`/`init()` has
+run - never re-derived from the `{app}/{model}s` convention when the backend already provided one.
+See `quasar_resaas`'s own `base/base_store.js` and `base/schema_contract.spec.js` for the tested
+behavior this relies on.
+
 ## Database
 
 Defaults to a local `db.sqlite3` file. Set `SQL_ENGINE`/`SQL_DATABASE`/`SQL_USER`/`SQL_PASSWORD`/

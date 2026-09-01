@@ -1,8 +1,13 @@
 """
-Direct unit tests for FrontEndMiddleware (the FEK/FEP gate), independent
-of any real view - covers the URL-scope policy (including the
-fail-open/fail-closed DEFAULT_POLICY switch) and the per-method access
-levels (read/write/readwrite/super), DELETE included.
+FASE 2 - P1.4: FrontEndMiddleware (the FEK/FEP gate) - covers the
+URL-scope policy (including the fail-open/fail-closed DEFAULT_POLICY
+switch), every access level's method classification (read/write/
+readwrite/super) across all seven HTTP methods DELETE included, unknown
+scope, and no-configuration-at-all behavior.
+
+Direct unit tests against the middleware (RequestFactory), independent
+of any real view - the same style already used for TenantContextMiddleware
+in core/middleware/tests/test_tenant_middleware.py.
 """
 import pytest
 from django.test import RequestFactory, override_settings
@@ -49,7 +54,7 @@ BASE_FRONT_END = {
 
 
 # =========================================================
-# CREDENTIALS
+# CREDENTIALS / NO CONFIGURATION AT ALL
 # =========================================================
 
 @override_settings(DJANGO_REST_AUTH={"FRONT_END": {**BASE_FRONT_END, "REQUIRE_CREDENTIALS": False}})
@@ -69,6 +74,16 @@ def test_bad_credentials_is_unauthorized():
     fake = FrontEnd(fek="nope", fep="nope")  # not saved -> won't match DB
     response = _run_middleware(_request(frontend=fake))
     assert response.status_code == 401
+
+
+@override_settings(DJANGO_REST_AUTH={"FRONT_END": {}})
+def test_absent_front_end_config_falls_back_to_defaults_deterministically():
+    # no URL_RULES / DEFAULT_POLICY configured at all - conf.py's DEFAULTS
+    # kick in deterministically: REQUIRE_CREDENTIALS defaults to False (no
+    # FEK/FEP needed) and DEFAULT_POLICY defaults to 'allow' (documented
+    # in conf.py and core/middleware/front_end.py)
+    response = _run_middleware(_request("/api/whatever/thing/"))
+    assert response == "ok"
 
 
 # =========================================================
@@ -114,34 +129,48 @@ def test_unknown_scope_is_allowed_when_default_policy_is_explicitly_allow():
     assert response == "ok"
 
 
-@override_settings(DJANGO_REST_AUTH={"FRONT_END": {}})
-def test_absent_front_end_config_falls_back_to_defaults_and_still_allows_unknown_scope():
-    # no URL_RULES / DEFAULT_POLICY configured at all - conf.py's DEFAULTS
-    # kick in (REQUIRE_CREDENTIALS defaults to False, so no FEK/FEP needed)
-    response = _run_middleware(_request("/api/whatever/thing/"))
-    assert response == "ok"
-
-
 # =========================================================
-# METHOD PERMISSIONS
+# METHOD PERMISSIONS - every access level x every HTTP method
 # =========================================================
 
 @pytest.mark.parametrize(
     "access,method,allowed",
     [
+        # read: only the safe/idempotent-read methods
         ("read", "GET", True),
+        ("read", "HEAD", True),
+        ("read", "OPTIONS", True),
         ("read", "POST", False),
+        ("read", "PUT", False),
+        ("read", "PATCH", False),
         ("read", "DELETE", False),
-        ("write", "POST", True),
-        ("write", "DELETE", True),
+
+        # write: mutation methods, NOT GET/HEAD
         ("write", "GET", False),
+        ("write", "HEAD", False),
+        ("write", "OPTIONS", True),
+        ("write", "POST", True),
+        ("write", "PUT", True),
+        ("write", "PATCH", True),
+        ("write", "DELETE", True),
+
+        # readwrite: superset of read + write - DELETE included
         ("readwrite", "GET", True),
+        ("readwrite", "HEAD", True),
+        ("readwrite", "OPTIONS", True),
         ("readwrite", "POST", True),
         ("readwrite", "PUT", True),
         ("readwrite", "PATCH", True),
         ("readwrite", "DELETE", True),
-        ("super", "DELETE", True),
+
+        # super: everything
         ("super", "GET", True),
+        ("super", "HEAD", True),
+        ("super", "OPTIONS", True),
+        ("super", "POST", True),
+        ("super", "PUT", True),
+        ("super", "PATCH", True),
+        ("super", "DELETE", True),
     ],
 )
 @override_settings(DJANGO_REST_AUTH={"FRONT_END": BASE_FRONT_END})
