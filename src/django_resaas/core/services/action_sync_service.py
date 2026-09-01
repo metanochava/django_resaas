@@ -185,7 +185,21 @@ class ActionSyncService:
             queryset = queryset.exclude(action__in=current_action_names)
 
         for extra in queryset:
-            if extra.permission and extra.permission_managed:
+            # A permission whose codename doesn't match this action's own
+            # default convention (f"{action}_{model}") was created via an
+            # explicit `permission=` override - by definition meant to be
+            # shared/reused, so this one action going orphaned must not
+            # assume ownership and delete it too.
+            default_codename = f"{extra.action}_{model_name}"
+            is_explicit_permission = (
+                extra.permission and extra.permission != default_codename
+            )
+
+            if (
+                extra.permission
+                and extra.permission_managed
+                and not is_explicit_permission
+            ):
                 Permission.objects.filter(
                     content_type=content_type,
                     codename=extra.permission,
