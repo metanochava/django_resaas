@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from django_resaas.core.services.translation_sinc_service import TranslationSyncService
+from django_resaas.core.services.translation_sync_service import TranslationSyncService
 
 
 

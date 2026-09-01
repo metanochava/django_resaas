@@ -17,7 +17,9 @@ class HasAppPermission(BasePermission):
     Permission base do DRF integrada com o sistema multi-tenant.
 
     Usa o mesmo motor de permissões:
-    - headers (ET, E, S, G, L)
+    - contexto de tenant (X-RESAAS-Context, com entity_type/entity/branch/
+      group resolvidos a partir do token assinado - ver TenantContextMiddleware)
+    - header de idioma (L)
     - groups
     - permissões do Django
     - uma única query

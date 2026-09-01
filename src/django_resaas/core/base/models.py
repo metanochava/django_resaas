@@ -1,10 +1,10 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 import uuid
 from django.utils import timezone
-import os 
+import os
 from .mixins.model.label_value import LabelValueMixin
-from django.apps import apps
 
 
 
@@ -151,32 +151,24 @@ class BaseModel(TimeModel):
         abstract = True
 
     def ensure_tenant(self):
-        if not self.entity_id:
-            Entity = apps.get_model("django_resaas", "Entity")
+        """
+        BaseModel subclasses always require an explicit tenant.
 
-            entity = Entity.objects.order_by("created_at").first()
-
-            if entity:
-                self.entity = entity
-
-        if not self.branch_id:
-            Branch = apps.get_model("django_resaas", "Branch")
-
-            branch = None
-
-            if self.entity_id:
-                branch = (
-                    Branch.objects
-                    .filter(entity_id=self.entity_id)
-                    .order_by("created_at")
-                    .first()
-                )
-
-            if not branch:
-                branch = Branch.objects.order_by("created_at").first()
-
-            if branch:
-                self.branch = branch
+        There is no automatic tenant selection here: silently picking
+        "the first Entity" / "the first Branch" would risk attaching
+        data to the wrong tenant. The API's tenant-context middleware
+        already sets entity/branch explicitly on create
+        (BaseAPIView.perform_create); shell sessions, Celery tasks,
+        services, signals and management commands must do the same
+        before saving.
+        """
+        if not self.entity_id or not self.branch_id:
+            raise ValidationError(
+                f"{self.__class__.__name__} requires an explicit "
+                "entity and branch before it can be saved — "
+                "automatic tenant selection is not supported. Set "
+                "instance.entity and instance.branch explicitly."
+            )
 
     def save(self, *args, **kwargs):
         self.ensure_tenant()

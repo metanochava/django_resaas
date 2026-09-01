@@ -165,3 +165,46 @@ def test_no_custom_actions_yields_empty_actions_and_custom_permissions():
 
     assert schema["actions"] == []
     assert schema["permissions"]["custom"] == {}
+
+
+def test_action_method_is_the_single_primary_method_not_a_joined_string():
+    """
+    `ModelExtraAction.method` is comma-joined when a `@resaas_action`
+    declares more than one HTTP method - the schema must resolve that to
+    one unambiguous "method" for the UI to submit with (the first
+    declared one), rather than making every consumer split/guess it.
+    The full list stays available under "methods".
+    """
+    ModelExtraAction.objects.create(
+        app="django_resaas",
+        model="group",
+        action="upsert",
+        label="Upsert",
+        method="POST,PUT",
+        details=True,
+        permission="upsert_group",
+    )
+
+    builder = ResaasSchemaBuilder(Model=Group, fields=[])
+    action = builder.build()["actions"][0]
+
+    assert action["method"] == "POST"
+    assert action["methods"] == ["POST", "PUT"]
+
+
+def test_action_method_defaults_to_post_when_unset():
+    ModelExtraAction.objects.create(
+        app="django_resaas",
+        model="group",
+        action="ping",
+        label="Ping",
+        method="",
+        details=False,
+        permission="ping_group",
+    )
+
+    builder = ResaasSchemaBuilder(Model=Group, fields=[])
+    action = builder.build()["actions"][0]
+
+    assert action["method"] == "POST"
+    assert action["methods"] == []

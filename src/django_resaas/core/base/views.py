@@ -165,7 +165,7 @@ def build_search_query(Model, search):
 # 🧩 VIEW REGISTRY
 # -----------------------------------
 
-def registerView(name=None, module=None):
+def register_view(name=None, module=None):
     def decorator(cls):
         key = name or cls.__name__.lower().replace('apiview', '') + 's'
         module_name = module or cls.__module__.split(".")[0]
@@ -175,6 +175,12 @@ def registerView(name=None, module=None):
         cls.module_name = module_name
         return cls
     return decorator
+
+
+# Back-compat alias: registerView was the original (camelCase) name; every
+# existing @registerView(...) call site (hr/views/*.py and friends) keeps
+# working unchanged. register_view is the PEP 8-consistent name for new code.
+registerView = register_view
 
 
 

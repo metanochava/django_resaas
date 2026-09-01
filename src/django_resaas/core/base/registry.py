@@ -1,2 +1,4 @@
 # django_resaas/core/base/registry.py
-VIEW_REGISTRY: dict[str, type] = {}
+# {module_name: {registered_name: ViewClass}} - see registerView() in
+# core/base/views.py, which is what actually populates this.
+VIEW_REGISTRY: dict[str, dict[str, type]] = {}
