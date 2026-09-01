@@ -133,6 +133,92 @@ def test_objects_deleted_stays_tenant_scoped(bootstrap_tenant):
     assert response.data["count"] == 1
 
 
+def test_branch_isolation_within_the_same_entity(bootstrap_tenant):
+    """
+    Two branches under the SAME entity - not just two different entities -
+    must not see each other's data either. Grants the same user access to
+    a second branch (mirroring what onboarding a user into a new branch
+    actually does) and issues a second signed context for it.
+    """
+    from django_resaas.core.tenant.context import ResaasContextService
+    from django_resaas.models.branch import Branch
+    from django_resaas.models.branch_user_group import BranchUserGroup
+    from rest_framework.test import APIClient
+
+    tenant = bootstrap_tenant("branch-isolation-tenant", modules=("demo",))
+
+    branch_b = Branch.objects.create(name="Branch B", entity=tenant["entity"])
+    BranchUserGroup.objects.get_or_create(
+        user=tenant["user"],
+        branch=branch_b,
+        group=tenant["root_group"],
+        defaults={"state": 1},
+    )
+
+    _create_product(tenant["client"], name="Branch A's Widget")
+
+    context_b = ResaasContextService.issue(
+        user=tenant["user"],
+        entity_id=tenant["entity"].id,
+        branch_id=branch_b.id,
+        group_id=tenant["root_group"].id,
+    )
+    client_b = APIClient()
+    client_b.force_authenticate(user=tenant["user"])
+    client_b.credentials(HTTP_X_RESAAS_CONTEXT=context_b["token"], HTTP_L="1")
+
+    response = client_b.get("/api/demo/products/")
+    assert response.data["count"] == 0
+
+    assert Product.objects.filter(branch=tenant["branch"]).count() == 1
+    assert Product.objects.filter(branch=branch_b).count() == 0
+
+
+def test_restore_is_blocked_across_tenants(bootstrap_tenant):
+    tenant_a = bootstrap_tenant("restore-tenant-a", modules=("demo",))
+    tenant_b = bootstrap_tenant("restore-tenant-b", modules=("demo",))
+
+    product_id = _create_product(tenant_a["client"])
+    tenant_a["client"].delete(f"/api/demo/products/{product_id}/")
+
+    response = tenant_b["client"].post(
+        f"/api/demo/products/{product_id}/restore/"
+    )
+    assert response.status_code == 404
+
+    # still soft-deleted - tenant B's blocked attempt changed nothing
+    assert Product.all_objects.get(id=product_id).deleted_at is not None
+
+
+def test_restore_works_within_the_same_tenant(bootstrap_tenant):
+    tenant = bootstrap_tenant("restore-same-tenant", modules=("demo",))
+
+    product_id = _create_product(tenant["client"])
+    tenant["client"].delete(f"/api/demo/products/{product_id}/")
+
+    response = tenant["client"].post(f"/api/demo/products/{product_id}/restore/")
+    assert response.status_code == 200
+
+    product = Product.objects.get(id=product_id)  # default manager = alive only
+    assert product.deleted_at is None
+
+
+def test_hard_delete_is_blocked_across_tenants(bootstrap_tenant):
+    tenant_a = bootstrap_tenant("hard-delete-cross-tenant-a", modules=("demo",))
+    tenant_b = bootstrap_tenant("hard-delete-cross-tenant-b", modules=("demo",))
+
+    product_id = _create_product(tenant_a["client"])
+    tenant_a["client"].delete(f"/api/demo/products/{product_id}/")
+
+    response = tenant_b["client"].delete(
+        f"/api/demo/products/{product_id}/hard_delete/"
+    )
+    assert response.status_code == 404
+
+    # untouched - still there (soft-deleted) for tenant A
+    assert Product.all_objects.filter(id=product_id).exists()
+
+
 def test_register_view_and_registerView_are_the_same_decorator():
     """registerView (camelCase) is the original name every existing
     @registerView(...) call site uses; register_view is the PEP 8-consistent

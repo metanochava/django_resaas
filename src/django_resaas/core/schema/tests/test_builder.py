@@ -192,6 +192,30 @@ def test_action_method_is_the_single_primary_method_not_a_joined_string():
     assert action["methods"] == ["POST", "PUT"]
 
 
+def test_action_exposes_both_detail_and_details_with_the_same_value():
+    """
+    "detail" is the conceptual/API name going forward (matches DRF's own
+    `detail=` kwarg); "details" is preserved alongside it since the DB
+    field and existing frontend code depend on it. Both must always
+    agree - see docs/api/schema-contract.md.
+    """
+    ModelExtraAction.objects.create(
+        app="django_resaas",
+        model="group",
+        action="archive",
+        label="Archive",
+        method="POST",
+        details=True,
+        permission="archive_group",
+    )
+
+    builder = ResaasSchemaBuilder(Model=Group, fields=[])
+    action = builder.build()["actions"][0]
+
+    assert action["detail"] is True
+    assert action["details"] is True
+
+
 def test_action_method_defaults_to_post_when_unset():
     ModelExtraAction.objects.create(
         app="django_resaas",
