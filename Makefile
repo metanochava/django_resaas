@@ -99,17 +99,17 @@ upload:
 # =========================
 # GitFlow
 # =========================
-.PHONY: flow_init feature_start feature_finish release_start release_finish hotfix_start hotfix_finish
+.PHONY: flow_init features featuref releases releasef hotfixs hotfixf
 
 flow_init:
 	git flow init
 
-feature_start:
+features:
 	read -p "Name da feature: " n; \
 	git checkout develop; \
 	git flow feature start "$$n"
 
-feature_finish:
+featuref:
 	read -p "Name da feature: " n; \
 	git flow feature finish "$$n"; \
 	git push origin develop
@@ -117,7 +117,7 @@ feature_finish:
 # =========================
 # RELEASE PROFISSIONAL
 # =========================
-release_start:
+releases:
 	git checkout develop
 	git pull
 	read -p "Bump (patch/minor/major): " b; \
@@ -127,7 +127,7 @@ release_start:
 	git commit -m "bump version $$VERSION"; \
 	git flow release start "$$VERSION"
 
-release_finish:
+releasef:
 	VERSION="$$( $(call GET_VERSION) )"; \
 	read -p "Mensagem do release v$$VERSION: " m; \
 	git flow release finish -m "release: v$$VERSION - $$m" "$$VERSION"; \
@@ -136,12 +136,12 @@ release_finish:
 # =========================
 # HOTFIX
 # =========================
-hotfix_start:
+hotfixs:
 	read -p "Name do hotfix: " n; \
 	git checkout main; \
 	git flow hotfix start "$$n"
 
-hotfix_finish:
+hotfixf:
 	read -p "Name do hotfix: " n; \
 	git flow hotfix finish "$$n"; \
 	git push origin main develop --tags
