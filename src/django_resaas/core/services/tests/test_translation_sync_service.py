@@ -1,7 +1,7 @@
 import pytest
 
 from django_resaas.core.services.language_service import LanguageService
-from django_resaas.core.services.translation_sinc_service import TranslationSyncService
+from django_resaas.core.services.translation_sync_service import TranslationSyncService
 from django_resaas.models.language import Language
 from django_resaas.models.translation import Translation
 

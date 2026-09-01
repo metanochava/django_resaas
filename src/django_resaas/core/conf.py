@@ -10,6 +10,14 @@ DEFAULTS = {
     },
     'CACHE_TIME': 300,
     'REQUIRE_FE_CREDENTIALS': False,
+    'FRONT_END': {
+        'REQUIRE_CREDENTIALS': False,
+        'PUBLIC_URL': [],
+        'URL_RULES': {},
+        # 'allow' preserves the historical behavior for scopes with no
+        # matching URL_RULES entry. Set to 'deny' for fail-closed.
+        'DEFAULT_POLICY': 'allow',
+    },
 }
 
 

@@ -86,3 +86,57 @@ def test_hard_delete_permanently_removes_the_row(bootstrap_tenant):
 
     # gone even from all_objects (soft-deleted rows would still show up there)
     assert not Product.all_objects.filter(id=product_id).exists()
+
+
+def test_soft_delete_preserves_the_tenant(bootstrap_tenant):
+    tenant = bootstrap_tenant("soft-delete-tenant", modules=("demo",))
+    product_id = _create_product(tenant["client"])
+
+    response = tenant["client"].delete(f"/api/demo/products/{product_id}/")
+    assert response.status_code == 204
+
+    product = Product.all_objects.get(id=product_id)
+    assert product.deleted_at is not None
+    assert product.entity_id == tenant["entity"].id
+    assert product.branch_id == tenant["branch"].id
+
+
+def test_objects_all_stays_tenant_scoped(bootstrap_tenant):
+    tenant_a = bootstrap_tenant("all-scope-tenant-a", modules=("demo",))
+    tenant_b = bootstrap_tenant("all-scope-tenant-b", modules=("demo",))
+
+    product_id = _create_product(tenant_a["client"])
+    tenant_a["client"].delete(f"/api/demo/products/{product_id}/")
+
+    # tenant B must see nothing, even when asking for "all" objects
+    response = tenant_b["client"].get("/api/demo/products/?objects=all")
+    assert response.data["count"] == 0
+
+    # tenant A does see its own soft-deleted row via "all"
+    response = tenant_a["client"].get("/api/demo/products/?objects=all")
+    assert response.data["count"] == 1
+
+
+def test_objects_deleted_stays_tenant_scoped(bootstrap_tenant):
+    tenant_a = bootstrap_tenant("deleted-scope-tenant-a", modules=("demo",))
+    tenant_b = bootstrap_tenant("deleted-scope-tenant-b", modules=("demo",))
+
+    product_id = _create_product(tenant_a["client"])
+    tenant_a["client"].delete(f"/api/demo/products/{product_id}/")
+
+    # tenant B must not see tenant A's soft-deleted row
+    response = tenant_b["client"].get("/api/demo/products/?objects=deleted")
+    assert response.data["count"] == 0
+
+    # tenant A does see its own soft-deleted row
+    response = tenant_a["client"].get("/api/demo/products/?objects=deleted")
+    assert response.data["count"] == 1
+
+
+def test_register_view_and_registerView_are_the_same_decorator():
+    """registerView (camelCase) is the original name every existing
+    @registerView(...) call site uses; register_view is the PEP 8-consistent
+    alias for new code - they must be the exact same object."""
+    from django_resaas.core.base.views import register_view, registerView
+
+    assert registerView is register_view

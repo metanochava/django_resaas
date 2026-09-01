@@ -65,7 +65,8 @@ schema = ResaasSchemaBuilder(Model=SomeModel, fields=serialized_field_list).buil
       "position": null,
       "order": 0,
       "visible": true,
-      "method": "POST",
+      "method": "POST",               // the single method the UI should submit this action with - always one value, never comma-joined
+      "methods": ["POST"],            // every HTTP method DRF actually routes to the handler (from `@resaas_action(methods=[...])`); "method" above is always methods[0]
       "details": true,               // detail action -> ".../{id}/archive/"
       "url": null,
       "autorequest": false,

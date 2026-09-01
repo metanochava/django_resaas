@@ -62,7 +62,13 @@ class FrontEndMiddleware:
         rules = get_setting('FRONT_END.URL_RULES', {})
 
         if not scope or scope not in rules:
-            return True  # se não houver regra, permite
+            # No rule defined for this scope. Historically this always
+            # allowed the request through; that is preserved as the
+            # default ('allow') for backward compatibility, but a
+            # deployment can opt into fail-closed behavior by setting
+            # FRONT_END.DEFAULT_POLICY = 'deny'.
+            policy = str(get_setting('FRONT_END.DEFAULT_POLICY', 'allow')).lower()
+            return policy != 'deny'
 
         return frontend.access in rules[scope]
 
@@ -76,7 +82,9 @@ class FrontEndMiddleware:
             return method in ['GET', 'HEAD', 'OPTIONS']
 
         if frontend.access == 'readwrite':
-            return method in ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'OPTIONS']
+            # readwrite is a superset of both read and write, so it must
+            # allow everything write allows too - DELETE included.
+            return method in ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
 
         if frontend.access == 'write':
             return method in ['POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']

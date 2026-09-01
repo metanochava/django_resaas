@@ -195,6 +195,20 @@ class ResaasSchemaBuilder:
                 or extra.action
             ).strip("/")
 
+            # `ModelExtraAction.method` is a comma-joined string when a
+            # `@resaas_action` declares more than one HTTP method (DRF
+            # itself is fine routing all of them to the same handler).
+            # A UI action button, though, needs exactly one method to
+            # act as - so the schema exposes that unambiguously as the
+            # first declared method, instead of leaving frontends to
+            # each guess/split it themselves.
+            declared_methods = [
+                m.strip()
+                for m in (extra.method or "").split(",")
+                if m.strip()
+            ]
+            primary_method = declared_methods[0] if declared_methods else "POST"
+
 
             # =============================================
             # DETAIL
@@ -259,8 +273,15 @@ class ResaasSchemaBuilder:
                 # HTTP
                 # =========================================
 
+                # the single method the UI should submit this action
+                # with - always one value, never comma-joined
                 "method":
-                    extra.method,
+                    primary_method,
+
+                # every HTTP method DRF actually routes to this
+                # handler, for callers that need the full picture
+                "methods":
+                    declared_methods,
 
                 "details":
                     extra.details,
