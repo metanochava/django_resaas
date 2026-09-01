@@ -466,11 +466,13 @@ class UserAPIView(viewsets.ModelViewSet):
     )
     def userPerson(self, request, id, *args, **kwargs):
 
-        person = Person.objects.get(user__id=id)
-        person = PersonSerializer(person)
-        if person:
-            return Response(person.data, status.HTTP_200_OK)
-        return Response([], status.HTTP_400_BAD_REQUEST)
+        person = Person.objects.filter(user__id=id).first()
+
+        if not person:
+            return Response({}, status.HTTP_200_OK)
+
+        serializer = PersonSerializer(person, context={'request': request})
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
     @action(
