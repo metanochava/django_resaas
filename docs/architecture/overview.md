@@ -1,50 +1,75 @@
 # Backend Architecture
 
-## Overview
+`django_resaas` layers a small set of shared base classes on top of Django/DRF so that every
+resource gets multi-tenancy, permissions, soft delete, search, filters, pagination and a
+machine-readable schema for free, instead of each app reimplementing them.
 
-The backend follows a layered architecture:
-
-``` text
+```text
 Client / Frontend
        |
        v
-REST API / Router
+ X-RESAAS-Context, L headers
        |
        v
-BaseAPIView
-       |
-       +---- Permissions
-       +---- Multi-tenancy
-       +---- Search/Filters
+TenantContextMiddleware        (architecture/middleware.md)
        |
        v
-Serializer
+     Router                    (VIEW_REGISTRY -> build_saas_urls() - architecture/registry.md)
        |
        v
-Model
+   BaseAPIView                 (api/base-api-view.md)
+       |
+       +---- initial(): module active? permission granted?  (security/permissions.md)
+       +---- get_queryset(): entity/branch scoping, ?objects=, ?search=
        |
        v
-Database
+   BaseSerializer               (api/public-api-reference.md)
+       |
+       v
+     Model                      (BaseModel / TimeModel / SoftBaseModel)
+       |
+       v
+    Database
 ```
 
 ## Responsibilities
 
-### View
+### Middleware
 
-Receives the request, determines the action, restricts the queryset and
-coordinates the serializer and the response.
+`TenantContextMiddleware` decodes the signed `X-RESAAS-Context` header into
+`request.entity_id`/`branch_id`/`entity_type_id`/`group_id` and the `L` header into
+`request.lang_id`, on every request, before any view code runs. `FileAccessMiddleware` separately
+gates direct access to uploaded media. See [Middleware](middleware.md).
 
-### Serializer
+### View (`BaseAPIView`)
 
-Validates input data and turns Django instances into data suitable for the
-API.
+Receives the request, confirms the tenant's module is active and the user is authorized
+(`initial()`), builds a tenant-scoped, optionally soft-delete-aware, optionally searched queryset
+(`get_queryset()`), and coordinates the serializer and response. See
+[BaseAPIView](../api/base-api-view.md).
 
-### Model
+### Serializer (`BaseSerializer`)
 
-Represents persistent data and domain relationships.
+Validates input data and turns Django instances into API-shaped data, with `entity`/`branch`/
+`created_by`/`updated_by`/timestamps read-only by default. See
+[Public API reference](../api/public-api-reference.md).
 
-### Base components
+### Model (`BaseModel`)
 
-The framework concentrates repeated behavior into shared classes and
-utilities so that each application doesn't reimplement CRUD, tenancy,
-permissions and representation from scratch.
+Represents persistent data. `BaseModel` (via `TimeModel`/`SoftBaseModel`) adds tenant scoping,
+soft delete, and audit fields to any model that inherits it — see
+[Multi-tenancy](multi-tenancy.md).
+
+### Schema (`ResaasSchemaBuilder`)
+
+Turns a model plus its serializer fields into the declarative Schema 1.0 JSON contract a frontend
+consumes to render a whole CRUD screen without hardcoding conventions client-side. See
+[Schema 1.0 contract](../api/schema-contract.md).
+
+## Where to go next
+
+- New to the framework: [Installation](../getting-started/installation.md) then
+  [Quick start](../getting-started/quick-start.md).
+- Adding a resource to an existing project: [Creating a new resource](../development/creating-resource.md).
+- Understanding tenant isolation in depth: [Multi-tenancy](multi-tenancy.md) and
+  [Request lifecycle](request-lifecycle.md).
