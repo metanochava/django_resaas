@@ -328,7 +328,8 @@ python manage.py check_metano       # validates compliance with the MetanoStack 
 
 Full technical documentation lives in [`docs/`](docs/README.md):
 
-- [Architecture](docs/architecture/overview.md) · [Multi-tenancy](docs/architecture/multi-tenancy.md) · [Request lifecycle](docs/architecture/request-lifecycle.md) · [Middleware](docs/architecture/middleware.md)
+- [**FAQ / Getting started**](docs/faq.md) — installation and the practical "how do I...?" questions
+- [Architecture](docs/architecture/overview.md) · [Multi-tenancy](docs/architecture/multi-tenancy.md) · [Request lifecycle](docs/architecture/request-lifecycle.md) · [Middleware](docs/architecture/middleware.md) · [View registry](docs/architecture/registry.md)
 - [Schema 1.0 contract](docs/api/schema-contract.md) · [Public API reference](docs/api/public-api-reference.md)
 - [BaseAPIView](docs/api/base-api-view.md) · [Search](docs/api/search.md) · [Filters & pagination](docs/api/filters-pagination.md)
 - [Permissions](docs/security/permissions.md)

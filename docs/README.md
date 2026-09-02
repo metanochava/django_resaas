@@ -5,10 +5,13 @@ backend framework.
 
 ## Navigation
 
+-   [Installation](getting-started/installation.md)
+-   [Quick start](getting-started/quick-start.md)
 -   [Architecture](architecture/overview.md)
 -   [Multi-tenancy](architecture/multi-tenancy.md)
 -   [Request lifecycle](architecture/request-lifecycle.md)
 -   [Middleware](architecture/middleware.md)
+-   [View registry](architecture/registry.md)
 -   [Models and RESAAS](models/resaas-config.md)
 -   [Schema 1.0 contract](api/schema-contract.md)
 -   [Public API reference](api/public-api-reference.md)

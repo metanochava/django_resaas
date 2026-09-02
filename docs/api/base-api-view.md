@@ -70,6 +70,10 @@ tested behavior (including that a soft-deleted row's plain
 
 ## Module activation
 
+Before any of this, `initial()` requires a valid tenant context on the request at all — a missing
+or undecodable `X-RESAAS-Context` header (see [Multi-tenancy](../architecture/multi-tenancy.md))
+raises `PermissionDenied` immediately, before `module_name`/permission checks even run.
+
 `initial()` requires `self.module_name` to be set (via `@registerView(...)`
 - see [`../development/creating-resource.md`](../development/creating-resource.md))
 and checks `EntityApp.objects.filter(entity_id=request.entity_id,
@@ -81,8 +85,9 @@ that module, gets rejected before the queryset is ever touched - see
 ## Search, filters, pagination
 
 - Search: `?search=...` matches `RESAAS.search_fields` when the model
-  declares them, otherwise falls back to every `Char/Text/EmailField`
-  plus simple `ForeignKey.name` lookups.
+  declares them (supports `__` relation traversal), otherwise falls back
+  to every direct `Char/Text/EmailField` on the model itself — the
+  fallback does not traverse relations. See [`search.md`](search.md).
 - Filters: `DjangoFilterBackend` + `OrderingFilter` are always active
   (see [`filters-pagination.md`](filters-pagination.md)).
 - Pagination: `ResaasPagination` (`DEFAULT_PAGINATION_CLASS`), whose

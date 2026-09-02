@@ -20,8 +20,9 @@ The model base class most application models should inherit from. Built in layer
 -   `TimeModel` - adds `created_by`/`updated_by` (FK to `AUTH_USER_MODEL`) and a `state`
     (`Active`/`Inactive`) field.
 -   `BaseModel` - adds the tenant `entity`/`branch` foreign keys and `ensure_tenant()`, which
-    `save()` calls automatically to backfill `entity`/`branch` from the first available record
-    when they weren't set explicitly.
+    `save()` calls automatically. It never backfills a tenant: if `entity`/`branch` aren't already
+    set explicitly, it raises `ValidationError` instead of guessing - see
+    [`docs/architecture/multi-tenancy.md`](../architecture/multi-tenancy.md#golden-rule-the-tenant-is-never-guessed).
 
 Also exported from the same module: `SoftDeleteQuerySet`, `SoftDeleteManager`, `DeletedManager`,
 `AllObjectsManager`, and the `file_path(instance, file_name, pasta="")` upload-path helper (builds
