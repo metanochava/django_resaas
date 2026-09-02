@@ -21,6 +21,7 @@ backend framework.
 -   [Permissions](security/permissions.md)
 -   [Soft delete](features/soft-delete.md)
 -   [Files and PDF](features/files-pdf.md)
+-   [Notifications (Email/SMS/WhatsApp)](features/notifications.md)
 -   [Creating a new resource](development/creating-resource.md)
 -   [Minimal example app](../src/dev/README.md)
 -   [Management commands](development/management-commands.md)

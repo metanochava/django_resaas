@@ -68,6 +68,11 @@ from django_resaas.data.layout_setting.views.layout_setting import LayoutSetting
 from django_resaas.management.apicommands.view.scaffold import ScaffoldAPIView
 from django_resaas.management.apicommands.view.app_schema import AppSchemaAPIView, RelationsAPIView
 
+# Importing this package runs every @register_view in it (VIEW_REGISTRY
+# population), exactly like the direct view imports above - must happen
+# before build_saas_urls() runs below.
+import django_resaas.notifications.views  # noqa: F401
+
 
 from django_resaas.data.pdf.views.invoice import invoice_pdf
 
