@@ -202,6 +202,13 @@ class DynamicFilterBackend(DjangoFilterBackend):
                 (
                     models.FileField,
                     models.ImageField,
+                    # django-filter's auto-generation has no default
+                    # lookup for JSONField (it raises, not just skips -
+                    # see FilterSet.Meta.unknown_field_behavior) - same
+                    # reasoning as File/Image above: this isn't a field
+                    # you'd ever want a plain `?field=value` exact-match
+                    # query-string filter on anyway.
+                    models.JSONField,
                 )
             )
         ]

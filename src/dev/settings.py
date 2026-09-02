@@ -31,6 +31,7 @@ LANGUAGE_CODE = 'EN-US'
 
 MY_APPS = [
     'django_resaas',
+    'django_resaas.notifications',
     "hr",
     "dev.demo",
 ]
@@ -218,3 +219,37 @@ EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", False)
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+# --------------------------
+# Notifications (django_resaas.notifications)
+# --------------------------
+# Everything here is opt-in by construction: NOTIFICATIONS_ENABLED
+# defaults to False, and even once True, nothing sends unless a
+# NotificationRule (enabled=False by default) and a NotificationSettings
+# row (every *_enabled flag defaults to False) both explicitly say so.
+# See docs/django-resaas/features/notifications.md.
+NOTIFICATIONS_ENABLED = bool(int(os.environ.get("NOTIFICATIONS_ENABLED", "0")))
+
+NOTIFICATION_OUTBOX_BATCH_SIZE = int(os.environ.get("NOTIFICATION_OUTBOX_BATCH_SIZE", "100"))
+OUTBOX_RETRY_BASE_SECONDS = int(os.environ.get("OUTBOX_RETRY_BASE_SECONDS", "30"))
+OUTBOX_RETRY_MAX_SECONDS = int(os.environ.get("OUTBOX_RETRY_MAX_SECONDS", "3600"))
+OUTBOX_MAX_ATTEMPTS = int(os.environ.get("OUTBOX_MAX_ATTEMPTS", "5"))
+OUTBOX_DISPATCH_TIMEOUT = int(os.environ.get("OUTBOX_DISPATCH_TIMEOUT", "300"))
+OUTBOX_PROCESSING_TIMEOUT = int(os.environ.get("OUTBOX_PROCESSING_TIMEOUT", "300"))
+OUTBOX_RECOVERY_INTERVAL_SECONDS = int(os.environ.get("OUTBOX_RECOVERY_INTERVAL_SECONDS", "30"))
+NOTIFICATION_OUTBOX_RETENTION_DAYS = int(os.environ.get("NOTIFICATION_OUTBOX_RETENTION_DAYS", "90"))
+NOTIFICATION_ATTEMPT_RETENTION_DAYS = int(os.environ.get("NOTIFICATION_ATTEMPT_RETENTION_DAYS", "90"))
+
+# Celery - optional dependency (pip install django_resaas[notifications]).
+# Only used by django_resaas.notifications.tasks; nothing else in the
+# framework depends on Celery being installed/configured.
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
+CELERY_TASK_ALWAYS_EAGER = bool(int(os.environ.get("CELERY_TASK_ALWAYS_EAGER", "0")))
+
+# SMS (Twilio) / WhatsApp (Meta Cloud API) credentials - env vars only,
+# never stored in the database (spec section 19). See
+# notifications/providers/sms.py and providers/whatsapp.py.
+# TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM_NUMBER
+# WHATSAPP_CLOUD_API_TOKEN / WHATSAPP_CLOUD_API_PHONE_NUMBER_ID / WHATSAPP_CLOUD_API_VERSION
