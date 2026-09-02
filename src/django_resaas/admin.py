@@ -106,36 +106,42 @@ class GroupAdmin(BaseAdmin):
 class TranslationAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 @admin.register(Theme)
 class ThemeAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 @admin.register(LayoutSetting)
 class LayoutSettingAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 @admin.register(CorsAllowedOrigin)
 class CorsAllowedOriginAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 @admin.register(Typography)
 class TypographyAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 @admin.register(AnimationSetting)
 class AnimationSettingAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 # =========================
@@ -144,6 +150,7 @@ class AnimationSettingAdmin(BaseAdmin):
 @admin.register(EntityGroup)
 class EntityGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(Entity)
@@ -161,32 +168,38 @@ class EntityUserAdmin(BaseAdmin):
 @admin.register(EntityApp)
 class EntityAppAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(EntityType)
 class EntityTypeAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id', 'name')
+    search_fields = ("__all__",)
 
 
 @admin.register(EntityTypeApp)
 class EntityTypeAppAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(EntityTypeModel)
 class EntityTypeModelAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(EntityTypeGroup)
 class EntityTypeGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(EntityModel)
 class EntityModelAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 # =========================
@@ -196,21 +209,25 @@ class EntityModelAdmin(BaseAdmin):
 class BranchAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id', 'name')
+    search_fields = ("__all__",)
 
 
 @admin.register(BranchGroup)
 class BranchGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(BranchUser)
 class BranchUserAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(BranchUserGroup)
 class BranchUserGroupAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 # =========================
@@ -219,31 +236,37 @@ class BranchUserGroupAdmin(BaseAdmin):
 @admin.register(File)
 class FileAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(UserLogin)
 class UserLoginAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(FrontEnd)
 class FrontEndAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(Language)
 class LanguageAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(ModelExtraAction)
 class ModelExtraActionAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 @admin.register(App)
 class AppAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
 
 
 # =========================
@@ -276,4 +299,5 @@ class PermissionAdmin(admin.ModelAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
     inlines = [DocumentInline]
