@@ -45,7 +45,7 @@ class RequestRegisterOTPView(generics.GenericAPIView):
             )
 
         try:
-            send_registration_otp(channel, identifier)
+            send_registration_otp(channel, identifier, request=request)
         except NotificationError:
             return Response(
                 {

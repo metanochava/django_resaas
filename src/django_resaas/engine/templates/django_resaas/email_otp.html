@@ -1,0 +1,16 @@
+{% extends "django_resaas/email_base.html" %}
+
+{% block content %}
+  <p>{{ greeting }}</p>
+  <p>{{ intro }}</p>
+
+  <p style="text-align:center; margin:32px 0;">
+    <span style="display:inline-block; font-size:32px; font-weight:700; letter-spacing:10px;
+                 color:{{ brand_color|default:'#1976d2' }}; background:#f0f4ff;
+                 padding:16px 20px 16px 30px; border-radius:10px;">
+      {{ code }}
+    </span>
+  </p>
+
+  <p style="color:#777777; font-size:13px;">{{ expiry_notice }}</p>
+{% endblock %}

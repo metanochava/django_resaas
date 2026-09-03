@@ -7,6 +7,7 @@ DEFAULT_TEMPLATES = {
     'REGISTER_CONFIRM': 'django_resaas/email_confirmacao.html',
     'PASSWORD_RESET': 'django_resaas/email_reset.html',
     'GENERIC_RESET': 'django_resaas/email_template_reset.html',
+    'OTP_CODE': 'django_resaas/email_otp.html',
 }
 
 
