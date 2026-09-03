@@ -58,11 +58,11 @@ sync mechanism is and isn't allowed to touch:
   following the default `{action}_{model}` naming convention has its
   `.name` kept in sync with the action's label/model automatically.
 
-Orphan removal itself only ever happens in `ActionSyncService.sync_registry()`
-(the `post_migrate` signal / `manage.py sync_actions` entry point), which
-aggregates every registered view's declared actions *before* deciding
-what no longer exists anywhere in code. Calling `sync_view()` directly on
-a single view only upserts - it never deletes, since one view has no way
-of knowing whether a sibling view of the same model still declares an
-action it doesn't see. See `src/django_resaas/tests/test_permissions.py`
-and `test_action_sync.py` for the exact, tested behavior.
+> [!NOTE]
+> Orphan removal itself only ever happens in `ActionSyncService.sync_registry()` (the
+> `post_migrate` signal / `manage.py sync_actions` entry point), which aggregates every
+> registered view's declared actions *before* deciding what no longer exists anywhere in
+> code. Calling `sync_view()` directly on a single view only upserts - it never deletes,
+> since one view has no way of knowing whether a sibling view of the same model still
+> declares an action it doesn't see. See `src/django_resaas/tests/test_permissions.py` and
+> `test_action_sync.py` for the exact, tested behavior.

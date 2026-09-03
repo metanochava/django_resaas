@@ -18,6 +18,7 @@ import logging
 from django.apps import apps as django_apps
 from django.conf import settings
 from django.db.models import Q
+from django.utils.dateparse import parse_datetime
 
 from django_resaas.notifications.conditions import evaluate
 from django_resaas.notifications.enums import Category, Channel, OutboxStatus
@@ -176,38 +177,44 @@ class NotificationEngine:
             ]
         )
 
+        defaults = {
+            "entity_id": rule.entity_id,
+            "branch_id": payload.get("branch_id") or rule.branch_id,
+            "created_by_id": payload.get("actor_id"),
+            "updated_by_id": payload.get("actor_id"),
+            "event": payload["event"],
+            "rule": rule,
+            "channel": rule.channel,
+            "category": rule.category,
+            "priority": rule.priority,
+            "recipient_type": recipient.type,
+            "recipient_identity": identity,
+            "recipient_reference": recipient.key,
+            "subject": subject,
+            "body": body,
+            "provider": rule.provider,
+            "status": OutboxStatus.PENDING,
+            "max_attempts": max_attempts(),
+            "metadata": {
+                "object": payload.get("object"),
+                "occurrence_id": occurrence_id,
+                "actor_id": payload.get("actor_id"),
+                # Kept so a failed send can fall back to a different
+                # channel for the *same* recipient (spec section 53) -
+                # the Outbox itself only snapshots one resolved
+                # identity, so the alternate address has to live here.
+                "recipient_email": recipient.email,
+                "recipient_phone": recipient.phone,
+            },
+        }
+
+        scheduled_at = cls._resolve_scheduled_at(payload.get("scheduled_at"))
+        if scheduled_at:
+            defaults["scheduled_at"] = scheduled_at
+
         outbox, created = NotificationOutbox.objects.get_or_create(
             idempotency_key=idempotency_key,
-            defaults={
-                "entity_id": rule.entity_id,
-                "branch_id": payload.get("branch_id") or rule.branch_id,
-                "created_by_id": payload.get("actor_id"),
-                "updated_by_id": payload.get("actor_id"),
-                "event": payload["event"],
-                "rule": rule,
-                "channel": rule.channel,
-                "category": rule.category,
-                "priority": rule.priority,
-                "recipient_type": recipient.type,
-                "recipient_identity": identity,
-                "recipient_reference": recipient.key,
-                "subject": subject,
-                "body": body,
-                "provider": rule.provider,
-                "status": OutboxStatus.PENDING,
-                "max_attempts": max_attempts(),
-                "metadata": {
-                    "object": payload.get("object"),
-                    "occurrence_id": occurrence_id,
-                    "actor_id": payload.get("actor_id"),
-                    # Kept so a failed send can fall back to a different
-                    # channel for the *same* recipient (spec section 53) -
-                    # the Outbox itself only snapshots one resolved
-                    # identity, so the alternate address has to live here.
-                    "recipient_email": recipient.email,
-                    "recipient_phone": recipient.phone,
-                },
-            },
+            defaults=defaults,
         )
 
         if created:
@@ -407,3 +414,16 @@ class NotificationEngine:
         from django_resaas.models.user import User
 
         return User.objects.filter(id=user_id).first()
+
+    @staticmethod
+    def _resolve_scheduled_at(value):
+        """`payload["scheduled_at"]` is always a plain ISO string (or
+        None) by the time it gets here - EventDispatcher.emit() never
+        lets a live datetime past build_event_payload() either, for the
+        same "payload must stay a plain, serializable dict" reason every
+        other field on it does (spec section 5)."""
+
+        if not value:
+            return None
+
+        return parse_datetime(value)

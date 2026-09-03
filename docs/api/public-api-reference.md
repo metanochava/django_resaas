@@ -60,11 +60,16 @@ delete/restore/hard delete). Also in this module:
     `group_id`, `lang_id`), then checks in one query whether the user's `BranchUserGroup` grants a
     permission with that `codename` for the current branch/entity/entity_type.
 -   `hasApp(codigo)` - method decorator; 403s unless the given app `codigo` is active
-    (`EntityApp`, `state=1`) for the request's entity. **Known issue:** it filters on
-    `app__codigo`, but `django_resaas.models.app.App` has no `codigo` field - calling this
-    decorator would raise `FieldError`. It has zero call sites in the current codebase, so this
-    hasn't surfaced; flagging it here rather than fixing it, since fixing would mean guessing at
-    the intended field name/semantics (out of scope for a docs-only pass).
+    (`EntityApp`, `state=1`) for the request's entity.
+
+    > [!WARNING]
+    > Known issue: it filters on `app__codigo`, but `django_resaas.models.app.App` has no
+    > `codigo` field - calling this decorator would raise `FieldError`. It has zero call
+    > sites in the current codebase, so this hasn't surfaced; flagging it here rather than
+    > fixing it, since fixing would mean guessing at the intended field name/semantics (out
+    > of scope for a docs-only pass). Use the real module-activation check
+    > (`EntityApp.objects.filter(entity__id=..., app__name=module, state="Active")`, see
+    > [BaseAPIView#module-activation](base-api-view.md#module-activation)) instead.
 -   `hasPermission(role=None)` - method decorator wrapping `check_permission()`, returning a 403
     `fail()` response instead of raising.
 -   `isPermited(request=None, role=None)` - a thin alias for `check_permission()`.

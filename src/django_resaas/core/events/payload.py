@@ -35,11 +35,17 @@ def build_event_payload(
     obj=None,
     context=None,
     occurrence_id=None,
+    scheduled_at=None,
 ):
     """Build the plain-dict payload handed to every EventDispatcher listener.
 
     `obj`, if given, must already be a serializable {app_label, model, pk}
     dict (see build_object_ref) - never a model instance at this point.
+
+    `scheduled_at`, if given, must be a timezone-aware `datetime` (same
+    convention as any other Django datetime field) - stored as its ISO
+    string, never the datetime object itself, to keep this payload plain
+    JSON regardless of who ends up reading it.
     """
 
     return {
@@ -50,4 +56,5 @@ def build_event_payload(
         "object": obj,
         "context": dict(context or {}),
         "occurrence_id": occurrence_id,
+        "scheduled_at": scheduled_at.isoformat() if scheduled_at else None,
     }

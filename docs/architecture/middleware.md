@@ -35,8 +35,9 @@ credentials) may call which URL scope (`/api/<scope>/...`) and with which HTTP m
 - `frontend.access` (`super`, `read`, `readwrite`, `write`) gates both the URL scope (against
   `FRONT_END.URL_RULES`) and the HTTP method allowed for that access level.
 
-**Known issue:** the commented-out entry in `src/dev/settings.py` references
-`django_resaas.core.middleware.frontend.FrontEndMiddleware` (no underscore), but the real module is
-`django_resaas.core.middleware.front_end` (with an underscore). Uncommenting that line as written
-would raise `ModuleNotFoundError` - the dotted path needs the underscore added before this
-middleware can actually be enabled.
+> [!WARNING]
+> Known issue: the commented-out entry in `src/dev/settings.py` references
+> `django_resaas.core.middleware.frontend.FrontEndMiddleware` (no underscore), but the real
+> module is `django_resaas.core.middleware.front_end` (with an underscore). Uncommenting
+> that line as written would raise `ModuleNotFoundError` - the dotted path needs the
+> underscore added before this middleware can actually be enabled.

@@ -40,6 +40,68 @@ business transaction that created it is never affected either way.
 A configured provider (env vars present) does **not** imply a channel is active — that's a
 separate, explicit `NotificationSettings` flag.
 
+## Quick start — your first rule
+
+One `python manage.py shell` session against a tenant that already exists (an
+`Entity`/`Branch`, plus an active `EntityApp` for whatever `module` you use below — see
+[Creating a resource](../development/creating-resource.md) if you don't have one yet).
+Nothing sends until the very last step, because every layer defaults to off:
+
+```python
+from django_resaas.notifications.models import (
+    NotificationRule, NotificationTemplate, NotificationSettings,
+)
+from django_resaas.notifications.enums import Channel, Category
+
+# 1. Turn the channel on for this entity — no row at all means the channel is off.
+NotificationSettings.objects.create(entity=entity, email_enabled=True)
+
+# 2. The rule — enabled=True has to be passed explicitly, it defaults to False.
+rule = NotificationRule.objects.create(
+    entity=entity,
+    event="sales.sale.confirmed",
+    module="sales",                              # checked against EntityApp, like any other resource
+    channel=Channel.EMAIL,
+    category=Category.TRANSACTIONAL,
+    enabled=True,
+    recipient_strategy="field_path",
+    recipient_config={"field_path": "customer"},  # reads sale.customer
+)
+
+# 3. A template (language=None is this rule's default/fallback template).
+NotificationTemplate.objects.create(
+    rule=rule,
+    subject="Sale {{ sale_number }} confirmed",
+    body="Hi {{ recipient.email }}, your sale {{ sale_number }} for {{ total }} is confirmed.",
+)
+```
+
+Then emit the event exactly as real business code would (see
+[Emitting a business event](#emitting-a-business-event) for what `instance=` does here):
+
+```python
+from django.db import transaction
+from django_resaas.core.events import EventDispatcher
+
+with transaction.atomic():
+    EventDispatcher.emit(
+        "sales.sale.confirmed",
+        instance=sale,
+        context={"total": str(sale.total), "sale_number": sale.number},
+    )
+```
+
+With `NOTIFICATIONS_ENABLED=True` and a Celery worker running, that's it. Without a worker
+running yet, inspect the row it created directly:
+
+```python
+from django_resaas.notifications.models import NotificationOutbox
+
+NotificationOutbox.objects.filter(event="sales.sale.confirmed").values(
+    "status", "recipient_identity", "subject", "attempts"
+)
+```
+
 ## Emitting a business event
 
 `django_resaas` core never imports business models — `EventDispatcher` only ever sees an event
@@ -141,6 +203,63 @@ at `OUTBOX_RETRY_MAX_SECONDS`) up to `OUTBOX_MAX_ATTEMPTS`. Invalid email/E.164 
 provider, or a `ProviderPermanentError`/`ProviderConfigurationError` all fail immediately with no
 retry; timeouts/connection errors/429/5xx are treated as transient.
 
+## Worked example, step by step
+
+The same flow as Quick Start, spelled out at the level of what actually happens where —
+useful when something doesn't fire and you need to know which step to check:
+
+1. `SaleService.confirm(...)` changes business state, still inside `transaction.atomic()`.
+2. `EventDispatcher.emit("sales.sale.confirmed", instance=sale, ...)` runs synchronously,
+   in-process — builds the serializable payload and calls every registered listener.
+3. `NotificationEngine.on_event(payload)` (registered in `NotificationsConfig.ready()`) finds
+   the matching, `enabled=True` `NotificationRule` for this `(entity, event)`.
+4. `conditions` evaluated against the payload's context + resolved object — a `False` result
+   stops here, no Outbox, no error.
+5. `recipient_strategy` resolves one or more `Recipient`s; `NotificationSettings` (channel
+   enabled?) and `NotificationPreference` (consent) are checked per recipient.
+6. `NotificationTemplate` picked for the recipient's language and rendered — `subject`/`body`
+   are now plain strings, not templates anymore.
+7. `NotificationOutbox.objects.get_or_create(idempotency_key=..., defaults={...})` — still
+   inside the same transaction as step 1.
+8. `transaction.atomic()` exits → **COMMIT**. The sale and the Outbox row commit together, or
+   neither does (see the rollback test in `test_outbox_transaction.py`).
+9. `transaction.on_commit(...)` fires `OutboxDispatcher.try_dispatch(outbox.id)` — claims the
+   row (`pending -> dispatching`) and calls `process_notification.delay(outbox.id)`.
+10. The Celery worker picks up the task, claims `dispatching -> processing`, creates a
+    `NotificationDeliveryAttempt`, calls `EmailProvider.send(...)`, and marks the row `sent`.
+
+**Same scenario, Redis offline at step 9**: `try_dispatch()` catches the broker error,
+releases the row back to `pending` instead of leaving it in `dispatching`, and returns —
+`SaleService.confirm()` already returned 200 to the caller at step 8, unaffected either way.
+Nothing happens until `dispatch_pending_notifications` (Celery Beat) next runs, finds the
+`pending` row (`scheduled_at <= now`), and repeats steps 9–10 — normally within
+`OUTBOX_RECOVERY_INTERVAL_SECONDS`, with no special-casing and no data loss.
+
+## Scheduled notifications
+
+`NotificationOutbox.scheduled_at` (default: now) is what both the fast path and periodic
+recovery actually check before dispatching a row — a row with a future `scheduled_at` is
+correctly left alone by `dispatch_pending_notifications` no matter how long a worker/Beat has
+been idle, exactly as the "reminder for tomorrow morning" use case needs. Pass it straight to
+`EventDispatcher.emit()`:
+
+```python
+from django.utils import timezone
+
+EventDispatcher.emit(
+    "saude.consulta.scheduled",
+    instance=consulta,
+    scheduled_at=consulta.datetime - timezone.timedelta(hours=24),  # remind 24h before
+)
+```
+
+> [!NOTE]
+> `scheduled_at` must be timezone-aware, same convention as any other Django datetime field.
+> It travels through the event payload as an ISO string (never a live `datetime`, see
+> [Emitting a business event](#emitting-a-business-event)) and is parsed back into the
+> `NotificationOutbox` row `NotificationEngine` creates. Omit it and the row gets the model's
+> own default — `now()` — exactly as before.
+
 ## Idempotency
 
 `NotificationOutbox.idempotency_key` (unique) is
@@ -171,8 +290,9 @@ provider directly, which is also how tests substitute `Fake*Provider`s.
   `NotificationTemplate.provider_metadata`'s `provider_template_name`/`provider_language` sends a
   pre-approved template instead of free text.
 
-None of these credentials are ever stored in the database, returned by the API, written to
-logs, or exposed in the Schema contract — env vars only.
+> [!WARNING]
+> None of these credentials are ever stored in the database, returned by the API, written to
+> logs, or exposed in the Schema contract — env vars only.
 
 ## Settings reference
 
@@ -245,19 +365,64 @@ row `sent` by hand. The only mutations are two permission-checked actions:
 and `POST .../outbox/<id>/cancel/` (codename `cancel_notificationoutbox`, only valid before
 `sent`). Django Admin registers all six models; Outbox/DeliveryAttempt are read-only there too.
 
-The `retry`/`cancel` permissions are `@resaas_action`-managed, which means their `Permission`
-rows only get created once `ActionSyncService.sync_registry()` runs *after*
-`django_resaas.notifications.views` has actually been imported (populating `VIEW_REGISTRY`) —
-run `python manage.py sync_actions` once, after the app has started at least once (e.g. after
-first `runserver`/first request, so the URLconf has loaded), to create them; then grant them to
-whichever group should have them like any other permission — neither step is automatic, exactly
-like every other `@resaas_action` in this framework (see [View registry](../architecture/registry.md)).
+> [!TIP]
+> The `retry`/`cancel` permissions are `@resaas_action`-managed, which means their
+> `Permission` rows only get created once `ActionSyncService.sync_registry()` runs *after*
+> `django_resaas.notifications.views` has actually been imported (populating
+> `VIEW_REGISTRY`) — run `python manage.py sync_actions` once, after the app has started at
+> least once (e.g. after first `runserver`/first request, so the URLconf has loaded), to
+> create them; then grant them to whichever group should have them like any other permission
+> — neither step is automatic, exactly like every other `@resaas_action` in this framework
+> (see [View registry](../architecture/registry.md)).
 
 `GET /api/notifications/catalog/` (plain `APIView`, additive, outside `ResaasSchemaBuilder`)
 lists supported channels/categories/priorities and this entity's configured events — for a
 future Quasar "Notification Settings" screen. Every model still gets its normal per-model
 Schema 1.0 contract for free via `class RESAAS: crud = True` — nothing changed in the shared
 schema builder.
+
+### Endpoints
+
+Routed exactly like every other autoloaded resource in this framework (`{module}/{name}/`,
+`module="notifications"` passed explicitly to `@register_view` — see
+[View registry](../architecture/registry.md)); prefix with wherever the host project mounts
+`django_resaas.urls` (`/api/` in this framework's own dev project):
+
+| Endpoint | Methods | Notes |
+|---|---|---|
+| `/api/notifications/rules/` | full CRUD | `NotificationRule` |
+| `/api/notifications/templates/` | full CRUD | `NotificationTemplate` |
+| `/api/notifications/preferences/` | full CRUD | `NotificationPreference` |
+| `/api/notifications/settings/` | full CRUD | `NotificationSettings` |
+| `/api/notifications/outbox/` | `GET` (list/retrieve) only | `NotificationOutbox` — 405 on write |
+| `/api/notifications/outbox/<id>/retry/` | `POST` | `retry_notificationoutbox` permission, `failed` only |
+| `/api/notifications/outbox/<id>/cancel/` | `POST` | `cancel_notificationoutbox` permission, pre-`sent` only |
+| `/api/notifications/deliveryattempt/` | `GET` (list/retrieve) only | `NotificationDeliveryAttempt` |
+| `/api/notifications/catalog/` | `GET` | channels/categories/priorities/configured events |
+
+Example — create a rule (`POST /api/notifications/rules/`, same headers as any other
+tenant-scoped request in this framework — `X-RESAAS-Context` + `L`, see
+[Multi-tenancy](../architecture/multi-tenancy.md)):
+
+```json
+{
+  "event": "sales.sale.confirmed",
+  "module": "sales",
+  "channel": "email",
+  "category": "transactional",
+  "enabled": true,
+  "recipient_strategy": "field_path",
+  "recipient_config": {"field_path": "customer"}
+}
+```
+
+Example — retry a failed row (`POST /api/notifications/outbox/<id>/retry/`, empty body):
+
+```json
+{
+  "id": "…", "status": "pending", "attempts": 2, "next_retry_at": null, "last_error": null
+}
+```
 
 ## Diagnosing and operating
 

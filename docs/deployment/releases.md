@@ -11,8 +11,10 @@ Always check whether one is already open, before doing anything else:
 git branch -a | grep release
 ```
 
-Starting a second release branch while one is still open is the single most common way this
-process goes wrong — see [Troubleshooting](../troubleshooting/common-errors.md#release-already-exists).
+> [!WARNING]
+> Starting a second release branch while one is still open is the single most common way this
+> process goes wrong — see
+> [Troubleshooting](../troubleshooting/common-errors.md#release-already-exists).
 
 ## Flow
 
@@ -40,9 +42,11 @@ grep version pyproject.toml
 
 ## Important rule
 
-Bump the version **after** confirming no release is already pending, never before. A version-bump
-commit made before checking can end up on `develop` with no matching release branch to carry it —
-the version then says one thing while the actual released code says another.
+> [!WARNING]
+> Bump the version **after** confirming no release is already pending, never before. A
+> version-bump commit made before checking can end up on `develop` with no matching release
+> branch to carry it — the version then says one thing while the actual released code says
+> another.
 
 ## Diagnostics
 
