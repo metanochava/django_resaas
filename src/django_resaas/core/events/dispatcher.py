@@ -71,6 +71,7 @@ class EventDispatcher:
         actor_id=None,
         context=None,
         occurrence_id=None,
+        scheduled_at=None,
     ):
         """Emit a business event synchronously to every matching listener.
 
@@ -78,6 +79,14 @@ class EventDispatcher:
         (if it exposes them, e.g. a BaseModel subclass) and the
         {app_label, model, pk} object reference - the instance itself is
         discarded immediately after and never reaches a listener.
+
+        `scheduled_at`, when given (a timezone-aware `datetime` in the
+        future), flows through to any `NotificationOutbox` row(s) created
+        for this event - the dispatcher/recovery already leave a row with
+        a future `scheduled_at` alone (see notifications/outbox_dispatcher.py),
+        this is what lets a caller actually request that delay from the
+        event-emission call site instead of poking the Outbox row by hand.
+        Omitted (the default), rows get the model's own default of "now".
         """
 
         obj = build_object_ref(instance)
@@ -97,6 +106,7 @@ class EventDispatcher:
             obj=obj,
             context=context,
             occurrence_id=occurrence_id,
+            scheduled_at=scheduled_at,
         )
 
         for pattern, listener, propagate in cls._listeners:

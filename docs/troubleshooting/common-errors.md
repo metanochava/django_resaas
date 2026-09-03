@@ -38,8 +38,9 @@ The view has no `module_name` set at all — it was never decorated with `@regis
    `Permission.objects.filter(content_type__model="<model>", codename="<prefix>_<model>")`.
 2. Confirm the user's group has it, for the *current* branch — `check_permission()` resolves
    permissions per branch/entity/entity_type, not globally. See [Permissions](../security/permissions.md).
-3. Remember the per-request permission cache (`request._perm_cache`) only lives for that one
-   request — granting a permission takes effect on the next request, not retroactively.
+3. > [!TIP]
+   > The per-request permission cache (`request._perm_cache`) only lives for that one
+   > request — granting a permission takes effect on the next request, not retroactively.
 
 ## `django.core.exceptions.ValidationError` on save, mentioning "explicit entity and branch"
 

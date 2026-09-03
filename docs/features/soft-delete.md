@@ -40,9 +40,11 @@ Requires the `restore_<model>` permission.
 DELETE .../<id>/hard_delete/
 ```
 
-Permanently removes the row (bypasses `deleted_at` entirely). Same tenant-scoped lookup as
-restore. Requires the separate `hard_delete_<model>` permission — a group with only `delete_<model>`
-(soft delete) cannot hard-delete.
+> [!WARNING]
+> Permanently removes the row (bypasses `deleted_at` entirely) - there is no `restore` back
+> from this. Same tenant-scoped lookup as restore. Requires the separate
+> `hard_delete_<model>` permission — a group with only `delete_<model>` (soft delete) cannot
+> hard-delete.
 
 ## Direct model usage
 

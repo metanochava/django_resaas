@@ -9,9 +9,12 @@ It is served by `AppSchemaAPIView` (`management/apicommands/view/app_schema.py`)
 `.../<app>/<model>/schema/` endpoint, and is exercised end-to-end by the demo app in
 [`src/dev/demo`](../../src/dev/README.md).
 
-This document is the authoritative reference for that shape. It is protected by
-`src/django_resaas/core/schema/tests/test_builder.py` — any change to the JSON below must come
-with a matching test change, so drift between this doc and the real output is caught in CI.
+This document is the authoritative reference for that shape.
+
+> [!NOTE]
+> It is protected by `src/django_resaas/core/schema/tests/test_builder.py` — any change to
+> the JSON below must come with a matching test change, so drift between this doc and the
+> real output is caught in CI.
 
 ## Usage
 
@@ -32,9 +35,10 @@ schema = ResaasSchemaBuilder(Model=SomeModel, fields=serialized_field_list).buil
 - **Breaking changes** (removing/renaming a key, changing a field's type or meaning) require
   bumping `ResaasSchemaBuilder.SCHEMA_VERSION` to `"2.0"`. Consumers should check `schema_version`
   before relying on 2.0-only behavior.
-- `module` and `config` (see below) are **deprecated aliases** kept only for backward
-  compatibility with older consumers. New code should read `model.app` and `routes`/`ui.crud`
-  directly instead.
+> [!NOTE]
+> `module` and `config` (see below) are **deprecated aliases** kept only for backward
+> compatibility with older consumers. New code should read `model.app` and `routes`/`ui.crud`
+> directly instead.
 
 ## Shape
 
@@ -140,10 +144,13 @@ schema = ResaasSchemaBuilder(Model=SomeModel, fields=serialized_field_list).buil
 
 Every overridable section (`ui`, `filters`, `pagination`, `pdf`, `routes`) is a **shallow dict
 merge**: `{**default, **(configured or {})}`. Supplying `RESAAS.ui = {"dense": False}` only
-overrides `dense` — every other `ui` key keeps its default. This is why a consumer should never
-re-declare these defaults locally (see [`docs/api/public-api-reference.md`](public-api-reference.md)
-and the frontend's `quasar_resaas` `utils/schema.js`, which now imports these constants instead of
-re-declaring them) — the backend is the single source of truth for what "unset" means.
+overrides `dense` — every other `ui` key keeps its default.
+
+> [!TIP]
+> A consumer should never re-declare these defaults locally (see
+> [`docs/api/public-api-reference.md`](public-api-reference.md) and the frontend's
+> `quasar_resaas` `utils/schema.js`, which now imports these constants instead of re-declaring
+> them) — the backend is the single source of truth for what "unset" means.
 
 ## Related
 

@@ -54,9 +54,10 @@ REST_FRAMEWORK = {
 }
 ```
 
-`hr` is not optional in practice: `django_resaas/urls.py` unconditionally includes `hr.urls`, so
-any project installing `django_resaas` needs `hr` installed too — see
-[`modules/hr-overview.md`](../modules/hr-overview.md).
+> [!NOTE]
+> `hr` is not optional in practice: `django_resaas/urls.py` unconditionally includes
+> `hr.urls`, so any project installing `django_resaas` needs `hr` installed too — see
+> [`modules/hr-overview.md`](../modules/hr-overview.md).
 
 `TenantContextMiddleware` and `FileAccessMiddleware` are the two middleware classes enabled by
 default — see [`architecture/middleware.md`](../architecture/middleware.md) for what each one
@@ -93,11 +94,13 @@ python manage.py create_entity   # interactive: superuser + tenant + Admin group
 python manage.py migrate         # again - see below
 ```
 
-The second `migrate` is not a typo. CRUD permissions (`list_<model>`, `add_<model>`, ...) are
-created by a `post_migrate` signal that no-ops until at least one `EntityType` exists —
-`create_entity` is what creates the first one. Re-running `migrate` (idempotent — it applies no
-new migrations) fires that signal again now that the guard condition is met. Skip this step and
-every request will fail authorization with no permissions available to grant to any group.
+> [!WARNING]
+> The second `migrate` is not a typo. CRUD permissions (`list_<model>`, `add_<model>`, ...)
+> are created by a `post_migrate` signal that no-ops until at least one `EntityType` exists —
+> `create_entity` is what creates the first one. Re-running `migrate` (idempotent — it
+> applies no new migrations) fires that signal again now that the guard condition is met.
+> Skip this step and every request will fail authorization with no permissions available to
+> grant to any group.
 
 `create_root` is the alternative, non-interactive-friendlier bootstrap for a brand-new
 environment (superuser + full default tenant structure in one command); `create_entity` is for

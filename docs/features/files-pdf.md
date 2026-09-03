@@ -43,8 +43,10 @@ class DocumentSerializer(BaseSerializer):
         fields = "__all__"
 ```
 
-If either the relevant `FILE_TOKEN.ENABLE_*` setting is off or `FILE_TOKEN.KEY` isn't configured,
-`FullPath.url()` returns `None` for that field rather than an unprotected URL.
+> [!NOTE]
+> If either the relevant `FILE_TOKEN.ENABLE_*` setting is off or `FILE_TOKEN.KEY` isn't
+> configured, `FullPath.url()` returns `None` for that field rather than an unprotected URL —
+> fails closed, never falls back to exposing the file.
 
 ## Upload paths
 

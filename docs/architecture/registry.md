@@ -65,6 +65,8 @@ e.g. `hr/views/__init__.py`) as a side effect of building the router -
 see the comment at the top of `dev/urls.py` for why `build_saas_urls()`
 specifically runs *after* the `include(...)` calls. A process that never
 touches `ROOT_URLCONF` (a bare `manage.py migrate`, for instance) may
-never populate `VIEW_REGISTRY` at all, in which case
-`sync_resaas_actions` (the `post_migrate` receiver) silently no-ops -
-this is a known limitation, not something this phase changed.
+never populate `VIEW_REGISTRY` at all.
+
+> [!NOTE]
+> When that happens, `sync_resaas_actions` (the `post_migrate` receiver) silently no-ops -
+> this is a known limitation, not something this phase changed.

@@ -147,8 +147,10 @@ app, _ = App.objects.get_or_create(name="your_app", defaults={"state": "Active"}
 EntityApp.objects.get_or_create(entity=my_entity, app=app, defaults={"state": "Active"})
 ```
 
-Without this, every request to `your_app`'s endpoints 403s for that tenant before the queryset is
-ever touched — see [BaseAPIView#module-activation](../api/base-api-view.md#module-activation).
+> [!WARNING]
+> Without this, every request to `your_app`'s endpoints 403s for that tenant before the
+> queryset is ever touched — see
+> [BaseAPIView#module-activation](../api/base-api-view.md#module-activation).
 
 ## 6. Permissions
 

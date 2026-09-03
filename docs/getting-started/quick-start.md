@@ -86,9 +86,10 @@ app, _ = App.objects.get_or_create(name="your_app", defaults={"state": "Active"}
 EntityApp.objects.get_or_create(entity=my_entity, app=app, defaults={"state": "Active"})
 ```
 
-Without this, `BaseAPIView.initial()` rejects every request to `your_app`'s endpoints with a 403,
-for every tenant that hasn't run it — see
-[BaseAPIView#module-activation](../api/base-api-view.md#module-activation).
+> [!WARNING]
+> Without this, `BaseAPIView.initial()` rejects every request to `your_app`'s endpoints with
+> a 403, for every tenant that hasn't run it — see
+> [BaseAPIView#module-activation](../api/base-api-view.md#module-activation).
 
 ## 5. Call it
 

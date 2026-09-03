@@ -66,8 +66,10 @@ language/frontend/translation baseline data.
 python manage.py check
 ```
 
-As of the Phase 2 cleanup, this runs Django's own system check framework (`django.core.checks`).
-Previously, a project-local command was shadowing it under the same name.
+> [!NOTE]
+> As of the Phase 2 cleanup, this runs Django's own system check framework
+> (`django.core.checks`). Previously, a project-local command was shadowing it under the
+> same name — see `check_metano` below for where that renamed to.
 
 ## `check_metano`
 

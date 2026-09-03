@@ -78,9 +78,12 @@ raises `PermissionDenied` immediately, before `module_name`/permission checks ev
 - see [`../development/creating-resource.md`](../development/creating-resource.md))
 and checks `EntityApp.objects.filter(entity_id=request.entity_id,
 app__name=module_name, state="Active").exists()` before anything else
-runs. A view without `module_name` set, or a tenant that hasn't activated
-that module, gets rejected before the queryset is ever touched - see
-`src/django_resaas/tests/test_module_activation.py`.
+runs.
+
+> [!WARNING]
+> A view without `module_name` set, or a tenant that hasn't activated that module, gets
+> rejected before the queryset is ever touched - see
+> `src/django_resaas/tests/test_module_activation.py`.
 
 ## Search, filters, pagination
 
