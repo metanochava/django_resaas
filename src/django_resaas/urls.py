@@ -39,6 +39,8 @@ from django_resaas.engine.data.user.views.request_password_reset_email import Re
 from django_resaas.engine.data.user.views.password_token_check import PasswordTokenCheckAPIView
 from django_resaas.engine.data.user.views.set_new_password import SetNewPasswordAPIView
 from django_resaas.engine.data.user.views.mail import MailAPIView
+from django_resaas.engine.data.user.views.register import RegisterAPIView
+from django_resaas.engine.data.user.views.register_otp import RequestRegisterOTPView
 
 # ─────────────────────────────
 # Data / API views
@@ -152,6 +154,9 @@ urlpatterns = [
     path("refresh_token/", TokenRefreshView.as_view(), name="token_refresh"),
 
     path("logins/", LoginsAPIView.as_view(), name="logins"),
+
+    path("register/", RegisterAPIView.as_view(), name="register"),
+    path("register/otp/request/", RequestRegisterOTPView.as_view(), name="register_otp_request"),
 
     path("password/change/email/", ChangePasswordEmailAPIView.as_view(), name="change_password_email"),
     path("password/change/mobile/", ChangePasswordMobileAPIView.as_view(), name="change_password_mobile"),
