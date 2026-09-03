@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_resaas.core.base.views import BaseAPIView, register_view
+from django_resaas.engine.core.base.views import BaseAPIView, register_view
 
 from django_resaas.notifications.models import NotificationDeliveryAttempt
 from django_resaas.notifications.serializers import (

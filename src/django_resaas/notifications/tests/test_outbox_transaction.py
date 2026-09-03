@@ -5,7 +5,7 @@ be called synchronously in the request/business-transaction path."""
 import pytest
 from django.db import transaction
 
-from django_resaas.core.events import EventDispatcher
+from django_resaas.engine.core.events import EventDispatcher
 from django_resaas.notifications.enums import OutboxStatus
 from django_resaas.notifications.models import NotificationOutbox
 from django_resaas.notifications.outbox_dispatcher import OutboxDispatcher

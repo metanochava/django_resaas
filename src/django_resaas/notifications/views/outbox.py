@@ -3,8 +3,8 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_resaas.core.base.views import BaseAPIView, register_view
-from django_resaas.core.decorators.action import resaas_action
+from django_resaas.engine.core.base.views import BaseAPIView, register_view
+from django_resaas.engine.core.decorators.action import resaas_action
 
 from django_resaas.notifications.enums import OutboxStatus
 from django_resaas.notifications.exceptions import InvalidTransitionError

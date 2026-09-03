@@ -2,7 +2,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django_resaas.core.base.views import register_view
+from django_resaas.engine.core.base.views import register_view
 from django_resaas.notifications.enums import Category, Channel, Priority
 from django_resaas.notifications.models import NotificationRule
 

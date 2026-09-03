@@ -165,7 +165,7 @@ def resolve_branch_admin(ctx: ResolverContext):
     resolver in modules that have a more precise notion of branch admin.
     """
 
-    from django_resaas.models.branch_user_group import BranchUserGroup
+    from django_resaas.engine.models.branch_user_group import BranchUserGroup
 
     branch = getattr(ctx.rule, "branch", None)
     if branch is None:
@@ -182,7 +182,7 @@ def resolve_branch_admin(ctx: ResolverContext):
         .distinct()
     )
 
-    from django_resaas.models.user import User
+    from django_resaas.engine.models.user import User
 
     recipients = []
     for user in User.objects.filter(id__in=list(users)):

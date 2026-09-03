@@ -4,7 +4,7 @@ events/tasks never produce duplicate sends."""
 
 import pytest
 
-from django_resaas.core.events import EventDispatcher
+from django_resaas.engine.core.events import EventDispatcher
 from django_resaas.notifications.enums import ErrorType, OutboxStatus
 from django_resaas.notifications.exceptions import (
     ProviderPermanentError,
