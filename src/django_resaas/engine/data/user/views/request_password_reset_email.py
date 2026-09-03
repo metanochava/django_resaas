@@ -12,6 +12,7 @@ from django_resaas.engine.data.user.serializers.request_password_reset_email imp
 )
 from django_resaas.engine.core.utils.translate import Translate
 from django_resaas.engine.core.utils.templates import render_email_template
+from django_resaas.engine.core.utils.email_branding import resolve_email_branding
 
 
 class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
@@ -51,12 +52,29 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
                 f'?redirect_url={redirect_url}'
             )
 
+            entity_name, logo_url = resolve_email_branding(request)
+
             html_message = render_email_template(
                 'PASSWORD_RESET',
                 {
                     'link': reset_link,
-                    'username': user.username,
-                    'logo': 'logo',
+                    'entity_name': entity_name,
+                    'logo': logo_url,
+                    'greeting': Translate.tdc(request, 'Hi {username},').format(
+                        username=user.username
+                    ),
+                    'intro': Translate.tdc(
+                        request,
+                        'We received a request to reset your password. '
+                        'Click the button below to choose a new one.'
+                    ),
+                    'button_label': Translate.tdc(request, 'Reset password'),
+                    'ignore_notice': Translate.tdc(
+                        request, "If you didn't request this, you can safely ignore this email."
+                    ),
+                    'footer_notice': Translate.tdc(
+                        request, 'This is an automated message, please do not reply.'
+                    ),
                 }
             )
 

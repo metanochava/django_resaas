@@ -33,6 +33,11 @@ class EmailProvider(BaseNotificationProvider):
                 from_email=getattr(settings, "DEFAULT_FROM_EMAIL", None),
                 to=[recipient],
             )
+
+            html = (metadata or {}).get("html")
+            if html:
+                message.attach_alternative(html, "text/html")
+
             sent = message.send(fail_silently=False)
         except Exception as exc:
             # SMTP connection issues are transient by nature.

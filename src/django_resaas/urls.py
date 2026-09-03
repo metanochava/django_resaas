@@ -41,6 +41,10 @@ from django_resaas.engine.data.user.views.set_new_password import SetNewPassword
 from django_resaas.engine.data.user.views.mail import MailAPIView
 from django_resaas.engine.data.user.views.register import RegisterAPIView
 from django_resaas.engine.data.user.views.register_otp import RequestRegisterOTPView
+from django_resaas.engine.data.user.views.profile_contact_otp import (
+    RequestProfileContactOTPView,
+    ConfirmProfileContactOTPView,
+)
 
 # ─────────────────────────────
 # Data / API views
@@ -157,6 +161,17 @@ urlpatterns = [
 
     path("register/", RegisterAPIView.as_view(), name="register"),
     path("register/otp/request/", RequestRegisterOTPView.as_view(), name="register_otp_request"),
+
+    path(
+        "profile/contact/otp/request/",
+        RequestProfileContactOTPView.as_view(),
+        name="profile_contact_otp_request",
+    ),
+    path(
+        "profile/contact/otp/confirm/",
+        ConfirmProfileContactOTPView.as_view(),
+        name="profile_contact_otp_confirm",
+    ),
 
     path("password/change/email/", ChangePasswordEmailAPIView.as_view(), name="change_password_email"),
     path("password/change/mobile/", ChangePasswordMobileAPIView.as_view(), name="change_password_mobile"),
