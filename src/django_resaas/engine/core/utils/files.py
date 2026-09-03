@@ -26,7 +26,7 @@ class UploadPath:
 
     def deconstruct(self):
         return (
-            "django_resaas.core.utils.files.UploadPath",
+            "django_resaas.engine.core.utils.files.UploadPath",
             [],
             {"pasta": self.pasta},
         )
