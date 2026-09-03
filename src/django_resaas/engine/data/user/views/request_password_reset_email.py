@@ -1,6 +1,5 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse
 from django.utils.encoding import smart_bytes
 from django.utils.http import urlsafe_base64_encode
 
@@ -37,14 +36,6 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
             )
             token = PasswordResetTokenGenerator().make_token(user)
 
-            relative_link = reverse(
-                'password-reset-confirm',
-                kwargs={
-                    'uidb64': uidb64,
-                    'token': token
-                }
-            )
-
             redirect_url = request.data.get('redirect_url', '')
 
             base_url = request.META.get(
@@ -52,9 +43,12 @@ class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
                 'http://mws.mytech.co.mz'
             )
 
+            # Points straight at a frontend route (SPA hash routing) -
+            # no backend reverse() involved, so there's no URL name to
+            # keep in sync between the two.
             reset_link = (
-                f'{base_url}/#/resetpassword'
-                f'{relative_link}?redirect_url={redirect_url}'
+                f'{base_url}/#/resetpassword/{uidb64}/{token}'
+                f'?redirect_url={redirect_url}'
             )
 
             html_message = render_email_template(

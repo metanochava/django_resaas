@@ -16,6 +16,10 @@ API = os.environ.get("START_API_URL")
 # --------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-dev-only-change-me")
+# Key used to derive OTP secrets (registration + mobile password reset).
+# Falls back to SECRET_KEY so it's never unset/crashing, but is
+# independently overridable via env for real deployments.
+OTP_KEY = os.environ.get("OTP_KEY", SECRET_KEY)
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'django_resaas.User'
 DEBUG = int(os.environ.get("DEBUG", default=0))
