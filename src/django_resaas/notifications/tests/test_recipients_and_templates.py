@@ -4,7 +4,7 @@ no provider call, and the recipient resolver registry is extensible."""
 
 import pytest
 
-from django_resaas.core.events import EventDispatcher
+from django_resaas.engine.core.events import EventDispatcher
 from django_resaas.notifications.enums import ErrorType, OutboxStatus
 from django_resaas.notifications.models import NotificationOutbox
 from django_resaas.notifications.recipients import Recipient, RecipientResolverRegistry

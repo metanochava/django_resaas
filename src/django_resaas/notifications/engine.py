@@ -340,7 +340,7 @@ class NotificationEngine:
 
     @classmethod
     def _module_active(cls, rule):
-        from django_resaas.models.entity_app import EntityApp
+        from django_resaas.engine.models.entity_app import EntityApp
 
         return EntityApp.objects.filter(
             entity__id=rule.entity_id,
@@ -411,7 +411,7 @@ class NotificationEngine:
         if not user_id:
             return None
 
-        from django_resaas.models.user import User
+        from django_resaas.engine.models.user import User
 
         return User.objects.filter(id=user_id).first()
 

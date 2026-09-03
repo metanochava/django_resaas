@@ -3,7 +3,7 @@ the "global" recovery task."""
 
 import pytest
 
-from django_resaas.core.events import EventDispatcher
+from django_resaas.engine.core.events import EventDispatcher
 from django_resaas.notifications.enums import Channel
 from django_resaas.notifications.models import NotificationOutbox, NotificationRule
 from django_resaas.notifications.outbox_dispatcher import OutboxDispatcher

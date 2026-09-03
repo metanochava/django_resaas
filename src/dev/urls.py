@@ -19,7 +19,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from django_resaas.core.utils.autoload_urls import build_saas_urls
+from django_resaas.engine.core.utils.autoload_urls import build_saas_urls
 
 urlpatterns = [
     path('api/', include('django_resaas.urls')),

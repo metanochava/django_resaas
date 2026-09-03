@@ -1,4 +1,4 @@
-from django_resaas.core.base.views import BaseAPIView, registerView
+from django_resaas.engine.core.base.views import BaseAPIView, registerView
 
 from dev.demo.models import Product
 from dev.demo.serializers import ProductSerializer

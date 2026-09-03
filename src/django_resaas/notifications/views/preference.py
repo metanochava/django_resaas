@@ -1,4 +1,4 @@
-from django_resaas.core.base.views import BaseAPIView, register_view
+from django_resaas.engine.core.base.views import BaseAPIView, register_view
 
 from django_resaas.notifications.models import NotificationPreference
 from django_resaas.notifications.serializers import NotificationPreferenceSerializer

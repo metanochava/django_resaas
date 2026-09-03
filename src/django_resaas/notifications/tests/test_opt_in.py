@@ -4,7 +4,7 @@ in nothing being created."""
 
 import pytest
 
-from django_resaas.core.events import EventDispatcher
+from django_resaas.engine.core.events import EventDispatcher
 from django_resaas.notifications.enums import Category, Channel
 from django_resaas.notifications.models import (
     NotificationOutbox,

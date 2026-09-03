@@ -2,7 +2,7 @@
 
 import django.db.models.deletion
 import django.utils.timezone
-import django_resaas.core.base.mixins.model.label_value
+import django_resaas.engine.core.base.mixins.model.label_value
 import uuid
 from django.conf import settings
 from django.db import migrations, models
@@ -141,7 +141,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -309,7 +309,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -388,7 +388,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -476,7 +476,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -587,7 +587,7 @@ class Migration(migrations.Migration):
                 ],
             },
             bases=(
-                django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -695,7 +695,7 @@ class Migration(migrations.Migration):
                 ],
             },
             bases=(
-                django_resaas.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),

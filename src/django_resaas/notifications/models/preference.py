@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_resaas.core.base.models import TimeModel
+from django_resaas.engine.core.base.models import TimeModel
 from django_resaas.notifications.enums import Category, Channel
 
 

@@ -4,7 +4,7 @@ cancelled; a non-`failed` row can never be manually retried."""
 
 import pytest
 
-from django_resaas.core.events import EventDispatcher
+from django_resaas.engine.core.events import EventDispatcher
 from django_resaas.notifications.enums import OutboxStatus
 from django_resaas.notifications.models import NotificationOutbox
 
@@ -37,8 +37,8 @@ def _grant_outbox_action_permissions(notification_tenant):
 
     import django_resaas.notifications.views  # noqa: F401 - populate VIEW_REGISTRY
     from django.contrib.auth.models import Permission
-    from django_resaas.core.base.registry import VIEW_REGISTRY
-    from django_resaas.core.services.action_sync_service import ActionSyncService
+    from django_resaas.engine.core.base.registry import VIEW_REGISTRY
+    from django_resaas.engine.core.services.action_sync_service import ActionSyncService
 
     ActionSyncService.sync_registry(VIEW_REGISTRY)
 
