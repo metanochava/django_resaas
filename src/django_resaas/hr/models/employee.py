@@ -4,6 +4,28 @@ from django.core.exceptions import ValidationError
 from django_resaas.engine.core.base.models import BaseModel
 
 
+class EmploymentStatus(models.TextChoices):
+    ACTIVE = "active", "Active"
+    PROBATION = "probation", "Probation"
+    SUSPENDED = "suspended", "Suspended"
+    TERMINATED = "terminated", "Terminated"
+    RESIGNED = "resigned", "Resigned"
+    RETIRED = "retired", "Retired"
+
+
+class EmploymentType(models.TextChoices):
+    FULL_TIME = "full_time", "Full Time"
+    PART_TIME = "part_time", "Part Time"
+    CONTRACTOR = "contractor", "Contractor"
+    INTERN = "intern", "Intern"
+
+
+# An employee's manager chain is only ever a handful of levels deep in
+# practice; this bounds the cycle walk in clean() so corrupted data
+# (e.g. imported directly, bypassing clean()) can never spin forever.
+MAX_MANAGER_CHAIN_DEPTH = 50
+
+
 class Employee(BaseModel):
 
     # ==========================================
@@ -32,15 +54,47 @@ class Employee(BaseModel):
         related_name='employees'
     )
 
+    job_grade = models.ForeignKey(
+        'hr.JobGrade',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='employees'
+    )
+
     # ==========================================
     # CORE FIELDS
     # ==========================================
 
+    # Unique per Entity (see Meta.unique_together below), not globally -
+    # two different Entities may legitimately reuse the same scheme
+    # (e.g. both starting at EMP-2026-000001). blank=True so
+    # EmployeeAPIView.perform_create can auto-generate it via
+    # EmployeeNumberService when the caller doesn't supply one; existing
+    # rows already carry a value from before this field allowed blanks.
     code = models.CharField(
         max_length=50,
-        unique=True,
+        blank=True,
         db_index=True
     )
+
+    employment_status = models.CharField(
+        max_length=20,
+        choices=EmploymentStatus.choices,
+        default=EmploymentStatus.ACTIVE,
+        null=True,
+        blank=True,
+    )
+
+    employment_type = models.CharField(
+        max_length=20,
+        choices=EmploymentType.choices,
+        null=True,
+        blank=True,
+    )
+
+    work_email = models.EmailField(null=True, blank=True)
+    work_phone = models.CharField(max_length=30, null=True, blank=True)
 
     # ==========================================
     # DATES
@@ -66,6 +120,31 @@ class Employee(BaseModel):
             raise ValidationError({
                 "manager": "An employee cannot be their own manager."
             })
+
+        if self.manager_id:
+
+            current = self.manager
+            depth = 0
+
+            while current is not None:
+
+                depth += 1
+
+                if depth > MAX_MANAGER_CHAIN_DEPTH:
+                    raise ValidationError({
+                        "manager": "Manager chain is too deep - "
+                        "possible corrupted data."
+                    })
+
+                if self.pk is not None and current.pk == self.pk:
+                    raise ValidationError({
+                        "manager": "This assignment would create a "
+                        "management cycle (this employee already "
+                        "manages, directly or indirectly, the chosen "
+                        "manager)."
+                    })
+
+                current = current.manager
 
         if (
             self.hire_date and
@@ -94,8 +173,8 @@ class Employee(BaseModel):
     class Meta:
 
         unique_together = (
-            'person',
-            'branch'
+            ('person', 'branch'),
+            ('entity', 'code'),
         )
 
         indexes = [
@@ -124,11 +203,11 @@ class Employee(BaseModel):
 
             "code",
 
-            "person.name",
+            "person__name",
 
-            "person.surname",
+            "person__surname",
 
-            "person.full_name"
+            "person__full_name"
 
         ]
 

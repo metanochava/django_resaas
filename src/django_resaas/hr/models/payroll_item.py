@@ -24,7 +24,7 @@ class PayrollItem(BaseModel):
 
     class RESAAS:
         label_field = "description"
-        search_fields = ["description", "component.name"]
+        search_fields = ["description", "component__name"]
         crud = True
 
     def __str__(self):

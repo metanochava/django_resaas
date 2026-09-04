@@ -39,6 +39,17 @@ class JobPositionAdmin(BaseAdmin):
 
 
 # =========================
+# JOB GRADE
+# =========================
+from django_resaas.hr.models.job_grade import JobGrade
+
+@admin.register(JobGrade)
+class JobGradeAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
 # SPECIALTY
 # =========================
 from django_resaas.hr.models.specialty import Specialty
@@ -100,6 +111,17 @@ from django_resaas.hr.models.attendance import Attendance
 
 @admin.register(Attendance)
 class AttendanceAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# HOLIDAY
+# =========================
+from django_resaas.hr.models.holiday import Holiday
+
+@admin.register(Holiday)
+class HolidayAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
 

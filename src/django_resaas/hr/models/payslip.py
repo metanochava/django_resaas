@@ -14,8 +14,8 @@ class Payslip(BaseModel):
     file = models.FileField(upload_to=upload_path(), null=True, blank=True)
 
     class RESAAS:
-        label_field = "payroll.employee.person.full_name"
-        search_fields = ["payroll.employee.person.full_name"]
+        label_field = "payroll__employee__person__full_name"
+        search_fields = ["payroll__employee__person__full_name"]
         crud = True
 
     def __str__(self):

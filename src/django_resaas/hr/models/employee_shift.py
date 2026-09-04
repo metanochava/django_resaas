@@ -25,8 +25,8 @@ class EmployeeShift(BaseModel):
         unique_together = ('employee', 'shift', 'start_date')
 
     class RESAAS:
-        label_field = "employee.person.full_name"
-        search_fields = ["employee.person.full_name", "shift.name"]
+        label_field = "employee__person__full_name"
+        search_fields = ["employee__person__full_name", "shift__name"]
         crud = True
 
     def __str__(self):

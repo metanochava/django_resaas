@@ -3,6 +3,7 @@
 from .employee import Employee
 from .department import Department
 from .job_position import JobPosition
+from .job_grade import JobGrade
 from .contract import Contract
 
 from .specialty import Specialty
@@ -12,6 +13,7 @@ from .shift import Shift
 from .employee_shift import EmployeeShift
 from .shift_schedule import ShiftSchedule
 from .attendance import Attendance
+from .holiday import Holiday
 
 from .salary_component import SalaryComponent
 from .employee_salary import EmployeeSalary
