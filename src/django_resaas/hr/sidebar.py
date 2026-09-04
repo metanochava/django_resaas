@@ -170,4 +170,111 @@ SUBMENUS = [
         "add_route": "add_payslip",
         # "crud": {"module": "hr", "model": "Payslip"},
     },
+    {
+        "menu": "Leave Type",
+        "icon": "beach_access",
+        "role": "list_leavetype",
+        "route": "list_leavetype",
+        "add_role": "add_leavetype",
+        "add_route": "add_leavetype",
+        # "crud": {"module": "hr", "model": "LeaveType"},
+    },
+    {
+        "menu": "Leave Calendar",
+        "icon": "event_note",
+        "role": "list_leaverequest",
+        "route": "leave_calendar",
+        # No add_role/add_route on purpose: LeaveRequest has no generic
+        # add page - creation happens from EmployeeProfilePage's Leave
+        # tab (status/approval are workflow-controlled, not free CRUD -
+        # see hr/serializers/leave_request.py).
+    },
+    {
+        "menu": "Leave Approvals",
+        "icon": "fact_check",
+        "role": "approve_leaverequest",
+        "route": "leave_approvals",
+    },
+    {
+        "menu": "Leave Balance",
+        "icon": "account_balance_wallet",
+        "role": "list_leavebalanceentry",
+        "route": "list_leavebalanceentry",
+        "add_role": "add_leavebalanceentry",
+        "add_route": "add_leavebalanceentry",
+        # "crud": {"module": "hr", "model": "LeaveBalanceEntry"},
+    },
+    {
+        "menu": "Job Opening",
+        "icon": "work",
+        "role": "list_jobopening",
+        "route": "list_jobopening",
+        "add_role": "add_jobopening",
+        "add_route": "add_jobopening",
+        # "crud": {"module": "hr", "model": "JobOpening"},
+    },
+    {
+        "menu": "Candidate",
+        "icon": "person_search",
+        "role": "list_candidate",
+        "route": "list_candidate",
+        "add_role": "add_candidate",
+        "add_route": "add_candidate",
+        # "crud": {"module": "hr", "model": "Candidate"},
+    },
+    {
+        "menu": "Recruitment Pipeline",
+        "icon": "view_kanban",
+        "role": "list_application",
+        "route": "recruitment_pipeline",
+        # No add_role/add_route: the pipeline board itself doesn't create
+        # applications - see the "New application" action inside it
+        # (creates via the normal Application add form/route below).
+    },
+    {
+        "menu": "Application",
+        "icon": "assignment_ind",
+        "role": "list_application",
+        "route": "list_application",
+        "add_role": "add_application",
+        "add_route": "add_application",
+        # "crud": {"module": "hr", "model": "Application"},
+    },
+    {
+        "menu": "Interview",
+        "icon": "record_voice_over",
+        "role": "list_interview",
+        "route": "list_interview",
+        "add_role": "add_interview",
+        "add_route": "add_interview",
+        # "crud": {"module": "hr", "model": "Interview"},
+    },
+    {
+        "menu": "Onboarding Templates",
+        "icon": "checklist",
+        "role": "list_onboardingtemplate",
+        "route": "list_onboardingtemplate",
+        "add_role": "add_onboardingtemplate",
+        "add_route": "add_onboardingtemplate",
+        # "crud": {"module": "hr", "model": "OnboardingTemplate"},
+    },
+    {
+        "menu": "Onboarding Template Tasks",
+        "icon": "playlist_add_check",
+        "role": "list_onboardingtemplatetask",
+        "route": "list_onboardingtemplatetask",
+        "add_role": "add_onboardingtemplatetask",
+        "add_route": "add_onboardingtemplatetask",
+        # "crud": {"module": "hr", "model": "OnboardingTemplateTask"},
+    },
+    {
+        "menu": "Employee Onboardings",
+        "icon": "assignment_turned_in",
+        "role": "list_employeeonboarding",
+        "route": "list_employeeonboarding",
+        # No add_role/add_route on purpose: EmployeeOnboarding has no
+        # generic add page - creation only happens via
+        # EmployeeAPIView.start_onboarding (see hr/views/employee.py),
+        # normally from EmployeeProfilePage's Onboarding tab.
+    },
 ]

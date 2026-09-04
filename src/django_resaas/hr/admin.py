@@ -190,3 +190,124 @@ from django_resaas.hr.models.payslip import Payslip
 class PayslipAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+
+
+# =========================
+# LEAVE TYPE
+# =========================
+from django_resaas.hr.models.leave_type import LeaveType
+
+@admin.register(LeaveType)
+class LeaveTypeAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# LEAVE REQUEST
+# =========================
+from django_resaas.hr.models.leave_request import LeaveRequest
+
+@admin.register(LeaveRequest)
+class LeaveRequestAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# LEAVE BALANCE ENTRY
+# =========================
+from django_resaas.hr.models.leave_balance_entry import LeaveBalanceEntry
+
+@admin.register(LeaveBalanceEntry)
+class LeaveBalanceEntryAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# JOB OPENING
+# =========================
+from django_resaas.hr.models.job_opening import JobOpening
+
+@admin.register(JobOpening)
+class JobOpeningAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# CANDIDATE
+# =========================
+from django_resaas.hr.models.candidate import Candidate
+
+@admin.register(Candidate)
+class CandidateAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# APPLICATION
+# =========================
+from django_resaas.hr.models.application import Application
+
+@admin.register(Application)
+class ApplicationAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# INTERVIEW
+# =========================
+from django_resaas.hr.models.interview import Interview
+
+@admin.register(Interview)
+class InterviewAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# ONBOARDING TEMPLATE
+# =========================
+from django_resaas.hr.models.onboarding_template import OnboardingTemplate
+
+@admin.register(OnboardingTemplate)
+class OnboardingTemplateAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# ONBOARDING TEMPLATE TASK
+# =========================
+from django_resaas.hr.models.onboarding_template_task import OnboardingTemplateTask
+
+@admin.register(OnboardingTemplateTask)
+class OnboardingTemplateTaskAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# EMPLOYEE ONBOARDING
+# =========================
+from django_resaas.hr.models.employee_onboarding import EmployeeOnboarding
+
+@admin.register(EmployeeOnboarding)
+class EmployeeOnboardingAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# EMPLOYEE ONBOARDING TASK
+# =========================
+from django_resaas.hr.models.employee_onboarding_task import EmployeeOnboardingTask
+
+@admin.register(EmployeeOnboardingTask)
+class EmployeeOnboardingTaskAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)

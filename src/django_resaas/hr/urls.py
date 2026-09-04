@@ -21,6 +21,17 @@ from django_resaas.hr.views import (
     PayrollAPIView,
     PayrollItemAPIView,
     PayslipAPIView,
+    LeaveTypeAPIView,
+    LeaveRequestAPIView,
+    LeaveBalanceEntryAPIView,
+    JobOpeningAPIView,
+    CandidateAPIView,
+    ApplicationAPIView,
+    InterviewAPIView,
+    OnboardingTemplateAPIView,
+    OnboardingTemplateTaskAPIView,
+    EmployeeOnboardingAPIView,
+    EmployeeOnboardingTaskAPIView,
 )
 
 
@@ -43,6 +54,17 @@ router.register("payrollperiods", PayrollPeriodAPIView, basename="payrollperiods
 router.register("payrolls", PayrollAPIView, basename="payrolls")
 router.register("payrollitems", PayrollItemAPIView, basename="payrollitems")
 router.register("payslips", PayslipAPIView, basename="payslips")
+router.register("leavetypes", LeaveTypeAPIView, basename="leavetypes")
+router.register("leaverequests", LeaveRequestAPIView, basename="leaverequests")
+router.register("leavebalanceentries", LeaveBalanceEntryAPIView, basename="leavebalanceentries")
+router.register("jobopenings", JobOpeningAPIView, basename="jobopenings")
+router.register("candidates", CandidateAPIView, basename="candidates")
+router.register("applications", ApplicationAPIView, basename="applications")
+router.register("interviews", InterviewAPIView, basename="interviews")
+router.register("onboardingtemplates", OnboardingTemplateAPIView, basename="onboardingtemplates")
+router.register("onboardingtemplatetasks", OnboardingTemplateTaskAPIView, basename="onboardingtemplatetasks")
+router.register("employeeonboardings", EmployeeOnboardingAPIView, basename="employeeonboardings")
+router.register("employeeonboardingtasks", EmployeeOnboardingTaskAPIView, basename="employeeonboardingtasks")
 
 urlpatterns = [
     path("", include(router.urls)),
