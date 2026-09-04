@@ -32,6 +32,11 @@ from django_resaas.hr.views import (
     OnboardingTemplateTaskAPIView,
     EmployeeOnboardingAPIView,
     EmployeeOnboardingTaskAPIView,
+    PerformanceCycleAPIView,
+    CompetencyAPIView,
+    EmployeeGoalAPIView,
+    PerformanceReviewAPIView,
+    ReviewCompetencyRatingAPIView,
 )
 
 
@@ -65,6 +70,11 @@ router.register("onboardingtemplates", OnboardingTemplateAPIView, basename="onbo
 router.register("onboardingtemplatetasks", OnboardingTemplateTaskAPIView, basename="onboardingtemplatetasks")
 router.register("employeeonboardings", EmployeeOnboardingAPIView, basename="employeeonboardings")
 router.register("employeeonboardingtasks", EmployeeOnboardingTaskAPIView, basename="employeeonboardingtasks")
+router.register("performancecycles", PerformanceCycleAPIView, basename="performancecycles")
+router.register("competencies", CompetencyAPIView, basename="competencies")
+router.register("employeegoals", EmployeeGoalAPIView, basename="employeegoals")
+router.register("performancereviews", PerformanceReviewAPIView, basename="performancereviews")
+router.register("reviewcompetencyratings", ReviewCompetencyRatingAPIView, basename="reviewcompetencyratings")
 
 urlpatterns = [
     path("", include(router.urls)),

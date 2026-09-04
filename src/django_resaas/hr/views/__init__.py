@@ -42,3 +42,9 @@ from .onboarding_template import OnboardingTemplateAPIView
 from .onboarding_template_task import OnboardingTemplateTaskAPIView
 from .employee_onboarding import EmployeeOnboardingAPIView
 from .employee_onboarding_task import EmployeeOnboardingTaskAPIView
+
+from .performance_cycle import PerformanceCycleAPIView
+from .competency import CompetencyAPIView
+from .employee_goal import EmployeeGoalAPIView
+from .performance_review import PerformanceReviewAPIView
+from .review_competency_rating import ReviewCompetencyRatingAPIView
