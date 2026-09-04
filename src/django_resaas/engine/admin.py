@@ -78,12 +78,14 @@ class DocumentInline(GenericTabularInline):
 @admin.register(DocumentType)
 class DocumentTypeAdmin(BaseAdmin):
     list_display = ('name', 'detalhes')
+    search_fields = ("__all__",)
 
 
 @admin.register(Document)
 class DocumentAdmin(BaseAdmin):
     list_display = ('tipo', 'numero', 'data_emissao', 'data_validade')
     list_filter = ('tipo',)
+    search_fields = ("__all__",)
 
 
 # =========================
@@ -92,11 +94,10 @@ class DocumentAdmin(BaseAdmin):
 @admin.register(ResaasGroup)
 class GroupAdmin(BaseAdmin):
     filter_horizontal = ('permissions',)
-
     def get_list_display(self, request):
         return all_fields(self.model)
-
     list_display_links = ('id',)
+    search_fields = ("__all__",)
 
 
 # =========================

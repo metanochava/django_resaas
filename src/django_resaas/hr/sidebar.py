@@ -135,6 +135,15 @@ SUBMENUS = [
         # "crud": {"module": "hr", "model": "EmployeeSalary"},
     },
     {
+        "menu": "Employee Salary Component",
+        "icon": "money",
+        "role": "list_employeesalarycomponent",
+        "route": "list_employeesalarycomponent",
+        "add_role": "add_employeesalarycomponent",
+        "add_route": "add_employeesalarycomponent",
+        # "crud": {"module": "hr", "model": "EmployeeSalaryComponent"},
+    },
+    {
         "menu": "Payroll Period",
         "icon": "date_range",
         "role": "list_payrollperiod",
@@ -142,6 +151,15 @@ SUBMENUS = [
         "add_role": "add_payrollperiod",
         "add_route": "add_payrollperiod",
         # "crud": {"module": "hr", "model": "PayrollPeriod"},
+    },
+    {
+        "menu": "Payroll Run",
+        "icon": "play_circle",
+        "role": "list_payrollperiod",
+        "route": "payroll_run",
+        # No add_role/add_route: this is the controlled Generate -> Review
+        # -> Confirm workflow (pedido secção 78), not a generic CRUD add
+        # page - see pages/hr/payroll/PayrollRunPage.vue.
     },
     {
         "menu": "Payroll",

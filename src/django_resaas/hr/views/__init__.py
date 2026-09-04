@@ -22,6 +22,7 @@ from .holiday import HolidayAPIView
 
 from .salary_component import SalaryComponentAPIView
 from .employee_salary import EmployeeSalaryAPIView
+from .employee_salary_component import EmployeeSalaryComponentAPIView
 
 from .payroll_period import PayrollPeriodAPIView
 from .payroll import PayrollAPIView

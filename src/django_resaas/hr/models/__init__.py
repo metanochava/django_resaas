@@ -17,6 +17,7 @@ from .holiday import Holiday
 
 from .salary_component import SalaryComponent
 from .employee_salary import EmployeeSalary
+from .employee_salary_component import EmployeeSalaryComponent
 
 from .payroll_period import PayrollPeriod
 from .payroll import Payroll
