@@ -43,3 +43,8 @@ from .competency import Competency
 from .employee_goal import EmployeeGoal
 from .performance_review import PerformanceReview
 from .review_competency_rating import ReviewCompetencyRating
+
+from .course import Course
+from .training_session import TrainingSession
+from .employee_training import EmployeeTraining
+from .certification import Certification

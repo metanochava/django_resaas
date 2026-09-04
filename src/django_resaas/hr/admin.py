@@ -365,3 +365,47 @@ from django_resaas.hr.models.review_competency_rating import ReviewCompetencyRat
 class ReviewCompetencyRatingAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+
+
+# =========================
+# COURSE
+# =========================
+from django_resaas.hr.models.course import Course
+
+@admin.register(Course)
+class CourseAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# TRAINING SESSION
+# =========================
+from django_resaas.hr.models.training_session import TrainingSession
+
+@admin.register(TrainingSession)
+class TrainingSessionAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# EMPLOYEE TRAINING
+# =========================
+from django_resaas.hr.models.employee_training import EmployeeTraining
+
+@admin.register(EmployeeTraining)
+class EmployeeTrainingAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# CERTIFICATION
+# =========================
+from django_resaas.hr.models.certification import Certification
+
+@admin.register(Certification)
+class CertificationAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)

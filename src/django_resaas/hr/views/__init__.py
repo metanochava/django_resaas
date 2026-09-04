@@ -48,3 +48,8 @@ from .competency import CompetencyAPIView
 from .employee_goal import EmployeeGoalAPIView
 from .performance_review import PerformanceReviewAPIView
 from .review_competency_rating import ReviewCompetencyRatingAPIView
+
+from .course import CourseAPIView
+from .training_session import TrainingSessionAPIView
+from .employee_training import EmployeeTrainingAPIView
+from .certification import CertificationAPIView

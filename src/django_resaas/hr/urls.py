@@ -37,6 +37,10 @@ from django_resaas.hr.views import (
     EmployeeGoalAPIView,
     PerformanceReviewAPIView,
     ReviewCompetencyRatingAPIView,
+    CourseAPIView,
+    TrainingSessionAPIView,
+    EmployeeTrainingAPIView,
+    CertificationAPIView,
 )
 
 
@@ -75,6 +79,10 @@ router.register("competencies", CompetencyAPIView, basename="competencies")
 router.register("employeegoals", EmployeeGoalAPIView, basename="employeegoals")
 router.register("performancereviews", PerformanceReviewAPIView, basename="performancereviews")
 router.register("reviewcompetencyratings", ReviewCompetencyRatingAPIView, basename="reviewcompetencyratings")
+router.register("courses", CourseAPIView, basename="courses")
+router.register("trainingsessions", TrainingSessionAPIView, basename="trainingsessions")
+router.register("employeetrainings", EmployeeTrainingAPIView, basename="employeetrainings")
+router.register("certifications", CertificationAPIView, basename="certifications")
 
 urlpatterns = [
     path("", include(router.urls)),
