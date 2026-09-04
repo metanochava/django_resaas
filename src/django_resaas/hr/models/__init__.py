@@ -23,3 +23,17 @@ from .payroll import Payroll
 from .payroll_item import PayrollItem
 
 from .payslip import Payslip
+
+from .leave_type import LeaveType
+from .leave_request import LeaveRequest
+from .leave_balance_entry import LeaveBalanceEntry
+
+from .job_opening import JobOpening
+from .candidate import Candidate
+from .application import Application
+from .interview import Interview
+
+from .onboarding_template import OnboardingTemplate
+from .onboarding_template_task import OnboardingTemplateTask
+from .employee_onboarding import EmployeeOnboarding
+from .employee_onboarding_task import EmployeeOnboardingTask

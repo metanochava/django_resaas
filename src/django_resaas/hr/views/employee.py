@@ -10,10 +10,13 @@ from django_resaas.engine.models.entity import Entity
 
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.attendance import AttendanceSource
+from django_resaas.hr.models.onboarding_template import OnboardingTemplate
 from django_resaas.hr.serializers.employee import EmployeeSerializer
 from django_resaas.hr.serializers.attendance import AttendanceSerializer
+from django_resaas.hr.serializers.employee_onboarding import EmployeeOnboardingSerializer
 from django_resaas.hr.services.employee_number_service import EmployeeNumberService
 from django_resaas.hr.services import attendance_service
+from django_resaas.hr.services import onboarding_service
 
 
 @registerView('employees', module='hr')
@@ -76,4 +79,39 @@ class EmployeeAPIView(BaseAPIView):
         return Response(
             AttendanceSerializer(attendance, context={"request": request}).data,
             status=status.HTTP_200_OK,
+        )
+
+    # =========================
+    # ONBOARDING
+    # =========================
+
+    @resaas_action(detail=True, methods=["post"])
+    def start_onboarding(self, request, *args, **kwargs):
+        employee = self.get_object()
+
+        template = None
+        template_id = request.data.get("template")
+
+        if template_id:
+            try:
+                template = OnboardingTemplate.objects.get(
+                    id=template_id, entity_id=employee.entity_id,
+                )
+            except OnboardingTemplate.DoesNotExist:
+                return Response(
+                    {"detail": "Onboarding template not found for this entity."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        try:
+            with transaction.atomic():
+                onboarding = onboarding_service.start_onboarding(
+                    employee, template=template, actor=request.user
+                )
+        except onboarding_service.OnboardingError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            EmployeeOnboardingSerializer(onboarding, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
         )

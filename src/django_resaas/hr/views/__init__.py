@@ -28,3 +28,17 @@ from .payroll import PayrollAPIView
 from .payroll_item import PayrollItemAPIView
 
 from .payslip import PayslipAPIView
+
+from .leave_type import LeaveTypeAPIView
+from .leave_request import LeaveRequestAPIView
+from .leave_balance_entry import LeaveBalanceEntryAPIView
+
+from .job_opening import JobOpeningAPIView
+from .candidate import CandidateAPIView
+from .application import ApplicationAPIView
+from .interview import InterviewAPIView
+
+from .onboarding_template import OnboardingTemplateAPIView
+from .onboarding_template_task import OnboardingTemplateTaskAPIView
+from .employee_onboarding import EmployeeOnboardingAPIView
+from .employee_onboarding_task import EmployeeOnboardingTaskAPIView

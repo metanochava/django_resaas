@@ -25,6 +25,50 @@ the framework's point of view: `django_resaas/urls.py` unconditionally does
     `level`), assignable to an `Employee`.
 -   `SalaryComponent`, `EmployeeSalary` - configurable pay components per employee.
 -   `PayrollPeriod`, `Payroll`, `PayrollItem`, `Payslip` - payroll runs and their line items.
+-   `LeaveType` - per-Entity (Annual/Sick/Maternity/...), `is_paid` (drives whether a balance is
+    checked at all - see below), `requires_approval`, optional `default_days_per_year`.
+-   `LeaveRequest` - `employee`, `leave_type`, `start_date`/`end_date`, a server-computed `days`,
+    and a `status` state machine (`draft` → `pending` → `approved`/`rejected`/`cancelled`; an
+    already-`approved` request can still move to `cancelled`, which reverses its ledger entry -
+    every other terminal state has no outgoing transition). `status`/`days`/`approved_by`/
+    `approved_at`/`rejection_reason` are `read_only` on `LeaveRequestSerializer` - they only ever
+    change through the `submit`/`approve`/`reject`/`cancel` `@resaas_action`s below, never a plain
+    `PATCH`.
+-   `LeaveBalanceEntry` - a ledger (allocation/usage/adjustment/expiry rows), not a decremented
+    counter - an employee's balance for a `LeaveType` is always `sum(amount)` over their entries
+    (`leave_service.current_balance()`). `usage`/`expiry` entries can only be created by the
+    workflow below (`LeaveBalanceEntrySerializer` rejects them from a direct POST); `allocation`/
+    `adjustment` are legitimately manual (e.g. HR granting the yearly days).
+
+    No separate `LeavePolicy` model: `LeaveType.default_days_per_year` is enough for what Fase 3
+    actually needs (submit/approve against a balance) - accrual/expiry/minimum-notice rules are a
+    real future need, but a model with no consumer yet would just be dead weight (see the
+    project's own "não construir 50 models vazios" rule). Split it out once a phase actually reads
+    those extra rules.
+
+### `hr/services/leave_service.py`
+
+-   `calculate_business_days(entity, branch, start_date, end_date)` - counts days in the range
+    that are neither a weekend (Sat/Sun, hardcoded - a real per-Entity weekend-days setting is a
+    plausible future need, but nothing today reads one) nor a holiday
+    (`holiday_service.is_holiday()`, Fase 2).
+-   `submit(leave_request, *, actor)` - `draft` → `pending`. Validates `end_date >= start_date`,
+    rejects overlap with the employee's own other `pending`/`approved` requests, computes `days`,
+    and - only when `leave_type.is_paid` - rejects the request if `days` exceeds
+    `current_balance()`. Emits `hr.leave.requested`.
+-   `approve(leave_request, *, actor)` - `pending` → `approved`. Refuses if `actor` is the same
+    person as `leave_request.employee` (self-approval - matched via `Employee.person.user_id`,
+    the only real link this project has between `Employee` and `User`; an employee with no linked
+    login can never trigger this check). Creates a `usage` `LeaveBalanceEntry` for `-days` (paid
+    types only). Emits `hr.leave.approved`.
+-   `reject(leave_request, *, actor, reason)` - `pending` → `rejected`; `reason` is required.
+    Emits `hr.leave.rejected`.
+-   `cancel(leave_request, *, actor)` - `draft`/`pending`/`approved` → `cancelled`; if it was
+    `approved`, creates an `adjustment` entry for `+days` reversing the usage. Emits
+    `hr.leave.cancelled`.
+-   Every transition is validated against `LeaveRequest.ALLOWED_TRANSITIONS`
+    (`hr/models/leave_request.py`) - e.g. `rejected` → `approved` always raises `LeaveError`,
+    regardless of caller.
 
 ## Business logic
 
