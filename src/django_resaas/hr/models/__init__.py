@@ -37,3 +37,9 @@ from .onboarding_template import OnboardingTemplate
 from .onboarding_template_task import OnboardingTemplateTask
 from .employee_onboarding import EmployeeOnboarding
 from .employee_onboarding_task import EmployeeOnboardingTask
+
+from .performance_cycle import PerformanceCycle
+from .competency import Competency
+from .employee_goal import EmployeeGoal
+from .performance_review import PerformanceReview
+from .review_competency_rating import ReviewCompetencyRating

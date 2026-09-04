@@ -311,3 +311,57 @@ from django_resaas.hr.models.employee_onboarding_task import EmployeeOnboardingT
 class EmployeeOnboardingTaskAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+
+# =========================
+# PERFORMANCE CYCLE
+# =========================
+from django_resaas.hr.models.performance_cycle import PerformanceCycle
+
+@admin.register(PerformanceCycle)
+class PerformanceCycleAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# COMPETENCY
+# =========================
+from django_resaas.hr.models.competency import Competency
+
+@admin.register(Competency)
+class CompetencyAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# EMPLOYEE GOAL
+# =========================
+from django_resaas.hr.models.employee_goal import EmployeeGoal
+
+@admin.register(EmployeeGoal)
+class EmployeeGoalAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# PERFORMANCE REVIEW
+# =========================
+from django_resaas.hr.models.performance_review import PerformanceReview
+
+@admin.register(PerformanceReview)
+class PerformanceReviewAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# REVIEW COMPETENCY RATING
+# =========================
+from django_resaas.hr.models.review_competency_rating import ReviewCompetencyRating
+
+@admin.register(ReviewCompetencyRating)
+class ReviewCompetencyRatingAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
