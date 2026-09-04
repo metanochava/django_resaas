@@ -149,6 +149,17 @@ class EmployeeSalaryAdmin(BaseAdmin):
 
 
 # =========================
+# EMPLOYEE SALARY COMPONENT
+# =========================
+from django_resaas.hr.models.employee_salary_component import EmployeeSalaryComponent
+
+@admin.register(EmployeeSalaryComponent)
+class EmployeeSalaryComponentAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
 # PAYROLL PERIOD
 # =========================
 from django_resaas.hr.models.payroll_period import PayrollPeriod

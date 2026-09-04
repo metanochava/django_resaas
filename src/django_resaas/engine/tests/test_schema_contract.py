@@ -131,7 +131,11 @@ def test_choice_field_metadata(bootstrap_tenant):
 
     component_type = _field(schema, "component_type")
     assert component_type["choices"] == [
-        ["earning", "Earning"], ["deduction", "Deduction"],
+        ["earning", "Earning"],
+        ["deduction", "Deduction"],
+        # Fase 8 (Payroll): Employer Contribution - see
+        # hr/models/salary_component.py.
+        ["employer_contribution", "Employer Contribution"],
     ]
 
 

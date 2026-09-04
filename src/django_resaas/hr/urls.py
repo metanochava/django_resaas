@@ -17,6 +17,7 @@ from django_resaas.hr.views import (
     HolidayAPIView,
     SalaryComponentAPIView,
     EmployeeSalaryAPIView,
+    EmployeeSalaryComponentAPIView,
     PayrollPeriodAPIView,
     PayrollAPIView,
     PayrollItemAPIView,
@@ -59,6 +60,7 @@ router.register("attendances", AttendanceAPIView, basename="attendances")
 router.register("holidays", HolidayAPIView, basename="holidays")
 router.register("salarycomponents", SalaryComponentAPIView, basename="salarycomponents")
 router.register("employeesalaries", EmployeeSalaryAPIView, basename="employeesalaries")
+router.register("employeesalarycomponents", EmployeeSalaryComponentAPIView, basename="employeesalarycomponents")
 router.register("payrollperiods", PayrollPeriodAPIView, basename="payrollperiods")
 router.register("payrolls", PayrollAPIView, basename="payrolls")
 router.register("payrollitems", PayrollItemAPIView, basename="payrollitems")
