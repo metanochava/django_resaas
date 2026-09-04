@@ -313,4 +313,26 @@ SUBMENUS = [
         "add_route": "add_performancereview",
         # "crud": {"module": "hr", "model": "PerformanceReview"},
     },
+    {
+        "menu": "Courses",
+        "icon": "menu_book",
+        "role": "list_course",
+        "route": "list_course",
+        "add_role": "add_course",
+        "add_route": "add_course",
+        # "crud": {"module": "hr", "model": "Course"},
+    },
+    {
+        "menu": "Training Sessions",
+        "icon": "school",
+        "role": "list_trainingsession",
+        "route": "list_trainingsession",
+        "add_role": "add_trainingsession",
+        "add_route": "add_trainingsession",
+        # "crud": {"module": "hr", "model": "TrainingSession"},
+        # List page is custom (enrollments + capacity + enroll action -
+        # pedido secção 76) rather than AutoCrud, same reasoning as Leave
+        # Calendar/Recruitment Pipeline - see
+        # pages/hr/training_session/TrainingSessionLPage.vue.
+    },
 ]
