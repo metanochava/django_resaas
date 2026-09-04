@@ -18,8 +18,8 @@ class EmployeeSpecialty(BaseModel):
         unique_together = ('employee', 'specialty')
 
     class RESAAS:
-        label_field = "employee.person.full_name"
-        search_fields = ["employee.person.full_name", "specialty.title"]
+        label_field = "employee__person__full_name"
+        search_fields = ["employee__person__full_name", "specialty__title"]
         crud = True
 
     def __str__(self):

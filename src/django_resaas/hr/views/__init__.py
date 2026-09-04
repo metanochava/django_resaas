@@ -8,6 +8,7 @@
 from .employee import EmployeeAPIView
 from .department import DepartmentAPIView
 from .job_position import JobPositionAPIView
+from .job_grade import JobGradeAPIView
 from .contract import ContractAPIView
 
 from .specialty import SpecialtyAPIView
@@ -17,6 +18,7 @@ from .shift import ShiftAPIView
 from .employee_shift import EmployeeShiftAPIView
 from .shift_schedule import ShiftScheduleAPIView
 from .attendance import AttendanceAPIView
+from .holiday import HolidayAPIView
 
 from .salary_component import SalaryComponentAPIView
 from .employee_salary import EmployeeSalaryAPIView

@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.db import transaction
 
 from django_resaas.engine.core.base.registry import VIEW_REGISTRY
 from django_resaas.engine.core.services.action_sync_service import (
@@ -11,7 +10,8 @@ class Command(BaseCommand):
 
     help = (
         "Syncs @resaas_action with "
-        "ModelExtraAction and Django Permissions."
+        "ModelExtraAction and Django Permissions. "
+        "Legacy alias - see `resaas_sync` for --dry-run/--only support."
     )
 
 
@@ -79,11 +79,12 @@ class Command(BaseCommand):
 
         try:
 
-            with transaction.atomic():
-
-                ActionSyncService.sync_registry(
-                    VIEW_REGISTRY
-                )
+            # sync_registry() manages its own transaction (see
+            # action_sync_service.py) - resaas_sync hits the exact same
+            # call, no service logic is duplicated between the two commands.
+            ActionSyncService.sync_registry(
+                VIEW_REGISTRY
+            )
 
         except Exception as exc:
 

@@ -32,8 +32,8 @@ class ShiftSchedule(BaseModel):
         ordering = ['-date']
 
     class RESAAS:
-        label_field = "employee.person.full_name"
-        search_fields = ["employee.person.full_name", "shift.name"]
+        label_field = "employee__person__full_name"
+        search_fields = ["employee__person__full_name", "shift__name"]
         crud = True  # 👉 podes desativar se for automático
 
     def __str__(self):

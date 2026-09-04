@@ -36,6 +36,15 @@ SUBMENUS = [
         # "crud": {"module": "hr", "model": "JobPosition"},
     },
     {
+        "menu": "Job Grade",
+        "icon": "military_tech",
+        "role": "list_jobgrade",
+        "route": "list_jobgrade",
+        "add_role": "add_jobgrade",
+        "add_route": "add_jobgrade",
+        # "crud": {"module": "hr", "model": "JobGrade"},
+    },
+    {
         "menu": "Contract",
         "icon": "assignment",
         "role": "list_contract",
@@ -97,6 +106,15 @@ SUBMENUS = [
         "add_role": "add_attendance",
         "add_route": "add_attendance",
         # "crud": {"module": "hr", "model": "Attendance"},
+    },
+    {
+        "menu": "Holiday",
+        "icon": "event_busy",
+        "role": "list_holiday",
+        "route": "list_holiday",
+        "add_role": "add_holiday",
+        "add_route": "add_holiday",
+        # "crud": {"module": "hr", "model": "Holiday"},
     },
     {
         "menu": "Salary Component",

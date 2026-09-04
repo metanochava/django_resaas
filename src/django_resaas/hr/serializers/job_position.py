@@ -29,3 +29,17 @@ class JobPositionSerializer(BaseSerializer):
     class Meta:
         model = JobPosition
         fields = "__all__"
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+
+        request = self.context.get("request")
+        entity_id = getattr(request, "entity_id", None) if request else None
+        department = attrs.get("department")
+
+        if entity_id and department is not None and str(department.entity_id) != str(entity_id):
+            raise serializers.ValidationError({
+                "department": "Does not belong to the current entity."
+            })
+
+        return attrs

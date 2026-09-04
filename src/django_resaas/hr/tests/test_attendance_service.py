@@ -1,9 +1,13 @@
 """
-hr/services/attendance_service.py has a real, pre-existing bug: it uses
-`ShiftSchedule` and `Attendance` without importing either name, so every
-function in the module raises NameError when called (documented as a known
-issue in docs/hr/overview.md). These tests lock in that current behavior
-rather than silently fixing it (no logic changes without confirmation).
+hr/services/attendance_service.py used to have a real, pre-existing bug:
+it used `ShiftSchedule`/`Attendance` without importing either name, so
+every function raised NameError (was documented as a known issue in
+docs/hr/overview.md, previously locked in here via strict xfail tests).
+Fixed as part of Fase 2 (the check-in/check-out actions the pedido asks
+for need this to actually work) - see hr/tests/test_hr_phase2.py for the
+full behavioural coverage (late/overtime/early-departure/overnight
+shifts, duplicate check-in/out rejection, events, tenant isolation).
+These two tests just confirm the NameError itself is gone.
 """
 import pytest
 
@@ -11,6 +15,7 @@ from django_resaas.engine.models.entity import Entity
 from django_resaas.engine.models.entity_type import EntityType
 from django_resaas.engine.models.branch import Branch
 from django_resaas.engine.models.person import Person
+from django_resaas.hr.models.attendance import Attendance
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.services import attendance_service
 
@@ -33,19 +38,16 @@ def employee(db):
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="known bug: check_in() calls Attendance.objects.get_or_create(...) "
-    "but never imports Attendance -> NameError",
-)
 def test_check_in(employee):
-    attendance_service.check_in(employee)
+    attendance = attendance_service.check_in(employee)
+
+    assert isinstance(attendance, Attendance)
+    assert attendance.check_in is not None
+    assert attendance.employee_id == employee.id
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="known bug: check_out() calls Attendance.objects.get(...) but "
-    "never imports Attendance -> NameError",
-)
 def test_check_out(employee):
-    attendance_service.check_out(employee)
+    attendance_service.check_in(employee)
+    attendance = attendance_service.check_out(employee)
+
+    assert attendance.check_out is not None

@@ -1,4 +1,5 @@
 import inspect
+from dataclasses import dataclass, field
 
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
@@ -8,11 +9,38 @@ from django.db import transaction
 from django_resaas.engine.models.model_extra_action import ManagedBy, ModelExtraAction
 
 
+@dataclass
+class SyncOutcome:
+    identity: str
+    status: str  # "created" | "updated" | "unchanged"
+
+
+@dataclass
+class SyncSummary:
+    """Aggregated result of a sync_view()/sync_registry() call. Identities
+    are "{app_label}.{model_name}.{action_name}" strings - enough to report
+    on (CLI output, doctor checks) without leaking ModelExtraAction rows."""
+
+    created: list = field(default_factory=list)
+    updated: list = field(default_factory=list)
+    deleted: list = field(default_factory=list)
+    unchanged: list = field(default_factory=list)
+
+    def add_outcome(self, outcome):
+        getattr(self, outcome.status).append(outcome.identity)
+
+    def add_deleted(self, identity):
+        self.deleted.append(identity)
+
+    @property
+    def has_changes(self):
+        return bool(self.created or self.updated or self.deleted)
+
+
 class ActionSyncService:
 
     @classmethod
-    @transaction.atomic
-    def sync_view(cls, view_class):
+    def sync_view(cls, view_class, dry_run=False):
         """
         Sincroniza (INSERT/UPDATE) as `@resaas_action` declaradas numa
         única View - cria/actualiza `ModelExtraAction` e `Permission`.
@@ -26,24 +54,41 @@ class ActionSyncService:
         Remoção de órfãos é responsabilidade exclusiva de
         `sync_registry()`, que conhece todas as Views registadas antes
         de decidir o que já não existe em código nenhum.
+
+        `dry_run=True` runs the exact same code path (so "what would
+        happen" is never a second, divergent implementation to keep in
+        sync) inside a transaction that is always rolled back at the end,
+        via `transaction.set_rollback(True)` - nothing is persisted,
+        guaranteed by Django's own transaction machinery rather than by
+        careful avoidance of every write call.
         """
+
+        summary = SyncSummary()
 
         model = cls._get_model_from_view(view_class)
         if model is None:
-            return
+            return summary
 
         app_label = model._meta.app_label
         model_name = model._meta.model_name
-        content_type = ContentType.objects.get_for_model(model)
 
-        for metadata in cls._get_declared_actions(view_class):
-            cls._sync_action(
-                model=model,
-                content_type=content_type,
-                app_label=app_label,
-                model_name=model_name,
-                metadata=metadata,
-            )
+        with transaction.atomic():
+            content_type = ContentType.objects.get_for_model(model)
+
+            for metadata in cls._get_declared_actions(view_class):
+                outcome = cls._sync_action(
+                    model=model,
+                    content_type=content_type,
+                    app_label=app_label,
+                    model_name=model_name,
+                    metadata=metadata,
+                )
+                summary.add_outcome(outcome)
+
+            if dry_run:
+                transaction.set_rollback(True)
+
+        return summary
 
     @staticmethod
     def _get_model_from_view(view_class):
@@ -145,25 +190,42 @@ class ActionSyncService:
             for method in metadata.get("methods", [])
         )
 
+        defaults = {
+            "label": metadata.get("label"),
+            "icon": metadata.get("icon"),
+            "tooltip": metadata.get("tooltip"),
+            "position": metadata.get("position"),
+            "order": metadata.get("order", 0),
+            "visible": metadata.get("visible", True),
+            "autorequest": metadata.get("autorequest", False),
+            "method": method,
+            "details": metadata.get("detail", False),
+            "url": metadata.get("url_path") or action_name,
+            "permission": permission.codename,
+            "permission_managed": permission_managed,
+            "managed_by": ManagedBy.DECORATOR,
+        }
+
+        changed = existing_extra is None or any(
+            getattr(existing_extra, key) != value
+            for key, value in defaults.items()
+        )
+
         ModelExtraAction.objects.update_or_create(
             app=app_label,
             model=model_name,
             action=action_name,
-            defaults={
-                "label": metadata.get("label"),
-                "icon": metadata.get("icon"),
-                "tooltip": metadata.get("tooltip"),
-                "position": metadata.get("position"),
-                "order": metadata.get("order", 0),
-                "visible": metadata.get("visible", True),
-                "autorequest": metadata.get("autorequest", False),
-                "method": method,
-                "details": metadata.get("detail", False),
-                "url": metadata.get("url_path") or action_name,
-                "permission": permission.codename,
-                "permission_managed": permission_managed,
-                "managed_by": ManagedBy.DECORATOR,
-            },
+            defaults=defaults,
+        )
+
+        status = (
+            "created" if existing_extra is None
+            else ("updated" if changed else "unchanged")
+        )
+
+        return SyncOutcome(
+            identity=f"{app_label}.{model_name}.{action_name}",
+            status=status,
         )
 
     @classmethod
@@ -183,6 +245,8 @@ class ActionSyncService:
 
         if current_action_names:
             queryset = queryset.exclude(action__in=current_action_names)
+
+        deleted_identities = []
 
         for extra in queryset:
             # A permission whose codename doesn't match this action's own
@@ -205,11 +269,13 @@ class ActionSyncService:
                     codename=extra.permission,
                 ).delete()
 
+            deleted_identities.append(f"{app_label}.{model_name}.{extra.action}")
             extra.delete()
 
+        return deleted_identities
+
     @classmethod
-    @transaction.atomic
-    def sync_registry(cls, registry):
+    def sync_registry(cls, registry, dry_run=False):
         """
         Sincroniza todas as Views registadas.
 
@@ -223,43 +289,58 @@ class ActionSyncService:
         Instead, actions are aggregated per (app_label, model_name)
         across every registered view first; orphan removal only runs
         afterwards, once per model, against that combined set.
+
+        `dry_run=True` - see `sync_view()`'s docstring: same code path,
+        rolled back via `transaction.set_rollback(True)` at the end, so
+        the DB is guaranteed untouched regardless of what ran inside.
         """
 
-        content_types_by_key = {}
-        action_names_by_key = {}
+        summary = SyncSummary()
 
-        for module_views in registry.values():
-            for view_class in module_views.values():
-                model = cls._get_model_from_view(view_class)
-                if model is None:
-                    continue
+        with transaction.atomic():
+            content_types_by_key = {}
+            action_names_by_key = {}
 
-                app_label = model._meta.app_label
-                model_name = model._meta.model_name
-                key = (app_label, model_name)
+            for module_views in registry.values():
+                for view_class in module_views.values():
+                    model = cls._get_model_from_view(view_class)
+                    if model is None:
+                        continue
 
-                content_types_by_key.setdefault(
-                    key, ContentType.objects.get_for_model(model)
-                )
-                current_action_names = action_names_by_key.setdefault(key, set())
+                    app_label = model._meta.app_label
+                    model_name = model._meta.model_name
+                    key = (app_label, model_name)
 
-                for metadata in cls._get_declared_actions(view_class):
-                    current_action_names.add(metadata["action"])
-
-                    cls._sync_action(
-                        model=model,
-                        content_type=content_types_by_key[key],
-                        app_label=app_label,
-                        model_name=model_name,
-                        metadata=metadata,
+                    content_types_by_key.setdefault(
+                        key, ContentType.objects.get_for_model(model)
                     )
+                    current_action_names = action_names_by_key.setdefault(key, set())
 
-        for key, current_action_names in action_names_by_key.items():
-            app_label, model_name = key
+                    for metadata in cls._get_declared_actions(view_class):
+                        current_action_names.add(metadata["action"])
 
-            cls._remove_orphans(
-                content_type=content_types_by_key[key],
-                app_label=app_label,
-                model_name=model_name,
-                current_action_names=current_action_names,
-            )
+                        outcome = cls._sync_action(
+                            model=model,
+                            content_type=content_types_by_key[key],
+                            app_label=app_label,
+                            model_name=model_name,
+                            metadata=metadata,
+                        )
+                        summary.add_outcome(outcome)
+
+            for key, current_action_names in action_names_by_key.items():
+                app_label, model_name = key
+
+                deleted_identities = cls._remove_orphans(
+                    content_type=content_types_by_key[key],
+                    app_label=app_label,
+                    model_name=model_name,
+                    current_action_names=current_action_names,
+                )
+                for identity in deleted_identities:
+                    summary.add_deleted(identity)
+
+            if dry_run:
+                transaction.set_rollback(True)
+
+        return summary
