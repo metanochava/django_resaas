@@ -54,3 +54,12 @@ from .course import CourseAPIView
 from .training_session import TrainingSessionAPIView
 from .employee_training import EmployeeTrainingAPIView
 from .certification import CertificationAPIView
+
+from .promotion import PromotionAPIView
+from .transfer import TransferAPIView
+from .disciplinary_case import DisciplinaryCaseAPIView
+from .disciplinary_action import DisciplinaryActionAPIView
+from .resignation import ResignationAPIView
+from .termination import TerminationAPIView
+from .employee_offboarding import EmployeeOffboardingAPIView
+from .employee_offboarding_task import EmployeeOffboardingTaskAPIView

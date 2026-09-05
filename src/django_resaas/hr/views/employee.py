@@ -8,15 +8,35 @@ from django_resaas.engine.core.base.views import BaseAPIView, registerView
 from django_resaas.engine.core.decorators.action import resaas_action
 from django_resaas.engine.models.entity import Entity
 
+from django_resaas.engine.models.branch import Branch
+
 from django_resaas.hr.models.employee import Employee
+from django_resaas.hr.models.job_position import JobPosition
+from django_resaas.hr.models.job_grade import JobGrade
+from django_resaas.hr.models.department import Department
 from django_resaas.hr.models.attendance import AttendanceSource
 from django_resaas.hr.models.onboarding_template import OnboardingTemplate
 from django_resaas.hr.serializers.employee import EmployeeSerializer
 from django_resaas.hr.serializers.attendance import AttendanceSerializer
 from django_resaas.hr.serializers.employee_onboarding import EmployeeOnboardingSerializer
+from django_resaas.hr.serializers.promotion import PromotionSerializer
+from django_resaas.hr.serializers.transfer import TransferSerializer
+from django_resaas.hr.serializers.termination import TerminationSerializer
+from django_resaas.hr.serializers.employee_offboarding import EmployeeOffboardingSerializer
 from django_resaas.hr.services.employee_number_service import EmployeeNumberService
 from django_resaas.hr.services import attendance_service
 from django_resaas.hr.services import onboarding_service
+from django_resaas.hr.services import lifecycle_service
+
+# Fase 9 (Employee Lifecycle): once created, these fields only change
+# through apply_promotion/apply_transfer below - never a free PATCH -
+# because changing them needs to also write the Promotion/Transfer
+# history row in the same transaction (pedido secção 17). `branch`/
+# `entity` are already forced read-only for every model by
+# BaseSerializer.DEFAULT_READ_ONLY_FIELDS; position/job_grade are not,
+# since EmployeeSerializer must still accept them at creation time
+# (e.g. recruitment_service.hire()).
+LOCKED_ON_UPDATE_FIELDS = {"position", "job_grade"}
 
 
 @registerView('employees', module='hr')
@@ -38,6 +58,22 @@ class EmployeeAPIView(BaseAPIView):
                 data["code"] = EmployeeNumberService.generate(entity)
 
             serializer.save(**data)
+
+    def update(self, request, *args, **kwargs):
+        locked_present = LOCKED_ON_UPDATE_FIELDS.intersection(request.data.keys())
+
+        if locked_present:
+            return Response(
+                {
+                    "detail": (
+                        f"{', '.join(sorted(locked_present))} can only be "
+                        "changed via apply_promotion/apply_transfer."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return super().update(request, *args, **kwargs)
 
     # =========================
     # ATTENDANCE
@@ -113,5 +149,171 @@ class EmployeeAPIView(BaseAPIView):
 
         return Response(
             EmployeeOnboardingSerializer(onboarding, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    # =========================
+    # LIFECYCLE (Fase 9)
+    # =========================
+
+    @resaas_action(detail=True, methods=["post"])
+    def apply_promotion(self, request, *args, **kwargs):
+        employee = self.get_object()
+
+        try:
+            new_position = JobPosition.objects.get(
+                id=request.data.get("new_position"), entity_id=employee.entity_id,
+            )
+        except (JobPosition.DoesNotExist, ValueError, TypeError):
+            return Response(
+                {"detail": "new_position not found for this entity."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        new_job_grade = None
+        new_job_grade_id = request.data.get("new_job_grade")
+        if new_job_grade_id:
+            try:
+                new_job_grade = JobGrade.objects.get(
+                    id=new_job_grade_id, entity_id=employee.entity_id,
+                )
+            except (JobGrade.DoesNotExist, ValueError, TypeError):
+                return Response(
+                    {"detail": "new_job_grade not found for this entity."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        effective_date = request.data.get("effective_date")
+        if not effective_date:
+            return Response(
+                {"detail": "effective_date is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            with transaction.atomic():
+                promotion = lifecycle_service.apply_promotion(
+                    employee,
+                    new_position=new_position,
+                    new_job_grade=new_job_grade,
+                    effective_date=effective_date,
+                    reason=request.data.get("reason", ""),
+                    approved_by=request.user,
+                    actor=request.user,
+                )
+        except lifecycle_service.LifecycleError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            PromotionSerializer(promotion, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @resaas_action(detail=True, methods=["post"])
+    def apply_transfer(self, request, *args, **kwargs):
+        employee = self.get_object()
+
+        try:
+            to_branch = Branch.objects.get(id=request.data.get("to_branch"))
+        except (Branch.DoesNotExist, ValueError, TypeError):
+            return Response(
+                {"detail": "to_branch not found."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        to_department = None
+        to_department_id = request.data.get("to_department")
+        if to_department_id:
+            try:
+                to_department = Department.objects.get(id=to_department_id)
+            except (Department.DoesNotExist, ValueError, TypeError):
+                return Response(
+                    {"detail": "to_department not found."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        to_position = None
+        to_position_id = request.data.get("to_position")
+        if to_position_id:
+            try:
+                to_position = JobPosition.objects.get(id=to_position_id)
+            except (JobPosition.DoesNotExist, ValueError, TypeError):
+                return Response(
+                    {"detail": "to_position not found."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        effective_date = request.data.get("effective_date")
+        if not effective_date:
+            return Response(
+                {"detail": "effective_date is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            with transaction.atomic():
+                transfer = lifecycle_service.apply_transfer(
+                    employee,
+                    to_branch=to_branch,
+                    to_department=to_department,
+                    to_position=to_position,
+                    effective_date=effective_date,
+                    reason=request.data.get("reason", ""),
+                    approved_by=request.user,
+                    actor=request.user,
+                )
+        except lifecycle_service.LifecycleError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            TransferSerializer(transfer, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @resaas_action(detail=True, methods=["post"])
+    def terminate_employee(self, request, *args, **kwargs):
+        employee = self.get_object()
+
+        termination_type = request.data.get("termination_type")
+        termination_date = request.data.get("termination_date")
+
+        if not termination_type or not termination_date:
+            return Response(
+                {"detail": "termination_type and termination_date are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            with transaction.atomic():
+                termination = lifecycle_service.terminate_employee(
+                    employee,
+                    termination_type=termination_type,
+                    termination_date=termination_date,
+                    reason=request.data.get("reason", ""),
+                    initiated_by=request.user,
+                    actor=request.user,
+                )
+        except lifecycle_service.LifecycleError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            TerminationSerializer(termination, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+    @resaas_action(detail=True, methods=["post"])
+    def start_offboarding(self, request, *args, **kwargs):
+        employee = self.get_object()
+
+        try:
+            with transaction.atomic():
+                offboarding = lifecycle_service.start_offboarding(
+                    employee, actor=request.user,
+                )
+        except lifecycle_service.LifecycleError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            EmployeeOffboardingSerializer(offboarding, context={"request": request}).data,
             status=status.HTTP_201_CREATED,
         )

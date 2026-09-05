@@ -49,3 +49,12 @@ from .course import Course
 from .training_session import TrainingSession
 from .employee_training import EmployeeTraining
 from .certification import Certification
+
+from .promotion import Promotion
+from .transfer import Transfer
+from .disciplinary_case import DisciplinaryCase
+from .disciplinary_action import DisciplinaryAction
+from .resignation import Resignation
+from .termination import Termination
+from .employee_offboarding import EmployeeOffboarding
+from .employee_offboarding_task import EmployeeOffboardingTask

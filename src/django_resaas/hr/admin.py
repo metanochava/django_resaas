@@ -420,3 +420,91 @@ from django_resaas.hr.models.certification import Certification
 class CertificationAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
+
+
+# =========================
+# PROMOTION
+# =========================
+from django_resaas.hr.models.promotion import Promotion
+
+@admin.register(Promotion)
+class PromotionAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# TRANSFER
+# =========================
+from django_resaas.hr.models.transfer import Transfer
+
+@admin.register(Transfer)
+class TransferAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# DISCIPLINARY CASE
+# =========================
+from django_resaas.hr.models.disciplinary_case import DisciplinaryCase
+
+@admin.register(DisciplinaryCase)
+class DisciplinaryCaseAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# DISCIPLINARY ACTION
+# =========================
+from django_resaas.hr.models.disciplinary_action import DisciplinaryAction
+
+@admin.register(DisciplinaryAction)
+class DisciplinaryActionAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# RESIGNATION
+# =========================
+from django_resaas.hr.models.resignation import Resignation
+
+@admin.register(Resignation)
+class ResignationAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# TERMINATION
+# =========================
+from django_resaas.hr.models.termination import Termination
+
+@admin.register(Termination)
+class TerminationAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# EMPLOYEE OFFBOARDING
+# =========================
+from django_resaas.hr.models.employee_offboarding import EmployeeOffboarding
+
+@admin.register(EmployeeOffboarding)
+class EmployeeOffboardingAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+
+
+# =========================
+# EMPLOYEE OFFBOARDING TASK
+# =========================
+from django_resaas.hr.models.employee_offboarding_task import EmployeeOffboardingTask
+
+@admin.register(EmployeeOffboardingTask)
+class EmployeeOffboardingTaskAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)

@@ -42,6 +42,14 @@ from django_resaas.hr.views import (
     TrainingSessionAPIView,
     EmployeeTrainingAPIView,
     CertificationAPIView,
+    PromotionAPIView,
+    TransferAPIView,
+    DisciplinaryCaseAPIView,
+    DisciplinaryActionAPIView,
+    ResignationAPIView,
+    TerminationAPIView,
+    EmployeeOffboardingAPIView,
+    EmployeeOffboardingTaskAPIView,
 )
 
 
@@ -85,6 +93,14 @@ router.register("courses", CourseAPIView, basename="courses")
 router.register("trainingsessions", TrainingSessionAPIView, basename="trainingsessions")
 router.register("employeetrainings", EmployeeTrainingAPIView, basename="employeetrainings")
 router.register("certifications", CertificationAPIView, basename="certifications")
+router.register("promotions", PromotionAPIView, basename="promotions")
+router.register("transfers", TransferAPIView, basename="transfers")
+router.register("disciplinarycases", DisciplinaryCaseAPIView, basename="disciplinarycases")
+router.register("disciplinaryactions", DisciplinaryActionAPIView, basename="disciplinaryactions")
+router.register("resignations", ResignationAPIView, basename="resignations")
+router.register("terminations", TerminationAPIView, basename="terminations")
+router.register("employeeoffboardings", EmployeeOffboardingAPIView, basename="employeeoffboardings")
+router.register("employeeoffboardingtasks", EmployeeOffboardingTaskAPIView, basename="employeeoffboardingtasks")
 
 urlpatterns = [
     path("", include(router.urls)),

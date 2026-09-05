@@ -25,6 +25,30 @@ the framework's point of view: `django_resaas/urls.py` unconditionally does
     `level`), assignable to an `Employee`.
 -   `SalaryComponent`, `EmployeeSalary` - configurable pay components per employee.
 -   `PayrollPeriod`, `Payroll`, `PayrollItem`, `Payslip` - payroll runs and their line items.
+-   `Promotion`, `Transfer` - immutable history rows for a merit-based position/grade change or a
+    Branch/Department/Position move. Created exclusively through `EmployeeAPIView.apply_promotion`/
+    `apply_transfer` (`hr/views/employee.py`), which apply the change to
+    `Employee.position`/`job_grade`/`branch` in the same transaction - a plain `POST` to
+    `promotions/`/`transfers/` is blocked (405). `Employee.position`/`job_grade` are similarly
+    blocked from a generic `PATCH` on `employees/{id}/` once created - only these two actions may
+    change them. `Transfer` never crosses `Entity` - `to_branch`/`to_department`/`to_position` are
+    all validated against the employee's own `entity_id` first.
+-   `DisciplinaryCase`, `DisciplinaryAction` - sensitive records (own `view_disciplinarycase`/
+    `view_disciplinaryaction` permissions, never assumed from `view_employee`; never surfaced
+    through `EmployeeSerializer`). `DisciplinaryCase.status` is a state machine
+    (`open` → `under_review` → `resolved`/`dismissed`) driven by `start_review`/`resolve`/`dismiss`
+    `@resaas_action`s; creating a case and adding an action are plain CRUD `POST`s.
+-   `Resignation` - plain CRUD create (`status=submitted`), only `accept`/`withdraw` are actions;
+    `accept` is what actually moves `Employee.employment_status` to `resigned`.
+-   `Termination` - immutable, created exclusively through `EmployeeAPIView.terminate_employee`,
+    which also sets `Employee.employment_status=terminated`/`termination_date` in the same
+    transaction.
+-   `EmployeeOffboarding`, `EmployeeOffboardingTask` - same checklist/progress shape as
+    `EmployeeOnboarding` (Fase 5), but with a **fixed** universal task list
+    (`lifecycle_service.DEFAULT_OFFBOARDING_TASKS`) instead of a per-Entity template model - exit
+    tasks (return assets, close accounts, final payroll, clearance, exit interview) have no real
+    per-Entity customization need yet, so a template here would be a model with no consumer.
+    Created exclusively through `EmployeeAPIView.start_offboarding`.
 -   `LeaveType` - per-Entity (Annual/Sick/Maternity/...), `is_paid` (drives whether a balance is
     checked at all - see below), `requires_approval`, optional `default_days_per_year`.
 -   `LeaveRequest` - `employee`, `leave_type`, `start_date`/`end_date`, a server-computed `days`,
@@ -114,3 +138,41 @@ the framework's point of view: `django_resaas/urls.py` unconditionally does
     and late minutes are multiplied directly by a rate/penalty with no explicit conversion to
     hours or a currency-per-minute basis - callers should treat `overtime_rate`/`late_penalty` as
     already being "per minute" figures, not "per hour" ones.
+
+### `hr/services/lifecycle_service.py`
+
+Fase 9 (Employee Lifecycle) - same service+exception shape as every previous phase (`LifecycleError`
+raised on any business-rule violation, `transaction.atomic()` left to the caller,
+`EventDispatcher.emit()` for every meaningful transition).
+
+-   `apply_promotion(employee, *, new_position, new_job_grade=None, effective_date, reason="",
+    approved_by=None, actor=None)` - creates the `Promotion` row and applies `new_position`/
+    `new_job_grade` to the `Employee` in the same call. Emits `hr.employee.promoted`.
+-   `apply_transfer(employee, *, to_branch, to_department=None, to_position=None, effective_date,
+    reason="", approved_by=None, actor=None)` - validates `to_branch`/`to_department`/
+    `to_position` all belong to `employee.entity_id` (raises `LifecycleError` otherwise, before
+    touching anything), then creates the `Transfer` row and applies `to_branch`/`to_position` to
+    the `Employee`. Emits `hr.employee.transferred`.
+-   `start_review(case)` / `resolve_case(case)` / `dismiss_case(case)` - `DisciplinaryCase.status`
+    transitions, validated against `DisciplinaryCase.ALLOWED_TRANSITIONS`.
+-   `case_opened(case, *, actor=None)` / `issue_disciplinary_action(case, action, *, actor=None)` -
+    called from `DisciplinaryCaseAPIView.perform_create`/`DisciplinaryActionAPIView.perform_create`
+    right after the plain-CRUD row is saved; emit `hr.disciplinary.case_opened`/
+    `hr.disciplinary.action_issued`.
+-   `accept_resignation(resignation, *, actor=None)` - `submitted` → `accepted`; raises if the
+    employee's employment has already ended; sets `Employee.employment_status=resigned` and
+    `termination_date=resignation.last_working_date`. Emits `hr.employee.resigned`.
+-   `withdraw_resignation(resignation, *, actor=None)` - `submitted` → `withdrawn`; touches nothing
+    on `Employee`.
+-   `terminate_employee(employee, *, termination_type, termination_date, reason="",
+    initiated_by=None, actor=None)` - raises `LifecycleError` if the employee's employment has
+    already ended (idempotency guard - can't terminate twice); otherwise creates the `Termination`
+    row and sets `Employee.employment_status=terminated`/`termination_date`. Emits
+    `hr.employee.terminated`.
+-   `start_offboarding(employee, *, actor=None)` - raises if an `in_progress` offboarding already
+    exists for this employee; otherwise creates `EmployeeOffboarding` + seeds
+    `DEFAULT_OFFBOARDING_TASKS` as `EmployeeOffboardingTask` rows. Emits `hr.offboarding.started`.
+-   `complete_offboarding_task`/`reopen_offboarding_task`/`offboarding_progress`/
+    `complete_offboarding`/`cancel_offboarding` - identical shape to their `onboarding_service.py`
+    counterparts (Fase 5): `complete_offboarding` raises if any `is_required` task is still
+    pending, and emits `hr.offboarding.completed`.

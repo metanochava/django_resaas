@@ -353,4 +353,59 @@ SUBMENUS = [
         # Calendar/Recruitment Pipeline - see
         # pages/hr/training_session/TrainingSessionLPage.vue.
     },
+    {
+        "menu": "Promotions",
+        "icon": "trending_up",
+        "role": "list_promotion",
+        "route": "list_promotion",
+        # No add_role/add_route on purpose: Promotion has no generic add
+        # page - creation only happens via
+        # EmployeeAPIView.apply_promotion, from EmployeeProfilePage's
+        # History tab.
+    },
+    {
+        "menu": "Transfers",
+        "icon": "compare_arrows",
+        "role": "list_transfer",
+        "route": "list_transfer",
+        # No add_role/add_route on purpose: same reasoning as Promotions -
+        # only via EmployeeAPIView.apply_transfer.
+    },
+    {
+        "menu": "Disciplinary Cases",
+        "icon": "gavel",
+        "role": "list_disciplinarycase",
+        "route": "list_disciplinarycase",
+        "add_role": "add_disciplinarycase",
+        "add_route": "add_disciplinarycase",
+        # Sensitive data (pedido secção 41) - gated by its own dedicated
+        # permission, distinct from list_employee/change_employee, so this
+        # entry only ever appears to users explicitly granted it.
+    },
+    {
+        "menu": "Resignations",
+        "icon": "logout",
+        "role": "list_resignation",
+        "route": "list_resignation",
+        "add_role": "add_resignation",
+        "add_route": "add_resignation",
+        # "crud": {"module": "hr", "model": "Resignation"},
+    },
+    {
+        "menu": "Terminations",
+        "icon": "person_off",
+        "role": "list_termination",
+        "route": "list_termination",
+        # No add_role/add_route: only via
+        # EmployeeAPIView.terminate_employee.
+    },
+    {
+        "menu": "Offboarding",
+        "icon": "assignment_late",
+        "role": "list_employeeoffboarding",
+        "route": "list_employeeoffboarding",
+        # No add_role/add_route: only via
+        # EmployeeAPIView.start_offboarding, normally from
+        # EmployeeProfilePage's History tab.
+    },
 ]
