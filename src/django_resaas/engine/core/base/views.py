@@ -266,6 +266,32 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     }
 
     # -----------------------------------
+    # 🌐 CROSS-TENANT SCOPE (opt-in por acção)
+    # -----------------------------------
+    #
+    # Por omissão o scope é sempre a Entity + Branch actuais (ver
+    # get_queryset). Uma view pode declarar explicitamente que
+    # determinadas acções têm permissão para atravessar Branch ou
+    # Entity - por exemplo, pesquisa/consulta de um Patient
+    # longitudinal. Isto é apenas SCOPE (de onde os dados podem vir);
+    # a PERMISSION continua a ser resolvida normalmente em initial() e
+    # tem de passar também. Uma acção cross-entity abrange
+    # implicitamente todos os Branches dessa Entity.
+    cross_branch_actions = []
+    cross_entity_actions = []
+
+    def is_cross_branch_action(self):
+        action = getattr(self, "action", None)
+        return (
+            action in self.cross_branch_actions
+            or action in self.cross_entity_actions
+        )
+
+    def is_cross_entity_action(self):
+        action = getattr(self, "action", None)
+        return action in self.cross_entity_actions
+
+    # -----------------------------------
     # 🔍 SEARCH
     # -----------------------------------
 
@@ -459,12 +485,12 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         # TENANT
         # ========================================================
 
-        if hasattr(Model, "entity_id"):
+        if hasattr(Model, "entity_id") and not self.is_cross_entity_action():
             qs = qs.filter(
                 entity_id=self.request.entity_id
             )
 
-        if hasattr(Model, "branch_id"):
+        if hasattr(Model, "branch_id") and not self.is_cross_branch_action():
             qs = qs.filter(
                 branch_id=self.request.branch_id
             )
@@ -504,12 +530,12 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         # REAPLICAR TENANT
         # ========================================================
 
-        if hasattr(Model, "entity_id"):
+        if hasattr(Model, "entity_id") and not self.is_cross_entity_action():
             qs = qs.filter(
                 entity_id=self.request.entity_id
             )
 
-        if hasattr(Model, "branch_id"):
+        if hasattr(Model, "branch_id") and not self.is_cross_branch_action():
             qs = qs.filter(
                 branch_id=self.request.branch_id
             )
