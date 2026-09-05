@@ -67,3 +67,19 @@ class PayrollAPIView(BaseAPIView):
     @resaas_action(detail=True, methods=["post"])
     def cancel(self, request, *args, **kwargs):
         return self._run(request, payroll_service.cancel_payroll)
+
+    # =========================
+    # REPORTS (Fase 10)
+    # =========================
+    # Reusa a acao generica pdflist() de BaseAPIView - so enriquece o
+    # contexto (total liquido) para o template hr/payroll_list.html.
+
+    def get_pdflist_context(self, request, queryset):
+        context = super().get_pdflist_context(request, queryset)
+
+        context["section_title"] = "Payroll Register"
+        context["total_net_salary"] = sum(
+            (payroll.net_salary or 0) for payroll in queryset
+        )
+
+        return context
