@@ -17,7 +17,7 @@ SUBMENUS = [
         # também a permissão em MODULE_PERMISSIONS (engine/core/
         # signals/permissions.py), tal como já acontece para
         # view_hr_dashboard/view_django_resaas_dashboard.
-        "menu": "Access Control",
+        "menu": "Access Control.",
         "icon": "admin_panel_settings",
         "role": "view_core_dashboard",
         "route": "view_core_dashboard",
