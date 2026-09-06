@@ -19,6 +19,7 @@ from django_resaas.engine.data.entity.serializers.entity import EntitySerializer
 from django_resaas.engine.data.branch.serializers.branch import BranchSerializer
 from django_resaas.engine.models.branch_user_group import BranchUserGroup
 from django_resaas.engine.data.person.serializers.person import PersonSerializer
+from django_resaas.engine.models.person import Person
 
 from django.db import transaction
 
