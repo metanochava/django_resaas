@@ -6,5 +6,6 @@ class HrConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
 
     name = "django_resaas.hr"
+    label = "hr"
 
     verbose_name = "HR"
