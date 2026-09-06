@@ -10,6 +10,7 @@ from .settings import NotificationSettingsAPIView
 from .outbox import NotificationOutboxAPIView
 from .delivery_attempt import NotificationDeliveryAttemptAPIView
 from .catalog import NotificationCatalogAPIView
+from .dashboard import NotificationsDashboardAPIView
 
 __all__ = [
     "NotificationRuleAPIView",
@@ -19,4 +20,5 @@ __all__ = [
     "NotificationOutboxAPIView",
     "NotificationDeliveryAttemptAPIView",
     "NotificationCatalogAPIView",
+    "NotificationsDashboardAPIView",
 ]

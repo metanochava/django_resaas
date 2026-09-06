@@ -95,15 +95,18 @@ ALL = [
         "add_role": "add_user",
         "add_route": "add_user",
         # 'crud': { 'module': 'django_resaas', 'model': 'User' }
-    },  
+    },
     {
         "menu": "App",
-        "icon": "view_module",  # 🔥 dev style
-        "role": "list_App",
-        "route": "list_App",
-        "add_role": "add_App",
-        "add_route": "add_App",
-        'crud': { 'module': 'django_resaas', 'model': 'App' }
+        "icon": "view_module",
+        "role": "list_app",
+        "route": "list_app",
+        "add_role": "add_app",
+        "add_route": "add_app",
+        "crud": {
+            "module": "django_resaas",
+            "model": "App"
+        }
     },
     {
         "menu": "Model",
