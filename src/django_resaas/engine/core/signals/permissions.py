@@ -28,7 +28,11 @@ MODULE_PERMISSIONS = {
         {
             "codename": "view_django_resaas_dashboard",
             "name": "Can view Django RESAAS dashboard",
-        }
+        },
+        {
+            "codename": "view_core_dashboard",
+            "name": "Can view Access Control dashboard",
+        },
     ],
 
     "hr": [
