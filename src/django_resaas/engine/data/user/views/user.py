@@ -525,14 +525,17 @@ class UserAPIView(viewsets.ModelViewSet):
 
             ALL = getattr(sidebar, "ALL", [])
 
-            print(ALL,'Alllll\n')
+            if not isinstance(ALL, (list, tuple)):
+                continue
 
-            for all_ in  ALL:
-                print(all_, "meuuuuuuuuu\n")
+            for menu_config in ALL:
 
-                MENU = getattr(all_, "MENU", None)
-                ICON = getattr(all_, "ICON", "menu")
-                SUBMENUS = getattr(all_, "SUBMENUS", [])
+                if not isinstance(menu_config, dict):
+                    continue
+
+                MENU = menu_config.get("MENU")
+                ICON = menu_config.get("ICON", "menu")
+                SUBMENUS = menu_config.get("SUBMENUS", [])
 
                 if not MENU or not SUBMENUS:
                     continue
