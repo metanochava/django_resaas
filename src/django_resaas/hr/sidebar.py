@@ -26,6 +26,12 @@ SUBMENUS = [
         "role": "list_department",
         "submenu": [
             {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_organizacao",
+                "route": "view_dashboard_hr_organizacao",
+            },
+            {
                 "menu": "Department",
                 "icon": "corporate_fare",
                 "role": "list_department",
@@ -89,6 +95,12 @@ SUBMENUS = [
         "role": "list_shift",
         "submenu": [
             {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_tempo_presenca",
+                "route": "view_dashboard_hr_tempo_presenca",
+            },
+            {
                 "menu": "Shift",
                 "icon": "schedule",
                 "role": "list_shift",
@@ -142,6 +154,12 @@ SUBMENUS = [
         "icon": "payments",
         "role": "list_salarycomponent",
         "submenu": [
+            {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_salario_folha",
+                "route": "view_dashboard_hr_salario_folha",
+            },
             {
                 "menu": "Salary Component",
                 "icon": "payments",
@@ -224,6 +242,12 @@ SUBMENUS = [
         "role": "list_leavetype",
         "submenu": [
             {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_ausencias",
+                "route": "view_dashboard_hr_ausencias",
+            },
+            {
                 "menu": "Leave Type",
                 "icon": "beach_access",
                 "role": "list_leavetype",
@@ -266,6 +290,12 @@ SUBMENUS = [
         "icon": "work",
         "role": "list_jobopening",
         "submenu": [
+            {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_recrutamento",
+                "route": "view_dashboard_hr_recrutamento",
+            },
             {
                 "menu": "Job Opening",
                 "icon": "work",
@@ -321,6 +351,12 @@ SUBMENUS = [
         "role": "list_onboardingtemplate",
         "submenu": [
             {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_onboarding",
+                "route": "view_dashboard_hr_onboarding",
+            },
+            {
                 "menu": "Onboarding Templates",
                 "icon": "checklist",
                 "role": "list_onboardingtemplate",
@@ -357,6 +393,12 @@ SUBMENUS = [
         "icon": "trending_up",
         "role": "list_performancecycle",
         "submenu": [
+            {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_desempenho",
+                "route": "view_dashboard_hr_desempenho",
+            },
             {
                 "menu": "Performance Cycle",
                 "icon": "date_range",
@@ -403,6 +445,12 @@ SUBMENUS = [
         "role": "list_course",
         "submenu": [
             {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_formacao",
+                "route": "view_dashboard_hr_formacao",
+            },
+            {
                 "menu": "Courses",
                 "icon": "menu_book",
                 "role": "list_course",
@@ -433,6 +481,12 @@ SUBMENUS = [
         "icon": "compare_arrows",
         "role": "list_promotion",
         "submenu": [
+            {
+                "icon": "space_dashboard",
+                "menu": "Dashboard",
+                "role": "view_dashboard_hr_ciclo_vida",
+                "route": "view_dashboard_hr_ciclo_vida",
+            },
             {
                 "menu": "Promotions",
                 "icon": "trending_up",
