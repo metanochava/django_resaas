@@ -1,7 +1,7 @@
 ALL = [{
-MENU :"Hr",
-ICON :"menu",
-SUBMENUS :[
+'MENU' :"Hr",
+'ICON' :"menu",
+'SUBMENUS' :[
     {
         "menu": "Dashboard",
         "icon": "dashboard",
