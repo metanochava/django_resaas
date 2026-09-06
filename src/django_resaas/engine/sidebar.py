@@ -1,9 +1,9 @@
 ALL = [
 {
-MENU : "Engine",
-ICON : "menu",  # 🔥 mais dev
+'MENU' : "Engine",
+'ICON' : "menu",  # 🔥 mais dev
 
-SUBMENUS : [
+'SUBMENUS' : [
     {
         "menu": "Dashboard",
         "icon": "space_dashboard",  # mais moderno
