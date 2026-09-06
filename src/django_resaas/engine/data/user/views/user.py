@@ -358,82 +358,170 @@ class UserAPIView(viewsets.ModelViewSet):
     def filter_menu_by_permission(self, menu_list, user_perms):
         result = []
 
+        user_perms = {
+            str(permission).strip().lower()
+            for permission in (user_perms or [])
+            if permission
+        }
+
         for item in menu_list:
             role = item.get("role")
             add_role = item.get("add_role")
 
-            # Filtra submenus
-            sub = self.filter_menu_by_permission(item.get("submenu", []), user_perms)
+            role = str(role).strip().lower() if role else None
+            add_role = str(add_role).strip().lower() if add_role else None
+
+            sub = self.filter_menu_by_permission(
+                item.get("submenu", []),
+                user_perms
+            )
 
             has_perm = role is None or role in user_perms
             add_perm = add_role is None or add_role in user_perms
 
             if has_perm or sub:
-                new = {k: v for k, v in item.items() if k not in {"role", "add_role"}}
+                new = {
+                    key: value
+                    for key, value in item.items()
+                    if key not in {"role", "add_role"}
+                }
 
                 if not add_perm:
                     new.pop("add_route", None)
 
                 if sub:
                     new["submenu"] = sub
+                else:
+                    new.pop("submenu", None)
 
                 result.append(new)
 
         return result
 
 
-
     @action(detail=True, methods=['GET'])
     def menus(self, request, *args, **kwargs):
 
-        # ===============================
-        # 🔥 PERMISSÕES DO USER
-        # ===============================
-        branchUserGroup = BranchUserGroup.objects.filter(
-            user_id=request.user.id,
-            branch_id=request.branch_id,
-            group_id=request.group_id
-        ).select_related('group')
-
-        user_perms = []
-
-        if branchUserGroup.exists():
-            group = branchUserGroup.first().group
-            user_perms = list(group.permissions.values_list('codename', flat=True))
-
-        # ===============================
-        # 🔥 TIPO ENTIDADE
-        # ===============================
         tipo_id = getattr(request, "entity_type_id", None)
+        branch_id = getattr(request, "branch_id", None)
+        group_id = getattr(request, "group_id", None)
 
         if not tipo_id:
             return Response([], status=status.HTTP_200_OK)
 
-        # ===============================
-        # 🔥 MODULOS ATIVOS (AGORA CORRETO)
-        # ===============================
-        apps_qs = EntityTypeApp.objects.filter(
-            entity_type_id=tipo_id
-        ).select_related('app')
+        # =====================================================
+        # EFFECTIVE PERMISSIONS FOR CURRENT BRANCH/GROUP
+        # =====================================================
+        user_perms = set()
 
-        names_apps = set(m.app.name for m in apps_qs)
+        if getattr(request.user, "is_superuser", False):
+            # Superuser sees menu entries without being blocked by group roles.
+            # Use all permission codenames so role checks continue to work.
+            from django.contrib.auth.models import Permission
 
-        # ===============================
-        # 🔥 GERAR MENUS
-        # ===============================
+            user_perms = {
+                str(codename).strip().lower()
+                for codename in Permission.objects.values_list(
+                    "codename",
+                    flat=True
+                )
+            }
+
+        elif branch_id and group_id:
+            branch_user_group = (
+                BranchUserGroup.objects
+                .filter(
+                    user_id=request.user.id,
+                    branch_id=branch_id,
+                    group_id=group_id
+                )
+                .select_related("group")
+                .first()
+            )
+
+            if branch_user_group:
+                user_perms = {
+                    str(codename).strip().lower()
+                    for codename in branch_user_group
+                    .group
+                    .permissions
+                    .values_list("codename", flat=True)
+                }
+
+        # =====================================================
+        # ACTIVE APPS FOR ENTITY TYPE
+        # =====================================================
+        apps_qs = (
+            EntityTypeApp.objects
+            .filter(entity_type_id=tipo_id)
+            .select_related("app")
+        )
+
+        active_apps = {
+            str(item.app.name).strip().lower()
+            for item in apps_qs
+            if item.app and item.app.name
+        }
+
+        def is_active_app(app_config):
+            """
+            Supports App.name values in any of these common forms:
+
+                past.app
+                app
+                past
+                django_resaas.hr
+                hr
+
+            Django AppConfig may expose:
+                name  = full dotted Python path
+                label = Django app label
+            """
+
+            app_name = str(app_config.name or "").strip().lower()
+            app_label = str(app_config.label or "").strip().lower()
+
+            parts = [
+                part
+                for part in app_name.split(".")
+                if part
+            ]
+
+            candidates = {
+                app_name,
+                app_label,
+            }
+
+            if parts:
+                candidates.add(parts[0])
+                candidates.add(parts[-1])
+
+            candidates.discard("")
+
+            return bool(candidates.intersection(active_apps))
+
+        # =====================================================
+        # BUILD MENUS
+        # =====================================================
         MENUS = []
 
-        for app in apps.get_app_configs():
+        for app_config in apps.get_app_configs():
 
-            if app.label not in names_apps:
+            if not is_active_app(app_config):
                 continue
 
-            module_name = f"{app.name}.sidebar"
+            module_name = f"{app_config.name}.sidebar"
 
             try:
                 sidebar = importlib.import_module(module_name)
-            except ModuleNotFoundError:
-                continue
+
+            except ModuleNotFoundError as exc:
+                # Ignore only when this app has no sidebar.
+                # If the sidebar exists but one of its internal imports fails,
+                # re-raise the real error instead of hiding it.
+                if exc.name == module_name:
+                    continue
+                raise
 
             MENU = getattr(sidebar, "MENU", None)
             ICON = getattr(sidebar, "ICON", "menu")
@@ -453,11 +541,12 @@ class UserAPIView(viewsets.ModelViewSet):
             MENUS.append({
                 "menu": MENU,
                 "icon": ICON,
+                "app": app_config.name,
+                "app_label": app_config.label,
                 "submenu": filtered_submenus,
             })
 
         return Response(MENUS, status=status.HTTP_200_OK)
-    
 
 
     @action(
