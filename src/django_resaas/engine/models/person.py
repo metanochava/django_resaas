@@ -10,6 +10,10 @@ from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 
 
+def person_photo_path(instance, file_name):
+    return f'images/persons/{instance.id}/{file_name}'
+
+
 class Person(TimeModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
@@ -41,6 +45,16 @@ class Person(TimeModel):
 
     date_of_birth = models.DateField(null=True, blank=True)
     nationality = models.CharField(max_length=100, null=True, blank=True)
+
+    # 📌 Foto de identificação - serve Employee e Patient sem duplicar
+    # (Person é a identidade base reutilizada). Não confundir com uma
+    # imagem clínica (ferida, dermatologia, etc.) - essa é um
+    # attachment do Encounter, não da identidade da Person.
+    photo = models.ImageField(
+        upload_to=person_photo_path,
+        null=True,
+        blank=True
+    )
 
     # 📌 Contactos
     email = models.EmailField(null=True, blank=True, unique=True)
