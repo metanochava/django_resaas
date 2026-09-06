@@ -1,4 +1,4 @@
-MENU = "Core"
+MENU = "Engine"
 ICON = "menu"  # 🔥 mais dev
 
 SUBMENUS = [
