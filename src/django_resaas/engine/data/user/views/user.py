@@ -525,10 +525,10 @@ class UserAPIView(viewsets.ModelViewSet):
 
             ALL = getattr(sidebar, "ALL", [])
 
-            if not ALL:
-                continue
+            print(ALL)
 
             for all_ in  ALL:
+                print(all_)
 
                 MENU = getattr(all_, "MENU", None)
                 ICON = getattr(all_, "ICON", "menu")
