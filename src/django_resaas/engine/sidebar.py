@@ -1,7 +1,9 @@
-MENU = "Engine"
-ICON = "menu"  # 🔥 mais dev
+ALL = [
+{
+MENU : "Engine",
+ICON : "menu",  # 🔥 mais dev
 
-SUBMENUS = [
+SUBMENUS : [
     {
         "menu": "Dashboard",
         "icon": "space_dashboard",  # mais moderno
@@ -148,4 +150,6 @@ SUBMENUS = [
             },       
         ]
     },
+]
+}
 ]
