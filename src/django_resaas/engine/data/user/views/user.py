@@ -523,28 +523,35 @@ class UserAPIView(viewsets.ModelViewSet):
                     continue
                 raise
 
-            MENU = getattr(sidebar, "MENU", None)
-            ICON = getattr(sidebar, "ICON", "menu")
-            SUBMENUS = getattr(sidebar, "SUBMENUS", [])
+            ALL = getattr(sidebar, "ALL", [])
 
-            if not MENU or not SUBMENUS:
+            if not ALL:
                 continue
 
-            filtered_submenus = self.filter_menu_by_permission(
-                SUBMENUS,
-                user_perms
-            )
+            for all_ in  ALL:
 
-            if not filtered_submenus:
-                continue
+                MENU = getattr(all_, "MENU", None)
+                ICON = getattr(all_, "ICON", "menu")
+                SUBMENUS = getattr(all_, "SUBMENUS", [])
 
-            MENUS.append({
-                "menu": MENU,
-                "icon": ICON,
-                "app": app_config.name,
-                "app_label": app_config.label,
-                "submenu": filtered_submenus,
-            })
+                if not MENU or not SUBMENUS:
+                    continue
+
+                filtered_submenus = self.filter_menu_by_permission(
+                    SUBMENUS,
+                    user_perms
+                )
+
+                if not filtered_submenus:
+                    continue
+
+                MENUS.append({
+                    "menu": MENU,
+                    "icon": ICON,
+                    "app": app_config.name,
+                    "app_label": app_config.label,
+                    "submenu": filtered_submenus,
+                })
 
         return Response(MENUS, status=status.HTTP_200_OK)
 

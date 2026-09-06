@@ -1,7 +1,7 @@
-
-MENU = "Hr"
-ICON = "menu"
-SUBMENUS = [
+ALL = [{
+MENU :"Hr",
+ICON :"menu",
+SUBMENUS :[
     {
         "menu": "Dashboard",
         "icon": "dashboard",
@@ -545,3 +545,4 @@ SUBMENUS = [
         ],
     },
 ]
+}]
