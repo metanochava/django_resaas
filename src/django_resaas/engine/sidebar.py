@@ -9,6 +9,20 @@ SUBMENUS = [
         "route": "view_django_resaas_dashboard",
     },
     {
+        # Rota já registada em quasar_resaas/router/restRoutes.js
+        # ("view_core_dashboard" -> pages/core/DashBoard.vue, "Access
+        # Control Dashboard") mas sem entrada de sidebar nenhuma e sem
+        # a permissão sequer existir na BD - página inacessível por
+        # completo (nem por menu nem por URL directo). Regista-se
+        # também a permissão em MODULE_PERMISSIONS (engine/core/
+        # signals/permissions.py), tal como já acontece para
+        # view_hr_dashboard/view_django_resaas_dashboard.
+        "menu": "Access Control",
+        "icon": "admin_panel_settings",
+        "role": "view_core_dashboard",
+        "route": "view_core_dashboard",
+    },
+    {
         "menu": "Permission",
         "icon": "verified_user",  # 🔥 segurança
         "role": "list_permission",
