@@ -63,3 +63,15 @@ from .resignation import ResignationAPIView
 from .termination import TerminationAPIView
 from .employee_offboarding import EmployeeOffboardingAPIView
 from .employee_offboarding_task import EmployeeOffboardingTaskAPIView
+
+from .dashboard import (
+    OrganizacaoDashboardAPIView,
+    TempoPresencaDashboardAPIView,
+    SalarioFolhaDashboardAPIView,
+    AusenciasDashboardAPIView,
+    RecrutamentoDashboardAPIView,
+    OnboardingDashboardAPIView,
+    DesempenhoDashboardAPIView,
+    FormacaoDashboardAPIView,
+    CicloVidaDashboardAPIView,
+)
