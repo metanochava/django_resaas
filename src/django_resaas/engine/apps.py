@@ -10,7 +10,7 @@ from django_resaas.engine.core.utils.group_creator import GROUPS
 
 def create_django_resaas_groups(sender, **kwargs):
 
-    if kwargs.get("app_config").label != "django_resaas":
+    if kwargs.get("app_config").name != "django_resaas.engine":
         return
 
     from django_resaas.engine.models.group import Group
@@ -32,7 +32,7 @@ class DjangoResaasConfig(AppConfig):
 
     name = "django_resaas.engine"
 
-    label = "django_resaas"
+    label = "engine"
 
     verbose_name = "Django SaaS"
 
