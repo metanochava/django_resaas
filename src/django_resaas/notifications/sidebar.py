@@ -2,7 +2,7 @@ ALL = [{
 'MENU' : "Notifications",
 'ICON' : "notifications",
 
-'SUBMENUS' = [
+'SUBMENUS' :[
     {
         "add_role": "add_notificationrule",
         "add_route": "add_notificationrule",
