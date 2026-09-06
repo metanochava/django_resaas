@@ -77,6 +77,13 @@ MODULE_PERMISSIONS = {
             "name": "Can view Ciclo de Vida do Colaborador dashboard",
         },
     ],
+
+    "notifications": [
+        {
+            "codename": "view_notifications_dashboard",
+            "name": "Can view Notifications dashboard",
+        },
+    ],
 }
 
 
@@ -144,8 +151,41 @@ def create_model_permissions(sender, **kwargs):
     # ------------------------------------------------------
     # APPS PERMITIDAS
     # ------------------------------------------------------
-    MY_APPS = getattr(settings, "MY_APPS", []) + ["django.contrib.auth"]
-    allowed_apps = [app.split(".")[-1] for app in MY_APPS]
+
+    MY_APPS = (
+        getattr(settings, "MY_APPS", [])
+        + ["django.contrib.auth"]
+    )
+
+    allowed_apps = set()
+
+    for app_name in MY_APPS:
+
+        app_config = None
+
+        # tenta pelo label
+        try:
+            app_config = apps.get_app_config(
+                app_name
+            )
+        except LookupError:
+            pass
+
+        # tenta pelo Python path completo
+        if not app_config:
+            app_config = next(
+                (
+                    config
+                    for config in apps.get_app_configs()
+                    if config.name == app_name
+                ),
+                None
+            )
+
+        if app_config:
+            allowed_apps.add(
+                app_config.label
+            )
 
     # ------------------------------------------------------
     # GROUP ROOT
