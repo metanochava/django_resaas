@@ -6,6 +6,48 @@ from django_resaas.engine.core.utils.api_response import fail
 from django_resaas.engine.models.entity_app import EntityApp
 
 
+def is_module_active(entity_id, module_name):
+    """Mesma verificação usada por TenantDashboardAPIView.initial() —
+    extraída para função livre para ser reutilizada pelo motor de
+    dashboards dinâmicos (engine/core/dashboards/), que não instancia
+    esta classe (os widgets são resolvidos via provider registry, não
+    via uma APIView por dashboard)."""
+
+    if not module_name:
+        return False
+
+    return EntityApp.objects.filter(
+        entity_id=entity_id,
+        app__name=module_name,
+        state="Active"
+    ).exists()
+
+
+def apply_tenant_scope(request, qs, *, module_name):
+    """Mesma lógica de TenantDashboardAPIView.apply_scope(), como
+    função livre — ver ali para a explicação do scope=branch vs
+    scope=entity."""
+
+    scope = request.query_params.get("scope", "branch")
+
+    if scope == "entity":
+        consolidated_codename = f"view_consolidated_dashboard_{module_name}"
+
+        if not isPermited(request=request, role=consolidated_codename):
+            fail(
+                request,
+                "Sem permissão para consolidado da entity.",
+                status=403
+            )
+
+        return qs.filter(entity_id=request.entity_id)
+
+    return qs.filter(
+        entity_id=request.entity_id,
+        branch_id=request.branch_id
+    )
+
+
 class TenantDashboardAPIView(APIView):
     """
     Base para endpoints de agregação (dashboard).
@@ -46,11 +88,7 @@ class TenantDashboardAPIView(APIView):
         if not self.module_name:
             return fail(request, "Module is not defined.", status=403)
 
-        ativo = EntityApp.objects.filter(
-            entity_id=request.entity_id,
-            app__name=self.module_name,
-            state="Active"
-        ).exists()
+        ativo = is_module_active(request.entity_id, self.module_name)
 
         if not ativo:
             return fail(request, f"Module '{self.module_name}' is not active.", status=403)
@@ -75,24 +113,7 @@ class TenantDashboardAPIView(APIView):
         entity só por ter acesso ao dashboard.
         """
 
-        scope = request.query_params.get("scope", "branch")
-
-        if scope == "entity":
-            consolidated_codename = f"view_consolidated_dashboard_{self.module_name}"
-
-            if not isPermited(request=request, role=consolidated_codename):
-                fail(
-                    request,
-                    "Sem permissão para consolidado da entity.",
-                    status=403
-                )
-
-            return qs.filter(entity_id=request.entity_id)
-
-        return qs.filter(
-            entity_id=request.entity_id,
-            branch_id=request.branch_id
-        )
+        return apply_tenant_scope(request, qs, module_name=self.module_name)
 
     # -----------------------------------------------------
     # 📅 PERÍODO OBRIGATÓRIO (evita varrer a tabela inteira)

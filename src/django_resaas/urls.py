@@ -88,6 +88,13 @@ from django_resaas.engine.core.utils.autoload_urls import build_saas_urls
 
 from django_resaas.engine.data.context.views.context import ResaasContextAPIView
 
+from django_resaas.engine.core.dashboards.views import (
+    DashboardDetailAPIView,
+    DashboardListAPIView,
+    DashboardWidgetDataAPIView,
+    DashboardWidgetFilterOptionsAPIView,
+)
+
 
 
 
@@ -146,6 +153,23 @@ urlpatterns = [
     path("django_resaas/", include(routerdjango_resaas.urls)),
     path("auth/", include(routerauth.urls)),
     path("django_resaas/relations/", RelationsAPIView.as_view()),
+
+    path("django_resaas/dashboards/", DashboardListAPIView.as_view(), name="dashboard_list"),
+    path(
+        "django_resaas/dashboard/<str:app_name>/",
+        DashboardDetailAPIView.as_view(),
+        name="dashboard_detail",
+    ),
+    path(
+        "django_resaas/dashboard/<str:app_name>/widget/<str:widget_name>/",
+        DashboardWidgetDataAPIView.as_view(),
+        name="dashboard_widget_data",
+    ),
+    path(
+        "django_resaas/dashboard/<str:app_name>/widget/<str:widget_name>/filters/<str:filter_name>/options/",
+        DashboardWidgetFilterOptionsAPIView.as_view(),
+        name="dashboard_widget_filter_options",
+    ),
 
 
     path("site/", SiteAPIView.as_view(), name="site"),
