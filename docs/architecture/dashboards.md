@@ -70,6 +70,18 @@ frontend (DashboardStore → DashboardRenderer → widget registry)
   cliente - resolvem sempre a `request.entity_id`/`branch_id`; um valor
   diferente enviado pelo cliente é rejeitado (400), nunca ignorado
   silenciosamente.
+- **Opções de filtro, estáticas vs. dinâmicas**: só existe endpoint de
+  opções ao nível do *widget*
+  (`.../widget/<name>/filters/<filter>/options/`), não ao nível do
+  dashboard - por isso um filtro **global** com opções deve declarar
+  `"options"` estático directamente em `dashboard.py` quando a lista é
+  pequena/fixa (ex.: `saude/dashboard.py`'s `status`, resolvido a
+  partir de `Agenda._meta.get_field("estado").choices` - introspecção,
+  não query). `options_provider` fica reservado para filtros de âmbito
+  **widget** cuja lista é genuinamente dinâmica/específica do tenant
+  (ex.: `saude/dashboard.py`'s `medico`, filtro próprio de
+  `proximas_consultas`, resolvido por `MedicoOptionsProvider` a partir
+  de `hr.Employee` já tenant-scoped).
 
 ## `dashboard.py`
 
@@ -220,8 +232,9 @@ Só configuração + provider - nenhuma mudança no motor.
 - Backend: `django_resaas/engine/tests/test_dashboard_engine.py` (33
   testes - discovery, imutabilidade, validator, provider registry,
   filtros, endpoints/segurança) + `back/saude/tests/
-  test_dashboard_engine.py` (17 testes - os 7 widgets com dados reais,
-  isolamento de tenant, os 4 perfis de exemplo).
+  test_dashboard_engine.py` (19 testes - os 7 widgets com dados reais,
+  opções estáticas vs. dinâmicas, isolamento de tenant, os 4 perfis de
+  exemplo).
 - Frontend: `stores/DashboardStore.spec.js` (race conditions,
   Promise.allSettled, serialização de filtros, filtros dependentes,
   auto-refresh) + `components/dashboard/registry.spec.js`.
