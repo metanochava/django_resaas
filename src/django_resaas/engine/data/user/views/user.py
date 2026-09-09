@@ -6,9 +6,14 @@ from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
+from django_resaas.engine.core.services.interface_config_service import (
+    InterfaceConfigService,
+)
 from django_resaas.engine.models.group import Group
 from django_resaas.engine.models.user import User
+from django_resaas.engine.models.user_theme_override import UserThemeOverride
 from django_resaas.engine.models.entity import Entity
+from django_resaas.engine.models.entity_type import EntityType
 from django_resaas.engine.models.branch import Branch
 from django_resaas.engine.models.entity_user import EntityUser
 from django_resaas.engine.models.entity_app import EntityApp
@@ -559,6 +564,83 @@ class UserAPIView(viewsets.ModelViewSet):
 
         return Response(MENUS, status=status.HTTP_200_OK)
 
+
+    # ==========================================================
+    # 🎨 INTERFACE (header/footer) - personalização do próprio
+    # utilizador, cascata User > Entity > EntityType > default (ver
+    # InterfaceConfigService). Sempre sobre request.user - nunca um
+    # id de outro utilizador -, por isso detail=False mesmo esta
+    # sendo um ModelViewSet.
+    # ==========================================================
+
+    INTERFACE_OVERRIDE_FIELDS = (
+        "background_type", "background_color", "background_gradient",
+        "background_image", "background_overlay", "text_color",
+    )
+
+    def _interface_response(self, request):
+        entity = Entity.objects.filter(id=getattr(request, "entity_id", None)).first()
+        entity_type = EntityType.objects.filter(
+            id=getattr(request, "entity_type_id", None)
+        ).first()
+
+        return Response({
+            "interface_config": InterfaceConfigService.resolve(
+                user=request.user, entity=entity, entity_type=entity_type
+            ),
+            "interface_override": InterfaceConfigService.resolve_override_only(
+                user=request.user
+            ),
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["POST", "PATCH"])
+    def update_interface(self, request, *args, **kwargs):
+        area = request.data.get("area")
+
+        if area not in ("header", "footer"):
+            return Response(
+                {"detail": "'area' deve ser 'header' ou 'footer'."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        override, _ = UserThemeOverride.objects.get_or_create(user=request.user)
+
+        updated_fields = []
+
+        for key in self.INTERFACE_OVERRIDE_FIELDS:
+            if key not in request.data:
+                continue
+
+            value = request.data.get(key)
+            model_field = f"{area}_{key}"
+
+            if key == "background_overlay" and value not in (None, ""):
+                value = float(value)
+
+            setattr(override, model_field, value or None)
+            updated_fields.append(model_field)
+
+        if updated_fields:
+            override.save(update_fields=updated_fields)
+
+        return self._interface_response(request)
+
+    @action(detail=False, methods=["POST"])
+    def reset_interface(self, request, *args, **kwargs):
+        area = request.data.get("area")
+        areas = [area] if area in ("header", "footer") else ["header", "footer"]
+
+        override = getattr(request.user, "theme_override", None)
+
+        if override:
+            updated_fields = [
+                f"{a}_{key}" for a in areas for key in self.INTERFACE_OVERRIDE_FIELDS
+            ]
+            for field_name in updated_fields:
+                setattr(override, field_name, None)
+            override.save(update_fields=updated_fields)
+
+        return self._interface_response(request)
 
     @action(
         detail=True,

@@ -2,6 +2,10 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from django_resaas.engine.core.base.models import TimeModel
+from django_resaas.engine.models.mixins.visual_area import (
+    FooterVisualFields,
+    HeaderVisualFields,
+)
 
 
 def icon_path(instance, file_name):
@@ -12,7 +16,7 @@ def login_background_path(instance, file_name):
     return f'{instance.name}/login/{file_name}'
 
 
-class EntityType(TimeModel):
+class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
 
     # =========================================================
     # CHOICES

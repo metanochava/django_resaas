@@ -3,6 +3,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from django_resaas.engine.models.user import User
 from django_resaas.engine.core.base.models import TimeModel
+from django_resaas.engine.models.mixins.visual_area import (
+    FooterVisualFields,
+    HeaderVisualFields,
+)
 
 
 def logo_path(instance, file_name):
@@ -13,7 +17,7 @@ def login_background_path(instance, file_name):
     return f'{instance.entity_type.name}/{instance.name}/login/{file_name}'
 
 
-class Entity(TimeModel):
+class Entity(HeaderVisualFields, FooterVisualFields, TimeModel):
 
     # =========================================================
     # CHOICES
