@@ -3,3 +3,4 @@ from .person import Person
 from .entity_type_group import EntityTypeGroup
 from .cors_allowed_origin import CorsAllowedOrigin
 from .model_extra_action import ModelExtraAction
+from .user_theme_override import UserThemeOverride

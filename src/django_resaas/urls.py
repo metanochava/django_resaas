@@ -155,6 +155,7 @@ urlpatterns = [
     path("django_resaas/relations/", RelationsAPIView.as_view()),
 
     path("django_resaas/dashboards/", DashboardListAPIView.as_view(), name="dashboard_list"),
+    
     path(
         "django_resaas/dashboard/<str:app_name>/",
         DashboardDetailAPIView.as_view(),
