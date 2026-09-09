@@ -295,6 +295,18 @@ class Entity(HeaderVisualFields, FooterVisualFields, TimeModel):
                 "accept": ".png,.jpg,.jpeg,.webp",
                 "max_size": 5 * 1024 * 1024,
                 "multiple": False
+            },
+
+            "header_background_image": {
+                "accept": ".png,.jpg,.jpeg,.webp",
+                "max_size": 5 * 1024 * 1024,
+                "multiple": False
+            },
+
+            "footer_background_image": {
+                "accept": ".png,.jpg,.jpeg,.webp",
+                "max_size": 5 * 1024 * 1024,
+                "multiple": False
             }
 
         }

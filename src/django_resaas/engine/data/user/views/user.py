@@ -623,6 +623,15 @@ class UserAPIView(viewsets.ModelViewSet):
         if updated_fields:
             override.save(update_fields=updated_fields)
 
+        # Sem isto, a leitura seguinte (dentro de _interface_response,
+        # mesmo request) via request.user.theme_override devolveria a
+        # instância antiga em cache do OneToOne reverso - a
+        # actualização acima passou pelo lado do manager
+        # (UserThemeOverride.objects...), que nunca invalida essa
+        # cache. Reatribuir directamente aponta a cache para esta
+        # instância já guardada.
+        request.user.theme_override = override
+
         return self._interface_response(request)
 
     @action(detail=False, methods=["POST"])
@@ -639,6 +648,7 @@ class UserAPIView(viewsets.ModelViewSet):
             for field_name in updated_fields:
                 setattr(override, field_name, None)
             override.save(update_fields=updated_fields)
+            request.user.theme_override = override
 
         return self._interface_response(request)
 
