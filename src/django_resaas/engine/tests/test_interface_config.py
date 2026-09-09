@@ -21,7 +21,7 @@ class TestResolutionCascade:
         tenant = bootstrap_tenant("iface-default")
 
         config = InterfaceConfigService.resolve(
-            user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity_type"]
+            user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config == DEFAULT_CONFIG
@@ -29,12 +29,12 @@ class TestResolutionCascade:
     def test_entity_type_level_is_used_when_entity_has_nothing(self, bootstrap_tenant):
         tenant = bootstrap_tenant("iface-type")
 
-        tenant["entity_type"].header_background_type = "color"
-        tenant["entity_type"].header_background_color = "#00ff00"
-        tenant["entity_type"].save()
+        tenant["entity"].entity_type.header_background_type = "color"
+        tenant["entity"].entity_type.header_background_color = "#00ff00"
+        tenant["entity"].entity_type.save()
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity_type"]
+            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#00ff00"}
@@ -42,16 +42,16 @@ class TestResolutionCascade:
     def test_entity_overrides_entity_type(self, bootstrap_tenant):
         tenant = bootstrap_tenant("iface-entity")
 
-        tenant["entity_type"].header_background_type = "color"
-        tenant["entity_type"].header_background_color = "#00ff00"
-        tenant["entity_type"].save()
+        tenant["entity"].entity_type.header_background_type = "color"
+        tenant["entity"].entity_type.header_background_color = "#00ff00"
+        tenant["entity"].entity_type.save()
 
         tenant["entity"].header_background_type = "color"
         tenant["entity"].header_background_color = "#ff0000"
         tenant["entity"].save()
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity_type"]
+            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#ff0000"}
@@ -70,7 +70,7 @@ class TestResolutionCascade:
         )
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity_type"]
+            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#0000ff"}
@@ -82,7 +82,7 @@ class TestResolutionCascade:
         tenant["entity"].save()
 
         config = InterfaceConfigService.resolve_area(
-            "footer", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity_type"]
+            "footer", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "transparent", "value": None}
@@ -96,12 +96,12 @@ class TestResolutionCascade:
         tenant["entity"].header_background_gradient = None
         tenant["entity"].save()
 
-        tenant["entity_type"].header_background_type = "color"
-        tenant["entity_type"].header_background_color = "#123456"
-        tenant["entity_type"].save()
+        tenant["entity"].entity_type.header_background_type = "color"
+        tenant["entity"].entity_type.header_background_color = "#123456"
+        tenant["entity"].entity_type.save()
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity_type"]
+            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#123456"}
@@ -119,7 +119,7 @@ class TestInterfaceEndpoints:
     def test_me_returns_resolved_interface_config(self, bootstrap_tenant):
         tenant = bootstrap_tenant("iface-me")
 
-        response = tenant["client"].get("/me/")
+        response = tenant["client"].get("/api/me/")
 
         assert response.status_code == 200, response.data
         assert response.data["interface_config"] == DEFAULT_CONFIG
@@ -142,7 +142,7 @@ class TestInterfaceEndpoints:
         # footer nunca foi tocado - continua no default.
         assert response.data["interface_config"]["footer"] == DEFAULT_CONFIG["footer"]
 
-        me_response = tenant["client"].get("/me/")
+        me_response = tenant["client"].get("/api/me/")
         assert me_response.data["interface_config"]["header"]["background"]["value"] == "#abcdef"
 
     def test_update_interface_rejects_unknown_area(self, bootstrap_tenant):
@@ -159,16 +159,19 @@ class TestInterfaceEndpoints:
     def test_reset_interface_clears_only_the_requested_area(self, bootstrap_tenant):
         tenant = bootstrap_tenant("iface-reset")
 
-        tenant["client"].post(
+        r1 = tenant["client"].post(
             "/api/django_resaas/users/update_interface/",
             {"area": "header", "background_type": "color", "background_color": "#abcdef"},
             content_type="application/json",
         )
-        tenant["client"].post(
+        assert r1.status_code == 200, r1.data
+        r2 = tenant["client"].post(
             "/api/django_resaas/users/update_interface/",
             {"area": "footer", "background_type": "color", "background_color": "#123456"},
             content_type="application/json",
         )
+        assert r2.status_code == 200, r2.data
+        assert r2.data["interface_override"]["footer"] is not None, r2.data
 
         response = tenant["client"].post(
             "/api/django_resaas/users/reset_interface/",
@@ -220,6 +223,6 @@ class TestInterfaceEndpoints:
             content_type="application/json",
         )
 
-        response_b = tenant_b["client"].get("/me/")
+        response_b = tenant_b["client"].get("/api/me/")
 
         assert response_b.data["interface_override"]["header"] is None
