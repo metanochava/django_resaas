@@ -417,23 +417,22 @@ class UserAPIView(viewsets.ModelViewSet):
 
         # =====================================================
         # EFFECTIVE PERMISSIONS FOR CURRENT BRANCH/GROUP
+        #
+        # Deliberadamente SEM bypass de is_superuser aqui: o menu
+        # reflecte sempre o grupo/perfil actualmente seleccionado
+        # (BranchUserGroup), mesmo para superuser. Sem isto, trocar o
+        # perfil activo para "Guest" (BootstrapService já associa o
+        # criador da entity a "Guest" além do grupo admin escolhido,
+        # precisamente para servir de pré-visualização) nunca mudava o
+        # menu de um superuser - via sempre tudo, independentemente do
+        # perfil seleccionado. Um superuser continua a ver tudo nas
+        # entities/branches onde estiver em "Root" (que já tem todas
+        # as permissões via create_model_permissions), sem precisar de
+        # nenhum caso especial aqui.
         # =====================================================
         user_perms = set()
 
-        if getattr(request.user, "is_superuser", False):
-            # Superuser sees menu entries without being blocked by group roles.
-            # Use all permission codenames so role checks continue to work.
-            from django.contrib.auth.models import Permission
-
-            user_perms = {
-                str(codename).strip().lower()
-                for codename in Permission.objects.values_list(
-                    "codename",
-                    flat=True
-                )
-            }
-
-        elif branch_id and group_id:
+        if branch_id and group_id:
             branch_user_group = (
                 BranchUserGroup.objects
                 .filter(
