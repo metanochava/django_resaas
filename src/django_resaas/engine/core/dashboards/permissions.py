@@ -45,13 +45,9 @@ class DashboardPermissionService:
             raise DashboardPermissionError("Unauthorized")
 
     @staticmethod
-    def can_view_widget(request, widget_config):
-        permissions = widget_config.get("permissions") or []
-
+    def _check_permissions(request, permissions, mode):
         if not permissions:
             return True
-
-        mode = widget_config.get("permission_mode", "any")
 
         checks = (
             isPermited(request=request, role=codename)
@@ -64,14 +60,82 @@ class DashboardPermissionService:
         return any(checks)
 
     @staticmethod
+    def can_view_widget(request, widget_config):
+        return DashboardPermissionService._check_permissions(
+            request,
+            widget_config.get("permissions") or [],
+            widget_config.get("permission_mode", "any"),
+        )
+
+    @staticmethod
+    def can_view_action(request, action_config):
+        """Uma action pode ter permissões diferentes das do widget que
+        a contém (ex.: widget 'patients' só precisa de view_paciente,
+        mas a sua action 'create_patient' precisa de add_paciente) -
+        ver docs/architecture/dashboards.md. Sem 'permissions' própria,
+        a action segue a mesma política dos widgets sem permissão
+        declarada: autorizada por omissão (o widget já passou a sua
+        própria verificação antes de as actions serem sequer
+        avaliadas)."""
+
+        return DashboardPermissionService._check_permissions(
+            request,
+            action_config.get("permissions") or [],
+            action_config.get("permission_mode", "any"),
+        )
+
+    @staticmethod
+    def filter_authorized_actions(request, actions):
+        """Nunca devolve uma action não autorizada no payload - esconder
+        só no frontend não é segurança (mesmo princípio dos widgets)."""
+
+        return [
+            action
+            for action in (actions or [])
+            if DashboardPermissionService.can_view_action(request, action)
+        ]
+
+    @staticmethod
+    def filter_single_action(request, action):
+        """Para primary_action/item_action (um único dict, não uma
+        lista) - None quando não autorizada, nunca omitida em silêncio
+        de um jeito que o frontend possa confundir com 'não
+        configurada'... na prática o resultado é o mesmo (nenhuma
+        action), mas a origem é sempre a autorização, nunca ausência
+        de configuração indevidamente escondida."""
+
+        if action is None:
+            return None
+
+        return action if DashboardPermissionService.can_view_action(request, action) else None
+
+    @staticmethod
+    def _filter_widget_actions(request, widget):
+        widget["actions"] = DashboardPermissionService.filter_authorized_actions(
+            request, widget.get("actions")
+        )
+        widget["row_actions"] = DashboardPermissionService.filter_authorized_actions(
+            request, widget.get("row_actions")
+        )
+        widget["primary_action"] = DashboardPermissionService.filter_single_action(
+            request, widget.get("primary_action")
+        )
+        widget["item_action"] = DashboardPermissionService.filter_single_action(
+            request, widget.get("item_action")
+        )
+        return widget
+
+    @staticmethod
     def filter_authorized_widgets(request, dashboard_config):
         """Devolve só os widgets que o utilizador pode ver - nunca
         widgets escondidos-mas-presentes no payload (ver secção
         "Protecção de endpoints" do pedido: esconder no frontend não é
-        segurança, o backend não devolve o que não é autorizado)."""
+        segurança, o backend não devolve o que não é autorizado). Cada
+        widget autorizado tem também as suas próprias actions
+        filtradas - ver _filter_widget_actions()."""
 
         return [
-            widget
+            DashboardPermissionService._filter_widget_actions(request, widget)
             for widget in dashboard_config.get("widgets", [])
             if widget.get("visible", True)
             and DashboardPermissionService.can_view_widget(request, widget)
