@@ -33,6 +33,7 @@ from django_resaas.engine.data.layout_setting.serializers.layout_setting import 
 from django_resaas.engine.models.entity_type_group import EntityTypeGroup  # 🔥 NOVO
 from django_resaas.engine.models.entity_group import EntityGroup
 from django_resaas.engine.core.base.views import BaseAPIView
+from django_resaas.engine.core.utils.sub_object_put import apply_sub_object_put
 
 
 from django_resaas.engine.data.entity_type.serializers.entity_type import (
@@ -384,13 +385,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         theme = entitytype.theme
         data = request.data
 
-        for key, value in data.items():
-            if hasattr(theme, key):
-                if key == "created_by" or key == "updated_by":
-                    theme.created_by = request.user
-                    theme.updated_by = request.user
-                else:
-                    setattr(theme, key, value)
+        apply_sub_object_put(theme, data, user=request.user)
 
         theme.save()
         theme = ThemeSerializer(theme).data
@@ -404,13 +399,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         layout_settings = entitytype.layout_settings
         data = request.data
 
-        for key, value in data.items():
-            if hasattr(layout_settings, key):
-                if key == "created_by" or key == "updated_by":
-                    layout_settings.created_by = request.user
-                    layout_settings.updated_by = request.user
-                else:
-                    setattr(layout_settings, key, value)
+        apply_sub_object_put(layout_settings, data, user=request.user)
 
         layout_settings.save()
         layout_settings = LayoutSettingSerializer(layout_settings).data
@@ -426,13 +415,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         typography = entitytype.typography
         data = request.data
 
-        for key, value in data.items():
-            if hasattr(typography, key):
-                if key == "created_by" or key == "updated_by":
-                    typography.created_by = request.user
-                    typography.updated_by = request.user
-                else:
-                    setattr(typography, key, value)
+        apply_sub_object_put(typography, data, user=request.user)
         typography.save()
         typography = TypographySerializer(typography).data
         return Response(typography, status=status.HTTP_200_OK)
@@ -445,15 +428,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         animation_settings = entitytype.animation_settings
         data = request.data
 
-        for key, value in data.items():
-            if hasattr(animation_settings, key):
-                setattr(animation_settings, key, value)
-                if key == "created_by" or key == "updated_by":
-                    animation_settings.created_by = request.user
-                    animation_settings.updated_by = request.user
-                else:
-                    setattr(animation_settings, key, value)
-        
+        apply_sub_object_put(animation_settings, data, user=request.user)
 
         animation_settings.save()
         animation_settings = AnimationSettingSerializer(animation_settings).data

@@ -54,6 +54,7 @@ from django_resaas.engine.core.utils import ok
 
 from django_resaas.engine.core.services.disc_manager import DiskManegarService
 from django_resaas.engine.core.base.views import BaseAPIView
+from django_resaas.engine.core.utils.sub_object_put import apply_sub_object_put
 
 
 class EntityAPIView(viewsets.ModelViewSet):
@@ -559,12 +560,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         theme = Theme.objects.get(id=entity.theme.id)
         data = request.data
 
-        for key, value in data.items():
-            if key == "created_by" or key == "updated_by":
-                theme.created_by = request.user
-                theme.updated_by = request.user
-            else:
-                setattr(theme, key, value)
+        apply_sub_object_put(theme, data, user=request.user)
         theme.save()
         theme = ThemeSerializer(theme).data
         return ok(request, 'Colors updated successfully!',theme=theme)
@@ -593,12 +589,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         layout_settings = LayoutSetting.objects.get(id=entity.layout_settings.id)
         data = request.data
 
-        for key, value in data.items():
-            if key == "created_by" or key == "updated_by":
-                layout_settings.created_by = request.user
-                layout_settings.updated_by = request.user
-            else:
-                setattr(layout_settings, key, value)
+        apply_sub_object_put(layout_settings, data, user=request.user)
 
         layout_settings.save()
         layout_settings = LayoutSettingSerializer(layout_settings).data
@@ -633,12 +624,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         typography = Typography.objects.get(id=entity.typography.id)
         data = request.data
 
-        for key, value in data.items():
-            if key == "created_by" or key == "updated_by":
-                typography.created_by = request.user
-                typography.updated_by = request.user
-            else:
-                setattr(typography, key, value)
+        apply_sub_object_put(typography, data, user=request.user)
         typography.save()
         typography = TypographySerializer(typography).data
         return ok(request, 'Font updated successfully!',typography=typography)
@@ -670,12 +656,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         animation_settings = AnimationSetting.objects.get(id=entity.animation_settings.id)
         data = request.data
 
-        for key, value in data.items():
-            if key == "created_by" or key == "updated_by":
-                animation_settings.created_by = request.user
-                animation_settings.updated_by = request.user
-            else:
-                setattr(animation_settings, key, value)
+        apply_sub_object_put(animation_settings, data, user=request.user)
 
         animation_settings.save()
         animation_settings = AnimationSettingSerializer(animation_settings).data
