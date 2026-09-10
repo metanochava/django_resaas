@@ -139,6 +139,60 @@ list:       {items: [{id, title, description?, icon?, avatar?, date?, status?, r
 calendar:   {start, end, events: [{id, title, start, end, status?, status_color?}]}
 ```
 
+## Tooltips e actions
+
+`tooltip` (string livre, só apresentação - nunca identificador técnico
+nem permissão) pode existir em: dashboard, filtro, widget, e em cada
+action. Validado só quanto ao tipo (`_validate_tooltip`).
+
+Actions (`primary_action`, `actions`, `row_actions`, `item_action`) são
+metadata de widget, com o mesmo tipo de contrato que
+`resaas_action`/`ModelExtraAction` já usam noutras partes do RESAAS
+(`name`, `type`, `icon?`, `label?`, `tooltip?`, `permissions?`,
+`permission_mode?`, `route?`):
+
+```
+primary_action: dict | None   - uma acção para o widget inteiro (ex.: clicar no cabeçalho)
+actions:        [dict]        - botões extra no cabeçalho do widget
+row_actions:    [dict]        - só em widgets 'table' (uma acção por linha)
+item_action:    dict | None   - um destino único para qualquer item de 'list'/'calendar'/
+                                 segmento de 'bar_chart'/'pie_chart' (ver `codes` abaixo)
+```
+
+`type` suportado (`SUPPORTED_ACTION_TYPES`, `validator.py`):
+`route` (obrigatório `route: {name, params?, query?}`, resolvido pelo
+vue-router real da app - nunca inventar rotas aqui), `refresh`,
+`fullscreen`, `dialog`. Extensível para `download`/`export`/`print`/
+`provider_action`/`external_url` via
+`quasar_resaas/services/dashboardActions.js`'s `registerActionHandler()`
+sem tocar em nenhum widget existente.
+
+Permissão de uma action é **independente** da permissão do widget que a
+contém (`DashboardPermissionService.can_view_action()` -
+`filter_authorized_actions()`/`filter_single_action()`, chamadas por
+`_filter_widget_actions()` dentro de `filter_authorized_widgets()`):
+um utilizador pode ver o widget `total_pacientes` (`view_paciente`) sem
+ver a sua action `add_patient` (`add_paciente`) - a action nunca é
+devolvida no payload sem permissão, nunca só escondida no frontend
+(mesma regra dos widgets, CLAUDE.md #56/#60). Sem `permissions`
+própria, a action segue a mesma política dos widgets sem permissão
+declarada: autorizada por omissão.
+
+Placeholders `{campo}` (ex.: `{id}`, `{code}`) em `route.params`/
+`route.query` são resolvidos no frontend por `resolveTemplate()`, a
+partir da linha/item/evento clicado - nunca no backend. Para
+`bar_chart`/`pie_chart`, o contrato `{labels, series}` aceita um
+`codes` opcional (array paralelo a `labels`, mesmo índice) só para
+resolver `{code}`; sem `codes`, cai para o próprio `label`. Ver
+`saude/dashboard.py` para exemplo real (`total_pacientes`:
+`primary_action`→`list_paciente` + `actions`→`add_paciente`;
+`proximas_consultas`: `row_actions`→`view_paciente` via
+`paciente_id`; `ultimos_pacientes`/`agenda_calendario`:
+`item_action`→`view_paciente`).
+
+Ver `engine/tests/test_dashboard_actions.py` para os testes de
+validação estrutural e de filtragem por permissão.
+
 ## Filtros
 
 15 tipos suportados (`validator.py`'s `SUPPORTED_FILTER_TYPES`).
@@ -184,9 +238,18 @@ respostas antigas), filtros globais/por-widget, `depends_on`,
 
 `DashboardRenderer.vue` → `DashboardHeader` + `DashboardFilters` +
 grelha de `WidgetContainer` (loading/empty/error/reload, `cols`
-responsivo) → componente resolvido por `components/dashboard/
-registry.js` (`widgetComponents[type]`). Tipo desconhecido: mensagem
-"Unsupported widget type", nunca crash.
+responsivo, tooltip do widget, actions do cabeçalho, `primary_action`)
+→ componente resolvido por `components/dashboard/registry.js`
+(`widgetComponents[type]`). Tipo desconhecido: mensagem "Unsupported
+widget type", nunca crash.
+
+`services/dashboardActions.js` (`resolveDashboardAction()`) é o único
+sítio que sabe como executar cada `type` de action - nenhum widget
+implementa navegação por si próprio (`TableWidget`'s `row_actions`,
+`ListWidget`/`CalendarWidget`'s `item_action`,
+`BarChartWidget`/`PieChartWidget`'s `item_action` por segmento, todos
+chamam o mesmo resolvedor). Exportado de `quasar_resaas` para apps
+registarem novos `type`s via `registerActionHandler()`.
 
 Global: `s-dashboard-renderer` (`boot/components.js`) - uso mínimo numa
 página:
@@ -229,15 +292,19 @@ Só configuração + provider - nenhuma mudança no motor.
 
 ## Testes
 
-- Backend: `django_resaas/engine/tests/test_dashboard_engine.py` (33
+- Backend: `django_resaas/engine/tests/test_dashboard_engine.py` (32
   testes - discovery, imutabilidade, validator, provider registry,
-  filtros, endpoints/segurança) + `back/saude/tests/
-  test_dashboard_engine.py` (19 testes - os 7 widgets com dados reais,
-  opções estáticas vs. dinâmicas, isolamento de tenant, os 4 perfis de
-  exemplo).
+  filtros, endpoints/segurança) + `django_resaas/engine/tests/
+  test_dashboard_actions.py` (15 testes - validação de tooltip/actions,
+  filtragem de actions por permissão independente da do widget) +
+  `back/saude/tests/test_dashboard_engine.py` (19 testes - os 7
+  widgets com dados reais, opções estáticas vs. dinâmicas, isolamento
+  de tenant, os 4 perfis de exemplo).
 - Frontend: `stores/DashboardStore.spec.js` (race conditions,
   Promise.allSettled, serialização de filtros, filtros dependentes,
-  auto-refresh) + `components/dashboard/registry.spec.js`.
+  auto-refresh) + `components/dashboard/registry.spec.js` +
+  `services/dashboardActions.spec.js` (13 testes - resolução de
+  `{placeholder}`, cada `type` de action, `registerActionHandler()`).
 
 ## Limitações actuais / melhorias futuras
 
@@ -253,3 +320,16 @@ Só configuração + provider - nenhuma mudança no motor.
 - `date_range`/`number_range` não suportam ainda um "default dinâmico"
   declarado em `dashboard.py` (ex.: `"default": "current_month"`) - por
   agora a resolução dinâmica fica sempre a cargo do provider.
+- `type: "dialog"` só chama um `onDialog(action)` opcional que o
+  consumidor da página tem de fornecer - o resolver genérico não sabe
+  (nem deve saber) que diálogo mostrar para uma action arbitrária de
+  uma app qualquer. `type: "fullscreen"` já tem comportamento real
+  (`WidgetContainer` abre o próprio widget num `q-dialog` maximizado).
+- Route names/permission codenames de `dashboard.py` NÃO são
+  validados contra o router real da app nem contra o modelo de
+  permissões real - é responsabilidade de quem escreve `dashboard.py`
+  usar nomes que existem de facto (ver `saude/dashboard.py` para
+  exemplos reais confirmados).
+- `identificadores técnicos de provider` (`"saude.total_pacientes"`
+  etc.) continuam em português/domínio local - internacionalização
+  destes nomes, com aliases de compatibilidade, ainda não foi feita.

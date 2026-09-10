@@ -26,8 +26,16 @@ KNOWN_WIDGET_TYPES = {
     "table", "list", "calendar",
 }
 
+# Tipos de action suportados pelo DashboardActionResolver genérico do
+# frontend (quasar_resaas/services/dashboardActions.js). "route" reusa
+# o vue-router já existente - nunca inventa rotas novas aqui, o
+# dashboard.py de cada app é que aponta para rotas REAIS já
+# registadas.
+SUPPORTED_ACTION_TYPES = {"route", "refresh", "fullscreen", "dialog"}
+
 REQUIRED_DASHBOARD_FIELDS = ("name", "label")
 REQUIRED_WIDGET_FIELDS = ("name", "type", "provider")
+REQUIRED_ACTION_FIELDS = ("name", "type")
 
 
 class DashboardValidator:
@@ -80,6 +88,11 @@ class DashboardValidator:
                 "uma string (codename) ou omitido.",
                 fields={"permission": ["Deve ser uma string."]},
             )
+
+        cls._validate_tooltip(
+            config.get("tooltip"),
+            context=f"'{app_label}.dashboard.DASHBOARD'",
+        )
 
     @classmethod
     def _validate_widgets(cls, widgets, *, global_filter_names, app_label):
@@ -159,6 +172,27 @@ class DashboardValidator:
                         ]},
                     )
 
+            widget_context = f"widget '{name}' de '{app_label}'"
+
+            cls._validate_tooltip(widget.get("tooltip"), context=widget_context)
+
+            cls._validate_actions_list(
+                widget.get("actions"), context=f"{widget_context}.actions"
+            )
+            cls._validate_actions_list(
+                widget.get("row_actions"), context=f"{widget_context}.row_actions"
+            )
+
+            if widget.get("primary_action") is not None:
+                cls._validate_action(
+                    widget["primary_action"], context=f"{widget_context}.primary_action"
+                )
+
+            if widget.get("item_action") is not None:
+                cls._validate_action(
+                    widget["item_action"], context=f"{widget_context}.item_action"
+                )
+
     @classmethod
     def _validate_filters(cls, filters, *, context):
         if not isinstance(filters, list):
@@ -200,4 +234,81 @@ class DashboardValidator:
                     fields={"type": ["Tipo de filtro não suportado."]},
                 )
 
+            cls._validate_tooltip(filter_def.get("tooltip"), context=f"filtro '{name}' de {context}")
+
         return seen_names
+
+    @classmethod
+    def _validate_tooltip(cls, tooltip, *, context):
+        """tooltip é só metadata de apresentação (nunca identificador
+        técnico/de permissão - ver docs/architecture/dashboards.md) -
+        a única validação que faz sentido aqui é o tipo."""
+
+        if tooltip is not None and not isinstance(tooltip, str):
+            raise DashboardConfigError(
+                f"'tooltip' de {context} deve ser uma string ou omitido.",
+                fields={"tooltip": ["Deve ser uma string."]},
+            )
+
+    @classmethod
+    def _validate_action(cls, action_def, *, context):
+        if not isinstance(action_def, dict):
+            raise DashboardConfigError(f"Uma action de {context} deve ser um dict.")
+
+        for field in REQUIRED_ACTION_FIELDS:
+            if not action_def.get(field):
+                raise DashboardConfigError(
+                    f"Action de {context} não define '{field}', que é obrigatório.",
+                    fields={field: ["Este campo é obrigatório."]},
+                )
+
+        action_name = action_def["name"]
+        action_type = action_def["type"]
+
+        if action_type not in SUPPORTED_ACTION_TYPES:
+            raise DashboardConfigError(
+                f"Action '{action_name}' de {context} tem type desconhecido: "
+                f"'{action_type}'. Suportados: {sorted(SUPPORTED_ACTION_TYPES)}.",
+                code="unsupported_action_type",
+                fields={"type": ["Tipo de action não suportado."]},
+            )
+
+        if action_type == "route" and not isinstance(action_def.get("route"), dict):
+            raise DashboardConfigError(
+                f"Action '{action_name}' de {context} é do tipo 'route' mas "
+                "não define 'route' (dict com pelo menos 'name').",
+                fields={"route": ["Obrigatório para type='route'."]},
+            )
+
+        permission_mode = action_def.get("permission_mode", "any")
+        if permission_mode not in ("all", "any"):
+            raise DashboardConfigError(
+                f"Action '{action_name}' de {context} tem permission_mode "
+                f"inválido: '{permission_mode}'. Use 'all' ou 'any'.",
+                fields={"permission_mode": ["Use 'all' ou 'any'."]},
+            )
+
+        cls._validate_tooltip(action_def.get("tooltip"), context=f"action '{action_name}' de {context}")
+
+    @classmethod
+    def _validate_actions_list(cls, actions, *, context):
+        if actions is None:
+            return
+
+        if not isinstance(actions, list):
+            raise DashboardConfigError(f"'{context}' deve ser uma lista.")
+
+        seen_names = set()
+
+        for action_def in actions:
+            cls._validate_action(action_def, context=context)
+
+            name = action_def["name"]
+
+            if name in seen_names:
+                raise DashboardConfigError(
+                    f"Action duplicada '{name}' em '{context}'.",
+                    code="duplicate_action",
+                    fields={"name": [f"Action '{name}' já existe."]},
+                )
+            seen_names.add(name)
