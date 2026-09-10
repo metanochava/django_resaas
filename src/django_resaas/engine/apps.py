@@ -23,6 +23,32 @@ def create_django_resaas_groups(sender, **kwargs):
 
 
 # ==========================================================
+# CREATE CORE ADMINISTRATION PROFILES
+# ==========================================================
+# System/Organization/Branch Administrator - perfis de âmbito de
+# plataforma/tenant (ver engine/profiles.py), mesmo mecanismo
+# group_creator() já usado por saude/sales/inventory/farmacia. Guard
+# igual ao de todos esses apps.py: só corre depois de já existir pelo
+# menos uma EntityType real (nunca numa base de dados completamente
+# virgem, antes de qualquer fixture/tenant ter sido criado).
+
+def create_core_profiles(sender, **kwargs):
+
+    if kwargs.get("app_config").label != "django_resaas":
+        return
+
+    from django_resaas.engine.models.entity_type import EntityType
+
+    if not EntityType.objects.exists():
+        return
+
+    from django_resaas.engine.core.utils.group_creator import group_creator
+    from django_resaas.engine.profiles import CORE_PROFILES
+
+    group_creator(CORE_PROFILES)
+
+
+# ==========================================================
 # APP CONFIG
 # ==========================================================
 
@@ -76,6 +102,11 @@ class DjangoResaasConfig(AppConfig):
 
         post_migrate.connect(
             create_django_resaas_groups,
+            sender=self
+        )
+
+        post_migrate.connect(
+            create_core_profiles,
             sender=self
         )
 
