@@ -206,6 +206,43 @@ class TestProviderRegistry:
         with pytest.raises(DashboardConfigError):
             providers.resolve_provider("django_resaas.engine.models.user.User")
 
+    def test_register_provider_with_aliases_resolves_both_to_same_class(self):
+        # Internacionalização de identificadores (ex.: "saude.
+        # total_pacientes" -> "saude.total_patients") sem quebrar
+        # nenhum dashboard.py que ainda referencie o nome antigo - ver
+        # docs/architecture/dashboards.md.
+        try:
+            @providers.register_provider("t.new_name", aliases=["t.old_name"])
+            class _Provider(providers.BaseDashboardProvider):
+                def resolve(self):
+                    return {"value": 1}
+
+            assert providers.resolve_provider("t.new_name") is _Provider
+            assert providers.resolve_provider("t.old_name") is _Provider
+        finally:
+            providers._PROVIDERS.pop("t.new_name", None)
+            providers._PROVIDERS.pop("t.old_name", None)
+
+    def test_register_provider_alias_collision_raises(self):
+        try:
+            @providers.register_provider("t.a")
+            class _A(providers.BaseDashboardProvider):
+                def resolve(self):
+                    return {}
+
+            with pytest.raises(DashboardConfigError, match="duplicado"):
+                @providers.register_provider("t.b", aliases=["t.a"])
+                class _B(providers.BaseDashboardProvider):
+                    def resolve(self):
+                        return {}
+
+            # A colisão no alias não deve deixar 't.b' registado a meio.
+            with pytest.raises(DashboardConfigError):
+                providers.resolve_provider("t.b")
+        finally:
+            providers._PROVIDERS.pop("t.a", None)
+            providers._PROVIDERS.pop("t.b", None)
+
 
 # ============================================================
 # FILTER SERVICE

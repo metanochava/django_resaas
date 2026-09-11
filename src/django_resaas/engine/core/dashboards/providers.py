@@ -23,15 +23,25 @@ from django_resaas.engine.core.dashboards.exceptions import DashboardConfigError
 _PROVIDERS = {}
 
 
-def register_provider(key):
+def register_provider(key, aliases=None):
+    """`aliases`: identificadores antigos que devem continuar a
+    resolver para a mesma classe (ex.: internacionalização de
+    `"saude.total_pacientes"` para `"saude.total_patients"` sem
+    quebrar nenhum `dashboard.py` que ainda referencie o nome antigo -
+    ver docs/architecture/dashboards.md). `key` é sempre o
+    identificador canónico (o que uma app nova deve usar); aliases
+    resolvem para a mesma classe, nunca para uma cópia."""
+
     def decorator(cls):
-        if key in _PROVIDERS:
-            raise DashboardConfigError(
-                f"Provider duplicado: '{key}' já está registado por "
-                f"'{_PROVIDERS[key].__module__}.{_PROVIDERS[key].__name__}'.",
-                code="duplicate_provider",
-            )
-        _PROVIDERS[key] = cls
+        for k in (key, *(aliases or [])):
+            if k in _PROVIDERS:
+                raise DashboardConfigError(
+                    f"Provider duplicado: '{k}' já está registado por "
+                    f"'{_PROVIDERS[k].__module__}.{_PROVIDERS[k].__name__}'.",
+                    code="duplicate_provider",
+                )
+        for k in (key, *(aliases or [])):
+            _PROVIDERS[k] = cls
         return cls
     return decorator
 
