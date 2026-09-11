@@ -2,15 +2,15 @@
 # hr/serializers/employee.py
 
 from rest_framework import serializers
-from django_resaas.engine.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.job_position import JobPosition
 from django_resaas.hr.models.job_grade import JobGrade
 
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.models.person import Person
 
-from django_resaas.engine.data.person.serializers.person import PersonSerializer
+from django_resaas.saas.data.person.serializers.person import PersonSerializer
 from django_resaas.hr.serializers.job_position import JobPositionSerializer
 from django_resaas.hr.serializers.job_grade import JobGradeSerializer
 

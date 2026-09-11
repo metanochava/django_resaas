@@ -1,7 +1,7 @@
 # hr/models/onboarding_template.py
 
 from django.db import models
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 
 class OnboardingTemplate(BaseModel):

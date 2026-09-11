@@ -1,7 +1,7 @@
 # hr/serializers/attendance.py
 
 from rest_framework import serializers
-from django_resaas.engine.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 
 from django_resaas.hr.models.attendance import Attendance
 from django_resaas.hr.models.employee import Employee

@@ -1,6 +1,6 @@
 # hr/views/onboarding_template.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.onboarding_template import OnboardingTemplate
 from django_resaas.hr.serializers.onboarding_template import OnboardingTemplateSerializer

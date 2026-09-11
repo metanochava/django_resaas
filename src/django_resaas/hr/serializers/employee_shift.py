@@ -1,7 +1,7 @@
 # hr/serializers/employee_shift.py
 
 from rest_framework import serializers
-from django_resaas.engine.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 
 from django_resaas.hr.models.employee_shift import EmployeeShift
 from django_resaas.hr.models.employee import Employee

@@ -1,6 +1,6 @@
 # hr/serializers/salary_component.py
 
-from django_resaas.engine.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 
 from django_resaas.hr.models.salary_component import SalaryComponent
 

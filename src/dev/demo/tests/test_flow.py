@@ -16,13 +16,13 @@ import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
-from django_resaas.engine.core.services.bootstrap_service import BootstrapService
-from django_resaas.engine.core.signals.permissions import create_model_permissions
-from django_resaas.engine.core.tenant.context import ResaasContextService
-from django_resaas.engine.models.app import App
-from django_resaas.engine.models.branch_user_group import BranchUserGroup
-from django_resaas.engine.models.entity_app import EntityApp
-from django_resaas.engine.models.group import Group
+from django_resaas.saas.core.services.bootstrap_service import BootstrapService
+from django_resaas.saas.core.signals.permissions import create_model_permissions
+from django_resaas.saas.core.tenant.context import ResaasContextService
+from django_resaas.saas.models.app import App
+from django_resaas.saas.models.branch_user_group import BranchUserGroup
+from django_resaas.saas.models.entity_app import EntityApp
+from django_resaas.saas.models.group import Group
 
 User = get_user_model()
 
@@ -34,7 +34,7 @@ class _FakeAppConfig:
     passes - see core/signals/permissions.create_model_permissions, which
     only acts when `app_config.label == "django_resaas"`."""
 
-    name = "django_resaas.engine"
+    name = "django_resaas.saas"
     label = "django_resaas"
 
 

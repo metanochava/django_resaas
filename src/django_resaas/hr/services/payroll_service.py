@@ -159,7 +159,7 @@ def calculate_payroll(payroll, *, actor=None):
         'status', 'calculated_at', 'updated_at', 'updated_by',
     ])
 
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
     EventDispatcher.emit(
         'hr.payroll.calculated',
         instance=payroll,
@@ -218,7 +218,7 @@ def review_payroll(payroll, *, actor=None):
     payroll.status = PayrollStatus.REVIEWED
     payroll.save(update_fields=['status', 'updated_at', 'updated_by'])
 
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
     EventDispatcher.emit(
         'hr.payroll.reviewed',
         instance=payroll,
@@ -266,7 +266,7 @@ def confirm_payroll(payroll, *, actor=None):
             defaults={'entity': locked.entity, 'branch': locked.branch},
         )
 
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
     EventDispatcher.emit(
         'hr.payroll.confirmed',
         instance=locked,
@@ -296,7 +296,7 @@ def mark_paid(payroll, *, actor=None):
     payroll.paid_at = timezone.now()
     payroll.save(update_fields=['status', 'paid_at', 'updated_at', 'updated_by'])
 
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
     EventDispatcher.emit(
         'hr.payroll.paid',
         instance=payroll,

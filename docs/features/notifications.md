@@ -1,8 +1,8 @@
 # Notifications (Email / SMS / WhatsApp)
 
-A multi-tenant, asynchronous notification engine built into the framework
+A multi-tenant, asynchronous notification saas built into the framework
 (`django_resaas.notifications`) — not a feature of any one business app.
-Business code emits an event; the engine resolves rules, conditions,
+Business code emits an event; the saas resolves rules, conditions,
 recipients, preferences and a template; a durable `NotificationOutbox`
 row is created in the same database transaction as the business change
 that triggered it; a Celery worker delivers it later, off the request
@@ -277,7 +277,7 @@ provider supports an idempotency key on its own API.
 `BaseNotificationProvider.send(recipient, subject, body, metadata, idempotency_key)` returns
 `{"success", "provider_message_id", "provider_status", "raw"}` or raises
 `ProviderConfigurationError`/`ProviderPermanentError`/`ProviderTemporaryError`. Registered by
-channel+name in `NotificationProviderRegistry` — the engine/worker never import a concrete
+channel+name in `NotificationProviderRegistry` — the saas/worker never import a concrete
 provider directly, which is also how tests substitute `Fake*Provider`s.
 
 - **Email** — `django.core.mail.EmailMultiAlternatives`, whatever `EMAIL_BACKEND` is already

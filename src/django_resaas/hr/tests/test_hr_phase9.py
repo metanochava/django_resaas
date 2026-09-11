@@ -9,9 +9,9 @@ from datetime import date
 
 import pytest
 
-from django_resaas.engine.core.events import EventDispatcher
-from django_resaas.engine.models.branch import Branch
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.core.events import EventDispatcher
+from django_resaas.saas.models.branch import Branch
+from django_resaas.saas.models.person import Person
 from django_resaas.hr.models.department import Department
 from django_resaas.hr.models.employee import Employee, EmploymentStatus
 from django_resaas.hr.models.job_position import JobPosition
@@ -53,8 +53,8 @@ def _clear_listeners():
 
 def _sync_hr_actions():
     import django_resaas.hr.views  # noqa: F401 - populate VIEW_REGISTRY
-    from django_resaas.engine.core.base.registry import VIEW_REGISTRY
-    from django_resaas.engine.core.services.action_sync_service import ActionSyncService
+    from django_resaas.saas.core.base.registry import VIEW_REGISTRY
+    from django_resaas.saas.core.services.action_sync_service import ActionSyncService
 
     ActionSyncService.sync_registry(VIEW_REGISTRY)
 
@@ -622,8 +622,8 @@ def test_lifecycle_action_permissions_are_created(bootstrap_tenant):
 # =============================================================
 
 def test_lifecycle_models_appear_in_schema():
-    from django_resaas.engine.core.schema.builder import ResaasSchemaBuilder
-    from django_resaas.engine.management.apicommands.view.app_schema import _schema_fields
+    from django_resaas.saas.core.schema.builder import ResaasSchemaBuilder
+    from django_resaas.saas.management.apicommands.view.app_schema import _schema_fields
     from django_resaas.hr.models.promotion import Promotion
     from django_resaas.hr.models.disciplinary_case import DisciplinaryCase
     from django_resaas.hr.models.employee_offboarding import EmployeeOffboarding

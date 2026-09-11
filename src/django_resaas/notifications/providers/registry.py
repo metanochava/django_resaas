@@ -1,7 +1,7 @@
 class NotificationProviderRegistry:
     """`register(channel, name, provider)` - providers are looked up by
     channel + name (or just channel, for the channel's default), never
-    imported directly by the engine/worker. This is also what lets tests
+    imported directly by the saas/worker. This is also what lets tests
     swap in Fake* providers without touching any calling code."""
 
     _providers = {}  # {channel: {name: provider_instance}}

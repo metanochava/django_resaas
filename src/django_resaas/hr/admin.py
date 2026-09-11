@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django_resaas.engine.core.base.admin import BaseAdmin, all_fields
+from django_resaas.saas.core.base.admin import BaseAdmin, all_fields
 
 admin.site.site_title = 'HR'
 admin.site.index_title = 'HR'

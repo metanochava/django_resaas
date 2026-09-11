@@ -11,8 +11,8 @@ from datetime import date
 
 import pytest
 
-from django_resaas.engine.core.events import EventDispatcher
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.core.events import EventDispatcher
+from django_resaas.saas.models.person import Person
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.performance_cycle import PerformanceCycle, PerformanceCycleStatus
 from django_resaas.hr.models.competency import Competency
@@ -77,8 +77,8 @@ def _clear_listeners():
 
 def _sync_hr_actions():
     import django_resaas.hr.views  # noqa: F401 - populate VIEW_REGISTRY
-    from django_resaas.engine.core.base.registry import VIEW_REGISTRY
-    from django_resaas.engine.core.services.action_sync_service import ActionSyncService
+    from django_resaas.saas.core.base.registry import VIEW_REGISTRY
+    from django_resaas.saas.core.services.action_sync_service import ActionSyncService
 
     ActionSyncService.sync_registry(VIEW_REGISTRY)
 
@@ -413,8 +413,8 @@ def test_performance_events_emitted(bootstrap_tenant):
 # =============================================================
 
 def test_performance_models_in_schema():
-    from django_resaas.engine.core.schema.builder import ResaasSchemaBuilder
-    from django_resaas.engine.management.apicommands.view.app_schema import _schema_fields
+    from django_resaas.saas.core.schema.builder import ResaasSchemaBuilder
+    from django_resaas.saas.management.apicommands.view.app_schema import _schema_fields
 
     goal_schema = ResaasSchemaBuilder(
         Model=EmployeeGoal, fields=_schema_fields(EmployeeGoal)

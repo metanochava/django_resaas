@@ -52,7 +52,7 @@ def _user_is_employee_or_manager(goal, user):
 # =========================================================
 
 def update_goal_progress(goal, *, progress, status=None, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if not _user_is_employee_or_manager(goal, actor):
         raise PerformanceError(
@@ -105,7 +105,7 @@ def _validate_transition(current_status, target_status):
 
 
 def submit_review(review, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_transition(review.status, ReviewStatus.SUBMITTED)
 
@@ -128,7 +128,7 @@ def submit_review(review, *, actor=None):
 
 
 def close_cycle(cycle, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
     from django_resaas.hr.models.performance_cycle import PerformanceCycleStatus
 
     if cycle.status == PerformanceCycleStatus.CLOSED:

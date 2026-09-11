@@ -3,7 +3,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.payslip import Payslip
 from django_resaas.hr.serializers.payslip import PayslipSerializer
@@ -27,6 +27,6 @@ class PayslipAPIView(BaseAPIView):
 
     # .pdf() (GET .../payslips/{id}/pdf/) is inherited for free from
     # BaseAPIView - see get_pdf_template()/get_pdf_context()/pdf() in
-    # engine/core/base/views.py. It resolves hr/payslip.html before
+    # saas/core/base/views.py. It resolves hr/payslip.html before
     # falling back to django_resaas/pdf/detail.html (see
     # hr/templates/hr/payslip.html).

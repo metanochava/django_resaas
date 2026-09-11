@@ -5,10 +5,10 @@ Direct unit tests for the real business logic in hr/services/payroll_service.py
 import pytest
 from decimal import Decimal
 
-from django_resaas.engine.models.entity import Entity
-from django_resaas.engine.models.entity_type import EntityType
-from django_resaas.engine.models.branch import Branch
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.models.entity import Entity
+from django_resaas.saas.models.entity_type import EntityType
+from django_resaas.saas.models.branch import Branch
+from django_resaas.saas.models.person import Person
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.attendance import Attendance
 from django_resaas.hr.services.payroll_service import calculate_salary

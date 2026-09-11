@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_resaas.engine.core.base.models import TimeModel
+from django_resaas.saas.core.base.models import TimeModel
 from django_resaas.notifications.enums import Category, Channel
 
 
@@ -13,7 +13,7 @@ class NotificationPreference(TimeModel):
     business app can register preferences for its own recipient kinds
     without django_resaas knowing about them.
 
-    Consent semantics (enforced in notifications/engine.py, not here):
+    Consent semantics (enforced in notifications/saas.py, not here):
     - category == MARKETING requires an explicit enabled=True row to
       exist for (recipient, channel, category) - absence means "do not
       send", opt-in only.

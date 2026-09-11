@@ -39,7 +39,7 @@ def resolve_language_code(recipient_language_code, notification_settings):
 
 def render_template(template, context):
     """Render a NotificationTemplate's subject/body with the Django
-    Template Engine (the same engine already used by the project) - never
+    Template Engine (the same saas already used by the project) - never
     Python eval/exec, `context` is a plain dict."""
 
     ctx = Context(context)
@@ -53,7 +53,7 @@ def render_template(template, context):
 def pick_template(rule, language_code):
     """rule.templates filtered by language code, falling back to the
     rule's default (language=null) template. Returns None if neither
-    exists - the engine treats that as a permanent failure (missing
+    exists - the saas treats that as a permanent failure (missing
     template, spec section 42)."""
 
     templates = {

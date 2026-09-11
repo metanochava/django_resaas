@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 from django_resaas.notifications.enums import (
     Category,
     Channel,
@@ -36,7 +36,7 @@ class NotificationOutbox(BaseModel):
 
     This row - not Celery, not the broker - is the system's source of
     truth. It must be created inside the same transaction.atomic() block
-    as the business change that triggered it (see notifications/engine.py).
+    as the business change that triggered it (see notifications/saas.py).
     """
 
     event = models.CharField(max_length=150, db_index=True)

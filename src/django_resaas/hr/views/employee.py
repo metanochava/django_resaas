@@ -4,11 +4,11 @@ from django.db import transaction
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
-from django_resaas.engine.core.decorators.action import resaas_action
-from django_resaas.engine.models.entity import Entity
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.decorators.action import resaas_action
+from django_resaas.saas.models.entity import Entity
 
-from django_resaas.engine.models.branch import Branch
+from django_resaas.saas.models.branch import Branch
 
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.job_position import JobPosition

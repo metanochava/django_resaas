@@ -2,8 +2,8 @@ from django.db.models import Count, Q
 
 from rest_framework.response import Response
 
-from django_resaas.engine.core.base.dashboard import TenantDashboardAPIView
-from django_resaas.engine.core.base.views import register_view
+from django_resaas.saas.core.base.dashboard import TenantDashboardAPIView
+from django_resaas.saas.core.base.views import register_view
 
 from django_resaas.notifications.enums import OutboxStatus
 from django_resaas.notifications.models import (

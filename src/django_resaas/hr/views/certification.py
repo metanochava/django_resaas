@@ -1,6 +1,6 @@
 # hr/views/certification.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.certification import Certification
 from django_resaas.hr.serializers.certification import CertificationSerializer
@@ -18,7 +18,7 @@ class CertificationAPIView(BaseAPIView):
     # skipped just because there's no training_service function to hang it
     # off of.
     def perform_create(self, serializer):
-        from django_resaas.engine.core.events import EventDispatcher
+        from django_resaas.saas.core.events import EventDispatcher
 
         # BaseAPIView.perform_create() is the one that stamps
         # entity_id/branch_id/created_by/updated_by onto the save() call -

@@ -9,8 +9,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from django_resaas.engine.core.events import EventDispatcher
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.core.events import EventDispatcher
+from django_resaas.saas.models.person import Person
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.holiday import Holiday
 from django_resaas.hr.models.leave_balance_entry import (
@@ -56,8 +56,8 @@ def _clear_listeners():
 
 def _sync_hr_actions():
     import django_resaas.hr.views  # noqa: F401 - populate VIEW_REGISTRY
-    from django_resaas.engine.core.base.registry import VIEW_REGISTRY
-    from django_resaas.engine.core.services.action_sync_service import ActionSyncService
+    from django_resaas.saas.core.base.registry import VIEW_REGISTRY
+    from django_resaas.saas.core.services.action_sync_service import ActionSyncService
 
     ActionSyncService.sync_registry(VIEW_REGISTRY)
 
@@ -403,7 +403,7 @@ def test_cannot_approve_own_leave_request(bootstrap_tenant):
     leave_type = _make_leave_type(entity, branch, is_paid=False)
 
     # A Person is auto-created for every User by a post_save signal (see
-    # engine/core/signals/permissions.py's criar_person_user) - reuse it
+    # saas/core/signals/permissions.py's criar_person_user) - reuse it
     # instead of creating a second one (Person.user is a unique
     # OneToOneField, a second Person for the same user would violate it).
     person = user.person
@@ -462,8 +462,8 @@ def test_leave_events_emitted_across_workflow(bootstrap_tenant):
 # =============================================================
 
 def test_leave_models_in_schema():
-    from django_resaas.engine.core.schema.builder import ResaasSchemaBuilder
-    from django_resaas.engine.management.apicommands.view.app_schema import _schema_fields
+    from django_resaas.saas.core.schema.builder import ResaasSchemaBuilder
+    from django_resaas.saas.management.apicommands.view.app_schema import _schema_fields
 
     leave_type_schema = ResaasSchemaBuilder(
         Model=LeaveType, fields=_schema_fields(LeaveType)

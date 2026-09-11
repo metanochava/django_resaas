@@ -4,7 +4,7 @@ hr/views/dashboard.py) - mesmo padrão já estabelecido para saude
 (back/saude/views/dashboard.py) nesta mesma iniciativa: um
 TenantDashboardAPIView por grupo, permissão
 'view_dashboard_hr_<slug>' registada em MODULE_PERMISSIONS['hr']
-(engine/core/signals/permissions.py), consumida por uma página Vue
+(saas/core/signals/permissions.py), consumida por uma página Vue
 dedicada em quasar_resaas/pages/hr/dashboards/.
 """
 from datetime import date, timedelta
@@ -13,7 +13,7 @@ import pytest
 from django.contrib.auth.models import Permission
 from django.utils import timezone
 
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.models.person import Person
 
 from django_resaas.hr.models.application import Application, ApplicationStatus
 from django_resaas.hr.models.attendance import Attendance
@@ -72,12 +72,12 @@ def _guest_client(tenant):
     """Group.name is unique=True - "Root" is a single global row shared
     by every tenant using it in the same test. A genuine "no permission"
     check needs an independent group - BootstrapService already creates
-    "Guest" with none, same as engine/tests/test_base_api_view.py."""
+    "Guest" with none, same as saas/tests/test_base_api_view.py."""
     from rest_framework.test import APIClient
 
-    from django_resaas.engine.core.tenant.context import ResaasContextService
-    from django_resaas.engine.models.branch_user_group import BranchUserGroup
-    from django_resaas.engine.models.group import Group
+    from django_resaas.saas.core.tenant.context import ResaasContextService
+    from django_resaas.saas.models.branch_user_group import BranchUserGroup
+    from django_resaas.saas.models.group import Group
 
     guest_group = Group.objects.get(name="Guest")
     BranchUserGroup.objects.get_or_create(

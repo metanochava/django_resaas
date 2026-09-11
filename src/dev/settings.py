@@ -3,7 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 from corsheaders.defaults import default_headers
 
-from django_resaas.engine.core.utils import get_cors_origins
+from django_resaas.saas.core.utils import get_cors_origins
 
 
 if os.environ.get("DOCKER") != "YES":
@@ -34,7 +34,7 @@ LANGUAGE_CODE = 'EN-US'
 # --------------------------
 
 MY_APPS = [
-    'django_resaas.engine',
+    'django_resaas.saas',
     'django_resaas.notifications',
     "django_resaas.hr",
     "dev.demo",
@@ -88,9 +88,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
 
-    'django_resaas.engine.core.middleware.file_access.FileAccessMiddleware',
-    # 'django_resaas.engine.core.middleware.frontend.FrontEndMiddleware',
-    'django_resaas.engine.core.middleware.tenant.TenantContextMiddleware',
+    'django_resaas.saas.core.middleware.file_access.FileAccessMiddleware',
+    # 'django_resaas.saas.core.middleware.frontend.FrontEndMiddleware',
+    'django_resaas.saas.core.middleware.tenant.TenantContextMiddleware',
 
 ]
 

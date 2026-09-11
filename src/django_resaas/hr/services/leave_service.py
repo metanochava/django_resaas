@@ -110,7 +110,7 @@ def _requester_is_the_employee(leave_request, user):
     """Best-effort self-approval guard (pedido secção 25: never
     self-approve). Employee has no direct User FK - the only link this
     project has is Employee.person.user (nullable OneToOneField, see
-    engine/models/person.py) - if the employee has no linked login, they
+    saas/models/person.py) - if the employee has no linked login, they
     cannot possibly be the one calling approve(), so the check trivially
     passes."""
 
@@ -123,7 +123,7 @@ def _requester_is_the_employee(leave_request, user):
 # =========================================================
 
 def submit(leave_request, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_transition(leave_request.status, LeaveRequestStatus.PENDING)
 
@@ -173,7 +173,7 @@ def submit(leave_request, *, actor=None):
 
 
 def approve(leave_request, *, actor):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_transition(leave_request.status, LeaveRequestStatus.APPROVED)
 
@@ -217,7 +217,7 @@ def approve(leave_request, *, actor):
 
 
 def reject(leave_request, *, actor, reason):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if not reason:
         raise LeaveError("A rejection reason is required.")
@@ -246,7 +246,7 @@ def reject(leave_request, *, actor, reason):
 
 
 def cancel(leave_request, *, actor):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_transition(leave_request.status, LeaveRequestStatus.CANCELLED)
 

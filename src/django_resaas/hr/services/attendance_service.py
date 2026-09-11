@@ -104,7 +104,7 @@ def calculate_attendance(attendance):
 
 
 def check_in(employee, *, source=AttendanceSource.MANUAL, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     today = timezone.localdate()
 
@@ -138,7 +138,7 @@ def check_in(employee, *, source=AttendanceSource.MANUAL, actor=None):
 
 
 def check_out(employee, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     today = timezone.localdate()
 

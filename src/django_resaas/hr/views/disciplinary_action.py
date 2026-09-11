@@ -1,6 +1,6 @@
 # hr/views/disciplinary_action.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.disciplinary_action import DisciplinaryAction
 from django_resaas.hr.serializers.disciplinary_action import DisciplinaryActionSerializer

@@ -2,7 +2,7 @@
 
 from django.db import models
 
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 
 def certificate_file_path(instance, file_name):
@@ -14,7 +14,7 @@ class Certification(BaseModel):
     EmployeeTraining (training set) or standalone, an external
     certification the employee already had before joining (training left
     null). file is a plain FileField, not the generic Document model
-    (engine/models/document.py) - same reasoning as Candidate.resume
+    (saas/models/document.py) - same reasoning as Candidate.resume
     (hr/models/candidate.py, Fase 4): Document requires a `numero` unique
     per DocumentType, a worse fit for a training certificate scan."""
 

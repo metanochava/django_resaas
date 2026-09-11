@@ -2,7 +2,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django_resaas.engine.core.base.views import register_view
+from django_resaas.saas.core.base.views import register_view
 from django_resaas.notifications.enums import Category, Channel, Priority
 from django_resaas.notifications.models import NotificationRule
 
@@ -12,7 +12,7 @@ class NotificationCatalogAPIView(APIView):
     """Read-only discovery endpoint for a future Quasar notifications UI
     (spec section 81/80) - additive, outside ResaasSchemaBuilder, so
     Schema 1.0 stays untouched. Lists the channels/categories/priorities
-    this engine supports, plus the distinct events this entity already
+    this saas supports, plus the distinct events this entity already
     has at least one rule configured for."""
 
     permission_classes = [IsAuthenticated]
