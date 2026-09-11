@@ -46,7 +46,7 @@ def _validate_transition(current_status, target_status):
 def move(application, *, target_status, actor=None):
     """Generic Kanban-style transition. Never targets INTERVIEW/HIRED -
     those have dedicated actions with their own side effects (see below)."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if target_status not in MOVE_TARGETS:
         raise RecruitmentError(
@@ -79,7 +79,7 @@ def schedule_interview(application, *, scheduled_at, actor=None, interviewer=Non
     """Creates the Interview row and (if not already there) moves the
     application into INTERVIEW - one atomic step, since scheduling an
     interview IS what makes an application reach that stage."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     previous_status = application.status
 
@@ -117,7 +117,7 @@ def schedule_interview(application, *, scheduled_at, actor=None, interviewer=Non
 
 
 def _find_or_create_person(candidate, *, actor=None):
-    from django_resaas.engine.models.person import Person
+    from django_resaas.saas.models.person import Person
 
     if candidate.email:
         existing = Person.objects.filter(email__iexact=candidate.email).first()
@@ -146,7 +146,7 @@ def hire(application, *, actor=None):
     Application HIRED. No Contract is created automatically in this phase
     - onboarding (Fase 5) is the natural place to decide contract terms,
     not the hiring moment itself."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
     from django_resaas.hr.models.employee import Employee
 
     _validate_transition(application.status, ApplicationStatus.HIRED)

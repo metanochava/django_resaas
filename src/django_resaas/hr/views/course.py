@@ -1,6 +1,6 @@
 # hr/views/course.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.course import Course
 from django_resaas.hr.serializers.course import CourseSerializer

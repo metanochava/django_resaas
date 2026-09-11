@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 from django.db import models
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 
 class EmployeeSalaryComponent(BaseModel):
@@ -51,7 +51,7 @@ class EmployeeSalaryComponent(BaseModel):
     def resolved_amount(self):
         """The actual monetary value this component contributes, given the
         EmployeeSalary's base_salary (needed for percentage components).
-        'formula' calculation_type has no engine here (pedido secção 37:
+        'formula' calculation_type has no saas here (pedido secção 37:
         no country-specific tax logic in the core) - it falls back to the
         catalog's flat amount, same as 'fixed'."""
         component = self.component

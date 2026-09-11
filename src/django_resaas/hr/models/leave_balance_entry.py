@@ -1,7 +1,7 @@
 # hr/models/leave_balance_entry.py
 
 from django.db import models
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 
 class LeaveBalanceEntryType(models.TextChoices):

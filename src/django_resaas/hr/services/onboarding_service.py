@@ -46,7 +46,7 @@ def start_onboarding(employee, *, template=None, actor=None):
     must never affect this onboarding - see EmployeeOnboardingTask
     docstring). template=None is valid - an empty checklist an HR user
     fills in manually via CRUD on EmployeeOnboardingTask."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if EmployeeOnboarding.objects.filter(
         employee=employee,
@@ -99,7 +99,7 @@ def start_onboarding(employee, *, template=None, actor=None):
 
 
 def complete_task(task, *, actor=None, notes=""):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if task.onboarding.status not in (
         EmployeeOnboardingStatus.NOT_STARTED,
@@ -165,7 +165,7 @@ def progress(onboarding):
 
 
 def complete_onboarding(onboarding, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_transition(onboarding.status, EmployeeOnboardingStatus.COMPLETED)
 

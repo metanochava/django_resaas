@@ -19,10 +19,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from django_resaas.engine.core.events import EventDispatcher
-from django_resaas.engine.models.branch_user_group import BranchUserGroup
-from django_resaas.engine.models.group import Group
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.core.events import EventDispatcher
+from django_resaas.saas.models.branch_user_group import BranchUserGroup
+from django_resaas.saas.models.group import Group
+from django_resaas.saas.models.person import Person
 from django_resaas.hr.models.department import Department
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.job_position import JobPosition
@@ -64,10 +64,10 @@ def test_employee_pdflist_context_groups_headcount_by_department(bootstrap_tenan
     tenant = bootstrap_tenant("hc-report")
     entity, branch = tenant["entity"], tenant["branch"]
 
-    engineering = Department.objects.create(entity=entity, branch=branch, name="Engineering")
+    saasering = Department.objects.create(entity=entity, branch=branch, name="Engineering")
     sales = Department.objects.create(entity=entity, branch=branch, name="Sales")
 
-    dev = JobPosition.objects.create(entity=entity, branch=branch, title="Dev", department=engineering)
+    dev = JobPosition.objects.create(entity=entity, branch=branch, title="Dev", department=saasering)
     rep = JobPosition.objects.create(entity=entity, branch=branch, title="Rep", department=sales)
 
     _make_employee(entity, branch, position=dev, code="EMP-A")
@@ -184,7 +184,7 @@ def test_employees_pdflist_denied_without_permission(bootstrap_tenant):
         user=tenant["user"], branch=tenant["branch"], group=empty_group, state=1,
     )
 
-    from django_resaas.engine.core.tenant.context import ResaasContextService
+    from django_resaas.saas.core.tenant.context import ResaasContextService
     context = ResaasContextService.issue(
         user=tenant["user"], entity_id=tenant["entity"].id,
         branch_id=tenant["branch"].id, group_id=empty_group.id,

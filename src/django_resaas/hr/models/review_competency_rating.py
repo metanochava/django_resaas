@@ -3,7 +3,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 
 class ReviewCompetencyRating(BaseModel):

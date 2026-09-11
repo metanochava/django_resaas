@@ -8,9 +8,9 @@ includes them explicitly instead.
 """
 import pytest
 
-from django_resaas.engine.core.tenant.context import ResaasContextService
-from django_resaas.engine.models.branch_user_group import BranchUserGroup
-from django_resaas.engine.models.group import Group
+from django_resaas.saas.core.tenant.context import ResaasContextService
+from django_resaas.saas.models.branch_user_group import BranchUserGroup
+from django_resaas.saas.models.group import Group
 from django_resaas.notifications.enums import Channel, OutboxStatus
 from django_resaas.notifications.models import NotificationDeliveryAttempt, NotificationOutbox
 from rest_framework.test import APIClient

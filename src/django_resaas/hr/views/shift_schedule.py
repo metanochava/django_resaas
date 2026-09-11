@@ -1,6 +1,6 @@
 # hr/views/shift_schedule.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.shift_schedule import ShiftSchedule
 from django_resaas.hr.serializers.shift_schedule import ShiftScheduleSerializer

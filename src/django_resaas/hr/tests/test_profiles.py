@@ -1,20 +1,20 @@
 """Perfis (Group templates) do módulo hr - ver hr/profiles.py +
 hr/apps.py's create_hr_groups(). Mesmo mecanismo group_creator() já
-testado para engine/profiles.py's CORE_PROFILES (engine/tests/
+testado para saas/profiles.py's CORE_PROFILES (saas/tests/
 test_core_profiles.py) e para saude/sales/inventory/farmacia's
 profiles (dev/back).
 
 Usa a fixture `bootstrap_tenant` (conftest.py da própria biblioteca)
 antes de qualquer group_creator() que use codenames 'list_'/
 'view_dashboard_hr_*' - essas Permissions só são criadas por
-engine/core/signals/permissions.py depois de já existir uma
+saas/core/signals/permissions.py depois de já existir uma
 EntityType real (ver o docstring da própria fixture); sem isto,
 ficam silenciosamente por conceder (Permission.objects.filter(
 codename__in=...) nunca falha, só devolve menos linhas)."""
 import pytest
 
-from django_resaas.engine.core.utils.group_creator import group_creator
-from django_resaas.engine.models.group import Group
+from django_resaas.saas.core.utils.group_creator import group_creator
+from django_resaas.saas.models.group import Group
 from django_resaas.hr.profiles import HR_PROFILES
 
 pytestmark = pytest.mark.django_db

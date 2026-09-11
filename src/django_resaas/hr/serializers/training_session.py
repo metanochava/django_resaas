@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from django_resaas.engine.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 
 from django_resaas.hr.models.course import Course
 from django_resaas.hr.models.training_session import TrainingSession

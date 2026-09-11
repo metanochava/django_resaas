@@ -1,6 +1,6 @@
 # hr/views/employee_salary.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.employee_salary import EmployeeSalary
 from django_resaas.hr.serializers.employee_salary import EmployeeSalarySerializer

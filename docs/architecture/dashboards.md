@@ -1,6 +1,6 @@
 # Motor de dashboards dinâmicos
 
-Backend: `django_resaas.engine.core.dashboards`
+Backend: `django_resaas.saas.core.dashboards`
 Frontend: `quasar_resaas/components/dashboard` + `quasar_resaas/stores/DashboardStore.js`
 
 ## Conceito
@@ -32,7 +32,7 @@ frontend (DashboardStore → DashboardRenderer → widget registry)
 
 ## Decisões face à arquitectura já existente
 
-- **`TenantDashboardAPIView`** (`engine/core/base/dashboard.py`), já usada
+- **`TenantDashboardAPIView`** (`saas/core/base/dashboard.py`), já usada
   pelos 14 dashboards construídos antes deste motor (4 saude + 9 hr + 1
   notifications), continua a existir e a ser válida - é o padrão para um
   dashboard **hand-built** (widgets fixos, código Python próprio). O
@@ -46,7 +46,7 @@ frontend (DashboardStore → DashboardRenderer → widget registry)
   onde já vivem outras rotas com converters (`password/reset/<uidb64>/
   <token>/`).
 - **Permissões**: `isPermited(request, role=codename)` já existente
-  (`engine/core/base/permissions.py`) - codenames simples, sem prefixo de
+  (`saas/core/base/permissions.py`) - codenames simples, sem prefixo de
   app (`view_paciente`, não `saude.view_paciente`).
 - **Paginação da tabela**: reutiliza o contrato real de `ResaasPagination`
   (`count/next/previous`, params `page`/`page_size`), não o
@@ -104,12 +104,12 @@ ignorada, sem erro.
 cópia em cada leitura (`get`/`get_all`) - filtrar widgets por permissão
 de um utilizador nunca pode mutar o que outro utilizador recebe depois.
 Testado explicitamente (`TestRegistryImmutability`, em
-`engine/tests/test_dashboard_engine.py`).
+`saas/tests/test_dashboard_saas.py`).
 
 ## Providers
 
 ```python
-from django_resaas.engine.core.dashboards.providers import BaseDashboardProvider, register_provider
+from django_resaas.saas.core.dashboards.providers import BaseDashboardProvider, register_provider
 
 @register_provider("saude.total_pacientes")
 class TotalPacientesProvider(BaseDashboardProvider):
@@ -190,7 +190,7 @@ resolver `{code}`; sem `codes`, cai para o próprio `label`. Ver
 `paciente_id`; `ultimos_pacientes`/`agenda_calendario`:
 `item_action`→`view_paciente`).
 
-Ver `engine/tests/test_dashboard_actions.py` para os testes de
+Ver `saas/tests/test_dashboard_actions.py` para os testes de
 validação estrutural e de filtragem por permissão.
 
 ## Filtros
@@ -292,12 +292,12 @@ Só configuração + provider - nenhuma mudança no motor.
 
 ## Testes
 
-- Backend: `django_resaas/engine/tests/test_dashboard_engine.py` (32
+- Backend: `django_resaas/saas/tests/test_dashboard_saas.py` (32
   testes - discovery, imutabilidade, validator, provider registry,
-  filtros, endpoints/segurança) + `django_resaas/engine/tests/
+  filtros, endpoints/segurança) + `django_resaas/saas/tests/
   test_dashboard_actions.py` (15 testes - validação de tooltip/actions,
   filtragem de actions por permissão independente da do widget) +
-  `back/saude/tests/test_dashboard_engine.py` (19 testes - os 7
+  `back/saude/tests/test_dashboard_saas.py` (19 testes - os 7
   widgets com dados reais, opções estáticas vs. dinâmicas, isolamento
   de tenant, os 4 perfis de exemplo).
 - Frontend: `stores/DashboardStore.spec.js` (race conditions,

@@ -26,8 +26,8 @@ def activate_module():
     test_bootstrap_service.py for why this must be the string "Active"."""
 
     def _activate(entity, name):
-        from django_resaas.engine.models.app import App
-        from django_resaas.engine.models.entity_app import EntityApp
+        from django_resaas.saas.models.app import App
+        from django_resaas.saas.models.entity_app import EntityApp
 
         app, _ = App.objects.get_or_create(name=name, defaults={"state": "Active"})
         EntityApp.objects.get_or_create(
@@ -53,11 +53,11 @@ def bootstrap_tenant(activate_module):
         from django.contrib.auth import get_user_model
         from rest_framework.test import APIClient
 
-        from django_resaas.engine.core.services.bootstrap_service import BootstrapService
-        from django_resaas.engine.core.signals.permissions import create_model_permissions
-        from django_resaas.engine.core.tenant.context import ResaasContextService
-        from django_resaas.engine.models.branch_user_group import BranchUserGroup
-        from django_resaas.engine.models.group import Group
+        from django_resaas.saas.core.services.bootstrap_service import BootstrapService
+        from django_resaas.saas.core.signals.permissions import create_model_permissions
+        from django_resaas.saas.core.tenant.context import ResaasContextService
+        from django_resaas.saas.models.branch_user_group import BranchUserGroup
+        from django_resaas.saas.models.group import Group
 
         User = get_user_model()
 
@@ -77,7 +77,7 @@ def bootstrap_tenant(activate_module):
         entity, branch = bootstrap["entity"], bootstrap["branch"]
 
         class _FakeAppConfig:
-            name = "django_resaas.engine"
+            name = "django_resaas.saas"
             label = "django_resaas"
 
         create_model_permissions(sender=None, app_config=_FakeAppConfig())

@@ -10,7 +10,7 @@ import pytest
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
 
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.models.person import Person
 from django_resaas.hr.models.department import Department
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.models.job_grade import JobGrade
@@ -340,8 +340,8 @@ def test_employee_search_by_person_full_name_works(bootstrap_tenant):
 # =============================================================
 
 def test_job_grade_and_employee_new_fields_appear_in_schema():
-    from django_resaas.engine.core.schema.builder import ResaasSchemaBuilder
-    from django_resaas.engine.management.apicommands.view.app_schema import _schema_fields
+    from django_resaas.saas.core.schema.builder import ResaasSchemaBuilder
+    from django_resaas.saas.management.apicommands.view.app_schema import _schema_fields
 
     grade_schema = ResaasSchemaBuilder(
         Model=JobGrade, fields=_schema_fields(JobGrade)

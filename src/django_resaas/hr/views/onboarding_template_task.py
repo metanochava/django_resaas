@@ -1,6 +1,6 @@
 # hr/views/onboarding_template_task.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.onboarding_template_task import OnboardingTemplateTask
 from django_resaas.hr.serializers.onboarding_template_task import (

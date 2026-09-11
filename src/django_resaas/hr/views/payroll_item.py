@@ -1,6 +1,6 @@
 # hr/views/payroll_item.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.payroll_item import PayrollItem
 from django_resaas.hr.serializers.payroll_item import PayrollItemSerializer

@@ -12,7 +12,7 @@ backend framework.
 -   [Request lifecycle](architecture/request-lifecycle.md)
 -   [Middleware](architecture/middleware.md)
 -   [View registry](architecture/registry.md)
--   [Dynamic dashboards engine](architecture/dashboards.md)
+-   [Dynamic dashboards saas](architecture/dashboards.md)
 -   [Models and RESAAS](models/resaas-config.md)
 -   [Schema 1.0 contract](api/schema-contract.md)
 -   [Public API reference](api/public-api-reference.md)

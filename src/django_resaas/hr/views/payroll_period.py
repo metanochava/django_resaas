@@ -4,8 +4,8 @@ from django.db import transaction
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
-from django_resaas.engine.core.decorators.action import resaas_action
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.decorators.action import resaas_action
 
 from django_resaas.hr.models.payroll_period import PayrollPeriod
 from django_resaas.hr.serializers.payroll_period import PayrollPeriodSerializer

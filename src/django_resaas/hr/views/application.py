@@ -6,8 +6,8 @@ from django.utils.dateparse import parse_datetime
 from rest_framework.response import Response
 from rest_framework import status
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
-from django_resaas.engine.core.decorators.action import resaas_action
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.decorators.action import resaas_action
 
 from django_resaas.hr.models.application import Application
 from django_resaas.hr.models.employee import Employee

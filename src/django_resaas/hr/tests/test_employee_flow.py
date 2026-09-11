@@ -8,7 +8,7 @@ activate_module() call is needed here (unlike the "demo" module).
 """
 import pytest
 
-from django_resaas.engine.models.person import Person
+from django_resaas.saas.models.person import Person
 
 pytestmark = pytest.mark.django_db
 

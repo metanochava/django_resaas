@@ -28,20 +28,20 @@ from rest_framework_simplejwt.views import TokenRefreshView
 # ─────────────────────────────
 # User / Auth views
 # ─────────────────────────────
-from django_resaas.engine.data.user.views.login import LoginAPIView
-from django_resaas.engine.data.user.views.logins import LoginsAPIView
-from django_resaas.engine.data.user.views.logout import LogoutAPIView
-from django_resaas.engine.data.user.views.me import MeAPIView
-from django_resaas.engine.data.user.views.verify_email import VerifyEmail
-from django_resaas.engine.data.user.views.change_password_email import ChangePasswordEmailAPIView
-from django_resaas.engine.data.user.views.change_password_mobile import ChangePasswordMobileAPIView
-from django_resaas.engine.data.user.views.request_password_reset_email import RequestPasswordResetEmailAPIView
-from django_resaas.engine.data.user.views.password_token_check import PasswordTokenCheckAPIView
-from django_resaas.engine.data.user.views.set_new_password import SetNewPasswordAPIView
-from django_resaas.engine.data.user.views.mail import MailAPIView
-from django_resaas.engine.data.user.views.register import RegisterAPIView
-from django_resaas.engine.data.user.views.register_otp import RequestRegisterOTPView
-from django_resaas.engine.data.user.views.profile_contact_otp import (
+from django_resaas.saas.data.user.views.login import LoginAPIView
+from django_resaas.saas.data.user.views.logins import LoginsAPIView
+from django_resaas.saas.data.user.views.logout import LogoutAPIView
+from django_resaas.saas.data.user.views.me import MeAPIView
+from django_resaas.saas.data.user.views.verify_email import VerifyEmail
+from django_resaas.saas.data.user.views.change_password_email import ChangePasswordEmailAPIView
+from django_resaas.saas.data.user.views.change_password_mobile import ChangePasswordMobileAPIView
+from django_resaas.saas.data.user.views.request_password_reset_email import RequestPasswordResetEmailAPIView
+from django_resaas.saas.data.user.views.password_token_check import PasswordTokenCheckAPIView
+from django_resaas.saas.data.user.views.set_new_password import SetNewPasswordAPIView
+from django_resaas.saas.data.user.views.mail import MailAPIView
+from django_resaas.saas.data.user.views.register import RegisterAPIView
+from django_resaas.saas.data.user.views.register_otp import RequestRegisterOTPView
+from django_resaas.saas.data.user.views.profile_contact_otp import (
     RequestProfileContactOTPView,
     ConfirmProfileContactOTPView,
 )
@@ -49,30 +49,30 @@ from django_resaas.engine.data.user.views.profile_contact_otp import (
 # ─────────────────────────────
 # Data / API views
 # ─────────────────────────────
-from django_resaas.engine.data.entity.views.entity import EntityAPIView
-from django_resaas.engine.data.entity.views.site import SiteAPIView
-from django_resaas.engine.data.entity_type.views.entity_type import EntityTypeAPIView
-from django_resaas.engine.data.group.views.group import GroupAPIView
-from django_resaas.engine.data.branch.views.branch import BranchAPIView
-from django_resaas.engine.data.branch_user.views.branch_user import BranchUserAPIView
-from django_resaas.engine.data.branch_user_group.views.branch_user_group import BranchUserGroupAPIView
-from django_resaas.engine.data.document.views.document import DocumentAPIView
-from django_resaas.engine.data.document_type.views.document_type import DocumentTypeAPIView
+from django_resaas.saas.data.entity.views.entity import EntityAPIView
+from django_resaas.saas.data.entity.views.site import SiteAPIView
+from django_resaas.saas.data.entity_type.views.entity_type import EntityTypeAPIView
+from django_resaas.saas.data.group.views.group import GroupAPIView
+from django_resaas.saas.data.branch.views.branch import BranchAPIView
+from django_resaas.saas.data.branch_user.views.branch_user import BranchUserAPIView
+from django_resaas.saas.data.branch_user_group.views.branch_user_group import BranchUserGroupAPIView
+from django_resaas.saas.data.document.views.document import DocumentAPIView
+from django_resaas.saas.data.document_type.views.document_type import DocumentTypeAPIView
 
 
 
-from django_resaas.engine.data.translation.views.translation import TranslationAPIView
-from django_resaas.engine.data.language.views.language import LanguageAPIView
-from django_resaas.engine.data.file.views.file import FileAPIView
-from django_resaas.engine.data.permission.views.permission import PermissionAPIView
-from django_resaas.engine.data.model.views.model import ModelAPIView
-from django_resaas.engine.data.app.views.app import AppAPIView
-from django_resaas.engine.data.user.views.user import UserAPIView
-from django_resaas.engine.data.person.views.person import PersonAPIView
-from django_resaas.engine.data.theme.views.theme import ThemeAPIView
-from django_resaas.engine.data.layout_setting.views.layout_setting import LayoutSettingAPIView
-from django_resaas.engine.management.apicommands.view.scaffold import ScaffoldAPIView
-from django_resaas.engine.management.apicommands.view.app_schema import AppSchemaAPIView, RelationsAPIView
+from django_resaas.saas.data.translation.views.translation import TranslationAPIView
+from django_resaas.saas.data.language.views.language import LanguageAPIView
+from django_resaas.saas.data.file.views.file import FileAPIView
+from django_resaas.saas.data.permission.views.permission import PermissionAPIView
+from django_resaas.saas.data.model.views.model import ModelAPIView
+from django_resaas.saas.data.app.views.app import AppAPIView
+from django_resaas.saas.data.user.views.user import UserAPIView
+from django_resaas.saas.data.person.views.person import PersonAPIView
+from django_resaas.saas.data.theme.views.theme import ThemeAPIView
+from django_resaas.saas.data.layout_setting.views.layout_setting import LayoutSettingAPIView
+from django_resaas.saas.management.apicommands.view.scaffold import ScaffoldAPIView
+from django_resaas.saas.management.apicommands.view.app_schema import AppSchemaAPIView, RelationsAPIView
 
 # Importing this package runs every @register_view in it (VIEW_REGISTRY
 # population), exactly like the direct view imports above - must happen
@@ -80,15 +80,15 @@ from django_resaas.engine.management.apicommands.view.app_schema import AppSchem
 import django_resaas.notifications.views  # noqa: F401
 
 
-from django_resaas.engine.data.pdf.views.invoice import invoice_pdf
+from django_resaas.saas.data.pdf.views.invoice import invoice_pdf
 
 from django_resaas.view import home
 from django_resaas.view import deploy_github, deploy_status, deploy_releases, deploy_logs, deploy_rollback
-from django_resaas.engine.core.utils.autoload_urls import build_saas_urls
+from django_resaas.saas.core.utils.autoload_urls import build_saas_urls
 
-from django_resaas.engine.data.context.views.context import ResaasContextAPIView
+from django_resaas.saas.data.context.views.context import ResaasContextAPIView
 
-from django_resaas.engine.core.dashboards.views import (
+from django_resaas.saas.core.dashboards.views import (
     DashboardDetailAPIView,
     DashboardListAPIView,
     DashboardWidgetDataAPIView,

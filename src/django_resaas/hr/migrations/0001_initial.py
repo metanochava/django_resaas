@@ -3,8 +3,8 @@
 import django.core.validators
 import django.db.models.deletion
 import django.utils.timezone
-import django_resaas.engine.core.base.mixins.model.label_value
-import django_resaas.engine.core.utils.files
+import django_resaas.saas.core.base.mixins.model.label_value
+import django_resaas.saas.core.utils.files
 import django_resaas.hr.models.candidate
 import django_resaas.hr.models.certification
 import uuid
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -187,7 +187,7 @@ class Migration(migrations.Migration):
                 "ordering": ["category", "name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -267,7 +267,7 @@ class Migration(migrations.Migration):
                 "ordering": ["name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -388,7 +388,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -495,7 +495,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-issued_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -619,7 +619,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -711,7 +711,7 @@ class Migration(migrations.Migration):
                 "ordering": ["name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -835,7 +835,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-start_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -945,7 +945,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1051,7 +1051,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1143,7 +1143,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1237,7 +1237,7 @@ class Migration(migrations.Migration):
                 "ordering": ["offboarding", "order", "id"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1330,7 +1330,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1426,7 +1426,7 @@ class Migration(migrations.Migration):
                 "ordering": ["onboarding", "order", "id"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1507,7 +1507,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-effective_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1608,7 +1608,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-enrolled_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1708,7 +1708,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-issued_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1782,7 +1782,7 @@ class Migration(migrations.Migration):
                 "ordering": ["date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1896,7 +1896,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-scheduled_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -1976,7 +1976,7 @@ class Migration(migrations.Migration):
                 "ordering": ["level", "name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2096,7 +2096,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2188,7 +2188,7 @@ class Migration(migrations.Migration):
                 "ordering": ["title"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2288,7 +2288,7 @@ class Migration(migrations.Migration):
                 "ordering": ["name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2404,7 +2404,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-start_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2515,7 +2515,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-date", "-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2607,7 +2607,7 @@ class Migration(migrations.Migration):
                 "ordering": ["name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2715,7 +2715,7 @@ class Migration(migrations.Migration):
                 "ordering": ["template", "order", "id"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2789,7 +2789,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-start_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2909,7 +2909,7 @@ class Migration(migrations.Migration):
                 "ordering": ["employee"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -2942,7 +2942,7 @@ class Migration(migrations.Migration):
                     models.FileField(
                         blank=True,
                         null=True,
-                        upload_to=django_resaas.engine.core.utils.files.UploadPath(
+                        upload_to=django_resaas.saas.core.utils.files.UploadPath(
                             pasta=""
                         ),
                     ),
@@ -2998,7 +2998,7 @@ class Migration(migrations.Migration):
                 "abstract": False,
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3083,7 +3083,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-start_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3209,7 +3209,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3337,7 +3337,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3465,7 +3465,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-effective_date", "-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3558,7 +3558,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-resignation_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3654,7 +3654,7 @@ class Migration(migrations.Migration):
                 "ordering": ["review", "competency"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3759,7 +3759,7 @@ class Migration(migrations.Migration):
                 "ordering": ["name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3850,7 +3850,7 @@ class Migration(migrations.Migration):
                 "ordering": ["component__name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -3943,7 +3943,7 @@ class Migration(migrations.Migration):
                 "ordering": ["component__name"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4021,7 +4021,7 @@ class Migration(migrations.Migration):
                 "ordering": ["start_time"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4107,7 +4107,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4204,7 +4204,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4278,7 +4278,7 @@ class Migration(migrations.Migration):
                 "permissions": (),
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4361,7 +4361,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4463,7 +4463,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-termination_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4567,7 +4567,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-start_date"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),
@@ -4724,7 +4724,7 @@ class Migration(migrations.Migration):
                 "ordering": ["-effective_date", "-created_at"],
             },
             bases=(
-                django_resaas.engine.core.base.mixins.model.label_value.LabelValueMixin,
+                django_resaas.saas.core.base.mixins.model.label_value.LabelValueMixin,
                 models.Model,
             ),
         ),

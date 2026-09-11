@@ -1,6 +1,6 @@
 """Perfis (Group templates) do módulo hr - mesmo mecanismo já usado
-por engine/profiles.py (CORE_PROFILES) e por saude/sales/inventory/
-farmacia em `/var/www/dev/back` (group_creator(), engine/core/utils/
+por saas/profiles.py (CORE_PROFILES) e por saude/sales/inventory/
+farmacia em `/var/www/dev/back` (group_creator(), saas/core/utils/
 group_creator.py).
 
 hr nunca teve nenhum mecanismo de perfis (apps.py não tinha sequer

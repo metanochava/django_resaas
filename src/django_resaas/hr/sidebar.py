@@ -19,7 +19,7 @@ ALL = [{
     },
 
     # 🏢 ORGANIZAÇÃO (grupo: gerador de menu suporta "submenu" aninhado,
-    # ver "Dev" em django_resaas/engine/sidebar.py)
+    # ver "Dev" em django_resaas/saas/sidebar.py)
     {
         "menu": "Organização",
         "icon": "corporate_fare",

@@ -1,6 +1,6 @@
 from django.db import models
 
-from django_resaas.engine.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 
 class CandidateSource(models.TextChoices):
@@ -30,7 +30,7 @@ class Candidate(BaseModel):
     phase - each Entity would need its own Candidate row.
 
     resume is a plain FileField, not the generic Document model
-    (engine/models/document.py): Document models an identity document
+    (saas/models/document.py): Document models an identity document
     with a required, unique-per-type `numero` (ID card, certificate) -
     forcing every CV upload to also carry a synthetic document number
     would be a worse fit than Django's own FileField, which Document

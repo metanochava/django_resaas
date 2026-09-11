@@ -44,7 +44,7 @@ def _validate_transition(current_status, target_status):
 # =========================================================
 
 def enroll(session, employee, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if EmployeeTraining.objects.filter(session=session, employee=employee).exists():
         raise TrainingError("This employee is already enrolled in this session.")
@@ -83,7 +83,7 @@ def enroll(session, employee, *, actor=None):
 
 
 def mark_completed(enrollment, *, actor=None, score=None, result=""):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_transition(enrollment.status, EmployeeTrainingStatus.COMPLETED)
 

@@ -1,6 +1,6 @@
 # hr/views/job_grade.py
 
-from django_resaas.engine.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 from django_resaas.hr.models.job_grade import JobGrade
 from django_resaas.hr.serializers.job_grade import JobGradeSerializer

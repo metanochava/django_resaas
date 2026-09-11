@@ -1,6 +1,6 @@
 """
 Celery tasks. Deliberately thin - every task loads an id, delegates to a
-service (engine/outbox_dispatcher/providers), and saves the result. No
+service (saas/outbox_dispatcher/providers), and saves the result. No
 business logic lives here that isn't also reachable from a management
 command or a direct function call in a test.
 
@@ -202,7 +202,7 @@ def _fail_outbox(outbox, message, attempts=None):
     )
 
     with transaction.atomic():
-        from django_resaas.notifications.engine import NotificationEngine
+        from django_resaas.notifications.saas import NotificationEngine
 
         NotificationEngine.create_fallback_outbox(outbox)
 

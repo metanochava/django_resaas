@@ -14,12 +14,12 @@ def create_hr_groups(sender, **kwargs):
     if kwargs.get("app_config").label != "hr":
         return
 
-    from django_resaas.engine.models.entity_type import EntityType
+    from django_resaas.saas.models.entity_type import EntityType
 
     if not EntityType.objects.exists():
         return
 
-    from django_resaas.engine.core.utils.group_creator import group_creator
+    from django_resaas.saas.core.utils.group_creator import group_creator
     from django_resaas.hr.profiles import HR_PROFILES
 
     group_creator(HR_PROFILES)
@@ -38,7 +38,7 @@ class HrConfig(AppConfig):
         """Carrega todas as views do módulo para que os decorators
         @registerView/@resaas_action corram e populem VIEW_REGISTRY
         ANTES do post_migrate (consumido por
-        engine/core/signals/action_sync.py's sync_resaas_actions,
+        saas/core/signals/action_sync.py's sync_resaas_actions,
         que só cria/actualiza as Permissions das @resaas_action
         quando VIEW_REGISTRY já não está vazio) - mesmo padrão já
         usado por saude/sales/inventory/farmacia's apps.py. Sem isto,

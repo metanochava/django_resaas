@@ -48,7 +48,7 @@ def apply_promotion(
     """Records the Promotion (immutable history - pedido secção 19) AND
     applies the change to the Employee's current position/job_grade in the
     same call - the caller wraps this in transaction.atomic()."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     previous_position = employee.position
     previous_job_grade = employee.job_grade
@@ -99,7 +99,7 @@ def apply_transfer(
     Never crosses Entity (pedido secção 18/61, absolute) - validates
     to_branch/to_department/to_position all belong to the employee's own
     Entity before touching anything."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if str(to_branch.entity_id) != str(employee.entity_id):
         raise LifecycleError(
@@ -204,7 +204,7 @@ def case_opened(case, *, actor=None):
     """Fired right after a DisciplinaryCase row is created by the view
     (plain CRUD create - no dedicated action needed for opening a case,
     same reasoning ReviewCompetencyRating used in Fase 6)."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     EventDispatcher.emit(
         "hr.disciplinary.case_opened",
@@ -218,7 +218,7 @@ def issue_disciplinary_action(case, action, *, actor=None):
     """Fired right after the DisciplinaryAction row is created by the view
     (plain CRUD create - no dedicated action needed, same reasoning
     ReviewCompetencyRating used in Fase 6)."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     EventDispatcher.emit(
         "hr.disciplinary.action_issued",
@@ -250,7 +250,7 @@ def accept_resignation(resignation, *, actor=None):
     """Accepting a resignation is the moment it actually takes effect on
     the Employee (pedido secção 42) - submitting one (plain CRUD create)
     does not, since the employee keeps working until last_working_date."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_resignation_transition(resignation.status, ResignationStatus.ACCEPTED)
 
@@ -303,7 +303,7 @@ def terminate_employee(
     Termination record AND marks the Employee terminated in the same call.
     Guards against terminating the same employee twice (idempotency, same
     principle as EmployeeOnboarding's single-active-checklist guard)."""
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     if employee.employment_status in (
         EmploymentStatus.TERMINATED, EmploymentStatus.RESIGNED, EmploymentStatus.RETIRED,
@@ -361,7 +361,7 @@ def start_offboarding(employee, *, actor=None):
     ).exists():
         raise LifecycleError("This employee already has an active offboarding.")
 
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     offboarding = EmployeeOffboarding.objects.create(
         entity_id=employee.entity_id,
@@ -441,7 +441,7 @@ def offboarding_progress(offboarding):
 
 
 def complete_offboarding(offboarding, *, actor=None):
-    from django_resaas.engine.core.events import EventDispatcher
+    from django_resaas.saas.core.events import EventDispatcher
 
     _validate_offboarding_transition(offboarding.status, EmployeeOffboardingStatus.COMPLETED)
 
