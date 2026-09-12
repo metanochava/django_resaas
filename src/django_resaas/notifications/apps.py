@@ -26,7 +26,7 @@ class NotificationsConfig(AppConfig):
         """
 
         from django_resaas.saas.core.events import EventDispatcher
-        from django_resaas.notifications.saas import NotificationEngine
+        from django_resaas.notifications.engine import NotificationEngine
         from django_resaas.notifications.providers import register_default_providers
 
         EventDispatcher.register("*", NotificationEngine.on_event)
