@@ -202,7 +202,7 @@ def _fail_outbox(outbox, message, attempts=None):
     )
 
     with transaction.atomic():
-        from django_resaas.notifications.saas import NotificationEngine
+        from django_resaas.notifications.engine import NotificationEngine
 
         NotificationEngine.create_fallback_outbox(outbox)
 
