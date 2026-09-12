@@ -10,9 +10,9 @@ from django_resaas.saas.core.base.models import TimeModel
 
 class Branch(TimeModel):
     name = models.CharField(max_length=100, null=True)
-
+    address = models.OneToOneField( 'django_resaas.Address', on_delete=models.SET_NULL,  null=True, blank=True, related_name='entity', help_text='Main address of the entity.')
     entity = models.ForeignKey('django_resaas.Entity', on_delete=models.CASCADE)
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True, blank=True)
+
 
     rodape = models.CharField(max_length=600, default='.', null=True)
     icon = models.CharField(max_length=100, default='.', null=True)
@@ -32,7 +32,6 @@ class Branch(TimeModel):
             'add': "add_banch",
             'change': "change_banch"
         }
-
 
     def __str__(self):
         return self.name or ''

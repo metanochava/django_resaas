@@ -40,6 +40,14 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
     # GENERAL
     # =========================================================
 
+    menuRTL = models.BooleanField(
+        default=False,
+        null=True,
+        blank=True,
+        help_text='Display Menu in Right'
+    )
+
+
     name = models.CharField(
         max_length=100,
         null=True,
