@@ -14,15 +14,34 @@ class EntitySerializer(BaseSerializer):
         model = Entity
         fields = "__all__"
 
+    def _login_surface(self, obj):
+        # Fundo do login já não vive em campos soltos no próprio
+        # Entity (login_background_type/color/gradient/image) - esses
+        # campos deixaram de existir no modelo. A origem actual é
+        # ThemeSurface (area='login') do Theme efectivo desta Entity -
+        # ver django_resaas.saas.models.theme_surface.ThemeSurface e
+        # CLAUDE.md (quasar_resaas) secção 21: "aparência = ThemeSurface".
+        theme = obj.theme
+
+        if not theme:
+            return None
+
+        return theme.surfaces.filter(area="login").first()
+
     def get_login_background(self, obj):
-        if obj.login_background_type == "image":
-            if not obj.login_background_image:
+        surface = self._login_surface(obj)
+
+        if not surface or surface.background_type in (None, "transparent"):
+            return None
+
+        if surface.background_type == "image":
+            if not surface.background_image:
                 return None
 
             file_data = self._file_representation(
                 self.context.get("request"),
-                obj.login_background_image,
-                "login_background_image",
+                surface.background_image,
+                "background_image",
             )
 
             return {
@@ -32,20 +51,26 @@ class EntitySerializer(BaseSerializer):
             } if file_data else None
 
         values = {
-            "gradient": obj.login_background_gradient,
-            "color": obj.login_background_color,
+            "gradient": surface.background_gradient,
+            "color": surface.background_color,
         }
 
-        value = values.get(obj.login_background_type)
+        value = values.get(surface.background_type)
 
         return {
-            "type": obj.login_background_type,
+            "type": surface.background_type,
             "value": value,
         } if value else None
 
     def get_login_config(self, obj):
+        # A posição continua a pertencer ao LayoutSetting efectivo
+        # (não a ThemeSurface) - CLAUDE.md (quasar_resaas) secção 21:
+        # "posição = LayoutSetting".
+        layout = obj.layout_settings
+        surface = self._login_surface(obj)
+
         return {
-            "position": obj.login_position,
+            "position": layout.login_position if layout else None,
             "background": self.get_login_background(obj),
-            "overlay": obj.login_background_overlay,
+            "overlay": surface.background_overlay if surface else None,
         }
