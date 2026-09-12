@@ -16,6 +16,13 @@ from django_resaas.saas.core.base.models import TimeModel
 # num ficheiro próprio (um modelo por ficheiro, como Theme/
 # ThemeSurface/Typography/LayoutSetting) em vez de dentro de
 # layout_setting.py, de onde nunca devia ter sido importado.
+#
+# Os campos (e os seus choices) seguem exactamente o que
+# quasar_resaas/components/engine/{BtnComponent,CardComponent}.vue já
+# liam de `animation.button_animation`/`hover_style`/`card_animation`
+# (comparações como `=== 'ripple'`/`=== 'pulse'`) - button_animation/
+# hover_style/card_animation/modal_animation são por isso CharField
+# com choices, não BooleanField.
 
 
 class AnimationSetting(TimeModel):
@@ -29,15 +36,42 @@ class AnimationSetting(TimeModel):
     PAGE_TRANSITION_CHOICES = [
         ('none', 'None'),
         ('fade', 'Fade'),
-        ('slide', 'Slide'),
+        ('slide-left', 'Slide Left'),
+        ('slide-right', 'Slide Right'),
+        ('slide-up', 'Slide Up'),
+        ('slide-down', 'Slide Down'),
+        ('scale', 'Scale'),
+        ('zoom', 'Zoom'),
+    ]
+
+    BUTTON_ANIMATION_CHOICES = [
+        ('none', 'None'),
+        ('ripple', 'Ripple'),
+        ('pulse', 'Pulse'),
+        ('bounce', 'Bounce'),
         ('scale', 'Scale'),
     ]
 
     HOVER_STYLE_CHOICES = [
         ('none', 'None'),
         ('lift', 'Lift'),
+        ('shadow', 'Shadow'),
+        ('grow', 'Grow'),
         ('glow', 'Glow'),
+    ]
+
+    CARD_ANIMATION_CHOICES = [
+        ('none', 'None'),
+        ('fade', 'Fade'),
+        ('slide-up', 'Slide Up'),
+        ('zoom', 'Zoom'),
+    ]
+
+    MODAL_ANIMATION_CHOICES = [
+        ('none', 'None'),
         ('scale', 'Scale'),
+        ('fade', 'Fade'),
+        ('slide-up', 'Slide Up'),
     ]
 
     name = models.CharField(
@@ -60,8 +94,10 @@ class AnimationSetting(TimeModel):
         default='fade',
     )
 
-    button_animation = models.BooleanField(
-        default=True,
+    button_animation = models.CharField(
+        max_length=20,
+        choices=BUTTON_ANIMATION_CHOICES,
+        default='ripple',
     )
 
     hover_effect = models.BooleanField(
@@ -74,12 +110,16 @@ class AnimationSetting(TimeModel):
         default='lift',
     )
 
-    card_animation = models.BooleanField(
-        default=True,
+    card_animation = models.CharField(
+        max_length=20,
+        choices=CARD_ANIMATION_CHOICES,
+        default='fade',
     )
 
-    modal_animation = models.BooleanField(
-        default=True,
+    modal_animation = models.CharField(
+        max_length=20,
+        choices=MODAL_ANIMATION_CHOICES,
+        default='scale',
     )
 
     class Meta:

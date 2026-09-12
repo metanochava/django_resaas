@@ -17,15 +17,34 @@ class EntityTypeSerializer(BaseSerializer):
         read_only=True,
     )
 
+    def _login_surface(self, obj):
+        # Ver EntitySerializer._login_surface (mesmo motivo: os campos
+        # login_background_* deixaram de existir no modelo - a origem
+        # actual é ThemeSurface, area='login', do Theme efectivo).
+        theme = obj.theme
+
+        if not theme:
+            return None
+
+        return theme.surfaces.filter(area="login").first()
+
     def get_login_background(self, obj):
-        if obj.login_background_type == "image":
-            if not obj.login_background_image:
+        surface = self._login_surface(obj)
+
+        if not surface or surface.background_type in (None, "transparent"):
+            return {
+                "type": "color",
+                "value": "#ffffff",
+            }
+
+        if surface.background_type == "image":
+            if not surface.background_image:
                 return None
 
             file_data = self._file_representation(
                 self.context.get("request"),
-                obj.login_background_image,
-                "login_background_image",
+                surface.background_image,
+                "background_image",
             )
 
             return {
@@ -34,22 +53,25 @@ class EntityTypeSerializer(BaseSerializer):
                 "file": file_data,
             } if file_data else None
 
-        if obj.login_background_type == "gradient":
+        if surface.background_type == "gradient":
             return {
                 "type": "gradient",
-                "value": obj.login_background_gradient,
-            } if obj.login_background_gradient else None
+                "value": surface.background_gradient,
+            } if surface.background_gradient else None
 
         return {
             "type": "color",
-            "value": obj.login_background_color or "#ffffff",
+            "value": surface.background_color or "#ffffff",
         }
 
     def get_login_config(self, obj):
+        layout = obj.layout_settings
+        surface = self._login_surface(obj)
+
         return {
-            "position": obj.login_position or "center",
+            "position": (layout.login_position if layout else None) or "center",
             "background": self.get_login_background(obj),
-            "overlay": obj.login_background_overlay,
+            "overlay": surface.background_overlay if surface else None,
         }
 
     def get_groups(self, obj):
