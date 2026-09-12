@@ -9,6 +9,8 @@ from django.db.models import Q
 from django_resaas.saas.models.group import Group
 from django_resaas.saas.models.user import User
 from django_resaas.saas.models.entity import Entity
+from django_resaas.saas.models.layout_setting import LayoutSetting
+from django_resaas.saas.data.user.serializers.me import MeSerializer
 from django_resaas.saas.models.branch import Branch
 from django_resaas.saas.models.entity_user import EntityUser
 from django_resaas.saas.models.entity_app import EntityApp
@@ -558,6 +560,64 @@ class UserAPIView(viewsets.ModelViewSet):
 
         return Response(MENUS, status=status.HTTP_200_OK)
 
+
+    # ==========================================================
+    # 🔀 MENU DIRECTION (menu_rtl)
+    #
+    # menu_rtl vive exclusivamente em LayoutSetting (User >
+    # Entity > EntityType, ver User.get_effective_layout()) - não
+    # existe UserThemeOverride nem outro campo paralelo. Sempre sobre
+    # request.user (nunca outro id), por isso detail=False.
+    # ==========================================================
+
+    @action(detail=False, methods=['POST'])
+    def toggle_menu_rtl(self, request, *args, **kwargs):
+        user = request.user
+
+        entity = Entity.objects.filter(
+            id=getattr(request, 'entity_id', None)
+        ).first()
+
+        effective = user.get_effective_layout(entity)
+        current_value = effective.menu_rtl if effective else False
+
+        if user.layout_settings:
+            # Já tem override próprio - só troca o campo, preservando
+            # tudo o resto (sidebar/header/footer/etc.) desse
+            # LayoutSetting.
+            user.layout_settings.menu_rtl = not current_value
+            user.layout_settings.save(update_fields=['menu_rtl'])
+
+        else:
+            # Ainda sem override próprio - cria uma cópia pessoal do
+            # LayoutSetting efectivo (Entity/EntityType) com menu_rtl
+            # trocado, para não perder o resto da configuração
+            # herdada nem mutar um LayoutSetting partilhado por outros.
+            copyable_fields = [
+                f.name for f in LayoutSetting._meta.fields
+                if f.name not in (
+                    'id', 'created_at', 'updated_at', 'deleted_at',
+                    'created_by', 'updated_by', 'state',
+                )
+            ]
+
+            data = (
+                {name: getattr(effective, name) for name in copyable_fields}
+                if effective else {}
+            )
+
+            data['menu_rtl'] = not current_value
+            data['state'] = 'Active'
+
+            new_layout = LayoutSetting.objects.create(**data)
+
+            user.layout_settings = new_layout
+            user.save(update_fields=['layout_settings'])
+
+        return Response(
+            MeSerializer(user, context={'request': request}).data,
+            status=status.HTTP_200_OK,
+        )
 
     @action(
         detail=True,
