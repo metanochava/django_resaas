@@ -1,8 +1,12 @@
 """Personalização de header/footer (cor/gradiente/imagem/transparente
-+ cor de texto), cascata User > Entity > EntityType > default -
++ cor de texto), cascata Entity > EntityType > default -
 saas/core/services/interface_config_service.py +
-saas/models/mixins/visual_area.py + os endpoints
-update_interface/reset_interface em UserAPIView.
+saas/models/mixins/visual_area.py.
+
+Já não existe um nível de personalização por-utilizador aqui (o antigo
+UserThemeOverride + update_interface/reset_interface foram removidos -
+ver test_user_theme_resolution.py para a personalização actual do User
+via theme/layout_settings/typography/animation_settings + ThemeSurface).
 """
 import pytest
 
@@ -10,7 +14,6 @@ from django_resaas.saas.core.services.interface_config_service import (
     DEFAULT_CONFIG,
     InterfaceConfigService,
 )
-from django_resaas.saas.models.user_theme_override import UserThemeOverride
 
 pytestmark = pytest.mark.django_db
 
@@ -21,7 +24,7 @@ class TestResolutionCascade:
         tenant = bootstrap_tenant("iface-default")
 
         config = InterfaceConfigService.resolve(
-            user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
+            entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config == DEFAULT_CONFIG
@@ -34,7 +37,7 @@ class TestResolutionCascade:
         tenant["entity"].entity_type.save()
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
+            "header", entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#00ff00"}
@@ -51,29 +54,10 @@ class TestResolutionCascade:
         tenant["entity"].save()
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
+            "header", entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#ff0000"}
-
-    def test_user_override_wins_over_entity(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-user")
-
-        tenant["entity"].header_background_type = "color"
-        tenant["entity"].header_background_color = "#ff0000"
-        tenant["entity"].save()
-
-        UserThemeOverride.objects.create(
-            user=tenant["user"],
-            header_background_type="color",
-            header_background_color="#0000ff",
-        )
-
-        config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
-        )
-
-        assert config["background"] == {"type": "color", "value": "#0000ff"}
 
     def test_transparent_needs_no_value(self, bootstrap_tenant):
         tenant = bootstrap_tenant("iface-transparent")
@@ -82,7 +66,7 @@ class TestResolutionCascade:
         tenant["entity"].save()
 
         config = InterfaceConfigService.resolve_area(
-            "footer", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
+            "footer", entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "transparent", "value": None}
@@ -101,17 +85,10 @@ class TestResolutionCascade:
         tenant["entity"].entity_type.save()
 
         config = InterfaceConfigService.resolve_area(
-            "header", user=tenant["user"], entity=tenant["entity"], entity_type=tenant["entity"].entity_type
+            "header", entity=tenant["entity"], entity_type=tenant["entity"].entity_type
         )
 
         assert config["background"] == {"type": "color", "value": "#123456"}
-
-    def test_resolve_override_only_is_none_without_customization(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-no-override")
-
-        result = InterfaceConfigService.resolve_override_only(user=tenant["user"])
-
-        assert result == {"header": None, "footer": None}
 
 
 class TestInterfaceEndpoints:
@@ -123,106 +100,4 @@ class TestInterfaceEndpoints:
 
         assert response.status_code == 200, response.data
         assert response.data["interface_config"] == DEFAULT_CONFIG
-        assert response.data["interface_override"] == {"header": None, "footer": None}
-
-    def test_update_interface_creates_override_and_reflects_in_me(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-update")
-
-        response = tenant["client"].post(
-            "/api/django_resaas/users/update_interface/",
-            {"area": "header", "background_type": "color", "background_color": "#abcdef", "text_color": "#111111"},
-            content_type="application/json",
-        )
-
-        assert response.status_code == 200, response.data
-        assert response.data["interface_config"]["header"]["background"] == {
-            "type": "color", "value": "#abcdef",
-        }
-        assert response.data["interface_config"]["header"]["text_color"] == "#111111"
-        # footer nunca foi tocado - continua no default.
-        assert response.data["interface_config"]["footer"] == DEFAULT_CONFIG["footer"]
-
-        me_response = tenant["client"].get("/api/me/")
-        assert me_response.data["interface_config"]["header"]["background"]["value"] == "#abcdef"
-
-    def test_update_interface_rejects_unknown_area(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-badarea")
-
-        response = tenant["client"].post(
-            "/api/django_resaas/users/update_interface/",
-            {"area": "sidebar", "background_type": "color"},
-            content_type="application/json",
-        )
-
-        assert response.status_code == 400
-
-    def test_reset_interface_clears_only_the_requested_area(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-reset")
-
-        r1 = tenant["client"].post(
-            "/api/django_resaas/users/update_interface/",
-            {"area": "header", "background_type": "color", "background_color": "#abcdef"},
-            content_type="application/json",
-        )
-        assert r1.status_code == 200, r1.data
-        r2 = tenant["client"].post(
-            "/api/django_resaas/users/update_interface/",
-            {"area": "footer", "background_type": "color", "background_color": "#123456"},
-            content_type="application/json",
-        )
-        assert r2.status_code == 200, r2.data
-        assert r2.data["interface_override"]["footer"] is not None, r2.data
-
-        response = tenant["client"].post(
-            "/api/django_resaas/users/reset_interface/",
-            {"area": "header"},
-            content_type="application/json",
-        )
-
-        assert response.status_code == 200, response.data
-        assert response.data["interface_override"]["header"] is None
-        assert response.data["interface_override"]["footer"] is not None
-
-    def test_reset_interface_without_area_clears_both(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-reset-all")
-
-        tenant["client"].post(
-            "/api/django_resaas/users/update_interface/",
-            {"area": "header", "background_type": "color", "background_color": "#abcdef"},
-            content_type="application/json",
-        )
-
-        response = tenant["client"].post(
-            "/api/django_resaas/users/reset_interface/",
-            {},
-            content_type="application/json",
-        )
-
-        assert response.status_code == 200, response.data
-        assert response.data["interface_override"] == {"header": None, "footer": None}
-
-    def test_reset_without_prior_override_is_a_safe_noop(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("iface-reset-noop")
-
-        response = tenant["client"].post(
-            "/api/django_resaas/users/reset_interface/",
-            {},
-            content_type="application/json",
-        )
-
-        assert response.status_code == 200, response.data
-        assert response.data["interface_override"] == {"header": None, "footer": None}
-
-    def test_each_user_has_an_independent_override(self, bootstrap_tenant):
-        tenant_a = bootstrap_tenant("iface-a")
-        tenant_b = bootstrap_tenant("iface-b")
-
-        tenant_a["client"].post(
-            "/api/django_resaas/users/update_interface/",
-            {"area": "header", "background_type": "color", "background_color": "#abcdef"},
-            content_type="application/json",
-        )
-
-        response_b = tenant_b["client"].get("/api/me/")
-
-        assert response_b.data["interface_override"]["header"] is None
+        assert "interface_override" not in response.data

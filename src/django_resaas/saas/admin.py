@@ -41,8 +41,11 @@ from django_resaas.saas.models.app import App
 from django_resaas.saas.models.front_end import FrontEnd
 from django_resaas.saas.models.model_extra_action import ModelExtraAction
 
-from django_resaas.saas.models.theme import Theme, Typography
-from django_resaas.saas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.saas.models.theme import Theme
+from django_resaas.saas.models.theme_surface import ThemeSurface
+from django_resaas.saas.models.typography import Typography
+from django_resaas.saas.models.layout_setting import LayoutSetting
+from django_resaas.saas.models.animation_setting import AnimationSetting
 from django_resaas.saas.models.cors_allowed_origin import CorsAllowedOrigin
 
 # 🔥 IMPORT CORRETO DO TEU GROUP
@@ -112,6 +115,13 @@ class TranslationAdmin(BaseAdmin):
 
 @admin.register(Theme)
 class ThemeAdmin(BaseAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    list_display_links = ('id',)
+    search_fields = ("__all__",)
+
+
+@admin.register(ThemeSurface)
+class ThemeSurfaceAdmin(BaseAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     list_display_links = ('id',)
     search_fields = ("__all__",)

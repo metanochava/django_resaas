@@ -1,5 +1,6 @@
 from django_resaas.saas.core.base.serializers import BaseSerializer
-from django_resaas.saas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.saas.models.layout_setting import LayoutSetting
+from django_resaas.saas.models.animation_setting import AnimationSetting
 
 
 class LayoutSettingSerializer(BaseSerializer):

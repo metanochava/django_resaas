@@ -1,5 +1,6 @@
 from django_resaas.saas.core.base.serializers import BaseSerializer
-from django_resaas.saas.models.theme import Theme, Typography
+from django_resaas.saas.models.theme import Theme
+from django_resaas.saas.models.typography import Typography
 
 
 class ThemeSerializer(BaseSerializer):

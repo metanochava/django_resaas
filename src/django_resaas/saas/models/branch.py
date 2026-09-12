@@ -10,7 +10,7 @@ from django_resaas.saas.core.base.models import TimeModel
 
 class Branch(TimeModel):
     name = models.CharField(max_length=100, null=True)
-    address = models.OneToOneField( 'django_resaas.Address', on_delete=models.SET_NULL,  null=True, blank=True, related_name='entity', help_text='Main address of the entity.')
+    address = models.OneToOneField( 'django_resaas.Address', on_delete=models.SET_NULL,  null=True, blank=True, related_name='branch', help_text='Main address of the branch.')
     entity = models.ForeignKey('django_resaas.Entity', on_delete=models.CASCADE)
 
 

@@ -45,8 +45,11 @@ from django_resaas.saas.data.entity.serializers.entity_user import EntityUserSer
 from django_resaas.saas.data.file.serializers.file import FileSerializer
 from django_resaas.saas.data.file.serializers.file_gravar import FileGravarSerializer
 
-from django_resaas.saas.models.theme import Theme, Typography
-from django_resaas.saas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.saas.models.theme import Theme
+from django_resaas.saas.models.typography import Typography
+
+from django_resaas.saas.models.layout_setting import LayoutSetting
+from django_resaas.saas.models.animation_setting import AnimationSetting
 from django_resaas.saas.data.theme.serializers.theme import ThemeSerializer, TypographySerializer
 from django_resaas.saas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer, AnimationSettingSerializer
 from django_resaas.saas.core.utils import ok

@@ -1,5 +1,4 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 from django_resaas.saas.core.base.models import TimeModel
 from django_resaas.saas.models.mixins.visual_area import (
@@ -12,46 +11,23 @@ def icon_path(instance, file_name):
     return f'{instance.name}/{file_name}'
 
 
-def login_background_path(instance, file_name):
-    return f'{instance.name}/login/{file_name}'
-
-
 class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
-
-    # =========================================================
-    # CHOICES
-    # =========================================================
-
-    LOGIN_POSITION_CHOICES = [
-        ('top-left', 'Top Left'),
-        ('top-right', 'Top Right'),
-        ('center', 'Center'),
-        ('bottom-left', 'Bottom Left'),
-        ('bottom-right', 'Bottom Right'),
-    ]
-
-    LOGIN_BACKGROUND_TYPE_CHOICES = [
-        ('color', 'Color'),
-        ('gradient', 'Gradient'),
-        ('image', 'Image'),
-    ]
 
     # =========================================================
     # GENERAL
     # =========================================================
 
-    menuRTL = models.BooleanField(
-        default=False,
-        null=True,
-        blank=True,
-        help_text='Display Menu in Right'
-    )
-
-
     name = models.CharField(
         max_length=100,
         null=True,
         help_text='Name of the entity type.'
+    )
+
+    label = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text='Display label used to identify this entity type.'
     )
 
     icon = models.FileField(
@@ -61,22 +37,9 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
         help_text='Default icon used by this entity type.'
     )
 
-    display_logo_login = models.BooleanField(
-        default=True,
-        null=True,
-        blank=True,
-        help_text='Display the entity type logo on the login page.'
-    )
-
     license = models.TextField(
         default='license',
         help_text='License information associated with this entity type.'
-    )
-
-    label = models.CharField(
-        max_length=100,
-        null=True,
-        help_text='Display label used to identify this entity type.'
     )
 
     ordem = models.IntegerField(
@@ -85,83 +48,12 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
     )
 
     crair_entity = models.BooleanField(
-        null=True,
         default=True,
         help_text='Allow entities to be created for this entity type.'
     )
 
     # =========================================================
-    # LOGIN DEFAULT CONFIG
-    #
-    # EntityType fornece os valores padrão.
-    # Entity pode sobrescrever estes valores.
-    # =========================================================
-
-    login_position = models.CharField(
-        max_length=30,
-        choices=LOGIN_POSITION_CHOICES,
-        default='center',
-        help_text=(
-            'Default position of the login form. '
-            'Entities may override this setting.'
-        )
-    )
-
-    login_background_type = models.CharField(
-        max_length=20,
-        choices=LOGIN_BACKGROUND_TYPE_CHOICES,
-        default='color',
-        help_text=(
-            'Default background type used on the login page. '
-            'Entities may override this setting.'
-        )
-    )
-
-    login_background_color = models.CharField(
-        max_length=50,
-        default='#ffffff',
-        blank=True,
-        help_text=(
-            'Default login background color, for example #ffffff. '
-            'Used when the background type is Color.'
-        )
-    )
-
-    login_background_gradient = models.CharField(
-        max_length=500,
-        null=True,
-        blank=True,
-        help_text=(
-            'Default CSS gradient used on the login page, for example '
-            'linear-gradient(135deg, #1976d2, #26a69a). '
-            'Used when the background type is Gradient.'
-        )
-    )
-
-    login_background_image = models.FileField(
-        upload_to=login_background_path,
-        null=True,
-        blank=True,
-        help_text=(
-            'Default background image displayed on the login page. '
-            'Used when the background type is Image.'
-        )
-    )
-
-    login_background_overlay = models.FloatField(
-        default=0.0,
-        validators=[
-            MinValueValidator(0),
-            MaxValueValidator(1)
-        ],
-        help_text=(
-            'Default dark overlay opacity applied to the login background. '
-            'Use a value between 0 and 1.'
-        )
-    )
-
-    # =========================================================
-    # THEME / UI
+    # DEFAULT UI CONFIGURATION
     # =========================================================
 
     theme = models.ForeignKey(
@@ -169,6 +61,7 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name='entity_types',
         help_text='Default visual theme used by this entity type.'
     )
 
@@ -177,6 +70,7 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name='entity_types',
         help_text='Default layout configuration used by this entity type.'
     )
 
@@ -185,6 +79,7 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name='entity_types',
         help_text='Default typography configuration used by this entity type.'
     )
 
@@ -193,6 +88,7 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name='entity_types',
         help_text='Default animation configuration used by this entity type.'
     )
 
@@ -208,79 +104,101 @@ class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
     # =========================================================
 
     class RESAAS:
-
         label_field = "name"
 
         fields = {
-
             "icon": {
-                "accept": ".png,.jpg,.jpeg,.svg",
+                "accept": ".png,.jpg,.jpeg,.svg,.webp",
                 "max_size": 2 * 1024 * 1024,
                 "multiple": False
-            },
-
-            "login_background_image": {
-                "accept": ".png,.jpg,.jpeg,.webp",
-                "max_size": 5 * 1024 * 1024,
-                "multiple": False
-            },
-
-            "header_background_image": {
-                "accept": ".png,.jpg,.jpeg,.webp",
-                "max_size": 5 * 1024 * 1024,
-                "multiple": False
-            },
-
-            "footer_background_image": {
-                "accept": ".png,.jpg,.jpeg,.webp",
-                "max_size": 5 * 1024 * 1024,
-                "multiple": False
             }
-
         }
 
     # =========================================================
-    # LOGIN BACKGROUND
+    # UI CONFIGURATION
     # =========================================================
 
     @property
-    def login_background(self):
+    def ui_config(self):
 
-        if (
-            self.login_background_type == 'image'
-            and self.login_background_image
-        ):
-            return {
-                "type": "image",
-                "value": self.login_background_image.url
-            }
-
-        if (
-            self.login_background_type == 'gradient'
-            and self.login_background_gradient
-        ):
-            return {
-                "type": "gradient",
-                "value": self.login_background_gradient
-            }
+        theme = self.theme
+        layout = self.layout_settings
+        typography = self.typography
+        animation = self.animation_settings
 
         return {
-            "type": "color",
-            "value": self.login_background_color or '#ffffff'
+            "theme": (
+                theme.to_dict()
+                if theme
+                and hasattr(theme, 'to_dict')
+                else None
+            ),
+
+            "layout": (
+                layout.to_dict()
+                if layout
+                and hasattr(layout, 'to_dict')
+                else None
+            ),
+
+            "typography": (
+                typography.to_dict()
+                if typography
+                and hasattr(typography, 'to_dict')
+                else None
+            ),
+
+            "animation": (
+                animation.to_dict()
+                if animation
+                and hasattr(animation, 'to_dict')
+                else None
+            ),
         }
 
     # =========================================================
-    # LOGIN CONFIG
+    # HELPERS
     # =========================================================
 
     @property
-    def login_config(self):
+    def theme_config(self):
+        if not self.theme:
+            return None
 
-        return {
-            "position": self.login_position or 'center',
-            "background": self.login_background,
-            "overlay": self.login_background_overlay
-        }
+        if hasattr(self.theme, 'to_dict'):
+            return self.theme.to_dict()
+
+        return None
+
+    @property
+    def layout_config(self):
+        if not self.layout_settings:
+            return None
+
+        if hasattr(self.layout_settings, 'to_dict'):
+            return self.layout_settings.to_dict()
+
+        return None
+
+    @property
+    def typography_config(self):
+        if not self.typography:
+            return None
+
+        if hasattr(self.typography, 'to_dict'):
+            return self.typography.to_dict()
+
+        return None
+
+    @property
+    def animation_config(self):
+        if not self.animation_settings:
+            return None
+
+        if hasattr(self.animation_settings, 'to_dict'):
+            return self.animation_settings.to_dict()
+
+        return None
 
     # =========================================================
     # STRING
