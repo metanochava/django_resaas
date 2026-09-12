@@ -1,14 +1,23 @@
 """Resolução em cascata da aparência de header/footer:
 
-    User (UserThemeOverride) -> Entity -> EntityType -> default RESAAS
+    Entity -> EntityType -> default RESAAS
 
 O nível mais específico que tiver algo definido (background != None)
 vence por completo para essa área - não há merge campo-a-campo entre
 níveis (mesma regra já usada por login_config no frontend: um nível
 "tem" ou "não tem" configuração de fundo).
 
-Usado por MeSerializer (config resolvida, pronta a aplicar) e pelos
-endpoints de edição/reset do próprio utilizador (UserAPIView).
+Usado por MeSerializer (config resolvida, pronta a aplicar).
+
+Já não existe um nível de personalização por-utilizador aqui: essa
+responsabilidade passou para User.theme (+ ThemeSurface, área
+header/footer) - ver django_resaas.saas.models.user.User e
+django_resaas.saas.models.theme_surface.ThemeSurface. O antigo modelo
+`UserThemeOverride` foi removido; a personalização pessoal do
+utilizador deixa agora de ser um objecto próprio por área
+(header/footer) e passa a ser "o utilizador escolheu/personalizou um
+Theme", cujas superfícies cobrem qualquer área visual (não só
+header/footer).
 """
 
 DEFAULT_CONFIG = {
@@ -30,21 +39,17 @@ AREAS = ("header", "footer")
 class InterfaceConfigService:
 
     @staticmethod
-    def _sources(*, user, entity, entity_type):
+    def _sources(*, entity, entity_type):
         # Ordem = prioridade: o primeiro que tiver config para a área
-        # vence. getattr(user, "theme_override", None) é seguro mesmo
-        # sem override criado - Django devolve None para o lado "um"
-        # de um OneToOne inexistente (RelatedObjectDoesNotExist
-        # herda de AttributeError precisamente para isto).
-        override = getattr(user, "theme_override", None) if user else None
-        return (override, entity, entity_type)
+        # vence.
+        return (entity, entity_type)
 
     @classmethod
-    def resolve_area(cls, area, *, user=None, entity=None, entity_type=None):
+    def resolve_area(cls, area, *, entity=None, entity_type=None):
         if area not in AREAS:
             raise ValueError(f"Área de interface desconhecida: '{area}'.")
 
-        for source in cls._sources(user=user, entity=entity, entity_type=entity_type):
+        for source in cls._sources(entity=entity, entity_type=entity_type):
             if source is None:
                 continue
 
@@ -56,21 +61,8 @@ class InterfaceConfigService:
         return DEFAULT_CONFIG[area]
 
     @classmethod
-    def resolve(cls, *, user=None, entity=None, entity_type=None):
+    def resolve(cls, *, entity=None, entity_type=None):
         return {
-            area: cls.resolve_area(area, user=user, entity=entity, entity_type=entity_type)
-            for area in AREAS
-        }
-
-    @classmethod
-    def resolve_override_only(cls, *, user):
-        """Config em bruto que o PRÓPRIO utilizador definiu (para um
-        formulário de edição) - None numa área significa "sem
-        personalização, a herdar de Entity/EntityType"."""
-
-        override = getattr(user, "theme_override", None) if user else None
-
-        return {
-            area: getattr(override, f"{area}_config", None) if override else None
+            area: cls.resolve_area(area, entity=entity, entity_type=entity_type)
             for area in AREAS
         }

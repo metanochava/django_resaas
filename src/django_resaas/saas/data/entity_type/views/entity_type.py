@@ -24,8 +24,10 @@ from django_resaas.saas.models.entity_type_app import EntityTypeApp
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.models.entity_type_model import EntityTypeModel
 from django_resaas.saas.models.entity_model import EntityModel
-from django_resaas.saas.models.theme import Theme, Typography
-from django_resaas.saas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.saas.models.theme import Theme
+from django_resaas.saas.models.typography import Typography
+from django_resaas.saas.models.layout_setting import LayoutSetting
+from django_resaas.saas.models.animation_setting import AnimationSetting
 from django_resaas.saas.data.theme.serializers.theme import ThemeSerializer, TypographySerializer
 from django_resaas.saas.data.layout_setting.serializers.layout_setting import LayoutSettingSerializer, AnimationSettingSerializer
 

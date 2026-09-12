@@ -13,8 +13,10 @@ from django.dispatch import receiver
 from django_resaas.saas.models.person import Person
 from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.entity import Entity
-from django_resaas.saas.models.theme import Theme, Typography
-from django_resaas.saas.models.layout_setting import LayoutSetting, AnimationSetting
+from django_resaas.saas.models.theme import Theme
+from django_resaas.saas.models.typography import Typography
+from django_resaas.saas.models.layout_setting import LayoutSetting
+from django_resaas.saas.models.animation_setting import AnimationSetting
 from django_resaas.saas.models.user import User
 
 
