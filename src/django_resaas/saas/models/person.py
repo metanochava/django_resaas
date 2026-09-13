@@ -3,18 +3,15 @@ from django.db import models
 from django_resaas.saas.core.base.models import TimeModel
 
 from django.contrib.contenttypes.fields import GenericRelation
+from django_resaas.saas.core.base.mixins.address import AddressMixin
 
-
-import uuid
-from django.db import models
-from django.contrib.contenttypes.fields import GenericRelation
 
 
 def person_photo_path(instance, file_name):
     return f'images/persons/{instance.id}/{file_name}'
 
 
-class Person(TimeModel):
+class Person(AddressMixin, TimeModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     user = models.OneToOneField(
