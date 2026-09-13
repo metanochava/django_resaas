@@ -16,11 +16,13 @@ _PROVIDER_CLASSES = {}
 
 def _provider_class_for(channel, provider_name):
     if not _PROVIDER_CLASSES:
+        from django_resaas.notifications.providers.email import EmailProvider
         from django_resaas.notifications.providers.firebase import FirebasePushProvider
         from django_resaas.notifications.providers.sms import SMSProvider
         from django_resaas.notifications.providers.whatsapp import WhatsAppProvider
 
         _PROVIDER_CLASSES.update({
+            (Channel.EMAIL, "django"): EmailProvider,
             (Channel.SMS, "twilio"): SMSProvider,
             (Channel.WHATSAPP, "meta_cloud_api"): WhatsAppProvider,
             (Channel.PUSH, "firebase"): FirebasePushProvider,

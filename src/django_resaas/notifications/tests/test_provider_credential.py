@@ -9,6 +9,7 @@ import pytest
 from django_resaas.notifications.crypto import decrypt_config, encrypt_config
 from django_resaas.notifications.enums import Channel
 from django_resaas.notifications.models import NotificationProviderCredential
+from django_resaas.notifications.providers.email import EmailProvider
 from django_resaas.notifications.providers.sms import SMSProvider
 from django_resaas.notifications.providers.whatsapp import WhatsAppProvider
 from django_resaas.notifications.tenant_credentials import get_provider_for_entity
@@ -170,3 +171,84 @@ def test_whatsapp_provider_with_no_override_uses_env(monkeypatch):
 
     assert token == "env-token"
     assert phone_number_id == "env-phone-id"
+
+
+# =====================================================================
+# EMAIL
+# =====================================================================
+
+
+def test_email_provider_without_override_uses_no_explicit_connection(monkeypatch, settings):
+    settings.EMAIL_HOST = "smtp.default.example.com"
+    captured = {}
+
+    class _FakeMessage:
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+        def attach_alternative(self, *a, **k):
+            pass
+
+        def send(self, fail_silently=False):
+            return 1
+
+    monkeypatch.setattr(
+        "django_resaas.notifications.providers.email.EmailMultiAlternatives", _FakeMessage,
+    )
+
+    result = EmailProvider().send(recipient="a@example.com", subject="Hi", body="Hello")
+
+    assert result["success"] is True
+    assert captured["connection"] is None
+
+
+def test_email_provider_with_override_builds_explicit_smtp_connection(monkeypatch):
+    captured = {}
+
+    class _FakeMessage:
+        def __init__(self, **kwargs):
+            captured.update(kwargs)
+
+        def attach_alternative(self, *a, **k):
+            pass
+
+        def send(self, fail_silently=False):
+            return 1
+
+    monkeypatch.setattr(
+        "django_resaas.notifications.providers.email.EmailMultiAlternatives", _FakeMessage,
+    )
+
+    provider = EmailProvider(credentials={
+        "host": "smtp.tenant.example.com", "port": 587, "username": "u", "password": "p",
+        "use_tls": True, "from_email": "tenant@example.com",
+    })
+    result = provider.send(recipient="a@example.com", subject="Hi", body="Hello")
+
+    assert result["success"] is True
+    assert captured["connection"] is not None
+    assert captured["connection"].host == "smtp.tenant.example.com"
+    assert captured["from_email"] == "tenant@example.com"
+
+
+def test_email_provider_override_missing_host_raises_configuration_error():
+    from django_resaas.notifications.exceptions import ProviderConfigurationError
+
+    provider = EmailProvider(credentials={"username": "u"})
+
+    with pytest.raises(ProviderConfigurationError):
+        provider.send(recipient="a@example.com", body="Hello")
+
+
+def test_email_tenant_override_is_used_by_resolver(notification_tenant, fake_providers):
+    credential = NotificationProviderCredential(
+        entity=notification_tenant["entity"], channel=Channel.EMAIL, provider_name="django",
+    )
+    credential.set_config({"host": "smtp.tenant.example.com", "from_email": "tenant@example.com"})
+    credential.save()
+
+    provider = get_provider_for_entity(Channel.EMAIL, entity_id=notification_tenant["entity"].id)
+
+    assert isinstance(provider, EmailProvider)
+    assert provider is not fake_providers["email"]
+    assert provider._override["host"] == "smtp.tenant.example.com"
