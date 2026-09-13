@@ -97,6 +97,7 @@ class DashboardDetailAPIView(_DashboardEngineAPIView):
     completa e já filtrada (só widgets autorizados) de um dashboard."""
 
     def get(self, request, app_name, *args, **kwargs):
+        
         dashboard = self._get_dashboard_or_404(app_name)
 
         DashboardPermissionService.ensure_dashboard_authorized(request, dashboard)

@@ -1,7 +1,4 @@
 from django_resaas.saas.core.base.serializers import BaseSerializer
-from django_resaas.saas.core.services.interface_config_service import (
-    InterfaceConfigService,
-)
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.user import User
@@ -13,7 +10,6 @@ from rest_framework import serializers
 class MeSerializer(BaseSerializer):
 
     language = serializers.SerializerMethodField()
-    interface_config = serializers.SerializerMethodField()
     ui_config = serializers.SerializerMethodField()
     ui_sources = serializers.SerializerMethodField()
 
@@ -29,23 +25,6 @@ class MeSerializer(BaseSerializer):
         ).first() if request else None
 
         return entity, entity_type
-
-    def get_interface_config(self, obj):
-        """Header/footer já resolvidos (Entity > EntityType > default)
-        - prontos para o frontend aplicar directamente, ver
-        InterfaceConfigService.
-
-        Não há aqui um nível de personalização por-utilizador (ver
-        InterfaceConfigService) - essa personalização pessoal vive em
-        obj.theme (+ ThemeSurface), já exposto via a resolução
-        User > Entity > EntityType de get_ui_config/get_ui_sources em
-        django_resaas.saas.models.user.User."""
-
-        entity, entity_type = self._tenant_objects()
-
-        return InterfaceConfigService.resolve(
-            entity=entity, entity_type=entity_type
-        )
 
     def get_ui_config(self, obj):
         """theme/layout/typography/animation já resolvidos
@@ -98,7 +77,6 @@ class MeSerializer(BaseSerializer):
             "mobile",
             "language",
             "last_login",
-            "interface_config",
 
             # Overrides pessoais em bruto (FK own-level, null = herdar
             # de Entity/EntityType) - usados pelo Theme Studio para
