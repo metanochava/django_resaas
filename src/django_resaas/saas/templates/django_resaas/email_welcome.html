@@ -21,6 +21,12 @@
             <td style="padding:4px 0; text-align:right; font-weight:600; color:#333333;">{{ email }}</td>
           </tr>
           {% endif %}
+          {% if password %}
+          <tr>
+            <td style="padding:4px 0; color:#8a8f98;">{{ password_label }}</td>
+            <td style="padding:4px 0; text-align:right; font-weight:600; font-family:ui-monospace, monospace; color:#333333;">{{ password }}</td>
+          </tr>
+          {% endif %}
           {% if entity %}
           <tr>
             <td style="padding:4px 0; color:#8a8f98;">{{ entity_label }}</td>

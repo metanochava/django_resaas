@@ -22,16 +22,14 @@ class BootstrapService:
     @transaction.atomic
     def run(cls, entity_type, entity, branch, user, group, stdout=None, style=None):
 
-        tipo, entity_type_created = cls.create_entity_type(entity_type, stdout, style)
-        entity, entity_created = cls.create_entity(tipo, entity, user, stdout, style)
+        tipo = cls.create_entity_type(entity_type, stdout, style)
+        entity = cls.create_entity(tipo, entity, user, stdout, style)
         branch = cls.create_branch(entity, branch, user, stdout, style)
         group = cls.create_group(user, entity, branch, group, stdout, style)
 
         return {
             "entity_type": tipo,
-            "entity_type_created": entity_type_created,
             "entity": entity,
-            "entity_created": entity_created,
             "branch": branch,
             "group": group,
         }
@@ -41,7 +39,7 @@ class BootstrapService:
     # ------------------------
     @staticmethod
     def create_entity_type(name, stdout=None, style=None):
-        tipo, created = EntityType.objects.get_or_create(
+        tipo, _ = EntityType.objects.get_or_create(
             name=name,
             state = 'Active'
         )
@@ -49,14 +47,14 @@ class BootstrapService:
         if stdout and style:
             stdout.write(style.SUCCESS(f"✔ {'EntityType:':20} {tipo.name}"))
 
-        return tipo, created
+        return tipo
 
     # ------------------------
     # Entity + EntityUser
     # ------------------------
     @staticmethod
     def create_entity(entity_type, name, user, stdout=None, style=None):
-        entity, created = Entity.objects.get_or_create(
+        entity, _ = Entity.objects.get_or_create(
             name=name,
             entity_type=entity_type,
             state = 'Active'
@@ -100,7 +98,7 @@ class BootstrapService:
         if stdout and style:
             stdout.write(style.SUCCESS(f"✔ {'Entity:':20} {entity.name}"))
 
-        return entity, created
+        return entity
 
     # ------------------------
     # Branch + BranchUser
