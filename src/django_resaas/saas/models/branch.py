@@ -27,10 +27,10 @@ class Branch(AddressMixin, TimeModel):
         label_field = "name"
         crud = True
         routes={
-            'list': "add_banch",
-            'view': "view_banch",
-            'add': "add_banch",
-            'change': "change_banch"
+            'list': "list_branch",
+            'view': "view_branch",
+            'add': "add_branch",
+            'change': "change_branch"
         }
 
     def __str__(self):
