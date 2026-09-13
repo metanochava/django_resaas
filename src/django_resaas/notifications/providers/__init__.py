@@ -12,6 +12,7 @@ def register_default_providers():
     as default while running the test suite."""
 
     from .email import EmailProvider
+    from .firebase import FirebasePushProvider
     from .sms import SMSProvider
     from .whatsapp import WhatsAppProvider
 
@@ -21,4 +22,7 @@ def register_default_providers():
     NotificationProviderRegistry.register("sms", "twilio", SMSProvider(), default=True)
     NotificationProviderRegistry.register(
         "whatsapp", "meta_cloud_api", WhatsAppProvider(), default=True
+    )
+    NotificationProviderRegistry.register(
+        "push", "firebase", FirebasePushProvider(), default=True
     )

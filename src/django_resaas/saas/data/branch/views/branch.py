@@ -78,6 +78,15 @@ class  BranchAPIView(viewsets.ModelViewSet):
 
         return queryset.filter(entity_id=entity_id)
 
+    def perform_create(self, serializer):
+        # BranchSerializer's `entity` field is forced read-only by
+        # BaseSerializer.DEFAULT_READ_ONLY_FIELDS - this is a plain
+        # ModelViewSet (not BaseAPIView), so nothing else injects it,
+        # and without this override every new Branch failed with a
+        # NOT NULL constraint on entity_id.
+        entity_id = getattr(self.request, "entity_id", None)
+        serializer.save(entity_id=entity_id)
+
     @action(
         detail=True,
         methods=['GET'],

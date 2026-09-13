@@ -11,6 +11,7 @@ from .outbox import NotificationOutboxAPIView
 from .delivery_attempt import NotificationDeliveryAttemptAPIView
 from .catalog import NotificationCatalogAPIView
 from .dashboard import NotificationsDashboardAPIView
+from .provider_credential import NotificationProviderCredentialAPIView
 
 __all__ = [
     "NotificationRuleAPIView",
@@ -21,4 +22,5 @@ __all__ = [
     "NotificationDeliveryAttemptAPIView",
     "NotificationCatalogAPIView",
     "NotificationsDashboardAPIView",
+    "NotificationProviderCredentialAPIView",
 ]

@@ -1,9 +1,12 @@
+from rest_framework import serializers
+
 from django_resaas.saas.core.base.serializers import BaseSerializer
 
 from .models import (
     NotificationDeliveryAttempt,
     NotificationOutbox,
     NotificationPreference,
+    NotificationProviderCredential,
     NotificationRule,
     NotificationSettings,
     NotificationTemplate,
@@ -50,3 +53,37 @@ class NotificationDeliveryAttemptSerializer(BaseSerializer):
         model = NotificationDeliveryAttempt
         fields = "__all__"
         read_only_fields = [f.name for f in NotificationDeliveryAttempt._meta.fields]
+
+
+class NotificationProviderCredentialSerializer(BaseSerializer):
+    """`config` is the plaintext credential dict on the way in
+    (write-only - never echoed back, not even on the same response) and
+    is never derivable from any other field this serializer exposes -
+    `encrypted_config` (the actual DB column) is deliberately excluded
+    from `fields` entirely, not just marked read-only, so it can never
+    leak through list/retrieve either."""
+
+    config = serializers.JSONField(write_only=True, required=True)
+
+    class Meta:
+        model = NotificationProviderCredential
+        fields = [
+            "id", "entity", "branch", "channel", "provider_name",
+            "is_active", "config", "created_at", "updated_at",
+        ]
+
+    def create(self, validated_data):
+        config = validated_data.pop("config")
+        instance = NotificationProviderCredential(**validated_data)
+        instance.set_config(config)
+        instance.save()
+        return instance
+
+    def update(self, instance, validated_data):
+        config = validated_data.pop("config", None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if config is not None:
+            instance.set_config(config)
+        instance.save()
+        return instance

@@ -5,6 +5,7 @@ class Channel(models.TextChoices):
     EMAIL = "email", "Email"
     SMS = "sms", "SMS"
     WHATSAPP = "whatsapp", "WhatsApp"
+    PUSH = "push", "Push"
 
 
 class Category(models.TextChoices):

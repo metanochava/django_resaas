@@ -173,6 +173,83 @@ def test_register_with_wrong_otp_fails_and_creates_no_user(client):
     assert not User.objects.filter(email="ghost@example.com").exists()
 
 
+def test_register_with_email_sends_welcome_email(client, fake_notification_providers):
+    otp = _current_otp("welcome@example.com")
+
+    response = client.post(
+        "/api/register/",
+        {
+            "username": "welcomeuser",
+            "password": "supersecret123",
+            "channel": "email",
+            "identifier": "welcome@example.com",
+            "otp": otp,
+        },
+    )
+
+    assert response.status_code == 201, response.data
+    sent = fake_notification_providers["email"].sent
+    assert len(sent) == 1
+    assert sent[0]["recipient"] == "welcome@example.com"
+    assert sent[0]["metadata"]["html"]
+
+
+def test_register_with_mobile_sends_welcome_sms(client, fake_notification_providers):
+    otp = _current_otp("+258840000099")
+
+    response = client.post(
+        "/api/register/",
+        {
+            "username": "welcomeuser2",
+            "password": "supersecret123",
+            "channel": "mobile",
+            "identifier": "+258840000099",
+            "otp": otp,
+        },
+    )
+
+    assert response.status_code == 201, response.data
+    sent = fake_notification_providers["sms"].sent
+    assert len(sent) == 1
+    assert sent[0]["recipient"] == "+258840000099"
+    # SMS is plain-text - the mobile channel has no HTML counterpart.
+    assert sent[0]["metadata"] is None
+
+
+def test_register_failure_does_not_send_welcome_notification(client, fake_notification_providers):
+    response = client.post(
+        "/api/register/",
+        {
+            "username": "ghostuser2",
+            "password": "supersecret123",
+            "channel": "email",
+            "identifier": "ghost2@example.com",
+            "otp": "000000",
+        },
+    )
+
+    assert response.status_code == 400
+    assert fake_notification_providers["email"].sent == []
+
+
+def test_register_still_succeeds_if_notification_provider_missing(client):
+    NotificationProviderRegistry.unregister_all()
+
+    otp = _current_otp("noprovider@example.com")
+    response = client.post(
+        "/api/register/",
+        {
+            "username": "noprovideruser",
+            "password": "supersecret123",
+            "channel": "email",
+            "identifier": "noprovider@example.com",
+            "otp": otp,
+        },
+    )
+
+    assert response.status_code == 201, response.data
+
+
 def test_register_otp_cannot_be_reused_across_different_identifier(client):
     """The OTP is bound to the identifier it was generated for - one
     request's code must not verify a registration for a different

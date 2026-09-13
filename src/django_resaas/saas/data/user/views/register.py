@@ -1,6 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 
+from django_resaas.saas.core.services.registration_welcome_service import send_registration_welcome
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.username import UserName
 from django_resaas.saas.data.user.serializers.register import RegisterSerializer
@@ -22,6 +23,10 @@ class RegisterAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        send_registration_welcome(
+            user, channel=serializer.validated_data.get("channel"), request=request,
+        )
 
         return Response(
             {

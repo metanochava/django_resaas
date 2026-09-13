@@ -22,10 +22,16 @@ class WhatsAppProvider(BaseNotificationProvider):
 
     name = "meta_cloud_api"
 
+    def __init__(self, credentials=None):
+        """`credentials`, when given, overrides the env vars below - see
+        SMSProvider.__init__. Expected keys: token, phone_number_id,
+        api_version (optional)."""
+        self._override = credentials or {}
+
     def _credentials(self):
-        token = os.environ.get("WHATSAPP_CLOUD_API_TOKEN")
-        phone_number_id = os.environ.get("WHATSAPP_CLOUD_API_PHONE_NUMBER_ID")
-        api_version = os.environ.get("WHATSAPP_CLOUD_API_VERSION", "v20.0")
+        token = self._override.get("token") or os.environ.get("WHATSAPP_CLOUD_API_TOKEN")
+        phone_number_id = self._override.get("phone_number_id") or os.environ.get("WHATSAPP_CLOUD_API_PHONE_NUMBER_ID")
+        api_version = self._override.get("api_version") or os.environ.get("WHATSAPP_CLOUD_API_VERSION", "v20.0")
 
         if not token or not phone_number_id:
             raise ProviderConfigurationError(

@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 # 📦 Django
 from django.apps import apps, apps as django_apps
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import PermissionDenied, FieldDoesNotExist
 from django.db import models
 from django.db.models import Q
@@ -362,6 +363,13 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
             continue
         # ignora relações reversas
         if getattr(f, "auto_created", False) and not getattr(f, "concrete", False):
+            continue
+
+        # GenericRelation (e.g. AddressMixin's `addresses`) is explicitly
+        # declared, so auto_created=False lets it slip past the check
+        # above - it's still not a real form field (no single value to
+        # edit), so it needs its own exclusion.
+        if isinstance(f, GenericRelation):
             continue
 
         # f pode ser ManyToOneRel etc; queremos só Fields
