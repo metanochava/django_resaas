@@ -25,6 +25,8 @@ dependencies = [
   "Django==5.2.10",
   "djangorestframework==3.16.1",
   "djangorestframework_simplejwt==5.5.1",
+  "PyJWT",
+  "cryptography",
   "Pillow",
   "pyotp",
   "qrcode[pil]>=7.4.2",
