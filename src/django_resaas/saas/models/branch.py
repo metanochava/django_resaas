@@ -8,12 +8,12 @@ from django_resaas.saas.models.address import Address
 from django_resaas.saas.core.base.models import TimeModel
 
 
-class Branch(TimeModel):
+from django_resaas.saas.core.base.mixins.address import AddressMixin
+
+
+class Branch(AddressMixin, TimeModel):
     name = models.CharField(max_length=100, null=True)
-    address = models.OneToOneField( 'django_resaas.Address', on_delete=models.SET_NULL,  null=True, blank=True, related_name='branch', help_text='Main address of the branch.')
     entity = models.ForeignKey('django_resaas.Entity', on_delete=models.CASCADE)
-
-
     rodape = models.CharField(max_length=600, default='.', null=True)
     icon = models.CharField(max_length=100, default='.', null=True)
     label = models.CharField(max_length=100, default='.', null=True)
