@@ -72,6 +72,7 @@ from django_resaas.saas.data.person.views.person import PersonAPIView
 from django_resaas.saas.data.theme.views.theme import ThemeAPIView
 from django_resaas.saas.data.layout_setting.views.layout_setting import LayoutSettingAPIView
 from django_resaas.saas.management.apicommands.view.scaffold import ScaffoldAPIView
+from django_resaas.saas.management.apicommands.view.ide import IDEWorkspaceAPIView
 from django_resaas.saas.management.apicommands.view.app_schema import AppSchemaAPIView, RelationsAPIView
 
 # Importing this package runs every @register_view in it (VIEW_REGISTRY
@@ -130,6 +131,7 @@ routerdjango_resaas.register("models", ModelAPIView, basename="models")
 routerdjango_resaas.register("apps", AppAPIView, basename="apps")
 routerdjango_resaas.register("resaasapps", AppSchemaAPIView, basename="resaasapps")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
+routerdjango_resaas.register("ide", IDEWorkspaceAPIView, basename="ide")
 
 
 

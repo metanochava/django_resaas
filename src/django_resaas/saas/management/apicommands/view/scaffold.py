@@ -28,6 +28,7 @@ from rest_framework.decorators import action
 from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.core.base.views import registerView
 from django_resaas.saas.core.utils import all, ok, fail, warn, clean_class_name, clean_file_name, safe_write, clean_lower
+from django_resaas.saas.management.apicommands.service import code_validator
 
 import importlib.util
 import importlib
@@ -53,8 +54,10 @@ def services_dir(name): return module_path(name) / "services"
 
 
 def write_file(path: Path, content: str):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content, encoding="utf-8")
+    # safe_write() (core/utils/safe_write.py) already implements atomic
+    # write (temp file + os.replace) - reused here instead of a second,
+    # non-atomic write path (mega-prompt secção 37 "ATOMIC WRITE").
+    safe_write(str(path), content)
 
 
 # =========================================================
@@ -512,9 +515,53 @@ class ScaffoldAPIView(ViewSet):
 
         fobjs = [Field(**f) for f in fields]
 
-        write_file(models_dir(module)/f"{clean_file_name(model)}.py",  build_model(module, model, fobjs, perms))
-        write_file(serializers_dir(module)/f"{clean_file_name(model)}.py", build_serializer(module, model, fields))
-        write_file(views_dir(module)/f"{clean_file_name(model)}.py", build_view(module, model))
+        # ---------------------------------------------------
+        # GENERATE IN MEMORY FIRST - never written before this point.
+        # ---------------------------------------------------
+        model_code = build_model(module, model, fobjs, perms)
+        serializer_code = build_serializer(module, model, fields)
+        view_code = build_view(module, model)
+
+        list_page_code = build_view_front_list(module, model)
+        save_edit_code = build_view_front_save_edit(module, model)
+        view_page_code = build_view_front_view(module, model)
+        store_code = build_view_front_Store(module, model)
+        routes_code = build_view_front_Routes(module, model)
+
+        # ---------------------------------------------------
+        # VALIDATE EVERYTHING BEFORE WRITING ANYTHING - mega-prompt
+        # "regra principal": generated code that fails syntax/import
+        # validation must never reach disk. All-or-nothing: one failing
+        # file blocks the whole scaffold, none of the others get written
+        # either (a Model without its Serializer/View, or a backend
+        # model without its frontend pages, would be a broken
+        # half-scaffold).
+        # ---------------------------------------------------
+        generated = [
+            (str(models_dir(module) / f"{clean_file_name(model)}.py"), model_code),
+            (str(serializers_dir(module) / f"{clean_file_name(model)}.py"), serializer_code),
+            (str(views_dir(module) / f"{clean_file_name(model)}.py"), view_code),
+            (str(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}LPage.vue"), list_page_code),
+            (str(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}SEPage.vue"), save_edit_code),
+            (str(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}VPage.vue"), view_page_code),
+            (str(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Store.js"), store_code),
+            (str(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Routes.js"), routes_code),
+        ]
+
+        validations = [
+            {"path": path, **code_validator.validate_file(path, content)}
+            for path, content in generated
+        ]
+
+        if any(not v["valid"] for v in validations):
+            return fail(request, "validation_failed", status=422, files=validations)
+
+        # ---------------------------------------------------
+        # APPLY - only reached once every generated file validated clean.
+        # ---------------------------------------------------
+        write_file(models_dir(module)/f"{clean_file_name(model)}.py",  model_code)
+        write_file(serializers_dir(module)/f"{clean_file_name(model)}.py", serializer_code)
+        write_file(views_dir(module)/f"{clean_file_name(model)}.py", view_code)
 
         update_sidebar(module, model, icon, crud)
         update_admin(module, model)
@@ -522,15 +569,15 @@ class ScaffoldAPIView(ViewSet):
         reload_app_models(module)
 
 
-        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}LPage.vue",  build_view_front_list(module, model))
-        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}SEPage.vue",  build_view_front_save_edit(module, model))
-        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}VPage.vue",  build_view_front_view(module, model))
-        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Store.js",  build_view_front_Store(module, model))
-        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Routes.js",  build_view_front_Routes(module, model))
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}LPage.vue",  list_page_code)
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}SEPage.vue",  save_edit_code)
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_class_name(model)}VPage.vue",  view_page_code)
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Store.js",  store_code)
+        write_file(module_path_front(module) / clean_file_name(model) / f"{clean_file_name(model)}Routes.js",  routes_code)
 
         add_route(module, model)
 
-        return ok(request, 'Model created successfully', status=201, out='migrate')
+        return ok(request, 'Model created successfully', status=201, out='migrate', validations=validations)
 
 
 
