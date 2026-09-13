@@ -2,10 +2,6 @@ from django.db import models
 
 from django_resaas.saas.models.user import User
 from django_resaas.saas.core.base.models import TimeModel
-from django_resaas.saas.models.mixins.visual_area import (
-    FooterVisualFields,
-    HeaderVisualFields,
-)
 
 
 def logo_path(instance, file_name):
@@ -15,7 +11,7 @@ def logo_path(instance, file_name):
     return f'{entity_type}/{entity}/{file_name}'
 
 
-class Entity(HeaderVisualFields, FooterVisualFields, TimeModel):
+class Entity(TimeModel):
 
     # =========================================================
     # GENERAL

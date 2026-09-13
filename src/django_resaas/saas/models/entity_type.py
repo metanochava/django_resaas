@@ -1,17 +1,13 @@
 from django.db import models
 
 from django_resaas.saas.core.base.models import TimeModel
-from django_resaas.saas.models.mixins.visual_area import (
-    FooterVisualFields,
-    HeaderVisualFields,
-)
 
 
 def icon_path(instance, file_name):
     return f'{instance.name}/{file_name}'
 
 
-class EntityType(HeaderVisualFields, FooterVisualFields, TimeModel):
+class EntityType(TimeModel):
 
     # =========================================================
     # GENERAL
