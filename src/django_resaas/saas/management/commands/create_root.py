@@ -10,6 +10,7 @@ from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.models.group import Group
 from django_resaas.saas.core.services.frontend_service import FrontEndService
 from django_resaas.saas.core.services.language_service import LanguageService
+from django_resaas.saas.core.services.bootstrap_email_service import send_bootstrap_welcome_email
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.entity_type_app import EntityTypeApp
 from django_resaas.saas.models.entity_app import EntityApp
@@ -253,6 +254,14 @@ class Command(BaseCommand):
 
         FrontEndService.load_defaults( stdout=self.stdout,  style=self.style  )
         LanguageService.load_defaults( stdout=self.stdout, style=self.style )
+
+        email_sent = send_bootstrap_welcome_email(
+            user, entity=entity, entity_type=entity_type, branch=branch, group="Root",
+        )
+        if email_sent:
+            self.stdout.write(self.style.SUCCESS(f"✔ Welcome email sent to {user.email}"))
+        else:
+            self.stdout.write(self.style.WARNING("⚠ Welcome email was not sent (no provider configured or send failed)."))
 
         self.stdout.write(self.style.HTTP_INFO(f""))
         self.stdout.write(self.style.HTTP_INFO(f""))

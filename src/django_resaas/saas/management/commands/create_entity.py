@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django_resaas.saas.core.services.user_service import UserService
 from django_resaas.saas.core.services.bootstrap_service import BootstrapService
+from django_resaas.saas.core.services.bootstrap_email_service import send_bootstrap_welcome_email
 
 
 
@@ -28,5 +29,17 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.NOTICE(f"👤 Username:\t{user.username} \n")
         )
-       
+
+        email_sent = send_bootstrap_welcome_email(
+            user,
+            entity=result.get("entity"),
+            entity_type=result.get("entity_type"),
+            branch=result.get("branch"),
+            group=result.get("group"),
+        )
+        if email_sent:
+            self.stdout.write(self.style.SUCCESS(f"✔ Welcome email sent to {user.email}"))
+        else:
+            self.stdout.write(self.style.WARNING("⚠ Welcome email was not sent (no provider configured or send failed)."))
+
         self.stdout.write(self.style.SUCCESS("\n 🛠 ⚙️ Ready-to-use system\n"))
