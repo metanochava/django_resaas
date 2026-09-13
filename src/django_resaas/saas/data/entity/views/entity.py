@@ -183,7 +183,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             EntityUser.objects.get_or_create(
                 user=user,
                 entity=entity,
-                state = 1
+                state = 'Active'
             )
          
             # ------------------------
@@ -194,7 +194,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                 EntityGroup.objects.get_or_create(
                     entity = entity,
                     group = te.group,
-                    state = 1
+                    state = 'Active'
                 )
                 # user.groups.add(te.group)
 
@@ -204,7 +204,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             branch = Branch.objects.create(
                 name=f"{entity.name} Main",
                 entity=entity,
-                state = 1,
+                state = 'Active',
                 icon='...',
                 label='...'
             )
@@ -215,7 +215,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             BranchUser.objects.get_or_create(
                 user=user,
                 branch=branch,
-                state = 1
+                state = 'Active'
             )
 
             # ------------------------
@@ -226,14 +226,14 @@ class EntityAPIView(viewsets.ModelViewSet):
                 BranchGroup.objects.get_or_create(
                     branch=branch,
                     group=e.group,
-                    state = 1
+                    state = 'Active'
                 )
 
                 BranchUserGroup.objects.get_or_create(
                     user=user,
                     branch=branch,
                     group=e.group,
-                    state = 1
+                    state = 'Active'
                 )
             
 
@@ -367,7 +367,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             EntityUser.objects.create(
                 user=user,
                 entity=transformer,
-                state = 1
+                state = 'Active'
             )
             return Response(
                 {
