@@ -66,7 +66,7 @@ def tenant_client():
         user=user,
         branch=branch,
         group=root_group,
-        defaults={"state": 1},
+        defaults={"state": 'Active'},
     )
 
     # BootstrapService only activates the "hr" module for the new entity;

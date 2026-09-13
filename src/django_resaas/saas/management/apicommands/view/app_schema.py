@@ -65,6 +65,24 @@ def _normalize_model_name(model: str) -> str:
     return m[:1].upper() + m[1:]
 
 
+def _resolve_app_label(app_name: str) -> str:
+    """MY_APPS entries can be either the real app_label directly (e.g.
+    'saude') or the dotted AppConfig import path (e.g. 'django_resaas.
+    saas', whose actual app_label is 'django_resaas' - see saas/apps.py's
+    `label = "django_resaas"`, and likewise 'django_resaas.hr' -> 'hr',
+    'django_resaas.notifications' -> 'notifications'). Comparing
+    `model._meta.app_label == app_name` (the bug) silently returns 0
+    models/no rows for every dotted entry whose label differs from its
+    last path segment. Falls back to `app_name` unchanged when no
+    AppConfig matches (e.g. an entry that was never actually installed)."""
+
+    for cfg in django_apps.get_app_configs():
+        if cfg.name == app_name or cfg.label == app_name:
+            return cfg.label
+
+    return app_name
+
+
 def _get_model(module: str, model: str):
     module = (module or "").strip()
     model = _normalize_model_name(model)
@@ -72,11 +90,11 @@ def _get_model(module: str, model: str):
         raise Http404("module/model required")
 
     try:
-        return apps.get_model(module, model)
+        return apps.get_model(_resolve_app_label(module), model)
     except Exception:
         # tentativa: procurar por label case-insensitive
         try:
-            app_config = apps.get_app_config(module.split(".")[-1])
+            app_config = apps.get_app_config(_resolve_app_label(module))
             for m in app_config.get_models():
                 if m.__name__.lower() == model.lower():
                     return m
@@ -447,9 +465,11 @@ class AppSchemaAPIView(ModelViewSet):
 
         for app in settings.MY_APPS:
 
+            app_label = _resolve_app_label(app)
+
             models = [
                 m for m in django_apps.get_models()
-                if m._meta.app_label == app
+                if m._meta.app_label == app_label
             ]
 
             result.append({
@@ -458,7 +478,27 @@ class AppSchemaAPIView(ModelViewSet):
             })
 
         return all(request, apps= result)
-        
+
+    # ======================================================
+    # GET /api/django_resaas/resaasapps/lookup/?app=<name>
+    # Mesma informação de retrieve() (lista de models), mas o nome vai
+    # em query param em vez de path segment - necessário para nomes
+    # com ponto (ex.: "django_resaas.saas"), que o router do DRF nunca
+    # consegue rotear como pk (um "." num path segment é sempre
+    # interpretado como separador de format suffix - "django_resaas.
+    # saas/" resolve para pk="django_resaas", format="saas", nunca
+    # chega a retrieve() com o pk inteiro). retrieve() continua a
+    # existir tal e qual para nomes sem ponto - isto só cobre o caso
+    # que o path nunca conseguiria representar.
+    # ======================================================
+    @action(detail=False, methods=["get"])
+    def lookup(self, request):
+        app_label = _resolve_app_label(request.query_params.get("app", ""))
+        models = [
+            m.__name__ for m in apps.get_models()
+            if m._meta.app_label == app_label
+        ]
+        return all(request, models=models)
 
 
     @hasPermission("delete_app")
@@ -466,16 +506,23 @@ class AppSchemaAPIView(ModelViewSet):
         name = pk.lower()
         self._ensure_dev(request)
 
-        module_path = Path(settings.BASE_DIR) / name
-
-        if not module_path.exists():
-            return fail(request, "module_not_found")
-
-        if name == "django_resaas":
+        # Qualquer app "django_resaas" ou "django_resaas.<algo>" (saas,
+        # hr, notifications, ...) é core da própria plataforma - nunca
+        # apagável por aqui, independentemente de ter ou não pasta
+        # própria em BASE_DIR (django_resaas.saas/hr/notifications vivem
+        # dentro do pacote da biblioteca, não como pasta scaffolded).
+        # Verificado ANTES do "not found" - "protegido" é a resposta
+        # certa mesmo quando module_path não existe fisicamente.
+        if name == "django_resaas" or name.startswith("django_resaas."):
             return warn(request, "module_protected")
 
         if name == "hr":
             return warn(request, "module_protected")
+
+        module_path = Path(settings.BASE_DIR) / name
+
+        if not module_path.exists():
+            return fail(request, "module_not_found")
 
         shutil.rmtree(module_path)
 
@@ -499,7 +546,7 @@ class AppSchemaAPIView(ModelViewSet):
             return fail( request, str(e),  )
 
         try:
-            if name in ['hr', 'django_resaas']:
+            if name in ['django_resaas','hr','notifications']:
                 return fail(request, "Module {name} is protected")
 
             AppScaffoldService.create_front(name)
@@ -515,7 +562,7 @@ class AppSchemaAPIView(ModelViewSet):
     # ======================================================
     def retrieve(self, request, pk=None):
 
-        module = pk
+        module = _resolve_app_label(pk)
         models = []
 
         for model in apps.get_models():
@@ -559,7 +606,7 @@ class AppSchemaAPIView(ModelViewSet):
     )
     def model_schema(self, request, pk=None, model=None):
         try:
-            Model = apps.get_model(pk, model)
+            Model = apps.get_model(_resolve_app_label(pk), model)
         except LookupError:
             return fail(request, "model_not_found")
 

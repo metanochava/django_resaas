@@ -82,7 +82,7 @@ def _guest_client(tenant):
     guest_group = Group.objects.get(name="Guest")
     BranchUserGroup.objects.get_or_create(
         user=tenant["user"], branch=tenant["branch"], group=guest_group,
-        defaults={"state": 1},
+        defaults={"state": 'Active'},
     )
     context = ResaasContextService.issue(
         user=tenant["user"], entity_id=tenant["entity"].id,

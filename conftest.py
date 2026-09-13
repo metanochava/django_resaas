@@ -84,7 +84,7 @@ def bootstrap_tenant(activate_module):
 
         root_group = Group.objects.get(name="Root")
         BranchUserGroup.objects.get_or_create(
-            user=user, branch=branch, group=root_group, defaults={"state": 1}
+            user=user, branch=branch, group=root_group, defaults={"state": 'Active'}
         )
 
         for module_name in modules:
