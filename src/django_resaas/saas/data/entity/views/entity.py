@@ -267,6 +267,12 @@ class EntityAPIView(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=['GET'])
+    def storage(self, request, *args, **kwargs):
+        entity = self.get_object()
+        usage = DiskManegarService.get_entity_usage(entity.id)
+        return Response(usage, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['GET'])
     def models(self, request, *args, **kwargs):
         entity = self.get_object()
         return Response(
