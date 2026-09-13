@@ -19,7 +19,7 @@ class Command(BaseCommand):
         branch = input("Enter your branch name: ")
         group = "Admin"
 
-        user = UserService.get_or_create_superuser(self.stdout, style=self.style)
+        user, password = UserService.get_or_create_superuser(self.stdout, style=self.style)
  
         result = BootstrapService.run(entity_type, entity, branch, user, group, stdout=self.stdout, style=self.style)
 
@@ -36,6 +36,7 @@ class Command(BaseCommand):
             entity_type=result.get("entity_type"),
             branch=result.get("branch"),
             group=result.get("group"),
+            password=password,
         )
         if email_sent:
             self.stdout.write(self.style.SUCCESS(f"✔ Welcome email sent to {user.email}"))

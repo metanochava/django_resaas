@@ -44,6 +44,7 @@ class UserService:
             user.set_password(password)
             user.save()
         else:
+            password = None
             if stdout and style:
                 stdout.write(
                     style.WARNING("✔  Superuser already exists \n ")
@@ -51,4 +52,4 @@ class UserService:
                 stdout.write(style.WARNING(f"✉️ Email: \t {user.email}"))
                 stdout.write(style.SUCCESS(f"👤Username: \t {user.username} \n"))
 
-        return user
+        return user, password

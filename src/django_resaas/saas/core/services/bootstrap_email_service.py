@@ -15,9 +15,10 @@ provider must never make the command look like it failed - the
 password/user/tenant already exist either way. Callers get a plain
 True/False back to report on stdout.
 
-Deliberately never includes the password - it's known only to whoever
-typed it at the prompt; emailing it in plain text would be a real
-security regression, not a convenience."""
+Includes the password in the email (product decision) only when the
+caller passes one in - i.e. only for a superuser that was actually
+just created here, never for a pre-existing one whose real password
+is unknown to this command."""
 import logging
 
 from django.conf import settings
@@ -30,7 +31,7 @@ from django_resaas.notifications.providers import NotificationProviderRegistry
 logger = logging.getLogger(__name__)
 
 
-def send_bootstrap_welcome_email(user, *, entity=None, entity_type=None, branch=None, group=None):
+def send_bootstrap_welcome_email(user, *, entity=None, entity_type=None, branch=None, group=None, password=None):
     try:
         provider = NotificationProviderRegistry.get(Channel.EMAIL)
 
@@ -70,6 +71,8 @@ def send_bootstrap_welcome_email(user, *, entity=None, entity_type=None, branch=
             "username": user.username,
             "email_label": Translate.tdc(None, "Email"),
             "email": user.email,
+            "password_label": Translate.tdc(None, "Password"),
+            "password": password,
             "entity_label": Translate.tdc(None, "Entity"),
             "entity": entity_name,
             "branch_label": Translate.tdc(None, "Branch"),
@@ -82,7 +85,10 @@ def send_bootstrap_welcome_email(user, *, entity=None, entity_type=None, branch=
             "button_label": Translate.tdc(None, "Open your workspace"),
             "security_notice": Translate.tdc(
                 None,
-                "This is an automated message confirming your account was created - your password was never included and is known only to you.",
+                "For your security, please sign in and change this password as soon as possible.",
+            ) if password else Translate.tdc(
+                None,
+                "This is an automated message confirming your account was created.",
             ),
             "footer_notice": Translate.tdc(None, "This is an automated message, please do not reply."),
         })

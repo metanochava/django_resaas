@@ -256,7 +256,7 @@ class Command(BaseCommand):
         LanguageService.load_defaults( stdout=self.stdout, style=self.style )
 
         email_sent = send_bootstrap_welcome_email(
-            user, entity=entity, entity_type=entity_type, branch=branch, group="Root",
+            user, entity=entity, entity_type=entity_type, branch=branch, group="Root", password=password,
         )
         if email_sent:
             self.stdout.write(self.style.SUCCESS(f"✔ Welcome email sent to {user.email}"))
