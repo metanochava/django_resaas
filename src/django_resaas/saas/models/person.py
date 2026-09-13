@@ -58,15 +58,6 @@ class Person(AddressMixin, TimeModel):
     phone = models.CharField(max_length=20, null=True, blank=True)
     alternative_phone = models.CharField(max_length=20, null=True, blank=True)
 
-    # 📌 Endereço
-    address = models.ForeignKey(
-        'django_resaas.Address',
-        on_delete=models.SET_NULL,  # 🔥 melhor que CASCADE
-        null=True,
-        blank=True,
-        related_name='persons'
-    )
-
     # 📌 Documents
     documents = GenericRelation('django_resaas.Document')
 
