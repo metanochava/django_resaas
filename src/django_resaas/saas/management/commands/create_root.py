@@ -225,7 +225,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.WARNING(f"\n"))
 
-        for name in ['django_resaas','hr']:
+        for name in ['django_resaas','hr','notifications']:
             app, _ = App.objects.get_or_create(
                 name=name,
                 defaults={"state": "Active"},

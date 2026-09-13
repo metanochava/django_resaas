@@ -146,7 +146,7 @@ def test_branch_isolation_is_enforced(bootstrap_tenant, create_product):
         user=tenant["user"],
         branch=branch_b,
         group=tenant["root_group"],
-        defaults={"state": 1},
+        defaults={"state": 'Active'},
     )
 
     create_product(tenant["client"], name="Branch A's Widget")

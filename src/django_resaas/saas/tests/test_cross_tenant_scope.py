@@ -42,7 +42,7 @@ def test_opting_a_action_into_cross_branch_exposes_other_branches(
         user=tenant["user"],
         branch=branch_b,
         group=tenant["root_group"],
-        defaults={"state": 1},
+        defaults={"state": 'Active'},
     )
 
     create_product(tenant["client"], name="Branch A's Widget")

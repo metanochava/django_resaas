@@ -68,7 +68,7 @@ class BootstrapService:
             state = 1
         )
 
-        for name in ['hr']:
+        for name in ['django_resaas','hr','notifications']:
             app, _ = App.objects.get_or_create(
                 name=name,
                 defaults={"state": "Active"},

@@ -324,7 +324,7 @@ class TestDashboardEndpoints:
 
         BranchUserGroup.objects.get_or_create(
             user=tenant["user"], branch=tenant["branch"], group=guest_group,
-            defaults={"state": 1},
+            defaults={"state": 'Active'},
         )
 
         context = ResaasContextService.issue(

@@ -21,7 +21,7 @@ def _client_for_group(tenant, group):
 
     BranchUserGroup.objects.get_or_create(
         user=tenant["user"], branch=tenant["branch"], group=group,
-        defaults={"state": 1},
+        defaults={"state": 'Active'},
     )
 
     context = ResaasContextService.issue(

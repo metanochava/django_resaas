@@ -82,13 +82,13 @@ def group_creator(groups=None, rename_from=None):
         EntityTypeGroup.objects.get_or_create(
             entity_type=entity_type,
             group=group,
-            defaults={"state": 1}
+            defaults={"state": 'Active'}
         )
 
         EntityGroup.objects.get_or_create(
             entity=entity,
             group=group,
-            defaults={"state": 1}
+            defaults={"state": 'Active'}
         )
 
         if permission_codenames:
