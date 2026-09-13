@@ -1,6 +1,3 @@
-import os
-
-from django.core.files import File
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from getpass import getpass
@@ -22,7 +19,6 @@ from django_resaas.saas.models.entity_type_group import EntityTypeGroup
 from django_resaas.saas.models.entity_group import EntityGroup
 from django_resaas.saas.models.branch_group import BranchGroup
 from django_resaas.saas.core.utils.group_creator import GROUPS
-from django_resaas.saas.core.utils.image_picker import pick_image_file
 
 User = get_user_model()
 
@@ -153,19 +149,10 @@ class Command(BaseCommand):
         # ------------------------
         # 1. EntityType
         # ------------------------
-        entity_type, entity_type_created = EntityType.objects.get_or_create(
+        entity_type, _ = EntityType.objects.get_or_create(
             name=data["entity_type"],
             state = 'Active'
         )
-
-        if entity_type_created:
-            icon_path = pick_image_file(
-                f"Select an icon for the new Entity Type '{entity_type.name}'",
-                stdout=self.stdout, style=self.style,
-            )
-            with open(icon_path, "rb") as f:
-                entity_type.icon.save(os.path.basename(icon_path), File(f), save=True)
-            self.stdout.write(self.style.SUCCESS(f"✔ Icon set for Entity Type '{entity_type.name}'"))
 
         # ------------------------
         # 2. Entity
@@ -175,15 +162,6 @@ class Command(BaseCommand):
             entity_type=entity_type,
             state = 'Active'
         )
-
-        if created_entity:
-            logo_path = pick_image_file(
-                f"Select a logo for the new Entity '{entity.name}'",
-                stdout=self.stdout, style=self.style,
-            )
-            with open(logo_path, "rb") as f:
-                entity.logo.save(os.path.basename(logo_path), File(f), save=True)
-            self.stdout.write(self.style.SUCCESS(f"✔ Logo set for Entity '{entity.name}'"))
 
         # ManyToMany → DEPOIS
         entity.admins.add(user)
