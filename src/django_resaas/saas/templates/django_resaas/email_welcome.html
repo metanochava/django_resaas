@@ -1,0 +1,67 @@
+{% extends "django_resaas/email_base.html" %}
+
+{% block content %}
+  <p>{{ greeting }}</p>
+  <p>{{ intro }}</p>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+         style="background:#f7f8fa; border-radius:8px; margin:20px 0;">
+    <tr>
+      <td style="padding:16px 20px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
+          {% if username %}
+          <tr>
+            <td style="padding:4px 0; color:#8a8f98;">{{ username_label }}</td>
+            <td style="padding:4px 0; text-align:right; font-weight:600; color:#333333;">{{ username }}</td>
+          </tr>
+          {% endif %}
+          {% if email %}
+          <tr>
+            <td style="padding:4px 0; color:#8a8f98;">{{ email_label }}</td>
+            <td style="padding:4px 0; text-align:right; font-weight:600; color:#333333;">{{ email }}</td>
+          </tr>
+          {% endif %}
+          {% if entity %}
+          <tr>
+            <td style="padding:4px 0; color:#8a8f98;">{{ entity_label }}</td>
+            <td style="padding:4px 0; text-align:right; font-weight:600; color:#333333;">{{ entity }}</td>
+          </tr>
+          {% endif %}
+          {% if branch %}
+          <tr>
+            <td style="padding:4px 0; color:#8a8f98;">{{ branch_label }}</td>
+            <td style="padding:4px 0; text-align:right; font-weight:600; color:#333333;">{{ branch }}</td>
+          </tr>
+          {% endif %}
+          {% if group %}
+          <tr>
+            <td style="padding:4px 0; color:#8a8f98;">{{ group_label }}</td>
+            <td style="padding:4px 0; text-align:right; font-weight:600; color:#333333;">{{ group }}</td>
+          </tr>
+          {% endif %}
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  {% if instructions %}
+  <p style="font-weight:600; margin-bottom:8px;">{{ instructions_title }}</p>
+  <ul style="margin:0 0 20px; padding-left:20px; color:#444444;">
+    {% for step in instructions %}
+      <li style="margin-bottom:8px;">{{ step }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if login_url %}
+  <p style="text-align:center; margin:28px 0 8px;">
+    <a href="{{ login_url }}"
+       style="background:{{ brand_color|default:'#1976d2' }}; color:#ffffff; text-decoration:none;
+              padding:12px 28px; border-radius:8px; display:inline-block; font-weight:600;">
+      {{ button_label }}
+    </a>
+  </p>
+  {% endif %}
+
+  <p style="color:#777777; font-size:13px; margin-top:24px;">{{ security_notice }}</p>
+{% endblock %}

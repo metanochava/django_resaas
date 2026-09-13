@@ -8,6 +8,7 @@ DEFAULT_TEMPLATES = {
     'PASSWORD_RESET': 'django_resaas/email_reset.html',
     'GENERIC_RESET': 'django_resaas/email_template_reset.html',
     'OTP_CODE': 'django_resaas/email_otp.html',
+    'BOOTSTRAP_WELCOME': 'django_resaas/email_welcome.html',
 }
 
 
