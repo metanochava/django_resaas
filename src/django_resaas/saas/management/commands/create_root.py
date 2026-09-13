@@ -150,7 +150,7 @@ class Command(BaseCommand):
         # ------------------------
         entity_type, _ = EntityType.objects.get_or_create(
             name=data["entity_type"],
-            state = 1
+            state = 'Active'
         )
 
         # ------------------------
@@ -159,7 +159,7 @@ class Command(BaseCommand):
         entity, created_entity = Entity.objects.get_or_create(
             name=data["entity"],
             entity_type=entity_type,
-            state = 1
+            state = 'Active'
         )
 
         # ManyToMany → DEPOIS
@@ -168,7 +168,7 @@ class Command(BaseCommand):
         EntityUser.objects.get_or_create(
             user=user,
             entity=entity,
-            state = 1
+            state = 'Active'
         )
 
         # ------------------------
@@ -177,13 +177,13 @@ class Command(BaseCommand):
         branch, _ = Branch.objects.get_or_create(
             name=data["branch"],
             entity=entity,
-            state = 1
+            state = 'Active'
         )
 
         BranchUser.objects.get_or_create(
             user=user,
             branch=branch,
-            state = 1
+            state = 'Active'
         )
 
         # ------------------------
@@ -200,7 +200,7 @@ class Command(BaseCommand):
                 user=user,
                 branch=branch,
                 group=group,
-                state = 1
+                state = 'Active'
             )
 
             # user.groups.add(group)
@@ -208,19 +208,19 @@ class Command(BaseCommand):
             EntityTypeGroup.objects.get_or_create(
                 entity_type=entity_type,
                 group=group,
-                state = 1
+                state = 'Active'
             )
 
             EntityGroup.objects.get_or_create(
                 entity=entity,
                 group=group,
-                state = 1
+                state = 'Active'
             )
 
             BranchGroup.objects.get_or_create(
                 branch=branch,
                 group=group,
-                state = 1
+                state = 'Active'
             )
 
         self.stdout.write(self.style.WARNING(f"\n"))
@@ -237,7 +237,7 @@ class Command(BaseCommand):
             entity_type_app, _ = EntityTypeApp.objects.get_or_create(
                 app=app,
                 entity_type=entity_type,
-                state = 1
+                state = 'Active'
             )
 
             entity_app, _ = EntityApp.objects.get_or_create(

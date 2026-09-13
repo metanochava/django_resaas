@@ -41,7 +41,7 @@ class BootstrapService:
     def create_entity_type(name, stdout=None, style=None):
         tipo, _ = EntityType.objects.get_or_create(
             name=name,
-            state = 1
+            state = 'Active'
         )
 
         if stdout and style:
@@ -57,7 +57,7 @@ class BootstrapService:
         entity, _ = Entity.objects.get_or_create(
             name=name,
             entity_type=entity_type,
-            state = 1
+            state = 'Active'
         )
 
         entity.admins.add(user)
@@ -65,7 +65,7 @@ class BootstrapService:
         EntityUser.objects.get_or_create(
             user=user,
             entity=entity,
-            state = 1
+            state = 'Active'
         )
 
         for name in ['django_resaas','hr','notifications']:
@@ -80,7 +80,7 @@ class BootstrapService:
             entity_type_app, _ = EntityTypeApp.objects.get_or_create(
                 app=app,
                 entity_type=entity_type,
-                state = 1
+                state = 'Active'
             )
 
             entity_app, _ = EntityApp.objects.get_or_create(
@@ -132,14 +132,14 @@ class BootstrapService:
         BranchGroup.objects.get_or_create(
             branch=branch,
             group=requested_group,
-            state = 1
+            state = 'Active'
         )
 
         # ligar group ao tenant (entity)
         EntityGroup.objects.get_or_create(
             entity=entity,
             group=requested_group,
-            state = 1
+            state = 'Active'
         )
 
         # user.groups.add(group)
@@ -148,7 +148,7 @@ class BootstrapService:
             user=user,
             branch=branch,
             group=requested_group,
-            state = 1
+            state = 'Active'
         )
 
         guest_group, _ = Group.objects.get_or_create(name="Guest")
@@ -157,14 +157,14 @@ class BootstrapService:
         BranchGroup.objects.get_or_create(
             branch=branch,
             group=guest_group,
-            state = 1
+            state = 'Active'
         )
 
         # ligar group ao tenant (entity)
         EntityGroup.objects.get_or_create(
             entity=entity,
             group=guest_group,
-            state = 1
+            state = 'Active'
         )
 
         # user.groups.add(group)
@@ -174,7 +174,7 @@ class BootstrapService:
             user=user,
             branch=branch,
             group=guest_group,
-            state = 1
+            state = 'Active'
         )
 
         if stdout and style:

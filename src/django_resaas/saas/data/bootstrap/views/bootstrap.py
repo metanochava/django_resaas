@@ -41,7 +41,7 @@ class TenantAPIView(APIView):
         # ------------------------
         entity_type, _ = EntityType.objects.get_or_create(
             name=data["entity_type"],
-            state = 1
+            state = 'Active'
         )
 
         # ------------------------
@@ -58,7 +58,7 @@ class TenantAPIView(APIView):
         EntityUser.objects.get_or_create(
             user=user,
             entity=entity,
-            state = 1
+            state = 'Active'
         )
 
         # ------------------------
@@ -67,13 +67,13 @@ class TenantAPIView(APIView):
         branch, _ = Branch.objects.get_or_create(
             name=data["branch"],
             entity=entity,
-            state = 1
+            state = 'Active'
         )
 
         BranchUser.objects.get_or_create(
             user=user,
             branch=branch,
-            state = 1
+            state = 'Active'
         )
 
         # ------------------------
@@ -81,14 +81,14 @@ class TenantAPIView(APIView):
         # ------------------------
         group, _ = Group.objects.get_or_create(
             name=data["group"],
-            state = 1
+            state = 'Active'
         )
 
         BranchUserGroup.objects.get_or_create(
             user=user,
             branch=branch,
             group=group,
-            state = 1
+            state = 'Active'
         )
 
         # user.groups.add(group)

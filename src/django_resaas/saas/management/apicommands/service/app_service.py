@@ -188,7 +188,7 @@ admin.site.index_title = '{clean_name(name)}'
     def _alocate_app(name):
         entity_type, _ = EntityType.objects.get_or_create(
             name='SaaS',
-            state = 1
+            state = 'Active'
         )
 
         entity, _ = Entity.objects.get_or_create(
@@ -207,7 +207,7 @@ admin.site.index_title = '{clean_name(name)}'
         entity_type_app, _ = EntityTypeApp.objects.get_or_create(
             app=app,
             entity_type=entity_type,
-            state = 1
+            state = 'Active'
         )
 
         entity_app, _ = EntityApp.objects.get_or_create(
