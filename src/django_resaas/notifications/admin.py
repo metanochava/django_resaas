@@ -4,6 +4,7 @@ from .models import (
     NotificationDeliveryAttempt,
     NotificationOutbox,
     NotificationPreference,
+    NotificationProviderCredential,
     NotificationRule,
     NotificationSettings,
     NotificationTemplate,
@@ -48,6 +49,18 @@ class NotificationSettingsAdmin(admin.ModelAdmin):
         "whatsapp_enabled",
     )
     list_filter = ("email_enabled", "sms_enabled", "whatsapp_enabled")
+
+
+@admin.register(NotificationProviderCredential)
+class NotificationProviderCredentialAdmin(admin.ModelAdmin):
+    """`encrypted_config` is ciphertext, not something to hand-edit here -
+    use the API's write-only `config` field (NotificationProviderCredentialSerializer)
+    to set it; the admin only manages which override exists and whether
+    it's active."""
+
+    list_display = ("entity", "branch", "channel", "provider_name", "is_active")
+    list_filter = ("channel", "provider_name", "is_active", "entity")
+    readonly_fields = ("encrypted_config",)
 
 
 class ReadOnlyAdmin(admin.ModelAdmin):

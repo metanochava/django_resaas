@@ -25,10 +25,18 @@ class SMSProvider(BaseNotificationProvider):
 
     API_BASE = "https://api.twilio.com/2010-04-01"
 
+    def __init__(self, credentials=None):
+        """`credentials`, when given, overrides the env vars below -
+        this is how a tenant's own NotificationProviderCredential
+        (see notifications/tenant_credentials.py) is applied without
+        touching os.environ. Expected keys: account_sid, auth_token,
+        from_number."""
+        self._override = credentials or {}
+
     def _credentials(self):
-        account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
-        auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
-        from_number = os.environ.get("TWILIO_FROM_NUMBER")
+        account_sid = self._override.get("account_sid") or os.environ.get("TWILIO_ACCOUNT_SID")
+        auth_token = self._override.get("auth_token") or os.environ.get("TWILIO_AUTH_TOKEN")
+        from_number = self._override.get("from_number") or os.environ.get("TWILIO_FROM_NUMBER")
 
         if not account_sid or not auth_token or not from_number:
             raise ProviderConfigurationError(

@@ -42,7 +42,7 @@ def process_notification(outbox_id):
         NotificationDeliveryAttempt,
         NotificationOutbox,
     )
-    from django_resaas.notifications.providers import NotificationProviderRegistry
+    from django_resaas.notifications.tenant_credentials import get_provider_for_entity
 
     try:
         outbox = NotificationOutbox.objects.get(id=outbox_id)
@@ -88,7 +88,12 @@ def process_notification(outbox_id):
         _fail_outbox(outbox, invalid_reason)
         return
 
-    provider = NotificationProviderRegistry.get(outbox.channel, outbox.provider)
+    provider = get_provider_for_entity(
+        outbox.channel,
+        entity_id=outbox.entity_id,
+        branch_id=outbox.branch_id,
+        provider_name=outbox.provider,
+    )
     if provider is None:
         message = f"No provider registered for channel={outbox.channel!r} name={outbox.provider!r}"
         _finish_attempt(

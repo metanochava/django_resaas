@@ -36,24 +36,32 @@ class FirebasePushProvider(BaseNotificationProvider):
 
     name = "firebase"
 
-    def __init__(self):
+    def __init__(self, credentials=None):
+        """`credentials`, when given, is the whole service-account dict
+        itself (not env-var names) and overrides
+        FIREBASE_SERVICE_ACCOUNT_JSON entirely - see
+        SMSProvider.__init__ for the general pattern."""
+        self._override = credentials
         self._access_token = None
         self._access_token_expiry = 0
 
     def _service_account(self):
-        raw = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
+        if self._override is not None:
+            account = self._override
+        else:
+            raw = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON")
 
-        if not raw:
-            raise ProviderConfigurationError(
-                "FirebasePushProvider: FIREBASE_SERVICE_ACCOUNT_JSON is not configured."
-            )
+            if not raw:
+                raise ProviderConfigurationError(
+                    "FirebasePushProvider: FIREBASE_SERVICE_ACCOUNT_JSON is not configured."
+                )
 
-        try:
-            account = json.loads(raw)
-        except json.JSONDecodeError as exc:
-            raise ProviderConfigurationError(
-                f"FirebasePushProvider: FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON: {exc}"
-            ) from exc
+            try:
+                account = json.loads(raw)
+            except json.JSONDecodeError as exc:
+                raise ProviderConfigurationError(
+                    f"FirebasePushProvider: FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON: {exc}"
+                ) from exc
 
         if not account.get("client_email") or not account.get("private_key") or not account.get("project_id"):
             raise ProviderConfigurationError(

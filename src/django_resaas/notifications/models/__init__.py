@@ -4,6 +4,7 @@ from .preference import NotificationPreference
 from .settings import NotificationSettings
 from .outbox import NotificationOutbox, assert_transition
 from .delivery_attempt import NotificationDeliveryAttempt
+from .provider_credential import NotificationProviderCredential
 
 __all__ = [
     "NotificationRule",
@@ -12,5 +13,6 @@ __all__ = [
     "NotificationSettings",
     "NotificationOutbox",
     "NotificationDeliveryAttempt",
+    "NotificationProviderCredential",
     "assert_transition",
 ]
