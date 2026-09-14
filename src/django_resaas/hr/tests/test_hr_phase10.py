@@ -181,7 +181,7 @@ def test_employees_pdflist_denied_without_permission(bootstrap_tenant):
 
     empty_group = Group.objects.create(name="No Report Access")
     BranchUserGroup.objects.create(
-        user=tenant["user"], branch=tenant["branch"], group=empty_group, state=1,
+        user=tenant["user"], branch=tenant["branch"], group=empty_group, state='Active',
     )
 
     from django_resaas.saas.core.tenant.context import ResaasContextService

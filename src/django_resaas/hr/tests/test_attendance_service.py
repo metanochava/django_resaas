@@ -24,9 +24,9 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def employee(db):
-    entity_type = EntityType.objects.create(name="SaaS", state=1)
-    entity = Entity.objects.create(name="Tenant", entity_type=entity_type, state=1)
-    branch = Branch.objects.create(name="Main", entity=entity, state=1)
+    entity_type = EntityType.objects.create(name="SaaS", state='Active')
+    entity = Entity.objects.create(name="Tenant", entity_type=entity_type, state='Active')
+    branch = Branch.objects.create(name="Main", entity=entity, state='Active')
     person = Person.objects.create(name="Jane", surname="Doe")
 
     return Employee.objects.create(

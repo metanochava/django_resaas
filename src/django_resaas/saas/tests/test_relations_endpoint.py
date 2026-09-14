@@ -22,8 +22,16 @@ class TestRelationsEndpoint:
         raise AttributeError: 'Permission' object has no attribute
         'get_label_field'."""
         tenant = bootstrap_tenant("relations-permission")
-        permission = Permission.objects.first()
-        assert permission is not None
+
+        # The endpoint only returns the 50 most recent rows (order_by
+        # "-id"), and the test DB already has hundreds of permissions -
+        # create one explicitly instead of assuming Permission.objects.
+        # first() lands in that slice.
+        permission = Permission.objects.create(
+            codename="a_pk_and_str_fallback_test_permission",
+            name="A pk/str fallback test permission",
+            content_type=Permission.objects.first().content_type,
+        )
 
         response = tenant["client"].get(
             "/api/django_resaas/relations/?format=json&model=auth.Permission"

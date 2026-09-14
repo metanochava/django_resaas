@@ -1,7 +1,7 @@
 """
 Regression test for a real bug found while building the demo app (Phase 6):
 BootstrapService/create_root/app_service all created App/EntityApp rows with
-`state=1` (an int, coerced to the string "1" on a CharField), but the actual
+`state='Active'` (an int, coerced to the string "1" on a CharField), but the actual
 per-request gate in BaseAPIView.initial() checks `state="Active"`. That meant
 every tenant bootstrapped via these paths got a 403 ("Module is not active")
 on every single API call - confirmed empirically before the fix.
@@ -53,7 +53,7 @@ def test_bootstrapped_hr_app_is_actually_active():
 
 
 def test_bootstrap_self_heals_a_preexisting_broken_row():
-    """A row already broken by the old `state=1` behavior gets repaired on
+    """A row already broken by the old `state='Active'` behavior gets repaired on
     the next bootstrap run instead of causing a duplicate-row crash."""
     user = _make_user()
 

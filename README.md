@@ -262,7 +262,7 @@ Each `Entity` only sees the modules it has activated:
 Activation is a direct `App` ↔ `Entity` link via `EntityApp` (toggled with its `state` field):
 
 ```python
-EntityApp.objects.get_or_create(app=app, entity=entity, state=1)
+EntityApp.objects.get_or_create(app=app, entity=entity, state='Active')
 ```
 
 > There is no plan-based billing layer yet (no `Plan`/`EntityPlan` model, no automatic
