@@ -449,15 +449,6 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
     return out
 
 
-def label_value(obj, arr) -> str:
-    v = ''
-    for k in arr:
-        if hasattr(obj, k):
-            v = v +' '+ str(obj._get_attr(k)) 
-    return str(v)
-
-
-
 class AppSchemaAPIView(ModelViewSet):
 
     A = []
@@ -670,11 +661,19 @@ class RelationsAPIView(APIView):
                         try:
                             rel_model = field.related_model
 
-                            # tenta campo name
-                            if hasattr(rel_model, "name"):
-                                q |= Q(**{f"{field.name}__name__icontains": search})
+                            # tenta campo name - hasattr() sozinho
+                            # confunde uma property Python (ex.:
+                            # ContentType.name, calculada, não uma
+                            # coluna real) com um campo de BD
+                            # realmente pesquisável, rebentando com
+                            # FieldError: "Unsupported lookup" - só
+                            # tenta o filtro quando get_field()
+                            # confirma que 'name' é mesmo um campo do
+                            # modelo relacionado.
+                            rel_model._meta.get_field("name")
+                            q |= Q(**{f"{field.name}__name__icontains": search})
 
-                        except:
+                        except Exception:
                             continue
             else:
                 for field in search_fields:
@@ -689,16 +688,19 @@ class RelationsAPIView(APIView):
 
         qs = qs.order_by("-id")[:50]
 
-        rows = [{"id": o.pk, "value": o.pk, "label": label_value(o, o.get_label_field())} for o in qs]
-
-        # rows = [
-        #     {
-        #         "id": o.pk,
-        #         "value": o.get_value() if hasattr(o, "get_value") else o.pk,
-        #         "label": o.get_label() if hasattr(o, "get_label") else str(o),
-        #     }
-        #     for o in qs
-        # ]
+        # Not every model passed here is a RESAAS model (e.g.
+        # auth.Permission/auth.Group/contenttypes.ContentType don't
+        # inherit LabelValueMixin) - get_value()/get_label() only exist
+        # on models that do, so both need a plain fallback (pk/str())
+        # instead of assuming every model has them.
+        rows = [
+            {
+                "id": o.pk,
+                "value": o.get_value() if hasattr(o, "get_value") else o.pk,
+                "label": o.get_label() if hasattr(o, "get_label") else str(o),
+            }
+            for o in qs
+        ]
         return Response(rows, status=200)
 
 
