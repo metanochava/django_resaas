@@ -24,6 +24,7 @@ from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.translate import Translate
 
+from django_resaas.saas.models.app import App
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.entity_app import EntityApp
 from django_resaas.saas.models.entity_user import EntityUser
@@ -36,6 +37,7 @@ from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.entity_type_group import EntityTypeGroup
 from django_resaas.saas.models.entity_type_app import EntityTypeApp
 from django_resaas.saas.models.entity_model import EntityModel
+from django_resaas.saas.models.entity_type_model import EntityTypeModel
 from django_resaas.saas.models.entity_group import EntityGroup
 from django_resaas.saas.models.user import User
 
@@ -306,7 +308,24 @@ class EntityAPIView(viewsets.ModelViewSet):
         entity = self.get_object()
         model = ContentType.objects.get(id=request.data['id'])
 
-        ent, _ = EntityModel.objects.get_or_create(entity__id=entity.id, model=model)
+        # Só se o modelo já fizer parte do EntityType desta Entity -
+        # o EntityType define o universo disponível (EntityTypeModel),
+        # a Entity só escolhe dentro dele, nunca de qualquer
+        # ContentType do sistema (backend autoritativo, nunca confiar
+        # só no que o frontend mostra - ver CLAUDE.md secção 10/60).
+        if not EntityTypeModel.objects.filter(
+            entity_type=entity.entity_type, model=model
+        ).exists():
+            return Response(
+                {"error": "Model is not part of this Entity's EntityType"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # `entity__id=` (a relation lookup) is not a valid create()
+        # kwarg - get_or_create() would try to INSERT a row with
+        # entity_id left NULL when no match exists, failing the
+        # column's NOT NULL constraint. `entity=` is the real field.
+        ent, _ = EntityModel.objects.get_or_create(entity=entity, model=model)
 
         return Response(
             {
@@ -331,6 +350,44 @@ class EntityAPIView(viewsets.ModelViewSet):
             },
             status=status.HTTP_201_CREATED
         )
+
+    @action(detail=True, methods=['POST'])
+    def addApp(self, request, *args, **kwargs):
+        entity = self.get_object()
+        app = App.objects.filter(id=request.data.get('id')).first()
+
+        if not app:
+            return Response({"error": "App not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Mesma regra do addModel acima: só apps já ligadas ao
+        # EntityType desta Entity (EntityTypeApp) podem ser activadas
+        # para a Entity em si.
+        if not EntityTypeApp.objects.filter(
+            entity_type=entity.entity_type, app=app
+        ).exists():
+            return Response(
+                {"error": "App is not part of this Entity's EntityType"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        EntityApp.objects.get_or_create(entity=entity, app=app)
+
+        return Response(
+            {
+                'id': app.id,
+                'name': app.name,
+                'alert_info': f'App <b>{app.name}</b> activated successfully'
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(detail=True, methods=['POST'])
+    def removeApp(self, request, *args, **kwargs):
+        entity = self.get_object()
+        app_id = request.data.get('id')
+        EntityApp.objects.filter(entity=entity, app_id=app_id).delete()
+
+        return Response({"success": True})
 
     @action(detail=True, methods=['GET'])
     def profiles(self, request, *args, **kwargs):
