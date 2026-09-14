@@ -40,11 +40,36 @@ class TestDiscovery:
 
     def test_app_without_dashboard_py_is_ignored(self):
         discovery.DashboardDiscoveryService.discover(force=True)
-        # django_resaas.notifications não tem dashboard.py (tem
-        # views/dashboard.py, um endpoint TenantDashboardAPIView, não
-        # o novo <app>/dashboard.py declarativo) - não deve dar erro
-        # nem aparecer no registry deste motor.
-        assert registry.DashboardRegistry.get("notifications") is None
+        # hr/notifications/django_resaas now have a real <app>/dashboard.py
+        # too (see test_finds_hr_notifications_django_resaas_dashboards
+        # below) - an app genuinely without one (django.contrib.admin,
+        # part of INSTALLED_APPS but never django_resaas-flavoured) is
+        # still silently ignored, never an error.
+        assert registry.DashboardRegistry.get("admin") is None
+
+    def test_finds_hr_notifications_django_resaas_dashboards(self):
+        discovery.DashboardDiscoveryService.discover(force=True)
+
+        hr = registry.DashboardRegistry.get("hr")
+        assert hr is not None
+        assert {w["name"] for w in hr["widgets"]} == {
+            "headcount_total", "pending_leave_approvals",
+            "today_attendance", "open_payroll_periods", "upcoming_holidays",
+        }
+
+        notifications = registry.DashboardRegistry.get("notifications")
+        assert notifications is not None
+        assert {w["name"] for w in notifications["widgets"]} == {
+            "total_outbox", "delivery_success_rate",
+            "active_rules_count", "recent_failures",
+        }
+
+        django_resaas = registry.DashboardRegistry.get("django_resaas")
+        assert django_resaas is not None
+        assert {w["name"] for w in django_resaas["widgets"]} == {
+            "total_entities", "total_entity_types",
+            "total_branches", "total_users", "total_apps",
+        }
 
     def test_finds_real_demo_dashboard(self):
         discovery.DashboardDiscoveryService.discover(force=True)

@@ -7,4 +7,4 @@ class AppSerializer(BaseSerializer):
 
     class Meta:
         model = App
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'state']
