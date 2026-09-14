@@ -135,24 +135,17 @@ ALL = [
     },
 
     {
-        "menu": "Dev",
-        "icon": "code",  # 🔥 ESSENCIAL
-        "role": "view_dev",
-        "submenu": [
-            {
-                "menu": "Criar App",
-                "icon": "add_box",
-                "role": "add_app",
-                "route": "add_app",
-            },
-            {
-                "menu": "Scaffold",
-                "icon": "developer_mode",  # 🔥 MUITO BOM
-                "role": "view_scaffold",
-                "route": "view_scaffold",
-            },       
-        ]
+        "menu": "Criar App",
+        "icon": "add_box",
+        "role": "add_app",
+        "route": "add_app",
     },
+    {
+        "menu": "Scaffold",
+        "icon": "developer_mode",  # 🔥 MUITO BOM
+        "role": "view_scaffold",
+        "route": "view_scaffold",
+    }
 ]
 }
 ]
