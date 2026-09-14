@@ -18,6 +18,8 @@ from django_resaas.saas.core.utils.full_path import FullPath
 from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.entity_user import EntityUser
+from django_resaas.saas.models.branch import Branch
+from django_resaas.saas.data.branch.serializers.branch import BranchSerializer
         
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.entity_type_app import EntityTypeApp
@@ -99,6 +101,24 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             [{'id': e.id, 'name': e.name} for e in entitys],
             status=status.HTTP_200_OK
         )
+
+    # ===============================
+    # BRANCHES DE TODAS AS ENTIDADES DESTE TIPO (MAPA)
+    # ===============================
+    @action(detail=True, methods=['GET'])
+    def branches_map(self, request, id):
+        branches = Branch.objects.filter(
+            entity__entity_type_id=id
+        ).select_related('entity')
+
+        data = BranchSerializer(
+            branches, many=True, context={'request': request}
+        ).data
+
+        for branch, row in zip(branches, data):
+            row['entity_name'] = branch.entity.name
+
+        return Response(data, status=status.HTTP_200_OK)
 
     
     # ===============================

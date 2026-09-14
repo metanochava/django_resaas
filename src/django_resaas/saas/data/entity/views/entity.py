@@ -39,6 +39,7 @@ from django_resaas.saas.models.entity_model import EntityModel
 from django_resaas.saas.models.entity_group import EntityGroup
 from django_resaas.saas.models.user import User
 
+from django_resaas.saas.data.branch.serializers.branch import BranchSerializer
 from django_resaas.saas.data.entity.serializers.entity import EntitySerializer
 from django_resaas.saas.data.entity.serializers.entity_gravar import EntityGravarSerializer
 from django_resaas.saas.data.entity.serializers.entity_user import EntityUserSerializer
@@ -255,15 +256,12 @@ class EntityAPIView(viewsets.ModelViewSet):
         transformer = self.get_object()
         branchs = Branch.objects.filter(entity=transformer)
 
+        # Full BranchSerializer output (id/name/state plus
+        # address/photo/description) - EntityBranchesPanel.vue only
+        # reads id/name/state, but the map dialog needs the rest, and
+        # reusing one endpoint beats adding a second just for that.
         return Response(
-            [
-                {
-                    'id': s.id,
-                    'name': s.name,
-                    'state': s.state
-                }
-                for s in branchs
-            ]
+            BranchSerializer(branchs, many=True, context={'request': request}).data
         )
 
     @action(detail=True, methods=['GET'])
