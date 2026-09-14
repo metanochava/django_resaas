@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 
 # 📦 Local (django_resaas)
 from django_resaas.saas.core.base.views import registerView
@@ -499,7 +499,7 @@ class AppSchemaAPIView(ModelViewSet):
     # existir tal e qual para nomes sem ponto - isto só cobre o caso
     # que o path nunca conseguiria representar.
     # ======================================================
-    @action(detail=False, methods=["get"])
+    @resaas_action(detail=False, methods=["get"])
     def lookup(self, request):
         app_label = _resolve_app_label(request.query_params.get("app", ""))
         models = [
@@ -586,7 +586,7 @@ class AppSchemaAPIView(ModelViewSet):
     # Retorna todos os dados do model
     # ======================================================
     
-    @action(detail=True, methods=["get"], url_path=r"(?P<model>[^/.]+)/data")
+    @resaas_action(detail=True, methods=["get"], url_path=r"(?P<model>[^/.]+)/data")
     def model_data(self, request, pk=None, model=None):
         module = pk
         Model = _get_model(module, model)
@@ -607,7 +607,7 @@ class AppSchemaAPIView(ModelViewSet):
     # ======================================================
     
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=["get"],
         url_path=r"(?P<model>[^/.]+)/schema",

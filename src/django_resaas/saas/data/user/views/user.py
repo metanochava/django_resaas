@@ -3,7 +3,7 @@ import importlib.util
 from django.apps import apps
 
 from rest_framework import viewsets, filters, status
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from django.db.models import Q
 from django_resaas.saas.models.group import Group
@@ -191,7 +191,7 @@ class UserAPIView(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT
         )
 
-    # @action(
+    # @resaas_action(
     #     detail=True,
     #     methods=['GET'],
     # )
@@ -211,7 +211,7 @@ class UserAPIView(viewsets.ModelViewSet):
     #     return Response(ar, status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=["GET"])
+    @resaas_action(detail=True, methods=["GET"])
     def userEntitys(self, request, id, *args, **kwargs):
         user = User.objects.get(id=id)
 
@@ -248,7 +248,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
         return Response(result, status=status.HTTP_200_OK)
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -258,7 +258,7 @@ class UserAPIView(viewsets.ModelViewSet):
         return Response(userLogins.data, status=status.HTTP_200_OK)
     
     
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -277,7 +277,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
         return Response(ar, status.HTTP_200_OK)
     
-    @action(
+    @resaas_action(
         detail=True,
         methods=['POST'],
     )
@@ -298,7 +298,7 @@ class UserAPIView(viewsets.ModelViewSet):
             # data.update(add)
         return Response(add, status = status.HTTP_201_CREATED)
     
-    @action(
+    @resaas_action(
         detail=True,
         methods=['POST'],
     )
@@ -311,7 +311,7 @@ class UserAPIView(viewsets.ModelViewSet):
         add = {'alert_success': '<b>' + branch.name+ '</b> was removed successfully'}
         return Response(add, status = status.HTTP_200_OK)
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -335,7 +335,7 @@ class UserAPIView(viewsets.ModelViewSet):
             return Response(ar, status.HTTP_200_OK)
         return Response([], status.HTTP_400_BAD_REQUEST)
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -402,7 +402,7 @@ class UserAPIView(viewsets.ModelViewSet):
         return result
 
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def menus(self, request, *args, **kwargs):
 
         tipo_id = getattr(request, "entity_type_id", None)
@@ -570,7 +570,7 @@ class UserAPIView(viewsets.ModelViewSet):
     # request.user (nunca outro id), por isso detail=False.
     # ==========================================================
 
-    @action(detail=False, methods=['POST'])
+    @resaas_action(detail=False, methods=['POST'])
     def toggle_menu_rtl(self, request, *args, **kwargs):
         user = request.user
 
@@ -619,7 +619,7 @@ class UserAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -634,7 +634,7 @@ class UserAPIView(viewsets.ModelViewSet):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['POST'],
     )
@@ -648,7 +648,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['POST'],
     )

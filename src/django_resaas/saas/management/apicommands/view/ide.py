@@ -16,7 +16,7 @@ import logging
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.permissions import IsAdminUser
 from rest_framework.viewsets import ViewSet
 
@@ -56,7 +56,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # GET roots/  - which workspaces exist (real MY_APPS + frontend)
     # -----------------------------------------------------
-    @action(detail=False, methods=["get"])
+    @resaas_action(detail=False, methods=["get"])
     def roots(self, request):
         self._ensure_enabled(request)
         roots = workspace_service.get_workspace_roots()
@@ -65,7 +65,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # GET tree/?root=<key>
     # -----------------------------------------------------
-    @action(detail=False, methods=["get"])
+    @resaas_action(detail=False, methods=["get"])
     def tree(self, request):
         self._ensure_enabled(request)
         root = request.query_params.get("root", "")
@@ -78,7 +78,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # GET read/?root=<key>&path=<rel>
     # -----------------------------------------------------
-    @action(detail=False, methods=["get"])
+    @resaas_action(detail=False, methods=["get"])
     def read(self, request):
         self._ensure_enabled(request)
         root = request.query_params.get("root", "")
@@ -95,7 +95,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # POST validate/  {path, content}  - never writes
     # -----------------------------------------------------
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def validate(self, request):
         self._ensure_enabled(request)
         path = request.data.get("path", "")
@@ -107,7 +107,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # POST write/  {root, path, content, expected_hash?}
     # -----------------------------------------------------
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def write(self, request):
         self._ensure_enabled(request)
 
@@ -145,7 +145,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # POST apply/  {files: [{root, path, content}]}
     # All-or-nothing: validates every file first, writes NONE if any fails.
     # -----------------------------------------------------
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def apply(self, request):
         self._ensure_enabled(request)
 
@@ -185,7 +185,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # GET commands/  - safe command allowlist
     # -----------------------------------------------------
-    @action(detail=False, methods=["get"])
+    @resaas_action(detail=False, methods=["get"])
     def commands(self, request):
         self._ensure_enabled(request)
         return all(request, commands=command_runner_service.list_commands())
@@ -193,7 +193,7 @@ class IDEWorkspaceAPIView(ViewSet):
     # -----------------------------------------------------
     # POST run/  {key}
     # -----------------------------------------------------
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def run(self, request):
         self._ensure_enabled(request)
         key = request.data.get("key", "")

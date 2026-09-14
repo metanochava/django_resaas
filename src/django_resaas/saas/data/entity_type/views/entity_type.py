@@ -8,7 +8,7 @@ from django.contrib.auth.models import Permission
 from django_resaas.saas.data.permission.serializers.permission import PermissionSerializer
 
 from rest_framework import viewsets, filters, status
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from django.db.models import F
 from django_resaas.saas.core.utils.translate import Translate
@@ -70,7 +70,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # USER ENTIDADES
     # ===============================
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def user_entitys(self, request, id):
         entitys = Entity.objects.filter(entity_type__id=id)
         resultado = []
@@ -93,7 +93,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # ENTIDADES
     # ===============================
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def entitys(self, request, id):
         entitys = Entity.objects.filter(entity_type__id=id)
         return Response(
@@ -104,7 +104,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # BRANCHES DE TODAS AS ENTIDADES DESTE TIPO (MAPA)
     # ===============================
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def branches_map(self, request, id):
         branches = Branch.objects.filter(
             entity__entity_type_id=id
@@ -123,7 +123,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # MODELOS
     # ===============================
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def models(self, request, id):
         entity_type = EntityType.objects.get(id=id)
 
@@ -141,7 +141,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # ADD MODELO
     # ===============================
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def addModel(self, request, id):
         entity_type = EntityType.objects.get(id=id)
         model = ContentType.objects.get(id=request.data['id'])
@@ -168,7 +168,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # REMOVE MODELO
     # ===============================
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def removeModel(self, request, id):
         entity_type = EntityType.objects.get(id=id)
         model = ContentType.objects.get(id=request.data['id'])
@@ -194,7 +194,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # SYNC MODELOS (🔥 PRINCIPAL)
     # ===============================
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def syncModels(self, request, id):
         try:
             entity_type = EntityType.objects.get(id=id)
@@ -284,7 +284,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # 🔥 GET MODULOS DO TIPO
     # ===============================
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def apps(self, request, id):
         tipo = self.get_object()
 
@@ -304,7 +304,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # 🔥 ADD MODULO
     # ===============================
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def addApp(self, request, id):
         tipo = self.get_object()
         app_id = request.data.get("id")
@@ -327,7 +327,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
     # 🔥 REMOVE MODULO
     # ===============================
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def removeApp(self, request, id):
         tipo = self.get_object()
         app_id = request.data.get("id")
@@ -340,7 +340,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response({"success": True})
 
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def themeGet(self, request, *args, **kwargs):
         entitytype = self.get_object()
         entitytype = EntityType.objects.get(id=entitytype.id )
@@ -350,7 +350,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             theme = {}
         return Response(theme, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def layoutSettingsGet(self, request, *args, **kwargs):
         entitytype = self.get_object()
         entitytype = EntityType.objects.get(id=entitytype.id )
@@ -361,7 +361,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response(layout_settings, status=status.HTTP_200_OK)
 
     
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def typographyGet(self, request, *args, **kwargs):
         entitytype = self.get_object()
         entitytype = EntityType.objects.get(id=entitytype.id )
@@ -371,7 +371,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             typography = {}
         return Response(typography, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def animationSettingsGet(self, request, *args, **kwargs):
         entitytype = self.get_object()
         entitytype = EntityType.objects.get(id=entitytype.id )
@@ -383,7 +383,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
         entitytype = self.get_object()
 
@@ -397,7 +397,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response(theme, status=status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
         entitytype = self.get_object()
 
@@ -413,7 +413,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def typographyPut(self, request, *args, **kwargs):
         entitytype = self.get_object()
 
@@ -426,7 +426,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response(typography, status=status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def animationSettingsPut(self, request, *args, **kwargs):
         entitytype = self.get_object()
 
@@ -445,7 +445,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
     # ===============================
 
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def createGroup(self, request, id):
         tipo = self.get_object()
 
@@ -473,7 +473,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             "name": group.name
         })
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def groups(self, request, id):
         tipo = EntityType.objects.get(id=id)
 
@@ -489,7 +489,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
             for g in groups
         ], status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def addGroup(self, request, id):
         tipo = EntityType.objects.get(id=id)
         group_id = request.data.get("group")
@@ -506,7 +506,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response({"success": True})
 
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def removeGroup(self, request, id):
         tipo = EntityType.objects.get(id=id)
         group_id = request.data.get("group")
@@ -523,7 +523,7 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response({"success": True})
 
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def permissions(self, request, id):
         type_id = EntityType.objects.get(id=id)
         queryset = (

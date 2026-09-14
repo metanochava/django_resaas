@@ -8,7 +8,7 @@ from django.core.exceptions import FieldDoesNotExist
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -584,7 +584,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # ♻️ RESTORE
     # -----------------------------------
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=["post"],
         url_path="restore"
@@ -623,7 +623,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # 💀 HARD DELETE
     # -----------------------------------
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=["delete"],
         url_path="hard_delete"
@@ -989,7 +989,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
             "pdf_generator": "RESAAS / WeasyPrint",
         }
-    @action(
+    @resaas_action(
         detail=True,
         methods=["get"],
         url_path="pdf"
@@ -1016,7 +1016,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
     # 📄 PDF LIST
     # -----------------------------------
 
-    @action(
+    @resaas_action(
         detail=False,
         methods=["get"],
         url_path="pdflist"
