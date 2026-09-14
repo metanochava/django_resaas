@@ -306,7 +306,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         tooltip="Lista as apps activas desta Entity",
         order=2,
     )
-
+    @hasPermission("apps_entityk99999")
     def apps(self, request, *args, **kwargs):
         entity = self.get_object()
         ent_mods = EntityApp.objects.filter(entity=entity)
@@ -330,7 +330,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         tooltip="Activa um modelo já disponível no EntityType desta Entity",
         order=3,
     )
-
+    @hasPermission("addModel_entity")
     def addModel(self, request, *args, **kwargs):
         entity = self.get_object()
         model = ContentType.objects.get(id=request.data['id'])
