@@ -1,7 +1,6 @@
 import importlib
 import importlib.util
 
-from django.apps import apps
 from django.conf import settings as dj_settings
 from django_resaas.saas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
@@ -121,22 +120,6 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
     
-    # ===============================
-    # APPS
-    # ===============================
-    @action(detail=True, methods=['GET'])
-    def apps(self, request, id):
-        resultado = []
-
-        for app in apps.get_app_configs():
-            resultado.append({
-                'name': app.name,
-                'label': app.label,
-                'verbose': app.verbose_name,
-            })
-
-        return Response(resultado, status=status.HTTP_200_OK)
-
     # ===============================
     # MODELOS
     # ===============================
