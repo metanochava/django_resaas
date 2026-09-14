@@ -6,13 +6,21 @@ already-existing EntityTypeAPIView.addApp/addModel validation-free
 "EntityType picks from the global App/ContentType registry" level,
 one level down.
 
-apps/models/addApp/removeApp/addModel/removeModel are each their own
+addApp/removeApp/addModel/removeModel are each their own
 @resaas_action with a dedicated permission (`{action}_entity`) - one
 permission per capability, never one shared across several actions
 (see EntityAPIView in views/entity.py). Enforced directly via
 @hasPermission since EntityAPIView is a plain ModelViewSet, not
 BaseAPIView (whose initial() would otherwise read the same
-@resaas_action metadata automatically)."""
+@resaas_action metadata automatically).
+
+apps/models (GET) stay unprotected on purpose, matching every other
+read action on this legacy ModelViewSet - EntityStore.setEntityApps/
+setEntityModelos call them passively in the background (e.g. on every
+User.Entity change, see HeaderUser.vue) for module-gating, not as a
+deliberate admin action; gating them behind the new per-action
+permissions broke that background call for any real user/group that
+was never granted apps_entity/models_entity."""
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from rest_framework.test import APIClient
@@ -29,7 +37,6 @@ from django_resaas.saas.models.group import Group
 pytestmark = pytest.mark.django_db
 
 ENTITY_ACTION_CODENAMES = [
-    "apps_entity", "models_entity",
     "addApp_entity", "removeApp_entity",
     "addModel_entity", "removeModel_entity",
 ]
@@ -176,14 +183,19 @@ class TestEntityAppsPermission:
         assert response.status_code == 403
         assert not EntityApp.objects.filter(entity=entity, app=app).exists()
 
-    def test_list_apps_without_permission_returns_403(self, bootstrap_tenant):
+    def test_list_apps_has_no_permission_gate(self, bootstrap_tenant):
+        """apps/models (GET) stay open on purpose - EntityStore.
+        setEntityApps/setEntityModelos call this passively in the
+        background for module-gating (see HeaderUser.vue), not as a
+        deliberate admin action; gating it broke that call for any
+        real user/group never explicitly granted apps_entity."""
         tenant = bootstrap_tenant("entity-listapps-noperm")
         entity = tenant["entity"]
         client = _guest_client(tenant)
 
         response = client.get(f"/api/django_resaas/entitys/{entity.id}/apps/")
 
-        assert response.status_code == 403
+        assert response.status_code == 200
 
 
 class TestEntityAddModelScope:

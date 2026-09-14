@@ -3,7 +3,6 @@ import os
 import random
 
 from django_resaas.saas.core.utils import make_qr_b64, make_barcode_b64, png_bytes_to_b64, PDF
-
 import barcode
 import qrcode
 from barcode.writer import ImageWriter
@@ -282,7 +281,6 @@ class EntityAPIView(viewsets.ModelViewSet):
         tooltip="Lista os modelos activos desta Entity",
         order=1,
     )
-    @hasPermission("models_entity")
     def models(self, request, *args, **kwargs):
         entity = self.get_object()
         return Response(
@@ -305,7 +303,6 @@ class EntityAPIView(viewsets.ModelViewSet):
         tooltip="Lista as apps activas desta Entity",
         order=2,
     )
-    @hasPermission("apps_entity")
     def apps(self, request, *args, **kwargs):
         entity = self.get_object()
         ent_mods = EntityApp.objects.filter(entity=entity)
