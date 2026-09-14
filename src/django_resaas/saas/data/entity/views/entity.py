@@ -59,10 +59,13 @@ from django_resaas.saas.core.utils import ok
 
 
 from django_resaas.saas.core.services.disc_manager import DiskManegarService
-from django_resaas.saas.core.base.views import BaseAPIView
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.permissions import hasPermission
+from django_resaas.saas.core.decorators.action import resaas_action
 from django_resaas.saas.core.utils.sub_object_put import apply_sub_object_put
 
 
+@registerView("entitys", module="django_resaas")
 class EntityAPIView(viewsets.ModelViewSet):
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
@@ -272,7 +275,15 @@ class EntityAPIView(viewsets.ModelViewSet):
         usage = DiskManegarService.get_entity_usage(entity.id)
         return Response(usage, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(
+        methods=["get"],
+        detail=True,
+        label="View Models",
+        icon="table_chart",
+        tooltip="Lista os modelos activos desta Entity",
+        order=1,
+    )
+    @hasPermission("models_entity")
     def models(self, request, *args, **kwargs):
         entity = self.get_object()
         return Response(
@@ -287,7 +298,15 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(
+        methods=["get"],
+        detail=True,
+        label="View Apps",
+        icon="extension",
+        tooltip="Lista as apps activas desta Entity",
+        order=2,
+    )
+
     def apps(self, request, *args, **kwargs):
         entity = self.get_object()
         ent_mods = EntityApp.objects.filter(entity=entity)
@@ -303,7 +322,15 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(
+        methods=["post"],
+        detail=True,
+        label="Add Model",
+        icon="add",
+        tooltip="Activa um modelo já disponível no EntityType desta Entity",
+        order=3,
+    )
+
     def addModel(self, request, *args, **kwargs):
         entity = self.get_object()
         model = ContentType.objects.get(id=request.data['id'])
@@ -336,7 +363,15 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(
+        methods=["post"],
+        detail=True,
+        label="Remove Model",
+        icon="remove",
+        tooltip="Desactiva um modelo desta Entity",
+        order=4,
+    )
+    @hasPermission("removeModel_entity")
     def removeModel(self, request, *args, **kwargs):
         entity = self.get_object()
         model = ContentType.objects.get(id=request.data['id'])
@@ -351,7 +386,15 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(
+        methods=["post"],
+        detail=True,
+        label="Add App",
+        icon="add",
+        tooltip="Activa uma App já disponível no EntityType desta Entity",
+        order=5,
+    )
+    @hasPermission("addApp_entity")
     def addApp(self, request, *args, **kwargs):
         entity = self.get_object()
         app = App.objects.filter(id=request.data.get('id')).first()
@@ -381,7 +424,15 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(
+        methods=["post"],
+        detail=True,
+        label="Remove App",
+        icon="remove",
+        tooltip="Desactiva uma App desta Entity",
+        order=6,
+    )
+    @hasPermission("removeApp_entity")
     def removeApp(self, request, *args, **kwargs):
         entity = self.get_object()
         app_id = request.data.get('id')
