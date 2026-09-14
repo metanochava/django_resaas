@@ -19,7 +19,6 @@ from django.http import Http404
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.translate import Translate
@@ -256,7 +255,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def branchs(self, request, *args, **kwargs):
         transformer = self.get_object()
         branchs = Branch.objects.filter(entity=transformer)
@@ -269,7 +268,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             BranchSerializer(branchs, many=True, context={'request': request}).data
         )
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def storage(self, request, *args, **kwargs):
         entity = self.get_object()
         usage = DiskManegarService.get_entity_usage(entity.id)
@@ -306,7 +305,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         tooltip="Lista as apps activas desta Entity",
         order=2,
     )
-    @hasPermission("apps_entityk99999")
+    @hasPermission("apps_entity")
     def apps(self, request, *args, **kwargs):
         entity = self.get_object()
         ent_mods = EntityApp.objects.filter(entity=entity)
@@ -440,7 +439,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
         return Response({"success": True})
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def profiles(self, request, *args, **kwargs):
         entity = self.get_object()
         profiles = sorted(
@@ -449,7 +448,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         )
         return Response(profiles, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def users(self, request, *args, **kwargs):
         transformer = self.get_object()
         search = self.request.query_params.get('search')
@@ -464,7 +463,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         serializer = EntityUserSerializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def addUser(self, request, *args, **kwargs):
         transformer = self.get_object()
         user = User.objects.get(id=request.data['user'])
@@ -495,7 +494,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-    @action(detail=True, methods=['DELETE'])
+    @resaas_action(detail=True, methods=['DELETE'])
     def removeUser(self, request, *args, **kwargs):
         transformer = self.get_object()
         entity_user = EntityUser.objects.filter(
@@ -514,7 +513,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         )
 
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['POST'],
     )
@@ -556,7 +555,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             return Response(file.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -651,7 +650,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def themeGet(self, request, *args, **kwargs):
         entity = self.get_object()
         entity = Entity.objects.get(id=entity.id )
@@ -664,7 +663,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         return Response(theme, status=status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def themePut(self, request, *args, **kwargs):
         entity = self.get_object()
         theme = entity.theme or Theme.objects.create(state="Active")
@@ -680,7 +679,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         theme = ThemeSerializer(theme).data
         return ok(request, 'Colors updated successfully!',theme=theme)
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def layoutSettingsGet(self, request, *args, **kwargs):
         entity = self.get_object()
         entity = Entity.objects.get(id=entity.id)
@@ -692,7 +691,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         return Response(ls, status=status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def layoutSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
         layout_settings = entity.layout_settings or LayoutSetting.objects.create(state="Active")
@@ -716,7 +715,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def typographyGet(self, request, *args, **kwargs):
         entity = self.get_object()
         entity = Entity.objects.get(id=entity.id )
@@ -728,7 +727,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             typography = TypographySerializer(Typography.objects.get(id=entitytype.typography.id)).data
         return Response(typography, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def typographyPut(self, request, *args, **kwargs):
         entity = self.get_object()
         typography = entity.typography or Typography.objects.create(state="Active")
@@ -747,7 +746,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def animationSettingsGet(self, request, *args, **kwargs):
         entity = self.get_object()
         entity = Entity.objects.get(id=entity.id)
@@ -759,7 +758,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         return Response(animation_settings, status=status.HTTP_200_OK)
 
 
-    @action(detail=True, methods=['PUT'])
+    @resaas_action(detail=True, methods=['PUT'])
     def animationSettingsPut(self, request, *args, **kwargs):
         entity = self.get_object()
         animation_settings = entity.animation_settings or AnimationSetting.objects.create(state="Active")
@@ -779,7 +778,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -846,7 +845,7 @@ class EntityAPIView(viewsets.ModelViewSet):
     # 🔥 GROUPS (FINAL LIMPO)
     # ===============================
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     # @transaction.atomic
     def groups(self, request, pk=None):
         entity = self.get_object()
@@ -865,7 +864,7 @@ class EntityAPIView(viewsets.ModelViewSet):
 
 
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     @transaction.atomic
     def createGroup(self, request, pk=None):
         entity = self.get_object()
@@ -896,7 +895,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         })
 
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     @transaction.atomic
     def addGroup(self, request, pk=None):
         entity = self.get_object()
@@ -922,7 +921,7 @@ class EntityAPIView(viewsets.ModelViewSet):
         return Response({"success": True})
 
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     @transaction.atomic
     def removeGroup(self, request, pk=None):
         entity = self.get_object()

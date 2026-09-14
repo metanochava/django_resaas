@@ -27,7 +27,7 @@ from django.conf import settings
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 
 
@@ -87,7 +87,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
         entity_id = getattr(self.request, "entity_id", None)
         serializer.save(entity_id=entity_id)
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -99,7 +99,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
 
         return Response(suc)
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -110,7 +110,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
     
     
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
@@ -121,7 +121,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
     
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['POST'],
     )
@@ -152,7 +152,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
         
     
 
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )

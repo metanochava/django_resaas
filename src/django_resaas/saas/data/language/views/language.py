@@ -17,7 +17,7 @@ from django.core.cache import cache
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 
 
@@ -83,7 +83,7 @@ class LanguageAPIView(viewsets.ModelViewSet):
 
         return Response(response, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=["GET"])
+    @resaas_action(detail=True, methods=["GET"])
     def translations(self, request, *args, **kwargs):
         CACHE_TIMEOUT = 1 * 20  # 1 hora
 

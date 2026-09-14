@@ -53,7 +53,7 @@ class HasAppPermission(BasePermission):
 
 
 def check_permission(request, role):
-    role = role 
+    role = role
 
     if not all([
         request.user,

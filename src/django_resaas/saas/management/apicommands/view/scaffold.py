@@ -23,7 +23,7 @@ from django.core.management import call_command
 
 from rest_framework.viewsets import ViewSet
 from rest_framework.permissions import IsAdminUser
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 
 from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.core.base.views import registerView
@@ -437,7 +437,7 @@ class ScaffoldAPIView(ViewSet):
     # -----------------------------------------------------
     # PREVIEW
     # -----------------------------------------------------
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def preview(self, request):
 
         module = (request.data.get("app") or "").strip()
@@ -581,7 +581,7 @@ class ScaffoldAPIView(ViewSet):
 
 
 
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def migrate(self, request):
         module = (request.data.get("app") or "").strip()
         out = StringIO()
@@ -591,7 +591,7 @@ class ScaffoldAPIView(ViewSet):
         
         return ok(request, 'Migrations completed successfully', status=201, out= out.getvalue()+'.')
     
-    @action(detail=False, methods=["post"])
+    @resaas_action(detail=False, methods=["post"])
     def permissions(self, request):
         module = (request.data.get("app") or "").strip()
         model  = clean_class_name(request.data.get("model") or "").strip()

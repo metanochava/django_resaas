@@ -3,7 +3,7 @@ from django.db import transaction
 from django.db.models import F
 
 from rest_framework import filters, status, viewsets
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 
 from django_resaas.saas.models.group import Group
@@ -48,7 +48,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=False, methods=["POST"], url_path="setGroupPermissions")
+    @resaas_action(detail=False, methods=["POST"], url_path="setGroupPermissions")
     def setGroupPermissions(self, request):
         group_id = request.data.get("group") or request.data.get("id")
         permission_ids = request.data.get("permissions", [])
@@ -107,7 +107,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=["POST"])
+    @resaas_action(detail=True, methods=["POST"])
     def addToGroup(self, request, id=None):
         group = Group.objects.filter(id=request.data.get("id")).first()
         permission = Permission.objects.filter(id=id).first()
@@ -131,7 +131,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=["POST"])
+    @resaas_action(detail=True, methods=["POST"])
     def removeFromGroup(self, request, id=None):
         group = Group.objects.filter(id=request.data.get("id")).first()
         permission = Permission.objects.filter(id=id).first()
@@ -155,7 +155,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @action(detail=True, methods=["POST"])
+    @resaas_action(detail=True, methods=["POST"])
     def addToUser(self, request, id=None):
         user = User.objects.filter(id=request.data.get("user")).first()
         group = Group.objects.filter(id=id).first()
@@ -182,7 +182,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
             ),
         )
 
-    @action(detail=True, methods=["POST"])
+    @resaas_action(detail=True, methods=["POST"])
     def removeFromUser(self, request, id=None):
         user = User.objects.filter(id=request.data.get("user")).first()
         group = Group.objects.filter(id=id).first()

@@ -1,5 +1,5 @@
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from rest_framework import filters
 
@@ -30,7 +30,7 @@ class AppAPIView(viewsets.ModelViewSet):
     # ver django_resaas.saas.data.entity_type.views.entity_type)
     # ===============================
 
-    @action(detail=True, methods=['GET'])
+    @resaas_action(detail=True, methods=['GET'])
     def entityTypes(self, request, id=None):
         app = self.get_object()
 
@@ -50,7 +50,7 @@ class AppAPIView(viewsets.ModelViewSet):
     # 🔥 ADD ENTITY TYPE
     # ===============================
 
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def addEntityType(self, request, id=None):
         app = self.get_object()
         entity_type_id = request.data.get("id")
@@ -73,7 +73,7 @@ class AppAPIView(viewsets.ModelViewSet):
     # 🔥 REMOVE ENTITY TYPE
     # ===============================
     
-    @action(detail=True, methods=['POST'])
+    @resaas_action(detail=True, methods=['POST'])
     def removeEntityType(self, request, id=None):
         app = self.get_object()
         entity_type_id = request.data.get("id")

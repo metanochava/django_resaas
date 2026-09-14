@@ -21,7 +21,7 @@ from django.http import Http404
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 
 
@@ -125,7 +125,7 @@ class GroupAPIView(viewsets.ModelViewSet):
     # Actions
     # -------------------------
 
-    @action(detail=True, methods=["POST"])
+    @resaas_action(detail=True, methods=["POST"])
     def addPermission(self, request, id):
         group = self.get_object()
 
@@ -165,7 +165,7 @@ class GroupAPIView(viewsets.ModelViewSet):
     
 
 
-    @action(detail=True, methods=["POST"])
+    @resaas_action(detail=True, methods=["POST"])
     def removePermission(self, request, pk=None):
         group = self.get_object()
 
@@ -199,7 +199,7 @@ class GroupAPIView(viewsets.ModelViewSet):
         )
 
     
-    @action(
+    @resaas_action(
         detail=True,
         methods=['GET'],
     )
