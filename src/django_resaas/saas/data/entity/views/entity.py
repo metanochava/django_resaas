@@ -351,7 +351,9 @@ class EntityAPIView(viewsets.ModelViewSet):
         # kwarg - get_or_create() would try to INSERT a row with
         # entity_id left NULL when no match exists, failing the
         # column's NOT NULL constraint. `entity=` is the real field.
-        ent, _ = EntityModel.objects.get_or_create(entity=entity, model=model)
+        ent, _ = EntityModel.objects.get_or_create(
+            entity=entity, model=model, defaults={"state": "Active"}
+        )
 
         return Response(
             {
@@ -412,7 +414,9 @@ class EntityAPIView(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        EntityApp.objects.get_or_create(entity=entity, app=app)
+        EntityApp.objects.get_or_create(
+            entity=entity, app=app, defaults={"state": "Active"}
+        )
 
         return Response(
             {

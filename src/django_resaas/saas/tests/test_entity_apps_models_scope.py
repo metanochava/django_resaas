@@ -103,7 +103,12 @@ class TestEntityAddApp:
         )
 
         assert response.status_code == 201, response.data
-        assert EntityApp.objects.filter(entity=entity, app=app).exists()
+        entity_app = EntityApp.objects.get(entity=entity, app=app)
+        # TimeModel.state defaults to "Inactive" - get_or_create() without
+        # defaults={"state": "Active"} silently created a linked-but-
+        # inactive row (is_module_active() checks state="Active"
+        # specifically, so the app never actually activated).
+        assert entity_app.state == "Active"
 
     def test_add_app_rejected_when_not_part_of_entity_type(self, bootstrap_tenant):
         tenant = bootstrap_tenant("entity-addapp-scope")
@@ -196,7 +201,8 @@ class TestEntityAddModelScope:
         )
 
         assert response.status_code == 201, response.data
-        assert EntityModel.objects.filter(entity=entity, model=ct).exists()
+        entity_model = EntityModel.objects.get(entity=entity, model=ct)
+        assert entity_model.state == "Active"
 
     def test_add_model_rejected_when_not_part_of_entity_type(self, bootstrap_tenant):
         tenant = bootstrap_tenant("entity-addmodel-scope")
@@ -227,3 +233,42 @@ class TestEntityAddModelScope:
 
         assert response.status_code == 403
         assert not EntityModel.objects.filter(entity=entity, model=ct).exists()
+
+
+class TestEntityTypeAddAppAddModelState:
+    """Same "state defaults to Inactive" bug, one level up
+    (EntityTypeAPIView.addApp/addModel) - see views/entity_type.py."""
+
+    def test_add_app_activates_the_entity_type_app_row(self, bootstrap_tenant):
+        tenant = bootstrap_tenant("entitytype-addapp-state")
+        entity_type = tenant["entity"].entity_type
+        app = App.objects.create(name="billing")
+
+        response = tenant["client"].post(
+            f"/api/django_resaas/entitytypes/{entity_type.id}/addApp/",
+            {"id": str(app.id)},
+        )
+
+        assert response.status_code == 201, response.data
+        entity_type_app = EntityTypeApp.objects.get(entity_type=entity_type, app=app)
+        assert entity_type_app.state == "Active"
+
+    def test_add_model_activates_the_entity_type_model_and_entity_model_rows(self, bootstrap_tenant):
+        tenant = bootstrap_tenant("entitytype-addmodel-state")
+        entity = tenant["entity"]
+        ct = _demo_content_type()
+
+        response = tenant["client"].post(
+            f"/api/django_resaas/entitytypes/{entity.entity_type.id}/addModel/",
+            {"id": str(ct.id)},
+        )
+
+        assert response.status_code == 201, response.data
+        entity_type_model = EntityTypeModel.objects.get(entity_type=entity.entity_type, model=ct)
+        assert entity_type_model.state == "Active"
+
+        # addModel also activates the model for every existing Entity of
+        # this EntityType (see views/entity_type.py) - same bug applied
+        # there too.
+        entity_model = EntityModel.objects.get(entity=entity, model=ct)
+        assert entity_model.state == "Active"

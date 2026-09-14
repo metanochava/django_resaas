@@ -149,14 +149,14 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         EntityTypeModel.objects.get_or_create(
             entity_type=entity_type,
             model=model,
-            state="Active"
+            defaults={"state": "Active"}
         )
 
         for entity in Entity.objects.filter(entity_type_id=id):
             EntityModel.objects.get_or_create(
                 entity=entity,
                 model=model,
-                state="Active"
+                defaults={"state": "Active"}
             )
 
         return Response({
@@ -315,7 +315,8 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
         EntityTypeApp.objects.get_or_create(
             entity_type=tipo,
-            app=app
+            app=app,
+            defaults={"state": "Active"}
         )
 
         return Response({
