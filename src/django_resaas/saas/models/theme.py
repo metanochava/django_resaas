@@ -119,7 +119,7 @@ class Theme(TimeModel):
         crud = True
 
         routes = {
-            'list': "add_theme",
+            'list': "list_theme",
             'view': "view_theme",
             'add': "add_theme",
             'change': "change_theme",

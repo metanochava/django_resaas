@@ -24,7 +24,7 @@ class JobPosition(BaseModel):
         search_fields = ["code", "title"]
         crud = True
         routes={
-            'list': "add_jobposition",
+            'list': "list_jobposition",
             'view': "view_jobposition",
             'add': "add_jobposition",
             'change': "change_jobposition"

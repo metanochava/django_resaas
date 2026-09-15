@@ -16,7 +16,7 @@ class DocumentType(TimeModel):
         label_field = "name"
         crud = True
         routes={
-            'list': "add_documenttype",
+            'list': "list_documenttype",
             'view': "view_documenttype",
             'add': "add_documenttype",
             'change': "change_documenttype"
@@ -44,7 +44,7 @@ class Document(TimeModel):
         label_field = "numero"
         crud = True
         routes={
-            'list': "add_document",
+            'list': "list_document",
             'view': "view_document",
             'add': "add_document",
             'change': "change_document"

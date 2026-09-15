@@ -215,7 +215,7 @@ class Employee(BaseModel):
 
         routes = {
 
-            'list': "add_employee",
+            'list': "list_employee",
 
             'view': "view_employee",
 

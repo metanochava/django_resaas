@@ -13,7 +13,7 @@ class AuditLog(TimeModel):
         label_field = "name"
         crud = True
         routes={
-            'list': "add_auditlog",
+            'list': "list_auditlog",
             'view': "view_auditlog",
             'add': "add_auditlog",
             'change': "change_auditlog"
