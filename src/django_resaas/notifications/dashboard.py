@@ -38,7 +38,7 @@ DASHBOARD = {
         {
             "name": "total_outbox",
             "type": "stat",
-            "label": "Total na Outbox",
+            "label": "Total in Outbox",
             "icon": "mdi-tray-full",
             "color": "primary",
 
@@ -57,7 +57,7 @@ DASHBOARD = {
         {
             "name": "delivery_success_rate",
             "type": "stat",
-            "label": "Taxa de entrega",
+            "label": "Delivery Rate",
             "icon": "mdi-check-circle-outline",
             "color": "positive",
             "suffix": "%",
@@ -77,7 +77,7 @@ DASHBOARD = {
         {
             "name": "active_rules_count",
             "type": "stat",
-            "label": "Regras activas",
+            "label": "Active Rules",
             "icon": "mdi-cog-outline",
             "color": "secondary",
 
@@ -96,7 +96,7 @@ DASHBOARD = {
         {
             "name": "recent_failures",
             "type": "table",
-            "label": "Falhas recentes",
+            "label": "Recent Failures",
 
             "provider": "notifications.recent_failures",
 

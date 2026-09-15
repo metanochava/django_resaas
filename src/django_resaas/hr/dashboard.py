@@ -42,7 +42,7 @@ DASHBOARD = {
         {
             "name": "headcount_total",
             "type": "stat",
-            "label": "Colaboradores",
+            "label": "Employees",
             "icon": "mdi-account-group",
             "color": "primary",
 
@@ -61,7 +61,7 @@ DASHBOARD = {
         {
             "name": "pending_leave_approvals",
             "type": "stat",
-            "label": "Ausências pendentes",
+            "label": "Pending Leave",
             "icon": "mdi-calendar-clock",
             "color": "warning",
 
@@ -80,7 +80,7 @@ DASHBOARD = {
         {
             "name": "today_attendance",
             "type": "stat",
-            "label": "Presenças hoje",
+            "label": "Today's Attendance",
             "icon": "mdi-clock-check-outline",
             "color": "positive",
 
@@ -99,7 +99,7 @@ DASHBOARD = {
         {
             "name": "open_payroll_periods",
             "type": "stat",
-            "label": "Períodos de folha abertos",
+            "label": "Open Payroll Periods",
             "icon": "mdi-cash-multiple",
             "color": "secondary",
 
@@ -118,7 +118,7 @@ DASHBOARD = {
         {
             "name": "upcoming_holidays",
             "type": "table",
-            "label": "Próximos feriados",
+            "label": "Upcoming Holidays",
 
             "provider": "hr.upcoming_holidays",
 

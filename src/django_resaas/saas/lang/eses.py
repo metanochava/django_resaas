@@ -1,105 +1,107 @@
 key_value = {
 
+    "HR": "RH",
+
     # =========================================================
     # GENERAL
     # =========================================================
 
-    "All": "Tous",
-    "Yes": "Oui",
-    "No": "Non",
-    "None": "Aucun",
-    "Other": "Autre",
-    "Active": "Actif",
-    "Inactive": "Inactif",
-    "Enabled": "Activé",
-    "Disabled": "Désactivé",
+    "All": "Todos",
+    "Yes": "Sí",
+    "No": "No",
+    "None": "Ninguno",
+    "Other": "Otro",
+    "Active": "Activo",
+    "Inactive": "Inactivo",
+    "Enabled": "Activado",
+    "Disabled": "Desactivado",
     "Available": "Disponible",
-    "Unavailable": "Indisponible",
-    "Required": "Obligatoire",
-    "Optional": "Facultatif",
-    "Default": "Par défaut",
-    "Unknown": "Inconnu",
-    "Information": "Informations",
-    "Details": "Détails",
-    "Description": "Description",
-    "Observations": "Observations",
-    "Status": "Statut",
-    "State": "État",
-    "Type": "Type",
-    "Name": "Nom",
-    "Code": "Code",
-    "Number": "Numéro",
-    "Value": "Valeur",
-    "Label": "Libellé",
-    "Date": "Date",
-    "Time": "Heure",
-    "Date and time": "Date et heure",
+    "Unavailable": "No disponible",
+    "Required": "Obligatorio",
+    "Optional": "Opcional",
+    "Default": "Predeterminado",
+    "Unknown": "Desconocido",
+    "Information": "Información",
+    "Details": "Detalles",
+    "Description": "Descripción",
+    "Observations": "Observaciones",
+    "Status": "Estado",
+    "State": "Estado",
+    "Type": "Tipo",
+    "Name": "Nombre",
+    "Code": "Código",
+    "Number": "Número",
+    "Value": "Valor",
+    "Label": "Etiqueta",
+    "Date": "Fecha",
+    "Time": "Hora",
+    "Date and time": "Fecha y hora",
 
 
     # =========================================================
     # ACTIONS / CRUD
     # =========================================================
 
-    "Actions": "Actions",
-    "Action": "Action",
-    "Create": "Créer",
-    "Add": "Ajouter",
-    "New": "Nouveau",
-    "Edit": "Modifier",
-    "Update": "Mettre à jour",
-    "Save": "Enregistrer",
-    "Delete": "Supprimer",
-    "Remove": "Retirer",
-    "Restore": "Restaurer",
-    "Cancel": "Annuler",
-    "Close": "Fermer",
-    "Confirm": "Confirmer",
-    "Reset": "Réinitialiser",
-    "Clear": "Effacer",
-    "Back": "Retour",
-    "Next": "Suivant",
-    "Previous": "Précédent",
-    "Continue": "Continuer",
-    "Finish": "Terminer",
-    "View": "Afficher",
-    "Open": "Ouvrir",
-    "Select": "Sélectionner",
-    "Apply": "Appliquer",
-    "Refresh": "Actualiser",
-    "Reload": "Recharger",
-    "Search": "Rechercher",
-    "Filter": "Filtrer",
-    "Print": "Imprimer",
-    "Download": "Télécharger",
-    "Upload": "Téléverser",
-    "Export": "Exporter",
-    "Import": "Importer",
-    "Copy": "Copier",
-    "Duplicate": "Dupliquer",
+    "Actions": "Acciones",
+    "Action": "Acción",
+    "Create": "Crear",
+    "Add": "Añadir",
+    "New": "Nuevo",
+    "Edit": "Editar",
+    "Update": "Actualizar",
+    "Save": "Guardar",
+    "Delete": "Eliminar",
+    "Remove": "Quitar",
+    "Restore": "Restaurar",
+    "Cancel": "Cancelar",
+    "Close": "Cerrar",
+    "Confirm": "Confirmar",
+    "Reset": "Restablecer",
+    "Clear": "Limpiar",
+    "Back": "Volver",
+    "Next": "Siguiente",
+    "Previous": "Anterior",
+    "Continue": "Continuar",
+    "Finish": "Finalizar",
+    "View": "Visualizar",
+    "Open": "Abrir",
+    "Select": "Seleccionar",
+    "Apply": "Aplicar",
+    "Refresh": "Actualizar",
+    "Reload": "Recargar",
+    "Search": "Buscar",
+    "Filter": "Filtrar",
+    "Print": "Imprimir",
+    "Download": "Descargar",
+    "Upload": "Subir",
+    "Export": "Exportar",
+    "Import": "Importar",
+    "Copy": "Copiar",
+    "Duplicate": "Duplicar",
 
 
     # =========================================================
     # TABLE / PAGINATION
     # =========================================================
 
-    "No data": "Aucune donnée",
-    "No records found": "Aucun enregistrement trouvé",
-    "Loading...": "Chargement...",
-    "Records per page:": "Enregistrements par page:",
-    "Records": "Enregistrements",
-    "Page": "Page",
-    "First page": "Première page",
-    "Last page": "Dernière page",
-    "Next page": "Page suivante",
-    "Previous page": "Page précédente",
-    "Columns": "Colonnes",
-    "Visible columns": "Colonnes visibles",
-    "Sort": "Trier",
-    "Ascending": "Croissant",
-    "Descending": "Décroissant",
-    "Selected": "Sélectionné",
+    "No data": "Sin datos",
+    "No records found": "No se encontraron registros",
+    "Loading...": "Cargando...",
+    "Records per page:": "Registros por página:",
+    "Records": "Registros",
+    "Page": "Página",
+    "First page": "Primera página",
+    "Last page": "Última página",
+    "Next page": "Página siguiente",
+    "Previous page": "Página anterior",
+    "Columns": "Columnas",
+    "Visible columns": "Columnas visibles",
+    "Sort": "Ordenar",
+    "Ascending": "Ascendente",
+    "Descending": "Descendente",
+    "Selected": "Seleccionado",
     "Total": "Total",
-    "Results": "Résultats",
+    "Results": "Resultados",
 
 
 
@@ -108,185 +110,185 @@ key_value = {
     # SEARCH / FILTER
     # =========================================================
 
-    "Search...": "Rechercher...",
-    "Filters": "Filtres",
-    "Advanced filters": "Filtres avancés",
-    "Apply filters": "Appliquer les filtres",
-    "Clear filters": "Effacer les filtres",
-    "Search results": "Résultats de la recherche",
-    "No results": "Aucun résultat",
-    "Active records": "Enregistrements actifs",
-    "Deleted records": "Enregistrements supprimés",
-    "All records": "Tous les enregistrements",
+    "Search...": "Buscar...",
+    "Filters": "Filtros",
+    "Advanced filters": "Filtros avanzados",
+    "Apply filters": "Aplicar filtros",
+    "Clear filters": "Limpiar filtros",
+    "Search results": "Resultados de la búsqueda",
+    "No results": "Sin resultados",
+    "Active records": "Registros activos",
+    "Deleted records": "Registros eliminados",
+    "All records": "Todos los registros",
 
 
     # =========================================================
     # FORM
     # =========================================================
 
-    "Form": "Formulaire",
-    "Field": "Champ",
-    "Fields": "Champs",
-    "Enter": "Saisir",
-    "Choose": "Choisir",
-    "Select an option": "Sélectionnez une option",
-    "Required field": "Champ obligatoire",
-    "Invalid value": "Valeur invalide",
-    "Invalid format": "Format invalide",
-    "This field is required": "Ce champ est obligatoire",
-    "Please fill in the required fields": "Veuillez remplir les champs obligatoires",
-    "Changes saved": "Modifications enregistrées",
-    "Unsaved changes": "Modifications non enregistrées",
+    "Form": "Formulario",
+    "Field": "Campo",
+    "Fields": "Campos",
+    "Enter": "Introducir",
+    "Choose": "Elegir",
+    "Select an option": "Seleccione una opción",
+    "Required field": "Campo obligatorio",
+    "Invalid value": "Valor inválido",
+    "Invalid format": "Formato inválido",
+    "This field is required": "Este campo es obligatorio",
+    "Please fill in the required fields": "Complete los campos obligatorios",
+    "Changes saved": "Cambios guardados",
+    "Unsaved changes": "Cambios sin guardar",
 
 
     # =========================================================
     # MESSAGES
     # =========================================================
 
-    "Success": "Succès",
-    "Error": "Erreur",
-    "Warning": "Avertissement",
-    "Attention": "Attention",
-    "Operation successful": "Opération réussie",
-    "Operation failed": "Échec de l’opération",
-    "Saved successfully": "Enregistré avec succès",
-    "Updated successfully": "Mis à jour avec succès",
-    "Deleted successfully": "Supprimé avec succès",
-    "Restored successfully": "Restauré avec succès",
-    "Created successfully": "Créé avec succès",
-    "An error occurred": "Une erreur s’est produite",
-    "Please try again": "Veuillez réessayer",
-    "Are you sure?": "Êtes-vous sûr ?",
-    "Confirm deletion": "Confirmer la suppression",
-    "Do you want to continue?": "Voulez-vous continuer ?",
-    "Please wait...": "Veuillez patienter...",
+    "Success": "Éxito",
+    "Error": "Error",
+    "Warning": "Advertencia",
+    "Attention": "Atención",
+    "Operation successful": "Operación realizada con éxito",
+    "Operation failed": "Error en la operación",
+    "Saved successfully": "Guardado correctamente",
+    "Updated successfully": "Actualizado correctamente",
+    "Deleted successfully": "Eliminado correctamente",
+    "Restored successfully": "Restaurado correctamente",
+    "Created successfully": "Creado correctamente",
+    "An error occurred": "Se ha producido un error",
+    "Please try again": "Inténtelo de nuevo",
+    "Are you sure?": "¿Está seguro?",
+    "Confirm deletion": "Confirmar eliminación",
+    "Do you want to continue?": "¿Desea continuar?",
+    "Please wait...": "Espere...",
 
 
     # =========================================================
     # AUTHENTICATION
     # =========================================================
 
-    "Login": "Se connecter",
-    "Logout": "Se déconnecter",
-    "Login successful": "Connexion réussie",
-    "You are successfully logged in.": "Vous êtes connecté avec succès.",
-    "Username": "Nom d’utilisateur",
-    "Password": "Mot de passe",
-    "Current password": "Mot de passe actuel",
-    "New password": "Nouveau mot de passe",
-    "Confirm password": "Confirmer le mot de passe",
-    "Forgot password?": "Mot de passe oublié ?",
+    "Login": "Iniciar sesión",
+    "Logout": "Cerrar sesión",
+    "Login successful": "Inicio de sesión correcto",
+    "You are successfully logged in.": "Ha iniciado sesión correctamente.",
+    "Username": "Nombre de usuario",
+    "Password": "Contraseña",
+    "Current password": "Contraseña actual",
+    "New password": "Nueva contraseña",
+    "Confirm password": "Confirmar contraseña",
+    "Forgot password?": "¿Olvidó su contraseña?",
     "Forgot my password": "Olvidé mi contraseña",
     "Register": "Registrarse",
-    "Reset password": "Réinitialiser le mot de passe",
-    "Change password": "Modifier le mot de passe",
-    "Last Login": "Dernière connexion",
-    "Welcome": "Bienvenue",
-    "Unauthorized": "Non autorisé",
-    "Access denied": "Accès refusé",
-    "Session expired": "Session expirée",
+    "Reset password": "Restablecer contraseña",
+    "Change password": "Cambiar contraseña",
+    "Last Login": "Último inicio de sesión",
+    "Welcome": "Bienvenido",
+    "Unauthorized": "No autorizado",
+    "Access denied": "Acceso denegado",
+    "Session expired": "Sesión expirada",
 
 
     # =========================================================
     # USER / PERMISSIONS
     # =========================================================
 
-    "User": "Utilisateur",
-    "Users": "Utilisateurs",
-    "Role": "Rôle",
-    "Roles": "Rôles",
-    "Group": "Groupe",
-    "Groups": "Groupes",
-    "Permission": "Autorisation",
-    "Permissions": "Autorisations",
-    "Profile": "Profil",
-    "Account": "Compte",
-    "Email": "E-mail",
-    "Mobile": "Téléphone portable",
-    "Phone": "Téléphone",
-    "Language": "Langue",
+    "User": "Usuario",
+    "Users": "Usuarios",
+    "Role": "Grupo",
+    "Roles": "Grupos",
+    "Group": "Grupo",
+    "Groups": "Grupos",
+    "Permission": "Permiso",
+    "Permissions": "Permisos",
+    "Profile": "Perfil",
+    "Account": "Cuenta",
+    "Email": "Correo electrónico",
+    "Mobile": "Móvil",
+    "Phone": "Teléfono",
+    "Language": "Idioma",
 
 
     # =========================================================
     # MULTI-TENANT
     # =========================================================
 
-    "Entity": "Entité",
-    "Entities": "Entités",
-    "Select the Entity": "Sélectionnez l’entité",
-    "Company": "Entreprise",
-    "Branch": "Succursale",
-    "Branches": "Succursales",
-    "Select branch": "Sélectionnez la succursale",
-    "Module": "Module",
-    "Modules": "Modules",
-    "Application": "Application",
-    "Applications": "Applications",
+    "Entity": "Entidad",
+    "Entities": "Entidades",
+    "Select the Entity": "Seleccione la Entidad",
+    "Company": "Empresa",
+    "Branch": "Sucursal",
+    "Branches": "Sucursales",
+    "Select branch": "Seleccione la sucursal",
+    "Module": "Módulo",
+    "Modules": "Módulos",
+    "Application": "Aplicación",
+    "Applications": "Aplicaciones",
 
 
     # =========================================================
     # FILES
     # =========================================================
 
-    "File": "Fichier",
-    "Files": "Fichiers",
-    "Image": "Image",
-    "Document": "Document",
-    "Documents": "Documents",
-    "File name": "Nom du fichier",
-    "File size": "Taille du fichier",
-    "File type": "Type de fichier",
-    "Choose file": "Choisir un fichier",
-    "Upload file": "Téléverser un fichier",
-    "Download file": "Télécharger le fichier",
-    "Remove file": "Supprimer le fichier",
-    "Preview": "Aperçu",
-    "PDF Preview": "Aperçu du PDF",
+    "File": "Archivo",
+    "Files": "Archivos",
+    "Image": "Imagen",
+    "Document": "Documento",
+    "Documents": "Documentos",
+    "File name": "Nombre del archivo",
+    "File size": "Tamaño del archivo",
+    "File type": "Tipo de archivo",
+    "Choose file": "Elegir archivo",
+    "Upload file": "Subir archivo",
+    "Download file": "Descargar archivo",
+    "Remove file": "Quitar archivo",
+    "Preview": "Vista previa",
+    "PDF Preview": "Vista previa del PDF",
 
 
     # =========================================================
     # DATES
     # =========================================================
 
-    "Today": "Aujourd’hui",
-    "Yesterday": "Hier",
-    "Tomorrow": "Demain",
-    "From": "De",
-    "To": "À",
-    "Start date": "Date de début",
-    "End date": "Date de fin",
-    "Created at": "Créé le",
-    "Updated at": "Mis à jour le",
-    "Deleted at": "Supprimé le",
-    "Created by": "Créé par",
-    "Updated by": "Mis à jour par",
+    "Today": "Hoy",
+    "Yesterday": "Ayer",
+    "Tomorrow": "Mañana",
+    "From": "Desde",
+    "To": "Hasta",
+    "Start date": "Fecha de inicio",
+    "End date": "Fecha de fin",
+    "Created at": "Creado el",
+    "Updated at": "Actualizado el",
+    "Deleted at": "Eliminado el",
+    "Created by": "Creado por",
+    "Updated by": "Actualizado por",
 
 
     # =========================================================
     # SCAFFOLD
     # =========================================================
 
-    "Scaffold Wizard": "Assistant de génération",
-    "Model": "Modèle",
-    "Select module": "Sélectionner un module",
-    "Model name": "Nom du modèle",
-    "Existing models": "Modèles existants",
-    "Relation app.Model": "Relation app.Model",
-    "Add field": "Ajouter un champ",
+    "Scaffold Wizard": "Asistente de Scaffold",
+    "Model": "Modelo",
+    "Select module": "Seleccionar módulo",
+    "Model name": "Nombre del modelo",
+    "Existing models": "Modelos existentes",
+    "Relation app.Model": "Relación app.Modelo",
+    "Add field": "Añadir campo",
 
-    "CharField": "Texte court",
-    "TextField": "Texte long",
-    "IntegerField": "Nombre entier",
-    "DecimalField": "Nombre décimal",
-    "BooleanField": "Oui / Non",
-    "DateField": "Date",
-    "ForeignKey": "Relation (N-1)",
-    "OneToOneField": "Relation (1-1)",
-    "ManyToManyField": "Liste (N-N)",
-    "FileField": "Fichier",
-    "ImageField": "Image",
-    "JSONField": "JSON / Données libres",
-    "MoneyField": "Montant",
+    "CharField": "Texto corto",
+    "TextField": "Texto largo",
+    "IntegerField": "Número entero",
+    "DecimalField": "Decimal",
+    "BooleanField": "Sí / No",
+    "DateField": "Fecha",
+    "ForeignKey": "Relación (N-1)",
+    "OneToOneField": "Relación (1-1)",
+    "ManyToManyField": "Lista (N-N)",
+    "FileField": "Archivo",
+    "ImageField": "Imagen",
+    "JSONField": "JSON / Datos libres",
+    "MoneyField": "Dinero",
 
 
     # =========================================================
@@ -294,202 +296,202 @@ key_value = {
     # =========================================================
 
     "OK": "OK",
-    "Set": "Définir",
-    "Accept": "Accepter",
-    "Decline": "Refuser",
-    "Done": "Terminé",
-    "Expand": "Développer",
-    "Collapse": "Réduire",
-    "Show": "Afficher",
-    "Hide": "Masquer",
-    "More": "Plus",
-    "Less": "Moins",
-    "Options": "Options",
-    "Settings": "Paramètres",
-    "Menu": "Menu",
-    "Home": "Accueil",
-    "Dashboard": "Tableau de bord",
-    "Help": "Aide",
+    "Set": "Definir",
+    "Accept": "Aceptar",
+    "Decline": "Rechazar",
+    "Done": "Hecho",
+    "Expand": "Expandir",
+    "Collapse": "Contraer",
+    "Show": "Mostrar",
+    "Hide": "Ocultar",
+    "More": "Más",
+    "Less": "Menos",
+    "Options": "Opciones",
+    "Settings": "Configuración",
+    "Menu": "Menú",
+    "Home": "Inicio",
+    "Dashboard": "Panel",
+    "Help": "Ayuda",
 
     # =========================================================
     # TABLE / PAGINATION
     # =========================================================
 
-    "Selected records": "Enregistrements sélectionnés",
-    "of": "sur",
-    "Rows": "Lignes",
-    "Row": "Ligne",
-    "Column": "Colonne",
-    "Select all": "Tout sélectionner",
-    "Deselect all": "Tout désélectionner",
-    "Show all": "Tout afficher",
-    "Hide all": "Tout masquer",
+    "Selected records": "Registros seleccionados",
+    "of": "de",
+    "Rows": "Filas",
+    "Row": "Fila",
+    "Column": "Columna",
+    "Select all": "Seleccionar todos",
+    "Deselect all": "Deseleccionar todos",
+    "Show all": "Mostrar todos",
+    "Hide all": "Ocultar todos",
 
     # =========================================================
     # FILTER / SEARCH
     # =========================================================
 
-    "Show filters": "Afficher les filtres",
-    "Hide filters": "Masquer les filtres",
-    "More options": "Plus d’options",
-    "Clear search": "Effacer la recherche",
-    "Search by": "Rechercher par",
-    "Filter by": "Filtrer par",
-    "Contains": "Contient",
-    "Starts with": "Commence par",
-    "Ends with": "Se termine par",
-    "Equal to": "Égal à",
-    "Not equal to": "Différent de",
+    "Show filters": "Mostrar filtros",
+    "Hide filters": "Ocultar filtros",
+    "More options": "Más opciones",
+    "Clear search": "Limpiar búsqueda",
+    "Search by": "Buscar por",
+    "Filter by": "Filtrar por",
+    "Contains": "Contiene",
+    "Starts with": "Empieza por",
+    "Ends with": "Termina en",
+    "Equal to": "Igual a",
+    "Not equal to": "Distinto de",
 
     # =========================================================
     # FORM / VALIDATION
     # =========================================================
 
-    "Invalid field": "Champ invalide",
-    "Invalid email": "E-mail invalide",
-    "Invalid date": "Date invalide",
-    "Invalid number": "Nombre invalide",
-    "Minimum value": "Valeur minimale",
-    "Maximum value": "Valeur maximale",
-    "Minimum length": "Longueur minimale",
-    "Maximum length": "Longueur maximale",
-    "Must match": "Doit correspondre",
-    "Please select an option": "Veuillez sélectionner une option",
-    "Please enter a value": "Veuillez saisir une valeur",
+    "Invalid field": "Campo inválido",
+    "Invalid email": "Correo electrónico inválido",
+    "Invalid date": "Fecha inválida",
+    "Invalid number": "Número inválido",
+    "Minimum value": "Valor mínimo",
+    "Maximum value": "Valor máximo",
+    "Minimum length": "Longitud mínima",
+    "Maximum length": "Longitud máxima",
+    "Must match": "Debe coincidir",
+    "Please select an option": "Seleccione una opción",
+    "Please enter a value": "Introduzca un valor",
 
     # =========================================================
     # CONFIRMATIONS
     # =========================================================
 
-    "Confirm action": "Confirmer l’action",
-    "Confirm restore": "Confirmer la restauration",
-    "Confirm permanent deletion": "Confirmer la suppression définitive",
-    "This action cannot be undone": "Cette action est irréversible",
-    "Are you sure you want to continue?": "Êtes-vous sûr de vouloir continuer ?",
+    "Confirm action": "Confirmar acción",
+    "Confirm restore": "Confirmar restauración",
+    "Confirm permanent deletion": "Confirmar eliminación permanente",
+    "This action cannot be undone": "Esta acción no se puede deshacer",
+    "Are you sure you want to continue?": "¿Está seguro de que desea continuar?",
 
     # =========================================================
     # NETWORK / REQUESTS
     # =========================================================
 
-    "Connecting...": "Connexion...",
-    "Processing...": "Traitement...",
-    "Saving...": "Enregistrement...",
-    "Uploading...": "Téléversement...",
-    "Downloading...": "Téléchargement...",
-    "Request failed": "Échec de la requête",
-    "Network error": "Erreur réseau",
-    "Server error": "Erreur du serveur",
-    "Connection lost": "Connexion perdue",
-    "Connection restored": "Connexion rétablie",
-    "Try again": "Réessayer",
+    "Connecting...": "Conectando...",
+    "Processing...": "Procesando...",
+    "Saving...": "Guardando...",
+    "Uploading...": "Subiendo...",
+    "Downloading...": "Descargando...",
+    "Request failed": "Error en la solicitud",
+    "Network error": "Error de red",
+    "Server error": "Error del servidor",
+    "Connection lost": "Conexión perdida",
+    "Connection restored": "Conexión restablecida",
+    "Try again": "Intentar de nuevo",
 
     # =========================================================
     # FILES / UPLOAD
     # =========================================================
 
-    "Drop files here": "Déposez les fichiers ici",
-    "Browse files": "Parcourir les fichiers",
-    "Selected files": "Fichiers sélectionnés",
-    "File too large": "Fichier trop volumineux",
-    "Invalid file type": "Type de fichier invalide",
-    "Upload successful": "Téléversement réussi",
-    "Upload failed": "Échec du téléversement",
+    "Drop files here": "Suelte los archivos aquí",
+    "Browse files": "Buscar archivos",
+    "Selected files": "Archivos seleccionados",
+    "File too large": "Archivo demasiado grande",
+    "Invalid file type": "Tipo de archivo inválido",
+    "Upload successful": "Carga completada con éxito",
+    "Upload failed": "Error al subir el archivo",
 
     # =========================================================
     # PDF / DOCUMENTS
     # =========================================================
 
-    "Generate PDF": "Générer le PDF",
-    "Download PDF": "Télécharger le PDF",
-    "Print PDF": "Imprimer le PDF",
-    "PDF document": "Document PDF",
-    "Document title": "Titre du document",
-    "Author": "Auteur",
-    "Subject": "Objet",
-    "Keywords": "Mots-clés",
+    "Generate PDF": "Generar PDF",
+    "Download PDF": "Descargar PDF",
+    "Print PDF": "Imprimir PDF",
+    "PDF document": "Documento PDF",
+    "Document title": "Título del documento",
+    "Author": "Autor",
+    "Subject": "Asunto",
+    "Keywords": "Palabras clave",
 
     # =========================================================
     # USER / SESSION
     # =========================================================
 
-    "My profile": "Mon profil",
-    "My account": "Mon compte",
-    "Sign in": "Se connecter",
-    "Sign out": "Se déconnecter",
-    "Authentication required": "Authentification requise",
-    "Invalid credentials": "Identifiants invalides",
-    "Token expired": "Jeton expiré",
-    "Refresh token": "Actualiser le jeton",
+    "My profile": "Mi perfil",
+    "My account": "Mi cuenta",
+    "Sign in": "Iniciar sesión",
+    "Sign out": "Cerrar sesión",
+    "Authentication required": "Autenticación requerida",
+    "Invalid credentials": "Credenciales inválidas",
+    "Token expired": "Token expirado",
+    "Refresh token": "Actualizar token",
 
     # =========================================================
     # PERMISSIONS
     # =========================================================
 
-    "Allowed": "Autorisé",
-    "Not allowed": "Non autorisé",
-    "Read": "Lire",
-    "Write": "Écrire",
-    "Read only": "Lecture seule",
-    "Full access": "Accès complet",
+    "Allowed": "Permitido",
+    "Not allowed": "No permitido",
+    "Read": "Leer",
+    "Write": "Escribir",
+    "Read only": "Solo lectura",
+    "Full access": "Acceso total",
 
     # =========================================================
     # MULTI-TENANT
     # =========================================================
 
-    "Select entity": "Sélectionner une entité",
-    "Current entity": "Entité actuelle",
-    "Current branch": "Succursale actuelle",
-    "Select group": "Sélectionner un groupe",
-    "Current group": "Groupe actuel",
-    "Entity type": "Type d’entité",
+    "Select entity": "Seleccionar entidad",
+    "Current entity": "Entidad actual",
+    "Current branch": "Sucursal actual",
+    "Select group": "Seleccionar grupo",
+    "Current group": "Grupo actual",
+    "Entity type": "Tipo de entidad",
 
     # =========================================================
     # DATE / TIME
     # =========================================================
 
-    "Now": "Maintenant",
-    "This week": "Cette semaine",
-    "This month": "Ce mois-ci",
-    "This year": "Cette année",
-    "Date range": "Plage de dates",
-    "Start time": "Heure de début",
-    "End time": "Heure de fin",
+    "Now": "Ahora",
+    "This week": "Esta semana",
+    "This month": "Este mes",
+    "This year": "Este año",
+    "Date range": "Intervalo de fechas",
+    "Start time": "Hora de inicio",
+    "End time": "Hora de fin",
 
     # =========================================================
     # COMMON BUSINESS FIELDS
     # =========================================================
 
-    "Address": "Adresse",
-    "City": "Ville",
-    "Country": "Pays",
-    "Province": "Province",
-    "District": "District",
-    "Postal code": "Code postal",
-    "Website": "Site web",
-    "Notes": "Notes",
-    "Reference": "Référence",
+    "Address": "Dirección",
+    "City": "Ciudad",
+    "Country": "País",
+    "Province": "Provincia",
+    "District": "Distrito",
+    "Postal code": "Código postal",
+    "Website": "Sitio web",
+    "Notes": "Notas",
+    "Reference": "Referencia",
 
 
-    "Reload data": "Recharger les données",
+    "Reload data": "Recargar datos",
 
 
-    "Custom": "Personnalisé",
+    "Custom": "Personalizado",
 
-    "Download data list as PDF": "Télécharger la liste des données au format PDF",
+    "Download data list as PDF": "Descargar lista de datos en PDF",
 
     # =========================================================
     # RECORD FILTER
     # =========================================================
 
-    "Show active": "Afficher les actifs",
-    "Show deleted": "Afficher les supprimés",
+    "Show active": "Mostrar activos",
+    "Show deleted": "Mostrar eliminados",
 
 
     # =========================================================
     # COLUMNS
     # =========================================================
 
-    "Select visible columns": "Sélectionner les colonnes visibles",
+    "Select visible columns": "Seleccionar columnas visibles",
 
 
 
@@ -497,136 +499,136 @@ key_value = {
     # FILTERS / OPTIONS
     # =========================================================
 
-    "Show more options": "Afficher plus d’options",
+    "Show more options": "Mostrar más opciones",
 
 
     # =========================================================
     # ACTIONS
     # =========================================================
 
-    "Delete permanently": "Supprimer définitivement",
+    "Delete permanently": "Eliminar permanentemente",
 
 
-    "Click to see more options": "Cliquez pour voir plus d’options",
+    "Click to see more options": "Haga clic para ver más opciones",
 
 
-    "Activate": "Activer",
-    "Deactivate": "Désactiver",
-    "Health": "Santé",
+    "Activate": "Activar",
+    "Deactivate": "Desactivar",
+    "Health": "Salud",
 
     # =========================================================
     # ADMIN
     # =========================================================
 
-    "Restore selected": "Restaurer la sélection",
-    "Soft delete selected": "Supprimer temporairement la sélection",
-    "Deleted": "Supprimé",
+    "Restore selected": "Restaurar seleccionados",
+    "Soft delete selected": "Eliminación suave de los seleccionados",
+    "Deleted": "Eliminado",
 
     # =========================================================
     # AUTHENTICATION (EXTRA)
     # =========================================================
 
-    "Bad Credentials": "Identifiants incorrects",
-    "Account deactivated": "Compte désactivé",
-    "Email not verified": "E-mail non vérifié",
-    "Invalid or expired token": "Jeton invalide ou expiré",
-    "Invalid token": "Jeton invalide",
-    "The current password is incorrect": "Le mot de passe actuel est incorrect",
-    "The password must be at least 8 characters long": "Le mot de passe doit comporter au moins 8 caractères",
-    "Password changed successfully": "Mot de passe modifié avec succès",
-    "Password reset successfully": "Mot de passe réinitialisé avec succès",
-    "Password reset": "Réinitialisation du mot de passe",
-    "Invalid or expired OTP": "Code OTP invalide ou expiré",
-    "The username must contain only alphanumeric characters": "Le nom d’utilisateur ne doit contenir que des caractères alphanumériques",
-    "Login history loaded successfully": "Historique des connexions chargé avec succès",
-    "Logout successful": "Déconnexion réussie",
-    "Email not provided": "E-mail non fourni",
-    "If the email exists, we will send instructions": "Si l’e-mail existe, nous enverrons des instructions",
-    "Error sending the email": "Erreur lors de l’envoi de l’e-mail",
-    "We sent a link to reset your password": "Nous avons envoyé un lien pour réinitialiser votre mot de passe",
-    "The token is not valid, please request a new one": "Le jeton n’est pas valide, veuillez en demander un nouveau",
-    "Account created successfully": "Compte créé avec succès",
-    "The number does not exist": "Le numéro n’existe pas",
-    "Do not share this code": "Ne partagez pas ce code",
-    "Error sending the OTP": "Erreur lors de l’envoi du code OTP",
-    "We sent an OTP to your number": "Nous avons envoyé un code OTP à votre numéro",
-    "Authorized successfully": "Autorisé avec succès",
-    "Account activated successfully": "Compte activé avec succès",
-    "Activation expired": "Activation expirée",
+    "Bad Credentials": "Credenciales inválidas",
+    "Account deactivated": "Cuenta desactivada",
+    "Email not verified": "Correo electrónico no verificado",
+    "Invalid or expired token": "Token inválido o expirado",
+    "Invalid token": "Token inválido",
+    "The current password is incorrect": "La contraseña actual es incorrecta",
+    "The password must be at least 8 characters long": "La contraseña debe tener al menos 8 caracteres",
+    "Password changed successfully": "Contraseña cambiada correctamente",
+    "Password reset successfully": "Contraseña restablecida correctamente",
+    "Password reset": "Restablecimiento de contraseña",
+    "Invalid or expired OTP": "OTP inválido o expirado",
+    "The username must contain only alphanumeric characters": "El nombre de usuario debe contener solo caracteres alfanuméricos",
+    "Login history loaded successfully": "Historial de inicio de sesión cargado correctamente",
+    "Logout successful": "Sesión cerrada correctamente",
+    "Email not provided": "Correo electrónico no proporcionado",
+    "If the email exists, we will send instructions": "Si el correo electrónico existe, le enviaremos instrucciones",
+    "Error sending the email": "Error al enviar el correo electrónico",
+    "We sent a link to reset your password": "Le hemos enviado un enlace para restablecer su contraseña",
+    "The token is not valid, please request a new one": "El token no es válido, solicite uno nuevo",
+    "Account created successfully": "Cuenta creada correctamente",
+    "The number does not exist": "El número no existe",
+    "Do not share this code": "No comparta este código",
+    "Error sending the OTP": "Error al enviar el OTP",
+    "We sent an OTP to your number": "Le hemos enviado un OTP a su número",
+    "Authorized successfully": "Autorizado correctamente",
+    "Account activated successfully": "Cuenta activada correctamente",
+    "Activation expired": "Activación expirada",
 
     # =========================================================
     # PERMISSIONS / ACCESS (EXTRA)
     # =========================================================
 
-    "Not authorized": "Non autorisé",
-    "No permission for this route": "Aucune autorisation pour cette route",
-    "No permission for this operation": "Aucune autorisation pour cette opération",
-    "No permission to update this user": "Aucune autorisation pour modifier cet utilisateur",
-    "No permission to delete this user": "Aucune autorisation pour supprimer cet utilisateur",
-    "Not allowed to change entity": "Modification de l’entité non autorisée",
-    "Cannot delete your own user": "Vous ne pouvez pas supprimer votre propre utilisateur",
-    "Module not active": "Module inactif",
+    "Not authorized": "No autorizado",
+    "No permission for this route": "Sin permiso para esta ruta",
+    "No permission for this operation": "Sin permiso para esta operación",
+    "No permission to update this user": "Sin permiso para actualizar este usuario",
+    "No permission to delete this user": "Sin permiso para eliminar este usuario",
+    "Not allowed to change entity": "No está permitido cambiar la entidad",
+    "Cannot delete your own user": "No puede eliminar su propio usuario",
+    "Module not active": "Módulo no activo",
 
     # =========================================================
     # API MESSAGES
     # =========================================================
 
-    "Initial configuration created successfully": "Configuration initiale créée avec succès",
-    "Unable to upload file<br><b>Contact the administrator</b>": "Impossible de téléverser le fichier<br><b>Contactez l’administrateur</b>",
-    "Required fields: entity_type, entity, branch, user_id": "Champs obligatoires : entity_type, entity, branch, user_id",
-    "User not found": "Utilisateur introuvable",
-    "System already initialized": "Système déjà initialisé",
-    "System ready 🚀": "Système prêt 🚀",
-    "Entity created successfully": "Entité créée avec succès",
-    "Entity not found": "Entité introuvable",
-    "name is required": "le nom est obligatoire",
-    "EntityType not found": "Type d’entité introuvable",
-    "codename and name are required": "le nom de code et le nom sont obligatoires",
-    "codename is required": "le nom de code est obligatoire",
-    "Permission not found": "Autorisation introuvable",
-    "User deleted successfully": "Utilisateur supprimé avec succès",
-    "Group linked successfully": "Groupe associé avec succès",
-    "Group added successfully": "Groupe ajouté avec succès",
+    "Initial configuration created successfully": "Configuración inicial creada correctamente",
+    "Unable to upload file<br><b>Contact the administrator</b>": "No se pudo subir el archivo<br><b>Contacte con el administrador</b>",
+    "Required fields: entity_type, entity, branch, user_id": "Campos obligatorios: entity_type, entity, branch, user_id",
+    "User not found": "Usuario no encontrado",
+    "System already initialized": "Sistema ya inicializado",
+    "System ready 🚀": "Sistema listo 🚀",
+    "Entity created successfully": "Entidad creada correctamente",
+    "Entity not found": "Entidad no encontrada",
+    "name is required": "el nombre es obligatorio",
+    "EntityType not found": "Tipo de entidad no encontrado",
+    "codename and name are required": "codename y nombre son obligatorios",
+    "codename is required": "codename es obligatorio",
+    "Permission not found": "Permiso no encontrado",
+    "User deleted successfully": "Usuario eliminado correctamente",
+    "Group linked successfully": "Grupo vinculado correctamente",
+    "Group added successfully": "Grupo añadido correctamente",
 
     # =========================================================
     # FILE ERRORS (KEYS)
     # =========================================================
 
-    "FILE_NOT_FOUND": "Fichier introuvable",
-    "FILE_REMOVED_SUCCESS": "Fichier supprimé avec succès",
-    "ENTITY_NOT_PROVIDED": "Entité non fournie",
-    "FILE_NOT_PROVIDED": "Fichier non fourni",
-    "INSUFFICIENT_SPACE": "Espace insuffisant",
+    "FILE_NOT_FOUND": "Archivo no encontrado",
+    "FILE_REMOVED_SUCCESS": "Archivo eliminado correctamente",
+    "ENTITY_NOT_PROVIDED": "Entidad no proporcionada",
+    "FILE_NOT_PROVIDED": "Archivo no proporcionado",
+    "INSUFFICIENT_SPACE": "Espacio insuficiente",
 
     # =========================================================
     # SCAFFOLD / VALIDATION (EXTRA)
     # =========================================================
 
-    "Field is required": "Le champ est obligatoire",
-    "Module or model name cannot be empty!": "Le nom du module ou du modèle ne peut pas être vide !",
-    "You need at least one field to create a Model": "Vous devez ajouter au moins un champ pour créer un modèle",
-    "There is a field with no name attribute.<br> Please check": "Un champ ne possède pas d’attribut de nom.<br> Veuillez vérifier",
-    "Model created successfully": "Modèle créé avec succès",
-    "Migrations completed successfully": "Migrations terminées avec succès",
+    "Field is required": "El campo es obligatorio",
+    "Module or model name cannot be empty!": "¡El nombre del módulo o del modelo no puede estar vacío!",
+    "You need at least one field to create a Model": "Necesita al menos un campo para crear un Modelo",
+    "There is a field with no name attribute.<br> Please check": "Hay un campo sin el atributo nombre.<br> Por favor verifique",
+    "Model created successfully": "Modelo creado correctamente",
+    "Migrations completed successfully": "Migraciones completadas correctamente",
 
     # =========================================================
     # VALIDATION (HR)
     # =========================================================
 
-    "An employee cannot be their own manager.": "Un employé ne peut pas être son propre responsable.",
-    "The termination date cannot be earlier than the hire date.": "La date de fin de contrat ne peut pas être antérieure à la date d’embauche.",
+    "An employee cannot be their own manager.": "Un empleado no puede ser su propio gerente.",
+    "The termination date cannot be earlier than the hire date.": "La fecha de rescisión no puede ser anterior a la fecha de contratación.",
 
     # =========================================================
     # FEEDBACK
     # =========================================================
 
     "Send comment or feedback": "Enviar comentario o sugerencia",
-    "Have feedback or suggestions? We would be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organization's support team.": "¿Tiene comentarios o sugerencias? Nos encantaría saber de usted. No incluya contraseñas, datos personales sensibles ni información confidencial de la organización. <br>¿Necesita ayuda? Visite el Centro de Ayuda o póngase en contacto con el equipo de soporte de su organización.",
+    "Have feedback or suggestions? We would be happy to hear from you. Please do not include passwords, sensitive personal data, or confidential organizational information. <br>Need assistance? Visit the Help Center or contact your organization's support team.": "¿Tiene comentarios o sugerencias? Nos encantaría saber de usted. No incluya contraseñas, datos personales sensibles ni información confidencial de la organización. <br>¿Necesita ayuda? Visite el Centro de Ayuda o contacte con el equipo de soporte de su organización.",
 
     # =========================================================
     # PRIVACY / LEGAL
     # =========================================================
 
-    "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br><br>We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.": "Es posible que se recopile y procese cierta información de la cuenta, la entidad, la sucursal y el sistema para prestar asistencia, diagnosticar y resolver problemas técnicos, mantener la seguridad y mejorar la calidad de nuestros servicios. Esta información puede compartirse con administradores autorizados o proveedores de servicios cuando sea necesario, de acuerdo con la Política de Privacidad y las Condiciones de Servicio aplicables. <br>  Podremos ponernos en contacto con usted por correo electrónico u otros canales de comunicación autorizados si se requiere información adicional o para proporcionar actualizaciones sobre su solicitud. Para cuestiones de privacidad, protección de datos o asuntos legales, póngase en contacto con su organización o con el administrador del sistema correspondiente.",
+    "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br><br>We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.": "Es posible que se recopile y procese cierta información de cuenta, entidad, sucursal y sistema para prestar soporte, diagnosticar y resolver problemas técnicos, mantener la seguridad y mejorar la calidad de nuestros servicios. Esta información puede compartirse con administradores autorizados o proveedores de servicios cuando sea necesario, de acuerdo con la Política de Privacidad y los Términos de Servicio aplicables. <br><br>Podemos ponernos en contacto con usted por correo electrónico u otros canales de comunicación autorizados si se requiere información adicional o para proporcionar actualizaciones sobre su solicitud. Para asuntos de privacidad, protección de datos o cuestiones legales, contacte con su organización o con el administrador de sistema correspondiente.",
 
 }
