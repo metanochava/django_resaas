@@ -61,7 +61,7 @@ def test_bootstrap_self_heals_a_preexisting_broken_row():
     entity_app = EntityApp.objects.get(entity=result["entity"], app__name="hr")
 
     # simulate a row left over from the old buggy code path
-    entity_app.state = "1"
+    entity_app.state = "Active"
     entity_app.save(update_fields=["state"])
 
     # running bootstrap again must not raise (no duplicate (entity, app) row)

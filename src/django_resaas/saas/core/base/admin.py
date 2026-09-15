@@ -94,16 +94,28 @@ class BaseAdmin(admin.ModelAdmin):
     # 🔎 SEARCH AUTOMÁTICO
     # -----------------------------------
 
-    # def get_search_fields(self, request):
-    #     candidates = [
-    #         "name", "name", "title", "descricao",
-    #         "codigo", "email", "username"
-    #     ]
+    def get_search_fields(self, request):
+        fields = super().get_search_fields(request)
 
-    #     return [
-    #         f.name for f in self.model._meta.fields
-    #         if f.name in candidates
-    #     ]
+        # `search_fields = ("__all__",)` é a convenção usada nos
+        # serializers DRF (BaseSerializer/`fields = "__all__"`), mas o
+        # ModelAdmin do Django não a reconhece - trata "__all__" como
+        # um nome de campo literal e, ao fazer o split por "__" para
+        # resolver a lookup, obtém uma keyword vazia
+        # (FieldError: "Cannot resolve keyword '' into field"). Expande
+        # para os campos de texto reais do model, preservando a
+        # intenção original de "pesquisar em todos os campos".
+        if list(fields) == ["__all__"]:
+            return [
+                f.name for f in self.model._meta.fields
+                if isinstance(f, (
+                    models.CharField,
+                    models.TextField,
+                    models.EmailField,
+                ))
+            ]
+
+        return fields
 
     # -----------------------------------
     # 🧩 FILTROS AUTOMÁTICOS

@@ -45,7 +45,7 @@ def group_creator(groups=None, rename_from=None):
     # ------------------------------------------------------
     entity_type, _ = EntityType.objects.get_or_create(
         name="SaaS",
-        state= 1
+        defaults={"state": "Active"}
     )
 
     # ------------------------------------------------------
@@ -54,7 +54,7 @@ def group_creator(groups=None, rename_from=None):
     entity, _ = Entity.objects.get_or_create(
         name="Tenant",
         entity_type=entity_type,  # 🔥 FIX CRÍTICO
-        state= 1
+        defaults={"state": "Active"}
     )
 
     # ------------------------------------------------------
