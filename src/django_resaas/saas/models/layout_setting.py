@@ -187,7 +187,7 @@ class LayoutSetting(TimeModel):
         crud = True
 
         routes = {
-            'list': "add_layout_setting",
+            'list': "list_layout_setting",
             'view': "view_layout_setting",
             'add': "add_layout_setting",
             'change': "change_layout_setting",

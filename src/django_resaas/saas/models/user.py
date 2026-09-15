@@ -281,7 +281,7 @@ class User(
         crud = True
 
         routes = {
-            'list': 'add_user',
+            'list': 'list_user',
             'view': 'view_user',
             'add': 'add_user',
             'change': 'change_user'

@@ -144,7 +144,7 @@ class ThemeSurface(TimeModel):
         crud = True
 
         routes = {
-            'list': "add_theme_surface",
+            'list': "list_theme_surface",
             'view': "view_theme_surface",
             'add': "add_theme_surface",
             'change': "change_theme_surface",

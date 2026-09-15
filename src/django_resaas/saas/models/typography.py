@@ -81,7 +81,7 @@ class Typography(TimeModel):
         crud = True
 
         routes = {
-            'list': "add_typography",
+            'list': "list_typography",
             'view': "view_typography",
             'add': "add_typography",
             'change': "change_typography",

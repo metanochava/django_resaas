@@ -156,7 +156,7 @@ class Entity(TimeModel):
         crud = True
 
         routes = {
-            'list': "add_entity",
+            'list': "list_entity",
             'view': "view_entity",
             'add': "add_entity",
             'change': "change_entity",

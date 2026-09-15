@@ -133,7 +133,7 @@ class AnimationSetting(TimeModel):
         crud = True
 
         routes = {
-            'list': "add_animation_setting",
+            'list': "list_animation_setting",
             'view': "view_animation_setting",
             'add': "add_animation_setting",
             'change': "change_animation_setting",

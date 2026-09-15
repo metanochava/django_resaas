@@ -12,7 +12,7 @@ class App(TimeModel):
         label_field = "name"
         crud = True
         routes={
-            'list': "add_app",
+            'list': "list_app",
             'view': "view_app",
             'add': "add_app",
             'change': "change_app"

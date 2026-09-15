@@ -266,7 +266,7 @@ class Address(TimeModel):
         crud = True
 
         routes = {
-            "list": "add_address",
+            "list": "list_address",
             "view": "view_address",
             "add": "add_address",
             "change": "change_address",

@@ -97,7 +97,7 @@ class Person(AddressMixin, TimeModel):
         search_fields = ["name", "surname"] # ["name", "surname", "email", "full_name"]
         crud = True
         routes={
-            'list': "add_person",
+            'list': "list_person",
             'view': "view_person",
             'add': "add_person",
             'change': "change_person"
