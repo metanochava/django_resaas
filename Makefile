@@ -140,17 +140,6 @@ reload:
 
 
 # =========================================================
-# HELPERS
-# =========================================================
-
-clean:
-	find . -type d -name "__pycache__" -prune -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	@echo "Cache Python removida."
-
-
-# =========================================================
 # LIMPAR MIGRATIONS
 # =========================================================
 
