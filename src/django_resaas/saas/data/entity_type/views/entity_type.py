@@ -459,14 +459,16 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
         # 🔥 EntityType
         EntityTypeGroup.objects.get_or_create(
             entity_type=tipo,
-            group=group
+            group=group,
+            defaults={"state": "Active"}
         )
 
         # 🔥 Entitys
         for entity in Entity.objects.filter(entity_type_id=id):
             EntityGroup.objects.get_or_create(
                 entity=entity,
-                group=group
+                group=group,
+                defaults={"state": "Active"}
             )
 
         return Response({
@@ -501,7 +503,8 @@ class EntityTypeAPIView(viewsets.ModelViewSet):
 
         EntityTypeGroup.objects.get_or_create(
             entity_type=tipo,
-            group=group
+            group=group,
+            defaults={"state": "Active"}
         )
 
         return Response({"success": True})

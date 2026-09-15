@@ -187,9 +187,9 @@ class EntityAPIView(viewsets.ModelViewSet):
             EntityUser.objects.get_or_create(
                 user=user,
                 entity=entity,
-                state = 'Active'
+                defaults={"state": "Active"}
             )
-         
+
             # ------------------------
             # 🔥 HERDAR GRUPOS DO TIPO ENTIDADE
             # ------------------------
@@ -198,7 +198,7 @@ class EntityAPIView(viewsets.ModelViewSet):
                 EntityGroup.objects.get_or_create(
                     entity = entity,
                     group = te.group,
-                    state = 'Active'
+                    defaults={"state": "Active"}
                 )
                 # user.groups.add(te.group)
 
@@ -219,7 +219,7 @@ class EntityAPIView(viewsets.ModelViewSet):
             BranchUser.objects.get_or_create(
                 user=user,
                 branch=branch,
-                state = 'Active'
+                defaults={"state": "Active"}
             )
 
             # ------------------------
@@ -230,14 +230,14 @@ class EntityAPIView(viewsets.ModelViewSet):
                 BranchGroup.objects.get_or_create(
                     branch=branch,
                     group=e.group,
-                    state = 'Active'
+                    defaults={"state": "Active"}
                 )
 
                 BranchUserGroup.objects.get_or_create(
                     user=user,
                     branch=branch,
                     group=e.group,
-                    state = 'Active'
+                    defaults={"state": "Active"}
                 )
             
 
@@ -879,14 +879,15 @@ class EntityAPIView(viewsets.ModelViewSet):
         # 🔥 Entity
         EntityGroup.objects.create(
             entity=entity,
-            group=group
+            group=group,
+            state="Active"
         )
 
         # 🔥 Propaga para sucursais
         sucursais = Branch.objects.filter(entity=entity)
 
         BranchGroup.objects.bulk_create([
-            BranchGroup(branch=s, group=group)
+            BranchGroup(branch=s, group=group, state="Active")
             for s in sucursais
         ], ignore_conflicts=True)
 
@@ -908,14 +909,15 @@ class EntityAPIView(viewsets.ModelViewSet):
 
         EntityGroup.objects.get_or_create(
             entity=entity,
-            group=group
+            group=group,
+            defaults={"state": "Active"}
         )
 
         # 🔥 Propaga para sucursais
         sucursais = Branch.objects.filter(entity=entity)
 
         BranchGroup.objects.bulk_create([
-            BranchGroup(branch=s, group=group)
+            BranchGroup(branch=s, group=group, state="Active")
             for s in sucursais
         ], ignore_conflicts=True)
 
