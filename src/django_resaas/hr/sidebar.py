@@ -21,7 +21,7 @@ ALL = [{
     # 🏢 ORGANIZAÇÃO (grupo: gerador de menu suporta "submenu" aninhado,
     # ver "Dev" em django_resaas/saas/sidebar.py)
     {
-        "menu": "Organização",
+        "menu": "Organization",
         "icon": "corporate_fare",
         "role": "list_department",
         "submenu": [
@@ -90,7 +90,7 @@ ALL = [{
 
     # 🕒 TEMPO & PRESENÇA (grupo)
     {
-        "menu": "Tempo & Presença",
+        "menu": "Time & Attendance",
         "icon": "schedule",
         "role": "list_shift",
         "submenu": [
@@ -150,7 +150,7 @@ ALL = [{
 
     # 💰 SALÁRIO & FOLHA DE PAGAMENTO (grupo)
     {
-        "menu": "Salário & Folha de Pagamento",
+        "menu": "Salary & Payroll",
         "icon": "payments",
         "role": "list_salarycomponent",
         "submenu": [
@@ -237,7 +237,7 @@ ALL = [{
 
     # 🏖️ AUSÊNCIAS (grupo)
     {
-        "menu": "Ausências",
+        "menu": "Absences",
         "icon": "beach_access",
         "role": "list_leavetype",
         "submenu": [
@@ -286,7 +286,7 @@ ALL = [{
 
     # 🧑‍💼 RECRUTAMENTO (grupo)
     {
-        "menu": "Recrutamento",
+        "menu": "Recruitment",
         "icon": "work",
         "role": "list_jobopening",
         "submenu": [
@@ -389,7 +389,7 @@ ALL = [{
 
     # 📈 DESEMPENHO (grupo)
     {
-        "menu": "Desempenho",
+        "menu": "Performance",
         "icon": "trending_up",
         "role": "list_performancecycle",
         "submenu": [
@@ -440,7 +440,7 @@ ALL = [{
 
     # 🎓 FORMAÇÃO (grupo)
     {
-        "menu": "Formação",
+        "menu": "Training",
         "icon": "school",
         "role": "list_course",
         "submenu": [
@@ -477,7 +477,7 @@ ALL = [{
 
     # 🔄 CICLO DE VIDA DO COLABORADOR (grupo)
     {
-        "menu": "Ciclo de Vida do Colaborador",
+        "menu": "Employee Lifecycle",
         "icon": "compare_arrows",
         "role": "list_promotion",
         "submenu": [
