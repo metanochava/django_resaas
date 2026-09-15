@@ -3,8 +3,27 @@
 # =========================
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+# Força a importação de django.contrib.auth.admin AGORA, para garantir
+# que o seu `admin.site.register(Group, GroupAdmin)` (top-level, side
+# effect da importação) já correu antes do unregister() abaixo -
+# django_resaas.saas está antes de django.contrib.auth em
+# INSTALLED_APPS (ver MY_APPS em dev/settings.py), por isso o
+# admin.autodiscover() do Django importaria "auth.admin" DEPOIS deste
+# módulo, reregistando o Group e anulando silenciosamente o
+# unregister() se ele dependesse dessa ordem. Import cacheado pelo
+# Python - quando o autodiscover tentar importar de novo, é no-op.
+import django.contrib.auth.admin  # noqa: F401
+from django.contrib.auth.models import Group as DjangoAuthGroup
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.admin import GenericTabularInline
+
+# django.contrib.auth regista automaticamente o seu próprio Group
+# (auth.Group, em "Authentication and Authorization") - RESAAS tem o
+# seu próprio model Group (ver ResaasGroup abaixo), que é o único
+# usado nas relações de permissões/tenant. O de auth.Group fica
+# redundante e confuso no admin, por isso é removido.
+if admin.site.is_registered(DjangoAuthGroup):
+    admin.site.unregister(DjangoAuthGroup)
 
 # =========================
 # Base
