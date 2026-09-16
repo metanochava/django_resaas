@@ -3,6 +3,7 @@ from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from rest_framework import filters
 
+from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.data.app.serializers.app import AppSerializer
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.entity_type import EntityType
@@ -15,14 +16,10 @@ class AppAPIView(viewsets.ModelViewSet):
     serializer_class = AppSerializer
     queryset = App.objects.all()
     lookup_field = "id"
+    pagination_class = ResaasPagination
 
     def get_queryset(self):
         return self.queryset.order_by('name')
-
-    def list(self, request, *args, **kwargs):
-        self._paginator = None
-        serializer = self.get_serializer(self.get_queryset(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
     # ===============================
     # 🔥 GET ENTITY TYPES DESTA APP

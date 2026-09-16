@@ -18,10 +18,10 @@ class TestAppState:
 
         App.objects.create(name="billing", state="Active")
 
-        response = client.get("/api/django_resaas/apps/")
+        response = client.get("/api/django_resaas/apps/", {"page_size": 0})
 
         assert response.status_code == 200
-        row = next(r for r in response.data if r["name"] == "billing")
+        row = next(r for r in response.data["results"] if r["name"] == "billing")
         # BaseSerializer represents a choice field as {id,value,label}
         # on read (same convention as Branch.state elsewhere)
         assert row["state"]["value"] == "Active"

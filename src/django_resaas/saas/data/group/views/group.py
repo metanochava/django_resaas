@@ -28,6 +28,7 @@ from rest_framework.response import Response
 # =========================
 # Local application (absolute import)
 # =========================
+from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.data.group.serializers.group import GroupSerializer
 
 
@@ -41,7 +42,7 @@ class GroupAPIView(viewsets.ModelViewSet):
     lookup_field = "id"
     filter_backends = (filters.SearchFilter,)
     search_fields = ["id", "name"]
-    pagination_class = None
+    pagination_class = ResaasPagination
 
     # -------------------------
     # Queryset

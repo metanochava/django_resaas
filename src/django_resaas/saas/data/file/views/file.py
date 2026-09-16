@@ -18,6 +18,7 @@ from rest_framework.response import Response
 # Local application
 # =========================
 from django_resaas.saas.core.services.disc_manager import DiskManegarService
+from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.core.utils.translate import Translate
 
 from django_resaas.saas.models.file import File
@@ -34,6 +35,7 @@ class FileAPIView(viewsets.ModelViewSet):
     serializer_class = FileSerializer
     queryset = File.objects.all()
     lookup_field = "id"
+    pagination_class = ResaasPagination
 
     def get_queryset(self):
         return self.queryset.order_by("-id")
@@ -72,12 +74,6 @@ class FileAPIView(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    def list(self, request, *args, **kwargs):
-        self._paginator = None
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     def update(self, request, *args, **kwargs):
         file = self.get_object()
         serializer = self.get_serializer(
@@ -93,7 +89,12 @@ class FileAPIView(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
 
-        entity_id = request.headers.get("E")
+        # Standard RESAAS tenant context (X-RESAAS-Context -> tenant
+        # middleware -> request.entity_id), same as every other
+        # tenant-scoped view - not a one-off "E" header nothing in the
+        # frontend ever sent, which made every generic-form file upload
+        # fail with ENTITY_NOT_PROVIDED.
+        entity_id = getattr(request, "entity_id", None)
 
         if not entity_id:
             return Response(
