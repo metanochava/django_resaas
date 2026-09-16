@@ -49,7 +49,7 @@ ALL = [
         "route": "list_file",
         "add_role": "add_file",
         "add_route": "add_file",
-        'crud': { 'module': 'django_resaas', 'model': 'File' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'File' }
     },
     {
         "menu": "Translation",
@@ -58,7 +58,7 @@ ALL = [
         "route": "list_translation",
         "add_role": "add_translation",
         "add_route": "add_translation",
-        'crud': { 'module': 'django_resaas', 'model': 'Translation' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'Translation' }
     },
     {
         "menu": "EntityType",
@@ -103,10 +103,7 @@ ALL = [
         "route": "list_app",
         "add_role": "add_app",
         "add_route": "add_app",
-        "crud": {
-            "module": "django_resaas",
-            "model": "App"
-        }
+        # "crud": { "module": "django_resaas", "model": "App"  }
     },
     {
         "menu": "Model",
@@ -115,7 +112,7 @@ ALL = [
         "route": "list_model",
         "add_role": "add_model",
         "add_route": "add_model",
-        'crud': { 'module': 'django_resaas', 'model': 'Model' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'Model' }
     }, 
     {
         "menu": "Cometario",
@@ -124,7 +121,7 @@ ALL = [
         "route": "list_cometario",
         "add_role": "add_cometario",
         "add_route": "add_cometario",
-        'crud': { 'module': 'django_resaas', 'model': 'Cometario' }
+        # 'crud': { 'module': 'django_resaas', 'model': 'Cometario' }
     },
 
     {
