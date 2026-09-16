@@ -6,6 +6,7 @@ from rest_framework import filters, status, viewsets
 from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 
+from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.models.group import Group
 from django_resaas.saas.models.user import User
 from django_resaas.saas.models.entity_type_model import EntityTypeModel
@@ -19,7 +20,7 @@ class PermissionAPIView(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ["id", "name"]
     lookup_field = "id"
-    pagination_class = None
+    pagination_class = ResaasPagination
 
     def get_queryset(self):
         queryset = Permission.objects.select_related("content_type").annotate(
@@ -45,13 +46,6 @@ class PermissionAPIView(viewsets.ModelViewSet):
             "content_type__app_label",
             "content_type__model",
             "codename",
-        )
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        return Response(
-            self.get_serializer(queryset, many=True).data,
-            status=status.HTTP_200_OK,
         )
 
     @resaas_action(detail=False, methods=["POST"], url_path="setGroupPermissions")
