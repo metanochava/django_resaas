@@ -56,7 +56,10 @@ def test_file_create_uses_tenant_context_not_a_custom_header(
     # a separate, pre-existing gap this test isn't about. Stub it out
     # to isolate the entity_id fix under test.
     from django_resaas.saas.core.services.disc_manager import DiskManegarService
-    monkeypatch.setattr(DiskManegarService, "freeSpace", staticmethod(lambda *a, **k: True))
+    monkeypatch.setattr(
+        DiskManegarService, "freeSpace",
+        staticmethod(lambda *a, **k: True), raising=False,
+    )
 
     upload = SimpleUploadedFile("photo.jpg", b"fake-bytes", content_type="image/jpeg")
     response = tenant["client"].post(
