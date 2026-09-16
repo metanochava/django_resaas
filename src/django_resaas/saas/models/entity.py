@@ -41,18 +41,16 @@ class Entity(TimeModel):
         help_text='Official logo of the entity.',
     )
 
-    # =========================================================
-    # ADDRESS
-    # =========================================================
-
-    address = models.OneToOneField(
-        'django_resaas.Address',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='entity',
-        help_text='Main address of the entity.',
+    dashboard = models.CharField(
+        default='Auto',
+        choices=(
+            ('None', 'None'),
+            ('Auto', 'Auto'),
+            ('Manual', 'Manual'),
+        ),
+        help_text='Define how the dashboard is generated for this entity type.'
     )
+
 
     # =========================================================
     # ENTITY TYPE
