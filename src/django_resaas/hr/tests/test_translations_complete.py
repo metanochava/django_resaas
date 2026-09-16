@@ -9,6 +9,7 @@ lang/<code>.py, or the shared saas core one)."""
 import re
 
 import pytest
+from django.apps import apps
 
 from django_resaas.hr.sidebar import ALL as HR_SIDEBAR
 from django_resaas.hr.dashboard import DASHBOARD as HR_DASHBOARD
@@ -47,6 +48,22 @@ FR = {**saas_frfr.key_value, **hr_frfr.key_value}
 ES = {**saas_eses.key_value, **hr_eses.key_value}
 
 
+def _choice_labels():
+    # Auto-discovered via Django's app registry, not a hand-maintained
+    # list - a hand-maintained list is exactly what let
+    # SalaryComponent.TYPE_CHOICES/CALCULATION_CHOICES slip through the
+    # first translation pass (they're plain module-level tuples, not
+    # models.TextChoices, so a `TextChoices` grep never found them).
+    for Model in apps.get_app_config("hr").get_models():
+        for field in Model._meta.get_fields():
+            choices = getattr(field, "choices", None)
+            if not choices:
+                continue
+            for _, label in choices:
+                if isinstance(label, str):
+                    yield label
+
+
 @pytest.mark.parametrize("label", list(_sidebar_menu_labels(HR_SIDEBAR)))
 def test_sidebar_menu_label_is_canonical_english(label):
     assert not NON_ENGLISH_CHARS.search(label), (
@@ -71,5 +88,19 @@ def test_dashboard_widget_label_is_canonical_english(label):
 
 @pytest.mark.parametrize("label", list(_dashboard_labels(HR_DASHBOARD)))
 def test_dashboard_widget_label_is_translated(label):
+    for lang_name, lang in (("pt-pt", PT), ("fr-fr", FR), ("es-es", ES)):
+        assert label in lang, f"{label!r} has no {lang_name} translation"
+
+
+@pytest.mark.parametrize("label", sorted(set(_choice_labels())))
+def test_model_choice_label_is_canonical_english(label):
+    assert not NON_ENGLISH_CHARS.search(label), (
+        f"hr model choice label {label!r} looks non-English - "
+        "canonical strings must originate in English (CLAUDE.md #82)"
+    )
+
+
+@pytest.mark.parametrize("label", sorted(set(_choice_labels())))
+def test_model_choice_label_is_translated(label):
     for lang_name, lang in (("pt-pt", PT), ("fr-fr", FR), ("es-es", ES)):
         assert label in lang, f"{label!r} has no {lang_name} translation"

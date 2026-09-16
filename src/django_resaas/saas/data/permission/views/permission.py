@@ -22,11 +22,17 @@ class PermissionAPIView(viewsets.ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        tipo_id = getattr(self.request, "entity_type_id", None)
         queryset = Permission.objects.select_related("content_type").annotate(
             content_type_model=F("content_type__model"),
             content_type_app=F("content_type__app_label"),
         )
+
+        # Restricting by EntityType is opt-in via an explicit query param,
+        # mirroring ModelAPIView.get_queryset() - deriving it automatically
+        # from request.entity_type_id broke the default permission list for
+        # any EntityType without a fully curated EntityTypeModel allowlist
+        # (e.g. "SaaS"), silently returning zero permissions.
+        tipo_id = self.request.query_params.get("entitytype")
 
         if tipo_id:
             queryset = queryset.filter(
