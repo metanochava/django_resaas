@@ -238,6 +238,7 @@ class UserAPIView(viewsets.ModelViewSet):
                 "id": data["id"],
                 "entityType": data["entity_type"],
                 "name": data["name"],
+                "dashboard": data["dashboard"],
                 "created_at": (
                     data["created_at"].split("-")[0]
                     if data.get("created_at")
