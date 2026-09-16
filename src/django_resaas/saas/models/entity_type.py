@@ -48,6 +48,18 @@ class EntityType(TimeModel):
         help_text='Allow entities to be created for this entity type.'
     )
 
+    
+
+    dashboard = models.CharField(
+        default='None',
+        choices=(
+            ('None', 'None'),
+            ('Auto', 'Auto'),
+            ('Manual', 'Manual'),
+        ),
+        help_text='Define how the dashboard is generated for this entity type.'
+    )
+
     # =========================================================
     # DEFAULT UI CONFIGURATION
     # =========================================================

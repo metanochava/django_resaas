@@ -132,12 +132,6 @@ ALL = [
     },
 
     {
-        "menu": "Criar App",
-        "icon": "add_box",
-        "role": "add_app",
-        "route": "add_app",
-    },
-    {
         "menu": "Scaffold",
         "icon": "developer_mode",  # 🔥 MUITO BOM
         "role": "view_scaffold",

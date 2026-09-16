@@ -130,12 +130,15 @@ class FileAPIView(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        data["entity"] = entity_id
         data["size"] = uploaded_file.size
 
+        # 'entity' is forced read-only by BaseSerializer.
+        # DEFAULT_READ_ONLY_FIELDS (same as BranchAPIView.perform_create),
+        # so data["entity"] alone is silently dropped by is_valid() -
+        # pass it straight to save() instead.
         serializer = FileGravarSerializer(data=data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
+        instance = serializer.save(entity_id=entity_id)
 
         return Response(
             FileSerializer(instance).data,
