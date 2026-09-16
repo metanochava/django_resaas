@@ -49,17 +49,6 @@ class EntityType(TimeModel):
     )
 
     
-
-    dashboard = models.CharField(
-        default='None',
-        choices=(
-            ('None', 'None'),
-            ('Auto', 'Auto'),
-            ('Manual', 'Manual'),
-        ),
-        help_text='Define how the dashboard is generated for this entity type.'
-    )
-
     # =========================================================
     # DEFAULT UI CONFIGURATION
     # =========================================================
