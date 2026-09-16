@@ -6,4 +6,4 @@ from django_resaas.saas.core.base.serializers import BaseSerializer
 class GroupSerializer(BaseSerializer):
     class Meta:
         model = Group
-        fields = "__all__"
+        fields = ['id', 'name', 'editable']
