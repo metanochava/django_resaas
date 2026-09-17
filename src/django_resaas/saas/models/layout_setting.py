@@ -76,11 +76,11 @@ class LayoutSetting(TimeModel):
     # =========================================================
 
     sidebar_width = models.PositiveIntegerField(
-        default=300,
+        default=320,
     )
 
     sidebar_mini_width = models.PositiveIntegerField(
-        default=70,
+        default=80,
     )
 
     sidebar_mini = models.BooleanField(
