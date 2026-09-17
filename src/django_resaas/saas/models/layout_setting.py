@@ -13,11 +13,6 @@ class LayoutSetting(TimeModel):
         ('bottom-right', 'Bottom Right'),
     ]
 
-    SIDEBAR_POSITION_CHOICES = [
-        ('left', 'Left'),
-        ('right', 'Right'),
-    ]
-
     CONTENT_WIDTH_CHOICES = [
         ('fluid', 'Fluid'),
         ('boxed', 'Boxed'),
@@ -199,7 +194,6 @@ class LayoutSetting(TimeModel):
             "login_position": self.login_position,
 
             "sidebar": {
-                "position": self.sidebar_position,
                 "width": self.sidebar_width,
                 "mini_width": self.sidebar_mini_width,
                 "mini": self.sidebar_mini,
