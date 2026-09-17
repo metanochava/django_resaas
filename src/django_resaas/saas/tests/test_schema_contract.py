@@ -72,6 +72,19 @@ def test_model_metadata_is_exposed(bootstrap_tenant):
     assert schema["model"]["endpoint"] == "hr/salarycomponents/"
 
 
+def test_model_endpoint_honors_a_resaas_override(bootstrap_tenant):
+    """NotificationPreferenceAPIView registers itself with an explicit
+    @register_view("preferences", module="notifications") name instead
+    of the default (module + model_name + "s") - the schema's default
+    endpoint guess (notifications/notificationpreferences/) 404s, so
+    the model declares RESAAS.endpoint to override it (see
+    notifications/models/preference.py)."""
+    tenant = bootstrap_tenant("schema-endpoint-override-tenant", modules=("notifications",))
+    schema = _schema(tenant["client"], "notifications", "NotificationPreference")
+
+    assert schema["model"]["endpoint"] == "notifications/preferences/"
+
+
 def test_permissions_are_backend_computed(bootstrap_tenant):
     tenant = bootstrap_tenant("schema-permissions-tenant", modules=("hr",))
     schema = _schema(tenant["client"], "hr", "SalaryComponent")

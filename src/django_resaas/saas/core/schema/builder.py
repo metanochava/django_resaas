@@ -110,9 +110,19 @@ class ResaasSchemaBuilder:
             "pk":
                 self.meta.pk.name,
 
-            # endpoint padrão da API
+            # endpoint padrão da API - só correcto quando o modelo está
+            # registado via @register_view com o nome por omissão
+            # (module/model+"s"). Um @register_view(name=...) explícito
+            # com um nome diferente (ex.: NotificationPreference regista-se
+            # como "notifications/preferences", não
+            # "notifications/notificationpreferences") tem de o declarar
+            # aqui, tal como build_routes() já permite sobrepor os nomes
+            # de rota - sem isto o schema aponta para um URL que dá 404.
             "endpoint":
-                f"{self.app}/{self.model}s/",
+                self.get_resaas_value(
+                    "endpoint",
+                    f"{self.app}/{self.model}s/"
+                ),
 
         }
 

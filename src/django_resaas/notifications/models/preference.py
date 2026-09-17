@@ -63,6 +63,12 @@ class NotificationPreference(TimeModel):
     class RESAAS:
         label_field = "recipient_key"
         crud = True
+        # NotificationPreferenceAPIView registers itself as
+        # @register_view("preferences", module="notifications") (views/
+        # preference.py) - the real URL is notifications/preferences/,
+        # not the schema's default notifications/notificationpreferences/
+        # (which 404s). See ResaasSchemaBuilder.build_model().
+        endpoint = "notifications/preferences/"
 
     def __str__(self):
         return f"{self.recipient_key} | {self.channel} | {self.category}"
