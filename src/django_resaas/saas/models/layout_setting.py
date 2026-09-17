@@ -80,14 +80,8 @@ class LayoutSetting(TimeModel):
     # SIDEBAR
     # =========================================================
 
-    sidebar_position = models.CharField(
-        max_length=10,
-        choices=SIDEBAR_POSITION_CHOICES,
-        default='left',
-    )
-
     sidebar_width = models.PositiveIntegerField(
-        default=260,
+        default=300,
     )
 
     sidebar_mini_width = models.PositiveIntegerField(

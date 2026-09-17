@@ -563,16 +563,21 @@ class UserAPIView(viewsets.ModelViewSet):
 
 
     # ==========================================================
-    # 🔀 MENU DIRECTION (menu_rtl)
+    # 🔀 PERSONAL LAYOUT FIELD TOGGLE (generic)
     #
-    # menu_rtl vive exclusivamente em LayoutSetting (User >
-    # Entity > EntityType, ver User.get_effective_layout()) - não
-    # existe UserThemeOverride nem outro campo paralelo. Sempre sobre
-    # request.user (nunca outro id), por isso detail=False.
+    # Shared by toggle_menu_rtl and toggle_sidebar_mini below - both are
+    # a single boolean field living exclusively in LayoutSetting (User >
+    # Entity > EntityType, ver User.get_effective_layout()), toggled the
+    # exact same way: flip it on the user's own override if they already
+    # have one, otherwise fork a personal copy of the effective
+    # (Entity/EntityType) LayoutSetting with just that field flipped, so
+    # the rest of the inherited configuration (sidebar/header/footer/
+    # etc.) - and any OTHER tenant using that same shared LayoutSetting
+    # - is never mutated. Always over request.user (never another id),
+    # so every caller stays detail=False.
     # ==========================================================
 
-    @resaas_action(detail=False, methods=['POST'])
-    def toggle_menu_rtl(self, request, *args, **kwargs):
+    def _toggle_personal_layout_field(self, request, field_name):
         user = request.user
 
         entity = Entity.objects.filter(
@@ -580,20 +585,13 @@ class UserAPIView(viewsets.ModelViewSet):
         ).first()
 
         effective = user.get_effective_layout(entity)
-        current_value = effective.menu_rtl if effective else False
+        current_value = getattr(effective, field_name, False) if effective else False
 
         if user.layout_settings:
-            # Já tem override próprio - só troca o campo, preservando
-            # tudo o resto (sidebar/header/footer/etc.) desse
-            # LayoutSetting.
-            user.layout_settings.menu_rtl = not current_value
-            user.layout_settings.save(update_fields=['menu_rtl'])
+            setattr(user.layout_settings, field_name, not current_value)
+            user.layout_settings.save(update_fields=[field_name])
 
         else:
-            # Ainda sem override próprio - cria uma cópia pessoal do
-            # LayoutSetting efectivo (Entity/EntityType) com menu_rtl
-            # trocado, para não perder o resto da configuração
-            # herdada nem mutar um LayoutSetting partilhado por outros.
             copyable_fields = [
                 f.name for f in LayoutSetting._meta.fields
                 if f.name not in (
@@ -607,7 +605,7 @@ class UserAPIView(viewsets.ModelViewSet):
                 if effective else {}
             )
 
-            data['menu_rtl'] = not current_value
+            data[field_name] = not current_value
             data['state'] = 'Active'
 
             new_layout = LayoutSetting.objects.create(**data)
@@ -619,6 +617,17 @@ class UserAPIView(viewsets.ModelViewSet):
             MeSerializer(user, context={'request': request}).data,
             status=status.HTTP_200_OK,
         )
+
+    # menu_rtl vive exclusivamente em LayoutSetting - ver
+    # _toggle_personal_layout_field() acima.
+    @resaas_action(detail=False, methods=['POST'])
+    def toggle_menu_rtl(self, request, *args, **kwargs):
+        return self._toggle_personal_layout_field(request, 'menu_rtl')
+
+    # sidebar_mini idem - ver _toggle_personal_layout_field() acima.
+    @resaas_action(detail=False, methods=['POST'])
+    def toggle_sidebar_mini(self, request, *args, **kwargs):
+        return self._toggle_personal_layout_field(request, 'sidebar_mini')
 
     @resaas_action(
         detail=True,
