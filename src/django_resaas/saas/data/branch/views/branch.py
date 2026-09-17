@@ -36,6 +36,7 @@ from rest_framework.response import Response
 # =========================
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.services.disc_manager import DiskManegarService
+from django_resaas.saas.core.utils.pagination import ResaasPagination
 
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.file import File
@@ -60,6 +61,7 @@ class  BranchAPIView(viewsets.ModelViewSet):
     serializer_class = BranchSerializer
     queryset = Branch.objects.all()
     lookup_field = "id"
+    pagination_class = ResaasPagination
 
     def get_queryset(self):
         user = self.request.user

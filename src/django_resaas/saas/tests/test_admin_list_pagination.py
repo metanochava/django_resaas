@@ -84,6 +84,32 @@ def test_app_list_is_paginated(bootstrap_tenant):
     assert len(response.data["results"]) == 10
 
 
+def test_branch_list_is_paginated_and_supports_page_size_zero(bootstrap_tenant):
+    from django_resaas.saas.models.branch import Branch
+
+    tenant = bootstrap_tenant("branch-list")
+
+    for i in range(12):
+        Branch.objects.create(name=f"branch{i}", entity=tenant["entity"])
+
+    response = tenant["client"].get("/api/django_resaas/branchs/")
+
+    assert response.status_code == 200
+    # +1 for bootstrap_tenant's own "Main" branch.
+    assert response.data["count"] >= 13
+    assert len(response.data["results"]) == 10
+
+    # UserBranchesPanel.vue needs the full list in one go to render its
+    # checkbox picker, same as the other page_size=0 consumers already
+    # covered by test_permission_list.py.
+    all_response = tenant["client"].get(
+        "/api/django_resaas/branchs/", {"page_size": 0}
+    )
+
+    assert all_response.status_code == 200
+    assert len(all_response.data["results"]) == all_response.data["count"] >= 13
+
+
 def test_group_list_is_paginated(bootstrap_tenant):
     tenant = bootstrap_tenant("group-list")
 
