@@ -138,6 +138,79 @@ def test_char_field_metadata(bootstrap_tenant):
     assert name_field["max_length"] == 150
 
 
+def test_field_readonly_defaults_to_false(bootstrap_tenant):
+    """SalaryComponent declares no RESAAS.fields read_only override and
+    every one of its fields stays editable=True (the Django default) -
+    every field must still come back with an explicit read_only key,
+    not a missing one, same as required always being present."""
+    tenant = bootstrap_tenant("schema-field-readonly-default-tenant", modules=("hr",))
+    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+
+    name_field = _field(schema, "name")
+    assert name_field["read_only"] is False
+
+
+def test_field_readonly_override_and_required_interaction(bootstrap_tenant):
+    """User.RESAAS.fields declares password/email/mobile read_only - a
+    field a user can never fill in from this form (password/email/
+    mobile can only ever be changed by their own owner - UserSerializer
+    enforces this server-side) must not also carry a blocking
+    'required' validation rule the user has no way to satisfy."""
+    tenant = bootstrap_tenant("schema-field-readonly-tenant")
+    schema = _schema(tenant["client"], "django_resaas", "User")
+
+    email_field = _field(schema, "email")
+    assert email_field["read_only"] is True
+    assert email_field["required"] is False  # blank=True on the model field
+    assert all(r["type"] != "required" for r in email_field.get("rules", []))
+
+    password_field = _field(schema, "password")
+    assert password_field["read_only"] is True
+    assert password_field["required"] is True  # blank=False on the model field
+    # read_only wins - required alone would otherwise block submission
+    # over a field this form can never actually set.
+    assert all(r["type"] != "required" for r in password_field.get("rules", []))
+
+    # profile has its own RESAAS.fields entry (accept/max_size/multiple)
+    # but no read_only override - confirms the two configs are independent.
+    profile_field = _field(schema, "profile")
+    assert profile_field["read_only"] is False
+
+
+def test_field_readonly_derived_from_editable_false(bootstrap_tenant):
+    """id/entity/branch are declared editable=False on SoftBaseModel/
+    BaseModel (they're auto-set by the tenant middleware/perform_create,
+    never something a user fills in) - the schema must mark them
+    read_only automatically, the same way DRF's own ModelSerializer
+    would, without needing a RESAAS.fields override for every single
+    model that inherits these base fields."""
+    tenant = bootstrap_tenant("schema-field-editable-false-tenant", modules=("hr",))
+    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+
+    id_field = _field(schema, "id")
+    assert id_field["read_only"] is True
+
+
+def test_field_write_only_and_allow_null_and_default(bootstrap_tenant):
+    """write_only/allow_null/default are plain, always-present schema
+    keys (write_only via RESAAS.fields override, allow_null from the
+    model field's own `null`, default from the model field's own
+    `default`) - same "always explicit, never missing" contract as
+    required/read_only."""
+    tenant = bootstrap_tenant("schema-field-write-only-tenant", modules=("hr",))
+    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+
+    name_field = _field(schema, "name")
+    assert name_field["write_only"] is False
+    assert name_field["allow_null"] is False
+
+    is_taxable = _field(schema, "is_taxable")
+    # BooleanField with a default=True/False still reports its default
+    # back (used by the frontend to prefill a brand-new record's form -
+    # base_store.js's resetForm()).
+    assert "default" in is_taxable
+
+
 def test_choice_field_metadata(bootstrap_tenant):
     tenant = bootstrap_tenant("schema-field-choice-tenant", modules=("hr",))
     schema = _schema(tenant["client"], "hr", "SalaryComponent")
@@ -179,6 +252,38 @@ def test_foreign_key_field_metadata(bootstrap_tenant):
     employee = _field(schema, "employee")
     assert employee["type"] == "ForeignKey"
     assert employee["relation"] == "hr.Employee"
+
+
+def test_relation_field_carries_relation_config(bootstrap_tenant):
+    """A ForeignKey/OneToOneField/ManyToManyField must come back with
+    everything a generic s-select/s-multiselect needs to offer a
+    Django-Admin-style "add related" button: which model to build a
+    create form for, its real endpoint (RESAAS.endpoint-aware, not a
+    re-guessed convention), and the add/change/view permission
+    codenames the frontend already knows how to check via
+    User.can()."""
+    tenant = bootstrap_tenant("schema-relation-config-tenant", modules=("hr",))
+    schema = _schema(tenant["client"], "hr", "Attendance")
+
+    employee = _field(schema, "employee")
+    assert employee["relation_config"] == {
+        "app": "hr",
+        "model": "Employee",
+        "endpoint": "hr/employees/",
+        "permissions": {
+            "add": "add_employee",
+            "change": "change_employee",
+            "view": "view_employee",
+        },
+    }
+
+
+def test_non_relation_field_has_no_relation_config(bootstrap_tenant):
+    tenant = bootstrap_tenant("schema-no-relation-config-tenant", modules=("hr",))
+    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+
+    name_field = _field(schema, "name")
+    assert "relation_config" not in name_field
 
 
 def test_date_and_datetime_field_metadata(bootstrap_tenant):

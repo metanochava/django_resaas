@@ -293,7 +293,21 @@ class User(
                 'accept': '.png,.jpg,.jpeg,.webp',
                 'max_size': 2 * 1024 * 1024,
                 'multiple': False
-            }
+            },
+
+            # password/email/mobile can only ever be changed by their
+            # own owner, never by another user editing this record -
+            # already enforced server-side (UserSerializer: 'password'
+            # isn't in Meta.fields at all; 'email'/'mobile' are
+            # explicitly read_only there - changing them requires the
+            # owner's own OTP-verified flow, data/user/views/
+            # profile_contact_otp.py). Declaring it here too makes the
+            # schema itself carry that truth, so every frontend
+            # component renders these fields read_only generically
+            # instead of a one-off per-page workaround.
+            'password': {'read_only': True},
+            'email': {'read_only': True},
+            'mobile': {'read_only': True},
 
         }
 
