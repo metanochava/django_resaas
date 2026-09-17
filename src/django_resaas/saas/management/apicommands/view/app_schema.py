@@ -149,6 +149,56 @@ def _relation_str(f: models.Field) -> Optional[str]:
         return None
 
 
+def _resolve_relation_model(f: models.Field):
+    """
+    Returns the actual related Model class for a ForeignKey/
+    OneToOneField/ManyToManyField, or None when it isn't a relation
+    field or the reference is still an unresolved lazy string (should
+    never happen once app registry is fully loaded, at request time,
+    but _relation_str() already guards the same case defensively).
+    """
+    if not isinstance(f, (models.ForeignKey, models.OneToOneField, models.ManyToManyField)):
+        return None
+
+    rel_model = f.remote_field.model
+    if isinstance(rel_model, str):
+        return None
+
+    return rel_model
+
+
+def _build_relation_config(related_model) -> Dict[str, Any]:
+    """
+    Django-Admin-style "add related" support: the schema is the only
+    place that knows a relation field's target model, so it's also the
+    only place that can hand the frontend everything a generic
+    s-select/s-multiselect needs to let a user create a related record
+    inline - which model/app to build a form for (reusing the exact
+    same {app, model} pair buildFormFromSchema() already takes), which
+    endpoint to POST it to (reusing ResaasSchemaBuilder.build_model()'s
+    own RESAAS.endpoint-aware resolution instead of re-guessing the
+    "{app}/{model}s/" convention here), and which permission codenames
+    gate add/change/view - the SAME naming convention
+    ResaasSchemaBuilder.build_permissions() already uses for the
+    primary model. Deliberately skips build_permissions() itself (it
+    queries ModelExtraAction for custom actions this doesn't need -
+    would be one extra DB query per relation field per schema call).
+    """
+    model_info = ResaasSchemaBuilder(Model=related_model).build_model()
+    related_name = related_model._meta.model_name
+
+    return {
+        "app": model_info["app"],
+        "model": model_info["class_name"],
+        "endpoint": model_info["endpoint"],
+        "permissions": {
+            "add": f"add_{related_name}",
+            "change": f"change_{related_name}",
+            "view": f"view_{related_name}",
+        },
+    }
+
+
 def _extract_min_max_from_validators(validators) -> Tuple[Optional[float], Optional[float], Optional[int], Optional[int]]:
     """
     Retorna: (min_value, max_value, min_length, max_length_validator)
@@ -191,7 +241,12 @@ def _build_rules(payload: dict, ftype: str) -> List[Dict[str, Any]]:
     rules = []
 
     # ---------------- REQUIRED ----------------
-    if payload.get("required"):
+    # A read_only field can never be filled in from this form (the value
+    # comes from wherever actually owns it), so validating it as
+    # required here would block submission over something the user has
+    # no way to satisfy - required only applies to fields the user can
+    # actually edit.
+    if payload.get("required") and not payload.get("read_only"):
         rules.append({
             "type": "required",
             "message": "Field is required"
@@ -247,6 +302,37 @@ def _get_resaas_field_config(field_obj):
 
     fields = getattr(resaas, "fields", {}) or {}
     return fields.get(field_obj.name, {})
+
+
+def _json_safe(value):
+    """Best-effort coercion of a Django field default into something the
+    Response's JSON renderer can actually serialize (UUID, Decimal, date/
+    datetime, model instances, etc. all fail json.dumps as-is). Anything
+    that already round-trips (str/int/float/bool/None) is returned
+    untouched; anything else falls back to str() rather than crashing
+    the whole schema response over one field's default."""
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    try:
+        return str(value)
+    except Exception:
+        return None
+
+
+def _get_field_default(field_obj):
+    """Django's own default resolution (field.get_default()) already
+    handles callable defaults (e.g. `default=list`, `default=uuid.uuid4`)
+    correctly - reading `field.default` directly would hand back the
+    callable itself instead of its value. auto_now/auto_now_add fields
+    (created_at/updated_at) report has_default()=False, which is
+    correct here: their value comes from Django's pre_save() at save
+    time, not from a static default a form should ever prefill."""
+    try:
+        if not field_obj.has_default():
+            return None
+        return _json_safe(field_obj.get_default())
+    except Exception:
+        return None
 
 
 # ==========================================================
@@ -339,6 +425,20 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
     if payload.get("choices"):
         component = "s-select"
 
+    # Generic read_only support, for ANY field type - payload["read_only"]
+    # is already fully resolved by _schema_fields() (field.editable=False
+    # OR a RESAAS.fields override, e.g. RESAAS.fields = {"email":
+    # {"read_only": True}}), so read it from there instead of
+    # recomputing it from the RESAAS config alone (which would miss the
+    # editable=False case). Mirrors "required" being a plain schema-level
+    # flag every component can read, and also flows straight into
+    # props["readonly"] (the actual HTML/Quasar attribute name) so it
+    # reaches the real <s-input>/etc. via the existing v-bind="f.props"
+    # every field already goes through - no per-model frontend
+    # workaround needed.
+    if payload.get("read_only"):
+        props["readonly"] = True
+
     result = {
         "component": component,
         "ui": ui,
@@ -397,6 +497,47 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
         except Exception:
             required = True
 
+        cfg = _get_resaas_field_config(field_obj)
+
+        # read_only: mirrors DRF's own ModelSerializer behavior - a field
+        # Django already excludes from forms (editable=False, e.g. the
+        # id/entity/branch fields BaseModel/SoftBaseModel declare) is
+        # read_only for the exact same reason a serializer would mark it
+        # so automatically. A RESAAS.fields override covers the fields
+        # that stay editable=True at the model level but are still only
+        # ever settable through a separate flow (e.g. User.email/mobile/
+        # password - see saas/models/user.py).
+        read_only = (not bool(getattr(field_obj, "editable", True))) or bool(cfg.get("read_only", False))
+
+        # write_only: no Django model-level equivalent (nothing like
+        # DRF's Field(write_only=True) exists on a model field) - purely
+        # a RESAAS.fields declarative override, for fields that are
+        # accepted on input but the real serializer never returns (e.g.
+        # a set-password field). The schema only ever *describes* this -
+        # actual enforcement still lives in the serializer, exactly like
+        # read_only above.
+        write_only = bool(cfg.get("write_only", False))
+
+        # allow_null: Django already tracks this natively (field.null) -
+        # no override needed, same as required reading field.blank
+        # directly.
+        allow_null = bool(getattr(field_obj, "null", False))
+
+        # default: the value a new/add form can safely prefill and the
+        # value the backend itself falls back to when the field is
+        # omitted - see _get_field_default() for why field.get_default()
+        # (not field.default) is used.
+        default_value = _get_field_default(field_obj)
+
+        # initial: a rarer, form-only prefill override for when the
+        # form's starting value should differ from the actual model/DB
+        # default (e.g. defaulting a status picker to "draft" in the UI
+        # without changing what the column defaults to at the DB level).
+        # Falls back to `default` when a model declares no override, so
+        # every field still has one sensible initial value to seed a new
+        # form with.
+        initial_value = cfg.get("initial", default_value)
+
         # choices
         choices = None
         try:
@@ -425,6 +566,11 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
             "verbose_name": str(getattr(field_obj, "verbose_name", "") or ""),
             "help_text": str(getattr(field_obj, "help_text", "") or ""),
             "required": bool(required),
+            "read_only": bool(read_only),
+            "write_only": bool(write_only),
+            "allow_null": bool(allow_null),
+            "default": default_value,
+            "initial": initial_value,
             "choices": choices or [],
             "relation": relation,  # None se não for relacional
             "max_length": max_length,
@@ -432,6 +578,13 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
             "min": min_v,
             "max": max_v,
         }
+
+        # relation_config: Django-Admin-style "add related" metadata -
+        # only relation fields get it, see _build_relation_config().
+        if relation:
+            related_model = _resolve_relation_model(field_obj)
+            if related_model is not None:
+                payload["relation_config"] = _build_relation_config(related_model)
 
         # limpa keys None pra ficar bonito
         payload = {k: v for k, v in payload.items() if v is not None}
