@@ -1,6 +1,6 @@
 ALL = [{
 'MENU' :"Hr",
-'ICON' :"menu",
+'ICON' :"groups",
 'SUBMENUS' :[
     {
         "menu": "Dashboard",

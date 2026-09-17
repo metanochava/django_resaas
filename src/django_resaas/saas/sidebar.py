@@ -1,7 +1,7 @@
 ALL = [
 {
 'MENU' : "Engine",
-'ICON' : "menu",  # 🔥 mais dev
+'ICON' : "hub",  # 🔥 mais dev
 
 'SUBMENUS' : [
     {
