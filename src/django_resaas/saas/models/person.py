@@ -20,7 +20,7 @@ class Person(AddressMixin,TimeModel):
     full_name=models.CharField(max_length=300,null=True,blank=True,editable=False)
     preferred_name=models.CharField(max_length=150,null=True,blank=True)
 
-    gender=models.CharField(max_length=1,choices=GENDER_CHOICES,null=True,blank=True)
+    gender=models.CharField(max_length=100,choices=GENDER_CHOICES,null=True,blank=True)
     date_of_birth=models.DateField(null=True,blank=True)
     marital_status=models.CharField(max_length=20,choices=MARITAL_STATUS_CHOICES,null=True,blank=True)
 

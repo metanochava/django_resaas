@@ -607,4 +607,9 @@ key_value = {
 
     "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br><br>We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.": "Certaines informations relatives au compte, à l’entité, à la succursale et au système peuvent être collectées et traitées afin de fournir une assistance, de diagnostiquer et de résoudre des problèmes techniques, de maintenir la sécurité et d’améliorer la qualité de nos services. Ces informations peuvent être partagées avec des administrateurs autorisés ou des prestataires de services lorsque cela est nécessaire, conformément à la Politique de confidentialité et aux Conditions d’utilisation applicables. <br>  Nous pourrons vous contacter par e-mail ou par d’autres canaux de communication autorisés si des informations supplémentaires sont nécessaires ou pour vous fournir des mises à jour concernant votre demande. Pour toute question relative à la confidentialité, à la protection des données ou à des questions juridiques, veuillez contacter votre organisation ou l’administrateur système compétent.",
 
+    # employee edit
+    "Generated automatically": "Généré automatiquement",
+    "Save changes": "Enregistrer les modifications",
+    "Use Promotion/Transfer to change this": "Utilisez Promotion/Mutation pour modifier ceci",
+
 }
