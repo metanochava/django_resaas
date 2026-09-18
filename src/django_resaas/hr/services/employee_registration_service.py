@@ -13,10 +13,13 @@ create a new one).
 """
 from django.db import transaction, IntegrityError
 
-from django_resaas.saas.models.person import Person
 from django_resaas.saas.models.entity import Entity
-from django_resaas.saas.data.person.serializers.person import PersonSerializer
-from django_resaas.saas.data.person_contact.serializers.person_contact import PersonContactSerializer
+from django_resaas.saas.core.services.person_registration_service import (
+    PersonRegistrationError,
+    resolve_person,
+    create_documents,
+    create_contacts,
+)
 
 from django_resaas.hr.models.employee import Employee
 from django_resaas.hr.serializers.employee import EmployeeSerializer
@@ -74,50 +77,14 @@ def register_employee(
         to auto-generate, matching EmployeeAPIView.perform_create's own
         behaviour for a plain, non-compound Employee create).
     """
-    if person_id:
-        try:
-            person = Person.objects.select_for_update().get(id=person_id)
-        except Person.DoesNotExist:
-            raise EmployeeRegistrationError({"person_id": ["Person not found."]})
-    else:
-        person_serializer = PersonSerializer(
-            data=person_data or {}, context={"request": request}
+    try:
+        person = resolve_person(
+            request=request, person_id=person_id, person_data=person_data, photo=photo,
         )
-
-        if not person_serializer.is_valid():
-            raise EmployeeRegistrationError({"person": person_serializer.errors})
-
-        person = person_serializer.save(
-            created_by=request.user, updated_by=request.user,
-        )
-
-        if photo:
-            person.photo = photo
-            person.save(update_fields=["photo"])
-
-    for doc in documents or []:
-        person.documents.create(
-            tipo_id=doc.get("tipo"),
-            numero=doc.get("numero"),
-            data_emissao=doc.get("data_emissao") or None,
-            data_validade=doc.get("data_validade") or None,
-            arquivo=doc.get("arquivo") or None,
-            created_by=request.user,
-            updated_by=request.user,
-        )
-
-    for contact in contacts or []:
-        contact_serializer = PersonContactSerializer(
-            data={**contact, "person": person.id},
-            context={"request": request},
-        )
-
-        if not contact_serializer.is_valid():
-            raise EmployeeRegistrationError({"contacts": contact_serializer.errors})
-
-        contact_serializer.save(
-            created_by=request.user, updated_by=request.user,
-        )
+        create_documents(request=request, person=person, documents=documents)
+        create_contacts(request=request, person=person, contacts=contacts)
+    except PersonRegistrationError as exc:
+        raise EmployeeRegistrationError(exc.errors)
 
     # Employee.person/branch already has a DB-level unique_together
     # (hr/models/employee.py) - this upfront check only exists for a
