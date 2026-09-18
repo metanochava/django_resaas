@@ -19,7 +19,6 @@ class Person(AddressMixin,TimeModel):
     ]
 
     blood_type=models.CharField(
-        max_length=3,
         choices=BLOOD_TYPE_CHOICES,
         null=True,
         blank=True
