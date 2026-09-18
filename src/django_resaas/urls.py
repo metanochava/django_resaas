@@ -69,6 +69,7 @@ from django_resaas.saas.data.model.views.model import ModelAPIView
 from django_resaas.saas.data.app.views.app import AppAPIView
 from django_resaas.saas.data.user.views.user import UserAPIView
 from django_resaas.saas.data.person.views.person import PersonAPIView
+from django_resaas.saas.data.person_contact.views.person_contact import PersonContactAPIView
 from django_resaas.saas.data.theme.views.theme import ThemeAPIView
 from django_resaas.saas.data.layout_setting.views.layout_setting import LayoutSettingAPIView
 from django_resaas.saas.management.apicommands.view.scaffold import ScaffoldAPIView
@@ -122,6 +123,7 @@ routerdjango_resaas.register("entitys", EntityAPIView, basename="entitys")
 routerdjango_resaas.register("branchs", BranchAPIView, basename="sucursais")
 routerdjango_resaas.register("users", UserAPIView, basename="users")
 routerdjango_resaas.register("persons", PersonAPIView, basename="persons")
+routerdjango_resaas.register("personcontacts", PersonContactAPIView, basename="personcontacts")
 
 
 routerauth.register("groups", GroupAPIView, basename="groups")

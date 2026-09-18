@@ -30,7 +30,9 @@ class PersonSerializer(BaseSerializer):
         return data['profile']
 
     def get_age(self, obj):
-        return obj.age()
+        # Person.age is a @property, not a method - obj.age() would try
+        # to call its result (an int or None) as a function.
+        return obj.age
 
     def create(self, validated_data):
         address_data = validated_data.pop("address", None)
