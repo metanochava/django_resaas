@@ -449,4 +449,15 @@ key_value = {
     "New request": "Nouvelle Demande",
     "View of": "Vue de",
     "—": "—",
+
+    # employee page
+    "Professional data": "Données professionnelles",
+    "Employee code": "Code de l'employé",
+    "Employment status": "Statut d'emploi",
+    "Job position": "Poste",
+    "Save employee": "Enregistrer l'employé",
+    "The employee form has unsaved information. Are you sure you want to leave?": "Le formulaire de l'employé contient des informations non enregistrées. Voulez-vous vraiment quitter ?",
+    "This person is already an employee in this branch.": "Cette personne est déjà employée dans cette succursale.",
+    "View employee": "Voir l'employé",
+
 }

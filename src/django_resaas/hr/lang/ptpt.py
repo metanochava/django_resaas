@@ -449,4 +449,15 @@ key_value = {
     "New request": "Novo Pedido",
     "View of": "Vista de",
     "—": "—",
+
+    # employee page
+    "Professional data": "Dados profissionais",
+    "Employee code": "Código do funcionário",
+    "Employment status": "Estado do vínculo",
+    "Job position": "Cargo",
+    "Save employee": "Guardar funcionário",
+    "The employee form has unsaved information. Are you sure you want to leave?": "O formulário do funcionário tem informação por guardar. Tem a certeza de que quer sair?",
+    "This person is already an employee in this branch.": "Esta pessoa já é funcionária nesta sucursal.",
+    "View employee": "Ver funcionário",
+
 }
