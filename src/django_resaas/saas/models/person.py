@@ -16,7 +16,6 @@ class Person(AddressMixin,TimeModel):
     user=models.OneToOneField("django_resaas.User",on_delete=models.CASCADE,related_name="person",null=True,blank=True)
 
     name=models.CharField(max_length=100,null=True)
-    middle_name=models.CharField(max_length=100,null=True,blank=True)
     surname=models.CharField(max_length=100,null=True)
     full_name=models.CharField(max_length=300,null=True,blank=True,editable=False)
     preferred_name=models.CharField(max_length=150,null=True,blank=True)
@@ -43,7 +42,7 @@ class Person(AddressMixin,TimeModel):
     documents=GenericRelation("django_resaas.Document")
 
     def save(self,*args,**kwargs):
-        self.full_name=" ".join(x.strip() for x in (self.name,self.middle_name,self.surname) if x and x.strip()) or None
+        self.full_name=" ".join(x.strip() for x in (self.name,self.surname) if x and x.strip()) or None
         if self.email:self.email=self.email.strip().lower()
         if self.secondary_email:self.secondary_email=self.secondary_email.strip().lower()
         super().save(*args,**kwargs)
@@ -65,22 +64,6 @@ class Person(AddressMixin,TimeModel):
 
     class RESAAS:
         label_field="full_name"
-        search_fields=["name","middle_name","surname","full_name","preferred_name","email","phone"]
+        search_fields=["name","surname","full_name","preferred_name","email","phone"]
         crud=True
         routes={"list":"list_person","view":"view_person","add":"add_person","change":"change_person"}
-
-        # Django's ImageField.get_internal_type() returns "FileField" (it
-        # doesn't override FileField's own), so app_schema.py's
-        # _resolve_ui() always resolves `photo` through the FileField
-        # branch, whose accept default is "*" - without this override the
-        # schema would let ANY file type through and the frontend's own
-        # image-only affordances (e.g. UploadComponent.vue's camera
-        # option) would never trigger. Same convention already used for
-        # User.profile (saas/models/user.py).
-        fields = {
-            "photo": {
-                "accept": ".png,.jpg,.jpeg,.webp",
-                "max_size": 2 * 1024 * 1024,
-                "multiple": False
-            }
-        }

@@ -229,6 +229,44 @@ def test_file_and_image_fields_forward_multiple_and_max_size(bootstrap_tenant):
     assert profile_field["props"]["maxSize"] == 2 * 1024 * 1024
 
 
+def test_image_field_is_detected_generically_with_no_per_model_config(bootstrap_tenant):
+    """Root cause, one layer deeper than the test above: Django's own
+    ImageField.get_internal_type() returns "FileField" (it never
+    overrides FileField's implementation of that method), so
+    _field_type() used to report EVERY ImageField as type "FileField" -
+    _resolve_ui()'s `elif ftype == "ImageField"` branch (isImage,
+    accept defaulting to "image/*") could never actually run for any
+    real model field, for ANY model, regardless of RESAAS.fields.
+    Person.photo has no RESAAS.fields override at all - this proves the
+    fix works from field.type/isinstance() alone, not from per-model
+    configuration standing in for broken detection."""
+    tenant = bootstrap_tenant("schema-image-field-generic-tenant")
+    schema = _schema(tenant["client"], "django_resaas", "Person")
+
+    photo_field = _field(schema, "photo")
+    assert photo_field["type"] == "ImageField"
+    assert photo_field["ui"]["isImage"] is True
+    assert "isFile" not in photo_field["ui"] or photo_field["ui"].get("isFile") is not True
+    assert photo_field["component"] == "s-file"
+    assert photo_field["props"]["accept"] == "image/*"
+
+
+def test_file_field_without_config_still_defaults_sensibly_and_is_not_confused_with_image(bootstrap_tenant):
+    """Document.arquivo is a plain FileField (no RESAAS.fields override) -
+    confirms the ImageField fix above didn't also make FileField itself
+    start reporting as an image, and that a genuinely generic FileField
+    still gets a usable, permissive default."""
+    tenant = bootstrap_tenant("schema-file-field-generic-tenant")
+    schema = _schema(tenant["client"], "django_resaas", "Document")
+
+    arquivo_field = _field(schema, "arquivo")
+    assert arquivo_field["type"] == "FileField"
+    assert arquivo_field["ui"]["isFile"] is True
+    assert "isImage" not in arquivo_field["ui"] or arquivo_field["ui"].get("isImage") is not True
+    assert arquivo_field["component"] == "s-file"
+    assert arquivo_field["props"]["accept"] == "*"
+
+
 def test_choice_field_metadata(bootstrap_tenant):
     tenant = bootstrap_tenant("schema-field-choice-tenant", modules=("hr",))
     schema = _schema(tenant["client"], "hr", "SalaryComponent")
