@@ -1,11 +1,14 @@
 # hr/views/employee.py
 
+import json
+
 from django.db import transaction
 from rest_framework.response import Response
 from rest_framework import status
 
 from django_resaas.saas.core.base.views import BaseAPIView, registerView
 from django_resaas.saas.core.decorators.action import resaas_action
+from django_resaas.saas.core.base.permissions import isPermited
 from django_resaas.saas.models.entity import Entity
 
 from django_resaas.saas.models.branch import Branch
@@ -27,6 +30,11 @@ from django_resaas.hr.services.employee_number_service import EmployeeNumberServ
 from django_resaas.hr.services import attendance_service
 from django_resaas.hr.services import onboarding_service
 from django_resaas.hr.services import lifecycle_service
+from django_resaas.hr.services.employee_registration_service import (
+    register_employee,
+    EmployeeRegistrationError,
+    EmployeeAlreadyExists,
+)
 
 # Fase 9 (Employee Lifecycle): once created, these fields only change
 # through apply_promotion/apply_transfer below - never a free PATCH -
@@ -74,6 +82,90 @@ class EmployeeAPIView(BaseAPIView):
             )
 
         return super().update(request, *args, **kwargs)
+
+    # =========================
+    # REGISTRATION (add_employee)
+    # =========================
+    # Person(+reuse)/Document/PersonContact/Employee, all in one DB
+    # transaction (employee_registration_service.register_employee) -
+    # see EmployeeSEPage.vue for the full flow (validate -> match ->
+    # confirm -> register). multipart/form-data because a new Person's
+    # photo and each Document's own file can't ride inside a single
+    # JSON body; BaseStore's generic FormData builder only flattens
+    # plain scalars/arrays (see base_store.js), not this shape (a
+    # nested, per-item list of files) - so this one compound action
+    # builds its own request body instead of stretching that generic
+    # mechanism to fit a shape it was never meant for.
+    @resaas_action(detail=False, methods=["post"])
+    def register(self, request, *args, **kwargs):
+        try:
+            payload = json.loads(request.data.get("payload") or "{}")
+        except (TypeError, ValueError):
+            return Response(
+                {"detail": "Invalid payload."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        person_id = payload.get("person_id") or None
+
+        # add_employee is already required for this action itself (its
+        # own default codename, register_employee - see
+        # BaseAPIView.get_action_permission()); these are the ADDITIONAL
+        # capabilities the specific payload actually exercises, checked
+        # individually so a role only needs add_document/add_personcontact
+        # when it is genuinely asking to create one (CLAUDE.md: don't
+        # allow creating Document/PersonContact/Person without the
+        # matching permission, even from inside a compound action).
+        required_extra = []
+
+        if not person_id:
+            required_extra.append("add_person")
+        if payload.get("documents"):
+            required_extra.append("add_document")
+        if payload.get("contacts"):
+            required_extra.append("add_personcontact")
+
+        missing = [p for p in required_extra if not isPermited(request=request, role=p)]
+
+        if missing:
+            return Response(
+                {"detail": f"Missing permission(s): {', '.join(missing)}."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        documents = []
+        for index, doc in enumerate(payload.get("documents") or []):
+            file_key = doc.get("_file_key")
+            documents.append({
+                **doc,
+                "arquivo": request.FILES.get(file_key) if file_key else None,
+            })
+
+        try:
+            employee = register_employee(
+                request=request,
+                person_id=person_id,
+                person_data=payload.get("person"),
+                photo=request.FILES.get("person_photo"),
+                documents=documents,
+                contacts=payload.get("contacts"),
+                employee_data=payload.get("employee") or {},
+            )
+        except EmployeeAlreadyExists as exc:
+            return Response(
+                {
+                    "detail": "This person is already an employee in this branch.",
+                    "existing_employee_id": str(exc.employee.id),
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+        except EmployeeRegistrationError as exc:
+            return Response(exc.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(
+            EmployeeSerializer(employee, context={"request": request}).data,
+            status=status.HTTP_201_CREATED,
+        )
 
     # =========================
     # ATTENDANCE
