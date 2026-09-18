@@ -211,6 +211,24 @@ def test_field_write_only_and_allow_null_and_default(bootstrap_tenant):
     assert "default" in is_taxable
 
 
+def test_file_and_image_fields_forward_multiple_and_max_size(bootstrap_tenant):
+    """User.RESAAS.fields.profile already declared accept/max_size/
+    multiple (saas/models/user.py) but _resolve_ui() only ever forwarded
+    `accept` into props - multiple/max_size existed in the config dict
+    and were silently dropped. Also: ImageField resolved to component
+    "s-image", which was never an actual registered component (only
+    s-upload/s-file - see boot/components.js) - every ImageField in any
+    schema pointed at a component Vue could never resolve."""
+    tenant = bootstrap_tenant("schema-file-multiple-tenant")
+    schema = _schema(tenant["client"], "django_resaas", "User")
+
+    profile_field = _field(schema, "profile")
+    assert profile_field["component"] == "s-file"
+    assert profile_field["props"]["accept"] == ".png,.jpg,.jpeg,.webp"
+    assert profile_field["props"]["multiple"] is False
+    assert profile_field["props"]["maxSize"] == 2 * 1024 * 1024
+
+
 def test_choice_field_metadata(bootstrap_tenant):
     tenant = bootstrap_tenant("schema-field-choice-tenant", modules=("hr",))
     schema = _schema(tenant["client"], "hr", "SalaryComponent")

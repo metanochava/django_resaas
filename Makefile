@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 PY := python3
 PIP := $(PY) -m pip
-MANAGE := $(PY) manage.py
+MANAGE := $(PY) src/manage.py
 PYPROJECT := pyproject.toml
 BACKUP_DIR := backups
 
