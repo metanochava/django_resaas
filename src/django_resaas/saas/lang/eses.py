@@ -705,4 +705,15 @@ key_value = {
     "Discard": "Descartar",
     "Keep editing": "Seguir editando",
 
+    # person intake
+    "Blood type": "Grupo sanguíneo",
+    "A+": "A+",
+    "A-": "A-",
+    "B+": "B+",
+    "B-": "B-",
+    "AB+": "AB+",
+    "AB-": "AB-",
+    "O+": "O+",
+    "O-": "O-",
+
 }
