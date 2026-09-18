@@ -1,13 +1,11 @@
 
-from rest_framework import viewsets
 from django_resaas.saas.models.document import Document
 from django_resaas.saas.data.document.serializers.document import DocumentSerializer
+from django_resaas.saas.core.base.views import BaseAPIView, registerView
 
 
-class  DocumentAPIView(viewsets.ModelViewSet):
+@registerView('documents')
+class DocumentAPIView(BaseAPIView):
     serializer_class = DocumentSerializer
-    queryset = Document.objects.all()
-    def get_queryset(self):
-        return self.queryset.filter().order_by('-id')
-
-   
+    queryset = Document.objects.all().order_by('-id')
+    lookup_field = "id"

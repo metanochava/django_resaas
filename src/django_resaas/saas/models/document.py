@@ -6,7 +6,13 @@ from django_resaas.saas.core.base.models import TimeModel
 
 
 def document_path(instance, file_name):
-    return f'{instance.entity_type.name}/{instance.name}/{file_name}'
+    # Document has no `entity_type`/`name` (it never did - this
+    # referenced attributes that don't exist on the model, so any
+    # upload would AttributeError). object_id is stable the moment the
+    # row exists (set together with content_type by the GenericRelation
+    # manager - see Person.documents), content_type.model gives a
+    # human-readable folder per owning model (person, employee, ...).
+    return f'documents/{instance.content_type.model}/{instance.object_id}/{file_name}'
 
 class DocumentType(TimeModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
