@@ -28,5 +28,5 @@ class PayslipAPIView(BaseAPIView):
     # .pdf() (GET .../payslips/{id}/pdf/) is inherited for free from
     # BaseAPIView - see get_pdf_template()/get_pdf_context()/pdf() in
     # saas/core/base/views.py. It resolves hr/payslip.html before
-    # falling back to django_resaas/pdf/detail.html (see
+    # falling back to django_resaas/pdf/details.html (see
     # hr/templates/hr/payslip.html).

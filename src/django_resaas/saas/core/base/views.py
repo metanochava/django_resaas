@@ -700,7 +700,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         # Default django_resaas
         templates.append(
-            "django_resaas/pdf/detail.html"
+            "django_resaas/pdf/details.html"
         )
 
         return select_template(
@@ -785,6 +785,85 @@ class BaseAPIView(SelectMixin, ModelViewSet):
         return None
 
 
+
+    # Fields never printed on a generic detail PDF: audit/plumbing
+    # columns, the pk, tenant scoping (the header/footer already show the
+    # entity) and anything that looks like a secret.
+    PDF_IGNORE_FIELDS = {
+        "id", "created_at", "updated_at", "created_by", "updated_by",
+        "deleted_at", "entity", "branch", "state",
+    }
+    PDF_SECRET_HINTS = ("password", "token", "secret", "otp")
+
+    def get_pdf_fields(self, request, instance):
+        """[{"label", "value"}, ...] for details.html - every value is a
+        plain string (never a model/object/dict), so the template can
+        print any model without knowing its fields."""
+
+        tdc = lambda text: Translate.tdc(request, text)  # noqa: E731
+        Model = instance.__class__
+        dash = "-"
+
+        def render(field):
+            value = getattr(instance, field.name, None)
+
+            if value is None or value == "":
+                return dash
+
+            if field.choices:
+                display = getattr(instance, f"get_{field.name}_display", None)
+                return tdc(str(display())) if display else str(value)
+
+            if isinstance(field, models.BooleanField):
+                return tdc("Yes") if value else tdc("No")
+
+            if isinstance(field, models.FileField):
+                return str(value.name).rsplit("/", 1)[-1] or dash
+
+            if isinstance(field, models.DateTimeField) and hasattr(value, "strftime"):
+                if timezone.is_aware(value):
+                    value = timezone.localtime(value)
+                return value.strftime("%d/%m/%Y %H:%M")
+
+            if isinstance(field, models.DateField) and hasattr(value, "strftime"):
+                return value.strftime("%d/%m/%Y")
+
+            return str(value)
+
+        fields = []
+
+        for field in Model._meta.fields:
+            name = field.name
+
+            if name in self.PDF_IGNORE_FIELDS:
+                continue
+
+            if any(hint in name.lower() for hint in self.PDF_SECRET_HINTS):
+                continue
+
+            try:
+                value = render(field)
+            except Exception:
+                value = dash
+
+            fields.append({
+                "label": tdc(str(field.verbose_name).title()),
+                "value": value,
+            })
+
+        for field in Model._meta.many_to_many:
+            try:
+                names = ", ".join(str(o) for o in getattr(instance, field.name).all())
+            except Exception:
+                names = ""
+
+            fields.append({
+                "label": tdc(str(field.verbose_name).title()),
+                "value": names or dash,
+            })
+
+        return fields
+
     # -----------------------------------
     # 📄 PDF CONTEXT
     # -----------------------------------
@@ -824,6 +903,12 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             # =====================================
 
             "pdf_title": str(instance),
+
+            "title": str(self.get_model()._meta.verbose_name).title(),
+
+            "section_title": str(instance),
+
+            "pdf_fields": self.get_pdf_fields(request, instance),
 
             "pdf_author": (
                 entity.name
