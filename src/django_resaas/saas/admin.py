@@ -33,7 +33,7 @@ from django_resaas.saas.core.base.admin import BaseAdmin, all_fields
 # =========================
 # Local Models
 # =========================
-from .models import Document, Person
+from .models import Document, Person, PersonContact
 from django_resaas.saas.models.document import DocumentType
 
 from django_resaas.saas.models.translation import Translation
@@ -331,3 +331,9 @@ class PersonAdmin(admin.ModelAdmin):
     def get_list_display(self, request): return all_fields(self.model)
     search_fields = ("__all__",)
     inlines = [DocumentInline]
+
+@admin.register(PersonContact)
+class PersonContactAdmin(admin.ModelAdmin):
+    def get_list_display(self, request): return all_fields(self.model)
+    search_fields = ("__all__",)
+

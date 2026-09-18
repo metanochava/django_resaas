@@ -349,12 +349,25 @@ def _resolve_ui(field_obj, ftype: str, payload: dict) -> dict:
         ui["isFile"] = True
         cfg = _get_resaas_field_config(field_obj)
         props["accept"] = cfg.get("accept", "*")
+        props["multiple"] = bool(cfg.get("multiple", False))
+        if cfg.get("max_size"):
+            props["maxSize"] = cfg.get("max_size")
 
     elif ftype == "ImageField":
-        component = "s-image"
+        # "s-image" was never an actual registered component (boot/
+        # components.js only ever registered s-upload/s-file, both
+        # UploadComponent.vue) - every ImageField field in the schema
+        # resolved to a component Vue couldn't find. s-file/s-upload
+        # already previews an image correctly on its own (File.type/
+        # mime_type-based - see UploadComponent.vue's resolvePreview()),
+        # so there's no need for a separate component at all.
+        component = "s-file"
         ui["isImage"] = True
         cfg = _get_resaas_field_config(field_obj)
         props["accept"] = cfg.get("accept", "image/*")
+        props["multiple"] = bool(cfg.get("multiple", False))
+        if cfg.get("max_size"):
+            props["maxSize"] = cfg.get("max_size")
 
     # ---------------- RELATIONS ----------------
     elif ftype in ["ForeignKey", "OneToOneField"]:
