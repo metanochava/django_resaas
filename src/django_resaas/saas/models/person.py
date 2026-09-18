@@ -68,3 +68,19 @@ class Person(AddressMixin,TimeModel):
         search_fields=["name","middle_name","surname","full_name","preferred_name","email","phone"]
         crud=True
         routes={"list":"list_person","view":"view_person","add":"add_person","change":"change_person"}
+
+        # Django's ImageField.get_internal_type() returns "FileField" (it
+        # doesn't override FileField's own), so app_schema.py's
+        # _resolve_ui() always resolves `photo` through the FileField
+        # branch, whose accept default is "*" - without this override the
+        # schema would let ANY file type through and the frontend's own
+        # image-only affordances (e.g. UploadComponent.vue's camera
+        # option) would never trigger. Same convention already used for
+        # User.profile (saas/models/user.py).
+        fields = {
+            "photo": {
+                "accept": ".png,.jpg,.jpeg,.webp",
+                "max_size": 2 * 1024 * 1024,
+                "multiple": False
+            }
+        }
