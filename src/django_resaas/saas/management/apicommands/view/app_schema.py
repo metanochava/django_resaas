@@ -125,6 +125,19 @@ def _field_type(f: models.Field) -> str:
     if isinstance(f, models.ManyToManyField):
         return "ManyToManyField"
 
+    # ImageField.get_internal_type() returns "FileField" - Django's own
+    # ImageField never overrides FileField's implementation of that
+    # method, so `it` above is ALWAYS "FileField" for an ImageField too,
+    # and _resolve_ui()'s own `elif ftype == "ImageField"` branch (isImage,
+    # accept defaulting to "image/*", ...) could never be reached for any
+    # real model field. isinstance(), checked here before the generic
+    # get_internal_type() fallback below, is the actual reliable way to
+    # tell them apart - same reasoning as the ForeignKey/OneToOneField
+    # checks above (order relative to those doesn't matter: an
+    # ImageField is never a relation field).
+    if isinstance(f, models.ImageField):
+        return "ImageField"
+
     # fallback para o internal type / classname
     return it or f.__class__.__name__
 
