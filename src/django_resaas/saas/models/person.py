@@ -11,6 +11,19 @@ def person_photo_path(instance,file_name):
 class Person(AddressMixin,TimeModel):
     GENDER_CHOICES=[("M","Masculine"),("F","Feminine"),("O","Others")]
     MARITAL_STATUS_CHOICES=[("single","Single"),("married","Married"),("divorced","Divorced"),("widowed","Widowed"),("other","Other")]
+    BLOOD_TYPE_CHOICES=[
+        ("A+","A+"),("A-","A-"),
+        ("B+","B+"),("B-","B-"),
+        ("AB+","AB+"),("AB-","AB-"),
+        ("O+","O+"),("O-","O-")
+    ]
+
+    blood_type=models.CharField(
+        max_length=3,
+        choices=BLOOD_TYPE_CHOICES,
+        null=True,
+        blank=True
+    )
 
     id=models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     user=models.OneToOneField("django_resaas.User",on_delete=models.CASCADE,related_name="person",null=True,blank=True)
@@ -34,14 +47,13 @@ class Person(AddressMixin,TimeModel):
     secondary_email=models.EmailField(null=True,blank=True)
     phone=models.CharField(max_length=30,null=True,blank=True)
     alternative_phone=models.CharField(max_length=30,null=True,blank=True)
-
     occupation=models.CharField(max_length=150,null=True,blank=True)
-    preferred_language=models.CharField(max_length=10,null=True,blank=True)
-    timezone=models.CharField(max_length=50,null=True,blank=True)
+ 
 
     documents=GenericRelation("django_resaas.Document")
 
     def save(self,*args,**kwargs):
+        self.status = "Active"
         self.full_name=" ".join(x.strip() for x in (self.name,self.surname) if x and x.strip()) or None
         if self.email:self.email=self.email.strip().lower()
         if self.secondary_email:self.secondary_email=self.secondary_email.strip().lower()

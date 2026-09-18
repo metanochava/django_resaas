@@ -47,6 +47,14 @@ class PersonSerializer(BaseSerializer):
     def update(self, instance, validated_data):
         address_data = validated_data.pop("address", None)
 
+        # An empty photo on update means "no new photo", never "delete the
+        # current one": every Person-based form (employee, patient, ...)
+        # shows the existing photo in the same input, and an empty value
+        # (null/"" from a cleared input or a client that resends the
+        # whole record) must not wipe it. Only a real upload replaces it.
+        if "photo" in validated_data and not validated_data["photo"]:
+            validated_data.pop("photo")
+
         person = super().update(instance, validated_data)
 
         if address_data:
