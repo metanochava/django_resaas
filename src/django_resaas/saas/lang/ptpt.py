@@ -714,4 +714,10 @@ key_value = {
     "O+": "O+",
     "O-": "O-",
 
+    # person intake
+    "Relationship not set": "Relação não definida",
+    "Not primary": "Não principal",
+    "Not emergency": "Não é de emergência",
+    "Contact": "Contacto",
+
 }
