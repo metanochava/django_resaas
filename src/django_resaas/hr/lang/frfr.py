@@ -460,4 +460,13 @@ key_value = {
     "This person is already an employee in this branch.": "Cette personne est déjà employée dans cette succursale.",
     "View employee": "Voir l'employé",
 
+    # group names (hr)
+    "Employee Relations Officer": "Responsable des relations sociales",
+    "HR Administrator": "Administrateur RH",
+    "HR Officer": "Chargé RH",
+    "Human Resources Manager": "Responsable des ressources humaines",
+    "Payroll Specialist": "Spécialiste de la paie",
+    "Recruitment Specialist": "Spécialiste du recrutement",
+    "Training and Development Specialist": "Spécialiste formation et développement",
+
 }

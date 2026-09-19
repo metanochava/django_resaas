@@ -115,7 +115,8 @@ class User(
     )
 
     username = models.CharField(
-        max_length=255
+        max_length=255,
+        unique=True
     )
 
     first_name = models.CharField(

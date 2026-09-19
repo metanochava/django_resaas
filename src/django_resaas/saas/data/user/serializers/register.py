@@ -28,6 +28,11 @@ class RegisterSerializer(serializers.Serializer):
                 )
             )
 
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(
+                Translate.tdc(request, "This username is already taken")
+            )
+
         return value
 
     def validate(self, attrs):
