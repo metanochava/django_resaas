@@ -8,7 +8,10 @@ from django_resaas.saas.data.address.serializers.address import AddressSerialize
 from django_resaas.saas.data.user.serializers.user import UserSerializer
 
 class PersonSerializer(BaseSerializer):
-    # user_data = UserSerializer(source='user', read_only=True) # nao descomentar
+    # NOT a nested UserSerializer(source='user'): that dumps the user's theme/
+    # layout settings on every person payload. Only the account summary the
+    # profile view shows is exposed - see get_user_data().
+    user_data = serializers.SerializerMethodField()
     profile = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
 
@@ -28,6 +31,20 @@ class PersonSerializer(BaseSerializer):
             context={  **self.context, "include_fields": ["profile"], # 👈 escolhe aqui
         }).data
         return data['profile']
+
+    USER_SUMMARY_FIELDS = ("username", "email", "mobile", "is_verified_mobile", "is_verified_email")
+
+    def get_user_data(self, obj):
+        """Read-only summary of the linked login account (None when the
+        Person has no User). profile keeps the same file shape as `profile`."""
+        user = obj.user
+        if not user:
+            return None
+
+        data = {"id": str(user.id)}
+        data.update({name: getattr(user, name) for name in self.USER_SUMMARY_FIELDS})
+        data["profile"] = self.get_profile(obj)
+        return data
 
     def get_age(self, obj):
         # Person.age is a @property, not a method - obj.age() would try

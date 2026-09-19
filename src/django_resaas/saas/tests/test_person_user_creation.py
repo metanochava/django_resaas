@@ -233,3 +233,35 @@ def test_gives_up_after_a_bounded_number_of_collisions(monkeypatch):
 
     with pytest.raises(IntegrityError):
         service.create_user_for_person(Person(name="Stuck"))
+
+
+# ---- Person payload exposes the linked account summary (profile view) ----
+
+@pytest.mark.django_db
+def test_person_payload_exposes_only_the_user_account_summary():
+    from django_resaas.saas.data.person.serializers.person import PersonSerializer
+
+    person = _person("Ana", "Costa")
+    person.user.email = "ana@example.com"
+    person.user.mobile = "841110000"
+    person.user.is_verified_email = True
+    person.user.save(update_fields=["email", "mobile", "is_verified_email"])
+
+    data = PersonSerializer(Person.objects.get(pk=person.pk), context={}).data["user_data"]
+
+    assert set(data) == {"id", "username", "email", "mobile", "is_verified_mobile", "is_verified_email", "profile"}
+    assert data["username"] == person.user.username
+    assert data["email"] == "ana@example.com"
+    assert data["is_verified_email"] is True
+    assert data["is_verified_mobile"] is False
+    assert "theme" not in data and "password" not in data
+
+
+@pytest.mark.django_db
+def test_person_payload_user_data_is_null_without_a_user():
+    from django_resaas.saas.data.person.serializers.person import PersonSerializer
+
+    person = _person("Ana", "Costa")
+    Person.objects.filter(pk=person.pk).update(user=None)
+
+    assert PersonSerializer(Person.objects.get(pk=person.pk), context={}).data["user_data"] is None
