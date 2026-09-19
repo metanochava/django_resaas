@@ -181,7 +181,7 @@ def _resolve_relation_model(f: models.Field):
     return rel_model
 
 
-def _build_relation_config(related_model) -> Dict[str, Any]:
+def _build_relation_config(related_model, field_config=None) -> Dict[str, Any]:
     """
     Django-Admin-style "add related" support: the schema is the only
     place that knows a relation field's target model, so it's also the
@@ -216,9 +216,15 @@ def _build_relation_config(related_model) -> Dict[str, Any]:
         },
         # How a generic relation picker presents this relation:
         #   "select" - the lightweight label-only select (the default)
-        #   "card"   - search results + selected value as rich cards; chosen
-        #              automatically when the related model declares
-        #              RESAAS.preview (see core/utils/relation_preview.py)
+        #   "card"   - the rich relation picker: search results + selected
+        #              value as cards built from the related model's
+        #              RESAAS.preview
+        # A declared preview alone never changes an existing form - "card" is
+        # opt-in, either per relation field in the OWNING model
+        # (RESAAS.fields = {"employee": {"relation_variant": "card"}}) or for
+        # every relation to a model (RESAAS.preview = {..., "variant": "card"}).
+        # Pages that build the picker by hand (add_employee, add_paciente)
+        # read `preview` regardless of the variant.
         "variant": "select",
     }
 
@@ -226,7 +232,12 @@ def _build_relation_config(related_model) -> Dict[str, Any]:
 
     if preview:
         config["preview"] = preview
-        config["variant"] = "card"
+
+        declared = getattr(getattr(related_model, "RESAAS", None), "preview", None) or {}
+        wanted = (field_config or {}).get("relation_variant") or declared.get("variant")
+
+        if wanted == "card":
+            config["variant"] = "card"
 
     return config
 
@@ -629,7 +640,7 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
         if relation:
             related_model = _resolve_relation_model(field_obj)
             if related_model is not None:
-                payload["relation_config"] = _build_relation_config(related_model)
+                payload["relation_config"] = _build_relation_config(related_model, cfg)
 
                 # the card picker is single-selection; a many-to-many keeps
                 # the multi-select
