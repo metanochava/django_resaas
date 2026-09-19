@@ -120,4 +120,61 @@ key_value = {
     "Not emergency": "Not emergency",
     "Contact": "Contact",
 
+    # person/document/address/employee model labels
+    "Arquivo": "File",
+    "Data Emissao": "Issue Date",
+    "Data Validade": "Expiry Date",
+    "Numero": "Number",
+    "Detalhes": "Details",
+    "Route": "Street",
+    "Endereço": "Address",
+    "Endereços": "Addresses",
+    "Casa": "Home",
+    "Entrega": "Shipping",
+    "Escritório": "Office",
+    "Facturação": "Billing",
+    "Outro": "Other",
+    "Principal": "Main",
+
+    # backend action labels/tooltips
+    "Abre um acesso de emergência a dados de uma Person de outra Entity": "Opens emergency access to the data of a Person from another Entity",
+    "Autoriza outra Entity a ver um scope dos dados clínicos deste Paciente": "Allows another Entity to see a scope of this patient's clinical data",
+    "Funde duas identidades de Paciente que afinal são a mesma pessoa": "Merges two patient identities that turn out to be the same person",
+    "Linha do tempo clínica, incluindo eventos autorizados de outras Entities": "Clinical timeline, including authorized events from other Entities",
+    "Pdf": "PDF",
+    "Pdflist": "PDF List",
+    "Procurar Paciente já existente noutra Entity antes de registar um novo": "Look for a patient that already exists in another Entity before registering a new one",
+    "Regista a revisão pós-acesso deste emergency access": "Records the post-access review of this emergency access",
+    "Revoga um consentimento previamente concedido para este Paciente": "Revokes a consent previously granted for this patient",
+    "Termina este acesso de emergência": "Ends this emergency access",
+
+    # sidebar menu labels
+    "Cometario": "Comments",
+    "Crud": "CRUD",
+    "EntityType": "Entity Type",
+
+    # frontend UI strings
+    "Ausências": "Absences",
+    "Ciclo de Vida do Colaborador": "Employee Lifecycle",
+    "Desempenho": "Performance",
+    "Formação": "Training",
+    "Organização": "Organization",
+
+    # frontend UI strings
+    "Other infoOther infoOther infoOther infoOther infoOther infoOther infoOther info": "Other info",
+    "Recrutamento": "Recruitment",
+    "Salário & Folha de Pagamento": "Salary & Payroll",
+    "Tempo & Presença": "Time & Attendance",
+    "Ler Código": "Read Code",
+    "Lido": "Read",
+    "Aponta a câmara para o código de barras ou QR": "Point the camera at the barcode or QR code",
+    "A câmara só funciona em HTTPS (ou localhost).": "The camera only works over HTTPS (or localhost).",
+    "Nenhuma câmara encontrada neste dispositivo.": "No camera found on this device.",
+    "Não foi possível aceder à câmara.": "Could not access the camera.",
+    "Permissão de câmara negada. Ativa o acesso à câmara nas definições do navegador.": "Camera permission denied. Enable camera access in your browser settings.",
+
+    # frontend UI strings
+    "tipo and numero are required.": "Type and number are required.",
+    "tipo not found.": "Type not found.",
+
 }

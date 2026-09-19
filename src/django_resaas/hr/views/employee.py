@@ -9,6 +9,7 @@ from rest_framework import status
 from django_resaas.saas.core.base.views import BaseAPIView, registerView
 from django_resaas.saas.core.decorators.action import resaas_action
 from django_resaas.saas.core.base.permissions import isPermited
+from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.entity import Entity
 
 from django_resaas.saas.models.branch import Branch
@@ -102,7 +103,7 @@ class EmployeeAPIView(BaseAPIView):
             payload = json.loads(request.data.get("payload") or "{}")
         except (TypeError, ValueError):
             return Response(
-                {"detail": "Invalid payload."},
+                {"detail": Translate.tdc(request, "Invalid payload.")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -129,7 +130,7 @@ class EmployeeAPIView(BaseAPIView):
 
         if missing:
             return Response(
-                {"detail": f"Missing permission(s): {', '.join(missing)}."},
+                {"detail": f"{Translate.tdc(request, 'Missing permission(s)')}: {', '.join(missing)}."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -154,7 +155,7 @@ class EmployeeAPIView(BaseAPIView):
         except EmployeeAlreadyExists as exc:
             return Response(
                 {
-                    "detail": "This person is already an employee in this branch.",
+                    "detail": Translate.tdc(request, "This person is already an employee in this branch."),
                     "existing_employee_id": str(exc.employee.id),
                 },
                 status=status.HTTP_409_CONFLICT,

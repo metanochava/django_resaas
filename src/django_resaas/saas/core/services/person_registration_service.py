@@ -10,6 +10,7 @@ PersonContact behind without the record the whole operation was for.
 Duplicate detection itself lives in person_matching_service - this only
 executes the choice the caller already made (reuse a Person, or create one).
 """
+from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.person import Person
 from django_resaas.saas.data.person.serializers.person import PersonSerializer
 from django_resaas.saas.data.person_contact.serializers.person_contact import PersonContactSerializer
@@ -37,7 +38,7 @@ def resolve_person(*, request, person_id=None, person_data=None, photo=None):
         try:
             return Person.objects.select_for_update().get(id=person_id)
         except (Person.DoesNotExist, ValueError, TypeError):
-            raise PersonRegistrationError({"person_id": ["Person not found."]})
+            raise PersonRegistrationError({"person_id": [Translate.tdc(request, "Person not found.")]})
 
     serializer = PersonSerializer(data=person_data or {}, context={"request": request})
 
