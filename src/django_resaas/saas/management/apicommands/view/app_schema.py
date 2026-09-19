@@ -22,13 +22,14 @@ from django_resaas.saas.core.decorators.action import resaas_action
 
 # 📦 Local (django_resaas)
 from django_resaas.saas.core.base.views import registerView
-from django_resaas.saas.core.base.permissions import hasPermission
+from django_resaas.saas.core.base.permissions import hasPermission, isPermited as hasPermissionCode
 from django_resaas.saas.core.utils import ok, fail, warn, all, clean_name, reorder_fields, clean_class_name
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.management.apicommands.service.app_service import AppScaffoldService
 
 from django_resaas.saas.core.schema import  ResaasSchemaBuilder 
+from django_resaas.saas.core.utils.relation_preview import get_relation_preview_config
 
 # 🔧 Logger
 logger = logging.getLogger(__name__)
@@ -200,16 +201,34 @@ def _build_relation_config(related_model) -> Dict[str, Any]:
     model_info = ResaasSchemaBuilder(Model=related_model).build_model()
     related_name = related_model._meta.model_name
 
-    return {
+    config = {
         "app": model_info["app"],
         "model": model_info["class_name"],
         "endpoint": model_info["endpoint"],
         "permissions": {
+            # "list" is what searching the related model requires (its own
+            # endpoint enforces it); the frontend only uses it to decide
+            # whether to offer the picker's search at all.
+            "list": f"list_{related_name}",
             "add": f"add_{related_name}",
             "change": f"change_{related_name}",
             "view": f"view_{related_name}",
         },
+        # How a generic relation picker presents this relation:
+        #   "select" - the lightweight label-only select (the default)
+        #   "card"   - search results + selected value as rich cards; chosen
+        #              automatically when the related model declares
+        #              RESAAS.preview (see core/utils/relation_preview.py)
+        "variant": "select",
     }
+
+    preview = get_relation_preview_config(related_model)
+
+    if preview:
+        config["preview"] = preview
+        config["variant"] = "card"
+
+    return config
 
 
 def _extract_min_max_from_validators(validators) -> Tuple[Optional[float], Optional[float], Optional[int], Optional[int]]:
@@ -612,6 +631,11 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
             if related_model is not None:
                 payload["relation_config"] = _build_relation_config(related_model)
 
+                # the card picker is single-selection; a many-to-many keeps
+                # the multi-select
+                if isinstance(field_obj, models.ManyToManyField):
+                    payload["relation_config"]["variant"] = "select"
+
         # limpa keys None pra ficar bonito
         payload = {k: v for k, v in payload.items() if v is not None}
 
@@ -817,6 +841,26 @@ class RelationsAPIView(APIView):
         Model = _get_model(app_label, model_name)
 
         qs = Model.objects.all()
+
+        # Tenant + permission: this endpoint used to hand ANY model's rows to
+        # ANY authenticated user. A RESAAS model (one that declares RESAAS)
+        # now needs its own list/view permission in the current context and
+        # only exposes the current Entity's rows; plain framework models
+        # (auth.Permission, ContentType, ...) carry no tenant/permission
+        # conventions and keep their previous behaviour.
+        if getattr(Model, "RESAAS", None) is not None:
+            model_key = Model._meta.model_name
+
+            if not (
+                hasPermissionCode(request, f"list_{model_key}")
+                or hasPermissionCode(request, f"view_{model_key}")
+            ):
+                return Response({"detail": "Permission denied"}, status=403)
+
+            entity_id = getattr(request, "entity_id", None)
+
+            if hasattr(Model, "entity_id"):
+                qs = qs.filter(entity_id=entity_id)
 
         from django.db.models import Q, CharField, TextField, EmailField
 
