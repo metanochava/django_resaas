@@ -1233,4 +1233,13 @@ key_value = {
     # frontend UI strings
     "This username is already taken": "Este nombre de usuario ya está en uso",
 
+    # frontend UI strings
+    "User account": "Cuenta de usuario",
+    "Verified": "Verificado",
+    "Not verified": "No verificado",
+    "Mobile verified": "Móvil verificado",
+    "Email verified": "Correo verificado",
+    "Profile picture": "Foto de perfil",
+    "No user account linked.": "Sin cuenta de usuario asociada.",
+
 }
