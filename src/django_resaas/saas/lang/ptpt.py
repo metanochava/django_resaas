@@ -1247,4 +1247,10 @@ key_value = {
     "You do not have permission to search this list.": "Não tem permissão para pesquisar esta lista.",
     "Could not load the results.": "Não foi possível carregar os resultados.",
 
+    # frontend UI strings
+    "Existing person": "Pessoa existente",
+    "Search an existing person to reuse it, or fill in the form below to create a new one.": "Pesquise uma pessoa existente para a reutilizar, ou preencha o formulário abaixo para criar uma nova.",
+    "Type at least": "Escreva pelo menos",
+    "characters to search": "caracteres para pesquisar",
+
 }

@@ -26,12 +26,14 @@ def _field(fields, name):
 
 class TestRelationSchema:
 
-    def test_person_relation_is_a_card_with_its_declared_preview(self):
+    def test_a_declared_preview_alone_never_changes_an_existing_form(self):
+        """Person declares a preview (for pages that build the picker by hand),
+        but the schema-driven forms keep the plain select."""
         from django_resaas.hr.models.employee import Employee
 
         config = _field(_schema_fields(Employee), "person")["relation_config"]
 
-        assert config["variant"] == "card"
+        assert config["variant"] == "select"
         assert config["preview"] == {
             "title": "full_name",
             "subtitle": ["email", "phone"],
@@ -42,13 +44,45 @@ class TestRelationSchema:
             "list": "list_person", "add": "add_person", "change": "change_person", "view": "view_person",
         }
 
-    def test_same_person_relation_on_another_model_needs_no_extra_config(self):
-        """Patient/Student/Customer-style models reuse it purely by pointing at Person."""
+    def test_a_relation_field_can_opt_into_the_card_in_its_own_model(self):
+        """Medico.RESAAS.fields = {"employee": {"relation_variant": "card"}} style."""
         from django_resaas.hr.models.employee import Employee
 
-        other = [f for f in _schema_fields(Employee) if f.get("relation_config", {}).get("model") == "Person"]
+        with mock.patch.object(Employee.RESAAS, "fields", {"person": {"relation_variant": "card"}}, create=True):
+            fields = _schema_fields(Employee)
 
-        assert other and all(f["relation_config"]["variant"] == "card" for f in other)
+        assert _field(fields, "person")["relation_config"]["variant"] == "card"
+        # only the field that asked
+        assert _field(fields, "manager")["relation_config"]["variant"] == "select"
+
+    def test_the_related_model_can_make_every_relation_to_it_a_card(self):
+        from django_resaas.hr.models.employee import Employee
+
+        declared = {**Person.RESAAS.preview, "variant": "card"}
+
+        with mock.patch.object(Person.RESAAS, "preview", declared):
+            config = _field(_schema_fields(Employee), "person")["relation_config"]
+
+        assert config["variant"] == "card"
+
+    def test_an_opt_in_without_a_declared_preview_has_nothing_to_show(self):
+        from django_resaas.hr.models.employee import Employee
+
+        with mock.patch.object(Employee.RESAAS, "fields", {"position": {"relation_variant": "card"}}, create=True):
+            config = _field(_schema_fields(Employee), "position")["relation_config"]
+
+        assert config["variant"] == "select" and "preview" not in config
+
+    def test_employee_declares_its_own_preview_through_the_person(self):
+        from django_resaas.saas.core.utils.relation_preview import get_relation_preview_config
+        from django_resaas.hr.models.employee import Employee
+
+        assert get_relation_preview_config(Employee) == {
+            "title": "person__full_name",
+            "subtitle": ["code", "work_email"],
+            "avatar": "person__photo",
+            "meta": ["position__title"],
+        }
 
     def test_relation_without_declared_preview_stays_the_lightweight_select(self):
         from django_resaas.hr.models.employee import Employee
@@ -100,6 +134,8 @@ class TestPreviewConfig:
         assert item["subtitle"] == ["ana@example.com", "841110000"]
         assert item["avatar"] is None
         assert item["meta"] == [{"field": "nationality", "label": "Nationality", "value": "MZ"}]
+        # by field name, so callers never depend on positions
+        assert item["values"] == {"email": "ana@example.com", "phone": "841110000", "nationality": "MZ"}
 
     def test_dotted_paths_are_select_related(self):
         from django_resaas.hr.models.employee import Employee
@@ -149,6 +185,22 @@ class TestPreviewSelectApi:
 
         assert [r["value"] for r in response.data["results"]] == [person.id]
         assert response.data["results"][0]["preview"]["subtitle"] == ["lookup@example.com"]
+
+    def test_employee_search_previews_through_its_person(self, bootstrap_tenant):
+        """The endpoint add_medico's employee picker uses (schema endpoint of the relation)."""
+        from django_resaas.hr.models.employee import Employee
+
+        tenant = bootstrap_tenant("relation-employee")
+        person = Person.objects.create(name="Rui", surname="Nhaca", email="rui@example.com")
+        employee = Employee.objects.create(person=person, entity=tenant["entity"], branch=tenant["branch"], code="EMP-1", work_email="rui@work.com", hire_date="2024-01-01")
+
+        config = _field(_schema_fields(Employee), "manager")["relation_config"]
+        response = tenant["client"].get(f"/api/{config['endpoint']}?select=true&preview=true&search=Nhaca")
+
+        assert response.status_code == 200, response.data
+        row = next(r for r in response.data["results"] if r["value"] == employee.id)
+        assert row["preview"]["title"] == "Rui Nhaca"
+        assert row["preview"]["subtitle"] == ["EMP-1", "rui@work.com"]
 
     def test_results_are_paginated(self, bootstrap_tenant):
         tenant = bootstrap_tenant("relation-person-page")

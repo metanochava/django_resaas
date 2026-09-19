@@ -199,6 +199,15 @@ class Employee(BaseModel):
 
         label_field = "code"
 
+        # relation pickers show an Employee as a card (see
+        # core/utils/relation_preview.py)
+        preview = {
+            "title": "person__full_name",
+            "subtitle": ["code", "work_email"],
+            "avatar": "person__photo",
+            "meta": ["position__title"],
+        }
+
         search_fields = [
 
             "code",

@@ -165,4 +165,13 @@ def build_preview_item(obj, config, request=None):
                 "value": text,
             })
 
-    return {"title": title, "subtitle": subtitle, "avatar": avatar, "meta": meta}
+    # every declared path -> its text, so a caller can pick a value by field
+    # name instead of by its position in `subtitle` (empty ones are skipped
+    # there, which shifts the positions)
+    values = {}
+    for path in [*config["subtitle"], *[m for m in config["meta"]]]:
+        text = _text(obj, path, _resolve_field(Model, path))
+        if text:
+            values[path] = text
+
+    return {"title": title, "subtitle": subtitle, "avatar": avatar, "meta": meta, "values": values}
