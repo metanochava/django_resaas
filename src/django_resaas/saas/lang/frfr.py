@@ -1218,4 +1218,11 @@ key_value = {
     "Profile picture": "Photo de profil",
     "No user account linked.": "Aucun compte utilisateur associé.",
 
+    # frontend UI strings
+    "Create new": "Créer un nouveau",
+    "Load more": "Charger plus",
+    "Type to search": "Saisissez pour rechercher",
+    "You do not have permission to search this list.": "Vous n'avez pas la permission de rechercher dans cette liste.",
+    "Could not load the results.": "Impossible de charger les résultats.",
+
 }

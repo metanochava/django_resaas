@@ -662,14 +662,7 @@ class BaseAPIView(SelectMixin, ModelViewSet):
 
         # 🔥 SELECT MODE (NÃO ALTERA NADA DO RESTO)
         if self.is_select_mode():
-            page = self.paginate_queryset(queryset)
-
-            if page is not None:
-                data = build_select_data(page)
-                return self.get_paginated_response(data)
-
-            data = build_select_data(queryset)
-            return Response(data)
+            return self.get_select_response(queryset)
 
         # 🔥 comportamento normal (inalterado)
         return super().list(request, *args, **kwargs)

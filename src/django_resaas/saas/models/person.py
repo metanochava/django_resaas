@@ -76,5 +76,7 @@ class Person(AddressMixin,TimeModel):
     class RESAAS:
         label_field="full_name"
         search_fields=["name","surname","full_name","preferred_name","email","phone"]
+        # relation pickers show a Person as a card (see core/utils/relation_preview.py)
+        preview={"title":"full_name","subtitle":["email","phone"],"avatar":"photo","meta":["date_of_birth","nationality"]}
         crud=True
         routes={"list":"list_person","view":"view_person","add":"add_person","change":"change_person"}
