@@ -1190,4 +1190,23 @@ key_value = {
     "Secondary": "Secondaire",
     "min": "min.",
 
+    # group names (core)
+    "Root": "Racine",
+    "Admin": "Administrateur",
+    "Organization Administrator": "Administrateur de l'organisation",
+    "System Administrator": "Administrateur système",
+    "Branch Administrator": "Administrateur de la succursale",
+
+    # frontend UI strings
+    "New group": "Nouveau groupe",
+
+    # frontend UI strings
+    "Edit employee": "Modifier l'employé",
+
+    # frontend UI strings
+    "Patient": "Patient",
+
+    # frontend UI strings
+    "This username is already taken": "Ce nom d'utilisateur est déjà pris",
+
 }

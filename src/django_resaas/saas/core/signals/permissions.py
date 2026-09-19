@@ -275,7 +275,7 @@ def criar_person_automaticamente(sender, instance, created, **kwargs):
     """
     Cria automaticamente um registo Person quando um User é criado.
     """
-    if created:
+    if created and not getattr(instance, "_skip_person_autocreate", False):
         Person.objects.get_or_create(
             user=instance,
             defaults={
@@ -285,6 +285,26 @@ def criar_person_automaticamente(sender, instance, created, **kwargs):
                 "state": "Active"
             }
         )
+
+
+# ==========================================================
+# PESSOA → USER (AUTO CREATE, ONLY ON CREATE)
+# ==========================================================
+@receiver(post_save, sender=Person, dispatch_uid="criar_user_person")
+def criar_user_automaticamente(sender, instance, created, raw=False, **kwargs):
+    """
+    A NEW Person gets its User (username from the first name only - see
+    core/services/person_user_service.py). An UPDATE never creates a User
+    or touches a username, even for an old Person without a User; a Person
+    that already has one (created by the User -> Person signal above) is
+    left alone.
+    """
+    if not created or raw or instance.user_id:
+        return
+
+    from django_resaas.saas.core.services.person_user_service import create_user_for_person
+
+    create_user_for_person(instance)
 
 
 # ==========================================================

@@ -293,6 +293,10 @@ class ResaasContextService:
         return {
             "token": token,
             "context": payload,
+            # Lets the frontend renew the token BEFORE it expires (see
+            # quasar_resaas services/api.js) instead of only reacting to
+            # the 403 "RESAAS context has expired.".
+            "expires_in": cls.get_ttl(),
         }
 
 
