@@ -14,6 +14,7 @@ from django_resaas.saas.models.document import DocumentType
 from django_resaas.saas.core.base.views import BaseAPIView, registerView
 from django_resaas.saas.core.decorators.action import resaas_action
 from django_resaas.saas.core.base.permissions import isPermited
+from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.services.person_matching_service import find_candidates
 from django_resaas.saas.core.utils.api_response import all as all_response
 
@@ -74,7 +75,7 @@ class  PersonAPIView(BaseAPIView):
     def add_document(self, request, *args, **kwargs):
         if not isPermited(request=request, role="add_document"):
             return Response(
-                {"detail": "Missing permission(s): add_document."},
+                {"detail": f"{Translate.tdc(request, 'Missing permission(s)')}: add_document."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -85,13 +86,13 @@ class  PersonAPIView(BaseAPIView):
 
         if not tipo_id or not numero:
             return Response(
-                {"detail": "tipo and numero are required."},
+                {"detail": Translate.tdc(request, "tipo and numero are required.")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if not DocumentType.objects.filter(id=tipo_id).exists():
             return Response(
-                {"detail": "tipo not found."},
+                {"detail": Translate.tdc(request, "tipo not found.")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
