@@ -1253,4 +1253,7 @@ key_value = {
     "Type at least": "Escreva pelo menos",
     "characters to search": "caracteres para pesquisar",
 
+    # frontend UI strings
+    "Search an existing person": "Pesquisar uma pessoa existente",
+
 }
