@@ -167,6 +167,14 @@ class User(
         default=0
     )
 
+    # When the user last CHOSE a password (own change, reset, first-login
+    # change). None while the password is still a temporary one or unknown.
+    password_changed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        editable=False
+    )
+
     # =====================================================
     # LANGUAGE
     # =====================================================
@@ -331,6 +339,16 @@ class User(
 
         if self.mobile == '':
             self.mobile = None
+
+        # a password the user chose (not one being issued as temporary)
+        if getattr(self, '_password_replaced', False) and not getattr(self, '_temporary_password_issuing', False):
+            from django.utils import timezone
+
+            self.password_changed_at = timezone.now()
+
+            fields = kwargs.get('update_fields')
+            if fields is not None and 'password_changed_at' not in fields:
+                kwargs['update_fields'] = [*fields, 'password_changed_at']
 
         super().save(*args, **kwargs)
 
@@ -692,6 +710,11 @@ class User(
         refresh = RefreshToken.for_user(
             self
         )
+
+        # the session id: the refresh token's own jti, carried on every access
+        # token minted from it (simplejwt copies custom claims), so a request
+        # can tell which session it belongs to
+        refresh['sid'] = refresh['jti']
 
         return {
             'refresh': str(refresh),

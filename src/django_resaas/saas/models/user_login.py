@@ -14,6 +14,10 @@ class UserLogin(TimeModel):
    
     is_blocked = models.BooleanField(default=False)
 
+    # jti of the refresh token issued by this sign-in: it IS the session (the
+    # outstanding/blacklisted token rows say whether it is still active)
+    token_jti = models.CharField(max_length=64, null=True, blank=True, db_index=True)
+
     class Meta:
         permissions = ()
 
