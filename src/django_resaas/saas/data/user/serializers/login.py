@@ -7,7 +7,7 @@ from django_resaas.saas.models.user import User
 from django_resaas.saas.core.utils.translate import Translate
 from django.utils import timezone
 
-from django_resaas.saas.core.services import session_service, temporary_password_service
+from django_resaas.saas.core.services import temporary_password_service, two_factor_service
 
 
 def authenticate(value=None, password=None):
@@ -43,6 +43,10 @@ class LoginSerializer(serializers.Serializer):
     # true while the password is a temporary one: no tokens are issued until the
     # user replaces it (POST password/change/temporary/)
     must_change_password = serializers.BooleanField(read_only=True)
+    # "two_factor_required" / "two_factor_setup_required" while a second step
+    # is pending (no tokens until it is done), with the signed `challenge`
+    two_factor = serializers.CharField(read_only=True)
+    challenge = serializers.CharField(read_only=True)
 
     def get_tokens(self, obj):
         return obj["tokens"]
@@ -94,17 +98,9 @@ class LoginSerializer(serializers.Serializer):
                 "username": user.username,
                 "mobile": user.mobile,
                 "must_change_password": True,
+                "two_factor": "",
+                "challenge": "",
                 "tokens": None,
             }
 
-        tokens = user.tokens()
-        session_service.record_login(user, request, tokens)
-
-        return {
-            "id": user.id,
-            "email": user.email,
-            "username": user.username,
-            "mobile": user.mobile,
-            "must_change_password": False,
-            "tokens": tokens,
-        }
+        return two_factor_service.sign_in_payload(user, request)

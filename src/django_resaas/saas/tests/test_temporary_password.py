@@ -294,6 +294,21 @@ class TestExpiry:
 
         assert details["state"] == "expired" and details["can_reveal"] is False
 
+    def test_the_details_carry_a_read_only_two_factor_summary(self, bootstrap_tenant):
+        from django_resaas.saas.core.services import two_factor_service
+
+        tenant = bootstrap_tenant("tp-two-factor-summary")
+        user = _member(tenant)
+        _issue(user, tenant)
+
+        before = _client(tenant).get(_url(user, "passwordSecurity")).data["two_factor"]
+        two_factor_service.begin_setup(user)
+        after_pending = _client(tenant).get(_url(user, "passwordSecurity")).data["two_factor"]
+
+        assert before["state"] == "not_configured" and before["policy"] in ("optional", "required", "disabled")
+        assert after_pending["state"] == "not_configured"     # a half-finished setup is not active
+        assert set(before) == {"policy", "state"}             # never a secret or a code
+
     def test_an_expired_password_cannot_log_in(self, bootstrap_tenant):
         user = _member(bootstrap_tenant("tp-expired-login"))
         password = _issue(user)

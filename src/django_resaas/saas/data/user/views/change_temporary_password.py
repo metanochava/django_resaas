@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from django_resaas.saas.core.services import session_service, temporary_password_service
+from django_resaas.saas.core.services import temporary_password_service, two_factor_service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.user.serializers.login import authenticate
 
@@ -58,18 +58,8 @@ class ChangeTemporaryPasswordAPIView(generics.GenericAPIView):
 
         temporary_password_service.complete(user, new_password)
 
-        tokens = user.tokens()
-        session_service.record_login(user, request, tokens)
+        # the password step is done - a pending second factor still gates the session
+        payload = two_factor_service.sign_in_payload(user, request)
+        payload["alert_success"] = Translate.tdc(request, "Password changed successfully")
 
-        return Response(
-            {
-                "id": user.id,
-                "email": user.email,
-                "username": user.username,
-                "mobile": user.mobile,
-                "must_change_password": False,
-                "tokens": tokens,
-                "alert_success": Translate.tdc(request, "Password changed successfully"),
-            },
-            status=status.HTTP_200_OK,
-        )
+        return Response(payload, status=status.HTTP_200_OK)

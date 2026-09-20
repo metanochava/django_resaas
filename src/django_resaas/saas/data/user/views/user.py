@@ -25,7 +25,7 @@ from django_resaas.saas.models.entity_group import EntityGroup
 from django_resaas.saas.models.user_login import UserLogin
 from django_resaas.saas.core.base.permissions import isPermited
 from django_resaas.saas.core.utils.translate import Translate
-from django_resaas.saas.core.services import temporary_password_service
+from django_resaas.saas.core.services import temporary_password_service, two_factor_service
 from django_resaas.saas.core.services.temporary_password_service import TemporaryPasswordError
 from django_resaas.saas.models.user_temporary_password import UserTemporaryPassword
 from django_resaas.saas.data.person.serializers.person import PersonSerializer
@@ -928,7 +928,10 @@ class UserAPIView(viewsets.ModelViewSet):
         if error:
             return error
 
-        return Response(temporary_password_service.details(target), status.HTTP_200_OK)
+        return Response(
+            {**temporary_password_service.details(target), "two_factor": two_factor_service.summary_for(target, getattr(request, "entity_id", None))},
+            status.HTTP_200_OK,
+        )
 
     @resaas_action(detail=True, methods=['POST'], permission='view_temporary_password')
     def viewTemporaryPassword(self, request, id, *args, **kwargs):

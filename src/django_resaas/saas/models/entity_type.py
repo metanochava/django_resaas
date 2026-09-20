@@ -1,5 +1,7 @@
 from django.db import models
 
+from django_resaas.saas.models.two_factor_policy import policy_field
+
 from django_resaas.saas.core.base.models import TimeModel
 
 
@@ -8,6 +10,9 @@ def icon_path(instance, file_name):
 
 
 class EntityType(TimeModel):
+
+    # two-factor rule of this level (see TwoFactorPolicy / two_factor_service)
+    two_factor_policy = policy_field()
 
     # =========================================================
     # GENERAL
