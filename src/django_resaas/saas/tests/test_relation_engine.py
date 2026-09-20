@@ -155,6 +155,17 @@ class TestPreviewConfig:
         # by field name, so callers never depend on positions
         assert item["values"] == {"email": "ana@example.com", "phone": "841110000", "nationality": "MZ"}
 
+    def test_a_path_through_a_relation_is_labelled_by_its_first_hop(self):
+        from django_resaas.hr.models.employee import Employee
+        from django_resaas.hr.models.job_position import JobPosition
+
+        person = Person.objects.create(name="Rui", surname="Nhaca")
+        employee = Employee(person=person, position=JobPosition(title="Surgeon"))
+
+        item = build_preview_item(employee, get_relation_preview_config(Employee))
+
+        assert item["meta"] == [{"field": "position__title", "label": "Position", "value": "Surgeon"}]
+
     def test_dotted_paths_are_select_related(self):
         from django_resaas.hr.models.employee import Employee
 

@@ -159,9 +159,12 @@ def build_preview_item(obj, config, request=None):
         field = _resolve_field(Model, path)
         text = _text(obj, path, field)
         if text:
+            # "position__title" reads as the record's Position, not a bare
+            # "Title": a path through a relation is labelled by its first hop
+            labelled = _resolve_field(Model, path.split("__")[0]) if "__" in path else field
             meta.append({
                 "field": path,
-                "label": str(getattr(field, "verbose_name", path)).replace("_", " ").title(),
+                "label": str(getattr(labelled, "verbose_name", path)).replace("_", " ").title(),
                 "value": text,
             })
 

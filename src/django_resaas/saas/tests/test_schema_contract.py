@@ -327,9 +327,20 @@ def test_relation_field_carries_relation_config(bootstrap_tenant):
         "model": "Employee",
         "endpoint": "hr/employees/",
         "permissions": {
+            "list": "list_employee",
             "add": "add_employee",
             "change": "change_employee",
             "view": "view_employee",
+        },
+        # relation picker metadata (additive): where "View" goes, how the
+        # relation is presented, and the related model's declared preview
+        "routes": {"view": "view_employee"},
+        "variant": "select",
+        "preview": {
+            "title": "person__full_name",
+            "subtitle": ["code", "work_email"],
+            "avatar": "person__photo",
+            "meta": ["position__title"],
         },
     }
 
