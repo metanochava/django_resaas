@@ -1321,4 +1321,10 @@ key_value = {
     "Two-factor authentication": "Autenticación de dos factores",
     "Organisation policy": "Política de la organización",
 
+    # frontend UI strings
+    "Change email": "Cambiar correo electrónico",
+    "Current email": "Correo electrónico actual",
+    "New email": "Nuevo correo electrónico",
+    "A verification code will be sent to the new email. It only changes after you confirm the code.": "Se enviará un código de verificación al nuevo correo. Solo se cambia después de confirmar el código.",
+
 }
