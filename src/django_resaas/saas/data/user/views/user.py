@@ -23,6 +23,9 @@ from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.models.entity_group import EntityGroup
 from django_resaas.saas.core.base.permissions import isPermited
 from django_resaas.saas.core.utils.translate import Translate
+from django_resaas.saas.core.services import temporary_password_service
+from django_resaas.saas.core.services.temporary_password_service import TemporaryPasswordError
+from django_resaas.saas.models.user_temporary_password import UserTemporaryPassword
 from django_resaas.saas.data.person.serializers.person import PersonSerializer
 from django_resaas.saas.models.person import Person
 
@@ -821,3 +824,87 @@ class UserAPIView(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+
+    # ------------------------------------------------------------------
+    # TEMPORARY PASSWORD (security section of the User details)
+    #
+    # passwordSecurity            GET   state only (no secret)        view_user
+    # viewTemporaryPassword       POST  reveals it - audited          view_temporary_password
+    # regenerateTemporaryPassword POST  replaces it - audited         regenerate_temporary_password
+    #
+    # All PROTECTED (never public): authenticated + signed tenant context +
+    # permission + entity scope, enforced here; the permissions are the ones
+    # created by create_model_permissions (MODULE_PERMISSIONS), granted
+    # explicitly. The normal User serializer never carries any of this, and
+    # revealing is a POST so it is never cached, prefetched or replayed by a
+    # link.
+    # ------------------------------------------------------------------
+
+    def _secure_target(self, request, id, permission):
+        """Returns (target_user, error_response). Exactly one is not None."""
+        if not request.user or not request.user.is_authenticated:
+            return None, self._group_error(request, "authentication_required", "Authentication required.", status.HTTP_401_UNAUTHORIZED)
+
+        if not getattr(request, "entity_id", None) or not getattr(request, "branch_id", None):
+            return None, self._group_error(request, "tenant_context_required", "RESAAS context is required.", status.HTTP_403_FORBIDDEN)
+
+        if not isPermited(request=request, role=permission):
+            return None, self._group_error(request, "permission_denied", "Permission denied", status.HTTP_403_FORBIDDEN)
+
+        try:
+            target = User.objects.filter(pk=id).first()
+        except (ValueError, DjangoValidationError):
+            target = None
+
+        # tenant scope: a member of THIS entity, or an account whose
+        # temporary password was issued in this entity's context. Anything
+        # else is "not found" - existence is not revealed across entities.
+        in_scope = target is not None and (
+            EntityUser.objects.filter(entity_id=request.entity_id, user_id=target.id).exists()
+            or UserTemporaryPassword.objects.filter(user_id=target.id, entity_id=request.entity_id).exists()
+        )
+
+        if not in_scope:
+            return None, self._group_error(request, "user_not_found", "User not found.", status.HTTP_404_NOT_FOUND)
+
+        return target, None
+
+    @resaas_action(detail=True, methods=['GET'], permission='view_user')
+    def passwordSecurity(self, request, id, *args, **kwargs):
+        target, error = self._secure_target(request, id, 'view_user')
+        if error:
+            return error
+
+        return Response(temporary_password_service.details(target), status.HTTP_200_OK)
+
+    @resaas_action(detail=True, methods=['POST'], permission='view_temporary_password')
+    def viewTemporaryPassword(self, request, id, *args, **kwargs):
+        target, error = self._secure_target(request, id, 'view_temporary_password')
+        if error:
+            return error
+
+        try:
+            password = temporary_password_service.reveal(target, actor=request.user, request=request)
+        except TemporaryPasswordError as exc:
+            http_status = status.HTTP_410_GONE if exc.code == "temporary_password_expired" else status.HTTP_404_NOT_FOUND
+            return self._group_error(request, exc.code, exc.message, http_status)
+
+        response = Response(
+            {"password": password, **temporary_password_service.details(target)},
+            status.HTTP_200_OK,
+        )
+        response["Cache-Control"] = "no-store"
+        return response
+
+    @resaas_action(detail=True, methods=['POST'], permission='regenerate_temporary_password')
+    def regenerateTemporaryPassword(self, request, id, *args, **kwargs):
+        target, error = self._secure_target(request, id, 'regenerate_temporary_password')
+        if error:
+            return error
+
+        if target.pk == request.user.pk:
+            return self._group_error(request, "cannot_regenerate_own_password", "You cannot regenerate your own password.", status.HTTP_400_BAD_REQUEST)
+
+        temporary_password_service.issue(target, actor=request.user, request=request, regenerate=True)
+
+        return Response(temporary_password_service.details(target), status.HTTP_200_OK)

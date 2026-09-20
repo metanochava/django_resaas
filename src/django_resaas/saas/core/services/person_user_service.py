@@ -102,7 +102,7 @@ def create_user_for_person(person):
             last_name=person.surname or "",
             state=person.state or "Active",
         )
-        user.set_unusable_password()
+        user.set_unusable_password()  # replaced by the temporary password right after linking
 
         # The Person already exists: the User -> Person signal must not
         # create a second one, and the two-way field sync has nothing to do.
@@ -124,5 +124,12 @@ def create_user_for_person(person):
     # update() (not save()): linking must not re-trigger the sync signals
     type(person).objects.filter(pk=person.pk).update(user=user)
     person.user = user
+
+    # The new account starts with a TEMPORARY password (hash + audited,
+    # encrypted copy an authorised administrator can read back until the
+    # user replaces it) - see temporary_password_service.py.
+    from django_resaas.saas.core.services import temporary_password_service
+
+    temporary_password_service.issue(user, actor=getattr(person, "created_by", None))
 
     return user

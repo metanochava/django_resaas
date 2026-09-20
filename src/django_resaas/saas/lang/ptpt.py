@@ -1289,4 +1289,30 @@ key_value = {
     "Add employee": "Adicionar funcionário",
     "Pick the person who is this employee.": "Escolha a pessoa que é este funcionário.",
 
+    # frontend UI strings
+    "This user has no temporary password.": "Este utilizador não tem uma password temporária.",
+    "The temporary password has expired. Generate a new one.": "A password temporária expirou. Gere uma nova.",
+    "The temporary password has expired. Ask an administrator for a new one.": "A password temporária expirou. Peça uma nova a um administrador.",
+    "You cannot regenerate your own password.": "Não pode regenerar a sua própria password.",
+    "The new password must be different from the temporary one": "A nova password tem de ser diferente da temporária.",
+
+    # frontend UI strings
+    "Security": "Segurança",
+    "Temporary password": "Password temporária",
+    "Temporary password expired": "Password temporária expirada",
+    "Password set by the user": "Password definida pelo utilizador",
+    "View password": "Visualizar password",
+    "Password copied.": "Password copiada.",
+    "Generate a new temporary password": "Gerar nova password temporária",
+    "The current temporary password will stop working and a new one will be created. Continue?": "A password temporária atual deixará de funcionar e será criada uma nova. Continuar?",
+    "Generate": "Gerar",
+    "A new temporary password was generated.": "Foi gerada uma nova password temporária.",
+    "This is a sensitive credential.": "Esta é uma credencial sensível.",
+    "The password chosen by the user cannot be viewed.": "A password escolhida pelo utilizador não pode ser visualizada.",
+    "Could not load the security details.": "Não foi possível carregar os detalhes de segurança.",
+    "Choose your password": "Escolha a sua password",
+    "Your temporary password must be replaced before you can continue.": "A sua password temporária tem de ser substituída antes de continuar.",
+    "The passwords do not match": "As passwords não coincidem",
+    "Save password": "Guardar password",
+
 }

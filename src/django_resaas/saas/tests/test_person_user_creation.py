@@ -129,7 +129,9 @@ def test_creating_a_person_creates_exactly_one_linked_user():
     assert person.user.username == "helena"
     assert person.user.email == "helena@example.com"
     assert (person.user.first_name, person.user.last_name) == ("Helena", "Marrengula")
-    assert person.user.has_usable_password() is False
+    # the account starts with a TEMPORARY password (see test_temporary_password.py)
+    assert person.user.has_usable_password() is True
+    assert person.user.must_change_password is True
     assert Person.objects.filter(user=person.user).count() == 1
 
 

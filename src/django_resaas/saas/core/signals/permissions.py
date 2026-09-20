@@ -27,6 +27,17 @@ from django_resaas.saas.models.user import User
 
 MODULE_PERMISSIONS = {
     "django_resaas": [
+        # sensitive User security operations (see UserAPIView.viewTemporaryPassword
+        # / regenerateTemporaryPassword) - granted explicitly, never implied by
+        # view_user/change_user
+        {
+            "codename": "view_temporary_password",
+            "name": "Can view a user's temporary password",
+        },
+        {
+            "codename": "regenerate_temporary_password",
+            "name": "Can regenerate a user's temporary password",
+        },
         {
             "codename": "view_django_resaas_dashboard",
             "name": "Can view Django RESAAS dashboard",
@@ -262,6 +273,13 @@ def create_model_permissions(sender, **kwargs):
     admin_group.permissions.add(*created_perms)
 
     create_module_permissions()
+
+    # Root (the platform owners' group) holds the sensitive User-security
+    # permissions from the start; every other group gets them only by an
+    # explicit grant.
+    admin_group.permissions.add(*Permission.objects.filter(
+        codename__in=("view_temporary_password", "regenerate_temporary_password")
+    ))
 
 
 

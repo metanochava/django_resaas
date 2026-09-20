@@ -9,8 +9,11 @@ class AuditLog(TimeModel):
     action = models.CharField(max_length=50)
     model = models.CharField(max_length=105)
     object_id = models.CharField(max_length=100)
+    # request context of the event (both optional: shell/commands have none)
+    entity = models.ForeignKey('django_resaas.Entity', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
     class RESAAS:
-        label_field = "name"
+        label_field = "action"
         crud = True
         routes={
             'list': "list_auditlog",
