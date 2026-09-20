@@ -55,6 +55,24 @@ class TestRelationSchema:
         # only the field that asked
         assert _field(fields, "manager")["relation_config"]["variant"] == "select"
 
+    def test_a_relation_field_can_opt_into_the_modal_variant_and_carries_the_view_route(self):
+        from django_resaas.hr.models.employee import Employee
+
+        with mock.patch.object(Employee.RESAAS, "fields", {"person": {"relation_variant": "modal"}}, create=True):
+            config = _field(_schema_fields(Employee), "person")["relation_config"]
+
+        assert config["variant"] == "modal"
+        # where "View" shows all the data of the related record
+        assert config["routes"] == {"view": "view_person"}
+
+    def test_an_unknown_variant_is_ignored(self):
+        from django_resaas.hr.models.employee import Employee
+
+        with mock.patch.object(Employee.RESAAS, "fields", {"person": {"relation_variant": "nope"}}, create=True):
+            config = _field(_schema_fields(Employee), "person")["relation_config"]
+
+        assert config["variant"] == "select"
+
     def test_the_related_model_can_make_every_relation_to_it_a_card(self):
         from django_resaas.hr.models.employee import Employee
 

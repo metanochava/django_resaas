@@ -181,6 +181,11 @@ def _resolve_relation_model(f: models.Field):
     return rel_model
 
 
+# the rich relation picker: "card" renders the selected record as a card in
+# place, "modal" as a compact input that opens the search in a modal
+RELATION_PICKER_VARIANTS = ("card", "modal")
+
+
 def _build_relation_config(related_model, field_config=None) -> Dict[str, Any]:
     """
     Django-Admin-style "add related" support: the schema is the only
@@ -219,6 +224,8 @@ def _build_relation_config(related_model, field_config=None) -> Dict[str, Any]:
         #   "card"   - the rich relation picker: search results + selected
         #              value as cards built from the related model's
         #              RESAAS.preview
+        #   "modal"  - the same picker as a compact input that opens the
+        #              search in a modal (fields that must stay one line high)
         # A declared preview alone never changes an existing form - "card" is
         # opt-in, either per relation field in the OWNING model
         # (RESAAS.fields = {"employee": {"relation_variant": "card"}}) or for
@@ -228,6 +235,12 @@ def _build_relation_config(related_model, field_config=None) -> Dict[str, Any]:
         "variant": "select",
     }
 
+    # the frontend route that shows ALL the data of a related record (the
+    # picker's "View"); RESAAS.routes / the default view_<model> convention
+    view_route = (get_route(related_model) or {}).get("view")
+    if view_route:
+        config["routes"] = {"view": view_route}
+
     preview = get_relation_preview_config(related_model)
 
     if preview:
@@ -236,8 +249,8 @@ def _build_relation_config(related_model, field_config=None) -> Dict[str, Any]:
         declared = getattr(getattr(related_model, "RESAAS", None), "preview", None) or {}
         wanted = (field_config or {}).get("relation_variant") or declared.get("variant")
 
-        if wanted == "card":
-            config["variant"] = "card"
+        if wanted in RELATION_PICKER_VARIANTS:
+            config["variant"] = wanted
 
     return config
 
