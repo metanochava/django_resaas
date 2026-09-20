@@ -1287,4 +1287,34 @@ key_value = {
     "RESAAS context is required.": "Se requiere el contexto RESAAS.",
     "Permission denied": "Permiso denegado",
 
+    # frontend UI strings
+    "Add employee": "Añadir empleado",
+    "Pick the person who is this employee.": "Elija la persona que es este empleado.",
+
+    # frontend UI strings
+    "This user has no temporary password.": "Este usuario no tiene una contraseña temporal.",
+    "The temporary password has expired. Generate a new one.": "La contraseña temporal ha caducado. Genere una nueva.",
+    "The temporary password has expired. Ask an administrator for a new one.": "La contraseña temporal ha caducado. Pida una nueva a un administrador.",
+    "You cannot regenerate your own password.": "No puede regenerar su propia contraseña.",
+    "The new password must be different from the temporary one": "La nueva contraseña debe ser distinta de la temporal.",
+
+    # frontend UI strings
+    "Security": "Seguridad",
+    "Temporary password": "Contraseña temporal",
+    "Temporary password expired": "Contraseña temporal caducada",
+    "Password set by the user": "Contraseña definida por el usuario",
+    "View password": "Ver contraseña",
+    "Password copied.": "Contraseña copiada.",
+    "Generate a new temporary password": "Generar nueva contraseña temporal",
+    "The current temporary password will stop working and a new one will be created. Continue?": "La contraseña temporal actual dejará de funcionar y se creará una nueva. ¿Continuar?",
+    "Generate": "Generar",
+    "A new temporary password was generated.": "Se generó una nueva contraseña temporal.",
+    "This is a sensitive credential.": "Esta es una credencial sensible.",
+    "The password chosen by the user cannot be viewed.": "La contraseña elegida por el usuario no se puede ver.",
+    "Could not load the security details.": "No se pudieron cargar los detalles de seguridad.",
+    "Choose your password": "Elija su contraseña",
+    "Your temporary password must be replaced before you can continue.": "Su contraseña temporal debe sustituirse antes de continuar.",
+    "The passwords do not match": "Las contraseñas no coinciden",
+    "Save password": "Guardar contraseña",
+
 }

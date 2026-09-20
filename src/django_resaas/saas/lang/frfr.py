@@ -1263,4 +1263,34 @@ key_value = {
     "RESAAS context is required.": "Le contexte RESAAS est requis.",
     "Permission denied": "Permission refusée",
 
+    # frontend UI strings
+    "Add employee": "Ajouter un employé",
+    "Pick the person who is this employee.": "Choisissez la personne qui est cet employé.",
+
+    # frontend UI strings
+    "This user has no temporary password.": "Cet utilisateur n'a pas de mot de passe temporaire.",
+    "The temporary password has expired. Generate a new one.": "Le mot de passe temporaire a expiré. Générez-en un nouveau.",
+    "The temporary password has expired. Ask an administrator for a new one.": "Le mot de passe temporaire a expiré. Demandez-en un nouveau à un administrateur.",
+    "You cannot regenerate your own password.": "Vous ne pouvez pas régénérer votre propre mot de passe.",
+    "The new password must be different from the temporary one": "Le nouveau mot de passe doit être différent du mot de passe temporaire.",
+
+    # frontend UI strings
+    "Security": "Sécurité",
+    "Temporary password": "Mot de passe temporaire",
+    "Temporary password expired": "Mot de passe temporaire expiré",
+    "Password set by the user": "Mot de passe défini par l'utilisateur",
+    "View password": "Voir le mot de passe",
+    "Password copied.": "Mot de passe copié.",
+    "Generate a new temporary password": "Générer un nouveau mot de passe temporaire",
+    "The current temporary password will stop working and a new one will be created. Continue?": "Le mot de passe temporaire actuel ne fonctionnera plus et un nouveau sera créé. Continuer ?",
+    "Generate": "Générer",
+    "A new temporary password was generated.": "Un nouveau mot de passe temporaire a été généré.",
+    "This is a sensitive credential.": "Ceci est un identifiant sensible.",
+    "The password chosen by the user cannot be viewed.": "Le mot de passe choisi par l'utilisateur ne peut pas être consulté.",
+    "Could not load the security details.": "Impossible de charger les détails de sécurité.",
+    "Choose your password": "Choisissez votre mot de passe",
+    "Your temporary password must be replaced before you can continue.": "Votre mot de passe temporaire doit être remplacé avant de continuer.",
+    "The passwords do not match": "Les mots de passe ne correspondent pas",
+    "Save password": "Enregistrer le mot de passe",
+
 }

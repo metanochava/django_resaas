@@ -316,6 +316,14 @@ class User(
     # SAVE
     # =====================================================
 
+    def set_password(self, raw_password):
+        super().set_password(raw_password)
+
+        # any route that replaces the password (change/reset/OTP/admin) must
+        # also destroy a recoverable TEMPORARY copy - done once the new hash is
+        # saved, see save()
+        self._password_replaced = True
+
     def save(self, *args, **kwargs):
 
         if self.email == '':
@@ -325,6 +333,17 @@ class User(
             self.mobile = None
 
         super().save(*args, **kwargs)
+
+        if getattr(self, '_password_replaced', False):
+            self._password_replaced = False
+
+            from django_resaas.saas.core.services import temporary_password_service
+            temporary_password_service.discard_on_password_change(self)
+
+    @property
+    def must_change_password(self):
+        """True while the password is a temporary one (or an expired one)."""
+        return hasattr(self, 'temporary_password')
 
     # =====================================================
     # EFFECTIVE THEME

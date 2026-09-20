@@ -35,6 +35,7 @@ from django_resaas.saas.data.user.views.me import MeAPIView
 from django_resaas.saas.data.user.views.verify_email import VerifyEmail
 from django_resaas.saas.data.user.views.change_password_email import ChangePasswordEmailAPIView
 from django_resaas.saas.data.user.views.change_password_mobile import ChangePasswordMobileAPIView
+from django_resaas.saas.data.user.views.change_temporary_password import ChangeTemporaryPasswordAPIView
 from django_resaas.saas.data.user.views.request_password_reset_email import RequestPasswordResetEmailAPIView
 from django_resaas.saas.data.user.views.password_token_check import PasswordTokenCheckAPIView
 from django_resaas.saas.data.user.views.set_new_password import SetNewPasswordAPIView
@@ -204,6 +205,7 @@ urlpatterns = [
 
     path("password/change/email/", ChangePasswordEmailAPIView.as_view(), name="change_password_email"),
     path("password/change/mobile/", ChangePasswordMobileAPIView.as_view(), name="change_password_mobile"),
+    path("password/change/temporary/", ChangeTemporaryPasswordAPIView.as_view(), name="change_temporary_password"),
     path("password/reset/email/", RequestPasswordResetEmailAPIView.as_view(), name="request_password_reset_email"),
     path("password/reset/<uidb64>/<token>/", PasswordTokenCheckAPIView.as_view(), name="password_reset_confirm"),
     path("password/reset/complete/", SetNewPasswordAPIView.as_view(), name="password_reset_complete"),

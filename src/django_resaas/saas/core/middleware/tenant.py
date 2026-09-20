@@ -1,4 +1,5 @@
 from django_resaas.saas.core.tenant.context import ResaasContextService
+from django_resaas.saas.core.tenant.current import reset_current_entity_id, set_current_entity_id
 
 
 class TenantContextMiddleware:
@@ -29,4 +30,9 @@ class TenantContextMiddleware:
             except Exception as exc:
                 request.tenant_context_error = exc
 
-        return self.get_response(request)
+        marker = set_current_entity_id(request.entity_id)
+
+        try:
+            return self.get_response(request)
+        finally:
+            reset_current_entity_id(marker)
