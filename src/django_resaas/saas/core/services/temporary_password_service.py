@@ -42,6 +42,7 @@ REGENERATED = "TEMPORARY_PASSWORD_REGENERATED"
 VIEWED = "TEMPORARY_PASSWORD_VIEWED"
 EXPIRED_EVENT = "TEMPORARY_PASSWORD_EXPIRED"
 CHANGED = "TEMPORARY_PASSWORD_CHANGED"
+PASSWORD_CHANGED = "PASSWORD_CHANGED"
 
 _LETTERS_UPPER = "ABCDEFGHJKLMNPQRSTUVWXYZ"   # no I / O
 _LETTERS_LOWER = "abcdefghijkmnopqrstuvwxyz"   # no l
@@ -194,6 +195,9 @@ def discard_on_password_change(user):
 
     if removed:
         audit_service.record(action=CHANGED, target=user, actor=user)
+    elif not getattr(user, "_password_change_is_creation", False):
+        # an ordinary change of a password the user already had
+        audit_service.record(action=PASSWORD_CHANGED, target=user, actor=user)
 
 
 def complete(user, new_password):
