@@ -1234,4 +1234,33 @@ key_value = {
     # frontend UI strings
     "Search an existing person": "Rechercher une personne existante",
 
+    # frontend UI strings
+    "Profiles": "Profils",
+    "Profiles in the current entity": "Profils dans l'entité actuelle",
+    "Assign profile": "Attribuer un profil",
+    "Assign": "Attribuer",
+    "Remove profile": "Retirer le profil",
+    "Remove the profile": "Retirer le profil",
+    "this user": "cet utilisateur",
+    "Already assigned": "Déjà attribué",
+    "No profiles assigned in this entity.": "Aucun profil attribué dans cette entité.",
+    "This person does not have a user account yet.": "Cette personne n'a pas encore de compte utilisateur.",
+    "Access profiles can only be assigned to users.": "Les profils d'accès ne peuvent être attribués qu'à des utilisateurs.",
+    "You do not have permission to view the profiles.": "Vous n'avez pas la permission de voir les profils.",
+    "Could not load the profiles.": "Impossible de charger les profils.",
+    "Search profile": "Rechercher un profil",
+    "Profile assigned successfully.": "Profil attribué avec succès.",
+    "Profile removed successfully.": "Profil retiré avec succès.",
+    "Authentication required.": "Authentification requise.",
+    "User not found.": "Utilisateur introuvable.",
+    "This profile does not belong to the current entity.": "Ce profil n'appartient pas à l'entité actuelle.",
+    "You cannot remove the profile you are currently using.": "Vous ne pouvez pas retirer le profil que vous utilisez actuellement.",
+    "This profile is not assigned to the user.": "Ce profil n'est pas attribué à l'utilisateur.",
+    "This user is not a member of the current entity.": "Cet utilisateur n'est pas membre de l'entité actuelle.",
+    "This profile is already assigned to the user.": "Ce profil est déjà attribué à l'utilisateur.",
+
+    # frontend UI strings
+    "RESAAS context is required.": "Le contexte RESAAS est requis.",
+    "Permission denied": "Permission refusée",
+
 }

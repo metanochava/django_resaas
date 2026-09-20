@@ -20,10 +20,14 @@ from django_resaas.saas.data.user.serializers.user import UserSerializer
 from django_resaas.saas.data.entity.serializers.entity import EntitySerializer
 from django_resaas.saas.data.branch.serializers.branch import BranchSerializer
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
+from django_resaas.saas.models.entity_group import EntityGroup
+from django_resaas.saas.core.base.permissions import isPermited
+from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.person.serializers.person import PersonSerializer
 from django_resaas.saas.models.person import Person
 
 from django.db import transaction
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 from django_resaas.saas.core.base.views import BaseAPIView
 
@@ -312,29 +316,113 @@ class UserAPIView(viewsets.ModelViewSet):
         add = {'alert_success': '<b>' + branch.name+ '</b> was removed successfully'}
         return Response(add, status = status.HTTP_200_OK)
 
+    # ------------------------------------------------------------------
+    # GROUP ASSIGNMENT (userGroups / addGroup / removeGroup)
+    #
+    # The assignment IS a BranchUserGroup row (branch, user, group): the
+    # branch always comes from the signed tenant context (request.branch_id),
+    # never from the request body. These three actions used to run with no
+    # authentication or authorization at all (this ViewSet is not a
+    # BaseAPIView and DEFAULT_PERMISSION_CLASSES is empty), accepted any
+    # Group id (including groups the Entity does not own, e.g. Root) and any
+    # user id. They now enforce, on the backend:
+    #
+    #   authenticated  +  tenant context  +  permission  +  tenant scope
+    #
+    # The permission is the one of the model that really represents the
+    # assignment (BranchUserGroup: list_/add_/delete_branchusergroup - the
+    # existing, already-synchronised model permissions, declared below with
+    # @resaas_action(permission=...) so declaration and enforcement share one
+    # source). The URLs and success payloads are unchanged.
+    # ------------------------------------------------------------------
+
+    def _group_error(self, request, code, message, http_status):
+        # stable machine code + translated human message
+        return Response(
+            {"code": code, "detail": Translate.tdc(request, message)},
+            status=http_status,
+        )
+
+    def _group_assignment_guard(self, request, id, allow_self=False):
+        """Returns (target_user, error_response). Exactly one is not None.
+
+        allow_self: a user may always read THEIR OWN profiles of the current
+        branch without any permission - that is how the login flow lists the
+        profiles to pick from (GroupStore.getGroups), before any profile is
+        even active. Everything about OTHER users needs the permission."""
+        if not request.user or not request.user.is_authenticated:
+            return None, self._group_error(request, "authentication_required", "Authentication required.", status.HTTP_401_UNAUTHORIZED)
+
+        reading_own = allow_self and str(id) == str(request.user.id)
+
+        if not getattr(request, "entity_id", None) or not getattr(request, "branch_id", None):
+            if reading_own:
+                # nothing selected yet -> nothing assigned (as before)
+                return request.user, Response([], status.HTTP_200_OK)
+
+            return None, self._group_error(request, "tenant_context_required", "RESAAS context is required.", status.HTTP_403_FORBIDDEN)
+
+        permission = getattr(self, self.action)._resaas_action["permission"]
+
+        if not reading_own and not isPermited(request=request, role=permission):
+            return None, self._group_error(request, "permission_denied", "Permission denied", status.HTTP_403_FORBIDDEN)
+
+        try:
+            target = User.objects.filter(pk=id).first()
+        except (ValueError, DjangoValidationError):
+            target = None
+
+        if target is None:
+            return None, self._group_error(request, "user_not_found", "User not found.", status.HTTP_404_NOT_FOUND)
+
+        return target, None
+
+    def _is_entity_member(self, request, user):
+        return EntityUser.objects.filter(entity_id=request.entity_id, user_id=user.id).exists()
+
+    def _entity_group_or_error(self, request, raw_group_id):
+        """The Group, only if the CURRENT Entity owns it (EntityGroup)."""
+        try:
+            group = Group.objects.filter(
+                pk=raw_group_id,
+                entitygroup__entity_id=request.entity_id,
+            ).first()
+        except (ValueError, TypeError, DjangoValidationError):
+            group = None
+
+        if group is None:
+            return None, self._group_error(request, "group_not_in_entity", "This profile does not belong to the current entity.", status.HTTP_404_NOT_FOUND)
+
+        return group, None
+
     @resaas_action(
         detail=True,
         methods=['GET'],
+        permission='list_branchusergroup',
     )
     def userGroups(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
-        user = UserSerializer(user)
+        target, error = self._group_assignment_guard(request, id, allow_self=True)
+        if error:
+            return error
 
-        if self.request.query_params.get('branch') == 'nulo' or self.request.query_params.get('branch') == None:
-            pass
-        else:
-            branch_id = self.request.query_params.get('branch')
+        # a user outside the current Entity has no assignments in it
+        if str(target.id) != str(request.user.id) and not self._is_entity_member(request, target):
+            return Response([], status.HTTP_200_OK)
 
-        branchUserGroups = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id)
-        ar = []
-        if (branchUserGroups):
-            for branchUserGroup in branchUserGroups:
-                group = Group.objects.get(id=branchUserGroup.group.id)
-                ar.append({'id': group.id, 'name': group.name})
+        assignments = (
+            BranchUserGroup.objects
+            .filter(user_id=target.id, branch_id=request.branch_id)
+            .select_related('group')
+            .order_by('group__name')
+        )
 
-        if True:
-            return Response(ar, status.HTTP_200_OK)
-        return Response([], status.HTTP_400_BAD_REQUEST)
+        return Response(
+            [
+                {'id': item.group.id, 'name': item.group.name, 'state': item.state}
+                for item in assignments
+            ],
+            status.HTTP_200_OK,
+        )
 
     @resaas_action(
         detail=True,
@@ -647,59 +735,86 @@ class UserAPIView(viewsets.ModelViewSet):
     @resaas_action(
         detail=True,
         methods=['POST'],
+        permission='delete_branchusergroup',
     )
-    def removeGroup(self, request, id ):
-        user = User.objects.get(id=id)
-        group_id = request.data['group']
-        branchUserGroup = BranchUserGroup.objects.filter(user__id=id, branch__id=request.branch_id, group__id=group_id).first().delete()
-        ar = []
+    def removeGroup(self, request, id):
+        target, error = self._group_assignment_guard(request, id)
+        if error:
+            return error
 
-        return Response(ar, status.HTTP_200_OK)
+        group_id = request.data.get('group')
 
+        # never lock yourself out of the profile you are acting with
+        if str(target.id) == str(request.user.id) and str(group_id) == str(request.group_id):
+            return self._group_error(request, "cannot_remove_own_active_group", "You cannot remove the profile you are currently using.", status.HTTP_400_BAD_REQUEST)
 
+        try:
+            assignment = BranchUserGroup.objects.filter(
+                user_id=target.id,
+                branch_id=request.branch_id,
+                group_id=group_id,
+            ).first()
+        except (ValueError, TypeError, DjangoValidationError):
+            assignment = None
+
+        if assignment is None or not self._is_entity_member(request, target):
+            return self._group_error(request, "group_not_assigned", "This profile is not assigned to the user.", status.HTTP_404_NOT_FOUND)
+
+        # only the assignment goes - never the Group, EntityGroup, user or
+        # the same group's assignment in another branch/entity
+        assignment.delete()
+
+        return Response([], status.HTTP_200_OK)
 
     @resaas_action(
         detail=True,
         methods=['POST'],
+        permission='add_branchusergroup',
     )
     def addGroup(self, request, id):
+        target, error = self._group_assignment_guard(request, id)
+        if error:
+            return error
 
-        user = User.objects.get(id=id)
+        group, error = self._entity_group_or_error(request, request.data.get('group'))
+        if error:
+            return error
 
-        group = Group.objects.get(id=request.data['group'])
+        with transaction.atomic():
+            # Membership: the user must already belong to this Entity (the
+            # convention UserAPIView.update() uses). Bringing a user in is a
+            # separate authorization (add_entityuser), checked here rather
+            # than granted silently.
+            if not self._is_entity_member(request, target):
+                if not isPermited(request=request, role='add_entityuser'):
+                    return self._group_error(request, "user_not_in_entity", "This user is not a member of the current entity.", status.HTTP_403_FORBIDDEN)
 
-        branch = Branch.objects.get(id=request.branch_id)
+                EntityUser.objects.get_or_create(user=target, entity_id=request.entity_id)
 
-        branchUserGroup = BranchUserGroup.all_objects.filter(
-            user_id=user.id,
-            branch_id=branch.id,
-            group_id=group.id
-        ).first()
+            branch = Branch.objects.get(id=request.branch_id, entity_id=request.entity_id)
+            BranchUser.objects.get_or_create(user=target, branch=branch)
 
-        if branchUserGroup:
+            assignment = BranchUserGroup.all_objects.filter(
+                user_id=target.id,
+                branch_id=branch.id,
+                group_id=group.id,
+            ).first()
 
-            if branchUserGroup.deleted_at:
+            if assignment and not assignment.deleted_at:
+                return self._group_error(request, "group_already_assigned", "This profile is already assigned to the user.", status.HTTP_409_CONFLICT)
 
-                branchUserGroup.deleted_at = None
-
-                branchUserGroup.save(update_fields=['deleted_at'])
-
-            message = 'Group linked successfully'
-
-        else:
-
-            branchUserGroup = BranchUserGroup.objects.create(
-                user=user,
-                group=group,
-                branch=branch
-            )
-
-            message = 'Group added successfully'
+            if assignment:
+                assignment.deleted_at = None
+                assignment.save(update_fields=['deleted_at'])
+                message = 'Group linked successfully'
+            else:
+                assignment = BranchUserGroup.objects.create(user=target, group=group, branch=branch)
+                message = 'Group added successfully'
 
         return Response(
             {
-                'id': branchUserGroup.id,
-                'user': str(user.id),
+                'id': assignment.id,
+                'user': str(target.id),
                 'group': str(group.id),
                 'branch': str(branch.id),
                 'alert_success': message,

@@ -1258,4 +1258,33 @@ key_value = {
     # frontend UI strings
     "Search an existing person": "Buscar una persona existente",
 
+    # frontend UI strings
+    "Profiles": "Perfiles",
+    "Profiles in the current entity": "Perfiles en la entidad actual",
+    "Assign profile": "Asignar perfil",
+    "Assign": "Asignar",
+    "Remove profile": "Quitar perfil",
+    "Remove the profile": "Quitar el perfil",
+    "this user": "este usuario",
+    "Already assigned": "Ya asignado",
+    "No profiles assigned in this entity.": "Sin perfiles asignados en esta entidad.",
+    "This person does not have a user account yet.": "Esta persona aún no tiene una cuenta de usuario.",
+    "Access profiles can only be assigned to users.": "Los perfiles de acceso solo se pueden asignar a usuarios.",
+    "You do not have permission to view the profiles.": "No tiene permiso para ver los perfiles.",
+    "Could not load the profiles.": "No se pudieron cargar los perfiles.",
+    "Search profile": "Buscar perfil",
+    "Profile assigned successfully.": "Perfil asignado con éxito.",
+    "Profile removed successfully.": "Perfil quitado con éxito.",
+    "Authentication required.": "Autenticación requerida.",
+    "User not found.": "Usuario no encontrado.",
+    "This profile does not belong to the current entity.": "Este perfil no pertenece a la entidad actual.",
+    "You cannot remove the profile you are currently using.": "No puede quitar el perfil que está usando actualmente.",
+    "This profile is not assigned to the user.": "Este perfil no está asignado al usuario.",
+    "This user is not a member of the current entity.": "Este usuario no es miembro de la entidad actual.",
+    "This profile is already assigned to the user.": "Este perfil ya está asignado al usuario.",
+
+    # frontend UI strings
+    "RESAAS context is required.": "Se requiere el contexto RESAAS.",
+    "Permission denied": "Permiso denegado",
+
 }
