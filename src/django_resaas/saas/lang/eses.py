@@ -1317,4 +1317,8 @@ key_value = {
     "The passwords do not match": "Las contraseñas no coinciden",
     "Save password": "Guardar contraseña",
 
+    # frontend UI strings
+    "Two-factor authentication": "Autenticación de dos factores",
+    "Organisation policy": "Política de la organización",
+
 }
