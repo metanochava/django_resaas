@@ -3,41 +3,47 @@
 # =========================
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+
 # Força a importação de django.contrib.auth.admin AGORA, para garantir
-# que o seu `admin.site.register(Group, GroupAdmin)` (top-level, side
-# effect da importação) já correu antes do unregister() abaixo -
-# django_resaas.saas está antes de django.contrib.auth em
-# INSTALLED_APPS (ver MY_APPS em dev/settings.py), por isso o
-# admin.autodiscover() do Django importaria "auth.admin" DEPOIS deste
-# módulo, reregistando o Group e anulando silenciosamente o
-# unregister() se ele dependesse dessa ordem. Import cacheado pelo
-# Python - quando o autodiscover tentar importar de novo, é no-op.
+# que o seu admin.site.register(Group, GroupAdmin) já correu antes do
+# unregister() abaixo.
 import django.contrib.auth.admin  # noqa: F401
+
 from django.contrib.auth.models import Group as DjangoAuthGroup
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.admin import GenericTabularInline
 
-# django.contrib.auth regista automaticamente o seu próprio Group
-# (auth.Group, em "Authentication and Authorization") - RESAAS tem o
-# seu próprio model Group (ver ResaasGroup abaixo), que é o único
-# usado nas relações de permissões/tenant. O de auth.Group fica
-# redundante e confuso no admin, por isso é removido.
+
+# =========================
+# Remove Django Group
+# =========================
 if admin.site.is_registered(DjangoAuthGroup):
     admin.site.unregister(DjangoAuthGroup)
+
 
 # =========================
 # Base
 # =========================
-from django_resaas.saas.core.base.admin import BaseAdmin, all_fields
+from django_resaas.saas.core.base.admin import (
+    BaseAdmin,
+    all_fields,
+)
+
 
 # =========================
 # Local Models
 # =========================
-from .models import Document, Person, PersonContact
+from .models import (
+    Document,
+    Person,
+    PersonContact,
+)
+
 from django_resaas.saas.models.document import DocumentType
 
 from django_resaas.saas.models.translation import Translation
 from django_resaas.saas.models.language import Language
+
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.entity_user import EntityUser
 from django_resaas.saas.models.entity_app import EntityApp
@@ -67,8 +73,14 @@ from django_resaas.saas.models.layout_setting import LayoutSetting
 from django_resaas.saas.models.animation_setting import AnimationSetting
 from django_resaas.saas.models.cors_allowed_origin import CorsAllowedOrigin
 
-# 🔥 IMPORT CORRETO DO TEU GROUP
+# RESAAS Group
 from django_resaas.saas.models.group import Group as ResaasGroup
+
+# Security
+from django_resaas.saas.models.audit_log import AuditLog
+from django_resaas.saas.models.user_temporary_password import (
+    UserTemporaryPassword,
+)
 
 
 # =========================
@@ -78,12 +90,6 @@ User = get_user_model()
 
 admin.site.site_title = 'Django Rest SaaS'
 admin.site.index_title = 'Django Rest SaaS'
-
-
-# =========================
-# 🔥 REMOVE GROUP PADRÃO DO DJANGO
-# =========================
-
 
 
 # =========================
@@ -99,26 +105,43 @@ class DocumentInline(GenericTabularInline):
 # =========================
 @admin.register(DocumentType)
 class DocumentTypeAdmin(BaseAdmin):
-    list_display = ('name', 'detalhes')
+    list_display = (
+        'name',
+        'detalhes',
+    )
+
     search_fields = ("__all__",)
 
 
 @admin.register(Document)
 class DocumentAdmin(BaseAdmin):
-    list_display = ('tipo', 'numero', 'data_emissao', 'data_validade')
+    list_display = (
+        'tipo',
+        'numero',
+        'data_emissao',
+        'data_validade',
+    )
+
     list_filter = ('tipo',)
+
     search_fields = ("__all__",)
 
 
 # =========================
-# 🔥 TEU GROUP (UUID)
+# RESAAS Group
 # =========================
 @admin.register(ResaasGroup)
 class GroupAdmin(BaseAdmin):
-    filter_horizontal = ('permissions',)
+
+    filter_horizontal = (
+        'permissions',
+    )
+
     def get_list_display(self, request):
         return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
@@ -127,50 +150,78 @@ class GroupAdmin(BaseAdmin):
 # =========================
 @admin.register(Translation)
 class TranslationAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
 @admin.register(Theme)
 class ThemeAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
 @admin.register(ThemeSurface)
 class ThemeSurfaceAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
 @admin.register(LayoutSetting)
 class LayoutSettingAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
 @admin.register(CorsAllowedOrigin)
 class CorsAllowedOriginAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
 @admin.register(Typography)
 class TypographyAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
 @admin.register(AnimationSetting)
 class AnimationSettingAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     list_display_links = ('id',)
+
     search_fields = ("__all__",)
 
 
@@ -179,56 +230,92 @@ class AnimationSettingAdmin(BaseAdmin):
 # =========================
 @admin.register(EntityGroup)
 class EntityGroupAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(Entity)
 class EntityAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'name')
-    search_fields = ['name']
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
+    list_display_links = (
+        'id',
+        'name',
+    )
+
+    search_fields = [
+        'name',
+    ]
 
 
 @admin.register(EntityUser)
 class EntityUserAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
 
 
 @admin.register(EntityApp)
 class EntityAppAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(EntityType)
 class EntityTypeAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'name')
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
+    list_display_links = (
+        'id',
+        'name',
+    )
+
     search_fields = ("__all__",)
 
 
 @admin.register(EntityTypeApp)
 class EntityTypeAppAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(EntityTypeModel)
 class EntityTypeModelAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(EntityTypeGroup)
 class EntityTypeGroupAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(EntityModel)
 class EntityModelAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
@@ -237,26 +324,42 @@ class EntityModelAdmin(BaseAdmin):
 # =========================
 @admin.register(Branch)
 class BranchAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
-    list_display_links = ('id', 'name')
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
+    list_display_links = (
+        'id',
+        'name',
+    )
+
     search_fields = ("__all__",)
 
 
 @admin.register(BranchGroup)
 class BranchGroupAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(BranchUser)
 class BranchUserAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(BranchUserGroup)
 class BranchUserGroupAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
@@ -265,38 +368,170 @@ class BranchUserGroupAdmin(BaseAdmin):
 # =========================
 @admin.register(File)
 class FileAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(UserLogin)
 class UserLoginAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(FrontEnd)
 class FrontEndAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(Language)
 class LanguageAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(ModelExtraAction)
 class ModelExtraActionAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
 
 
 @admin.register(App)
 class AppAdmin(BaseAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
+
+
+# =========================================================
+# Security
+# =========================================================
+
+
+# =========================
+# Audit Log
+# =========================
+@admin.register(AuditLog)
+class AuditLogAdmin(BaseAdmin):
+    """
+    Audit logs are immutable.
+
+    They may be inspected through Django Admin,
+    but must never be created, edited or deleted manually.
+    """
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
+    list_display_links = ('id',)
+
+    readonly_fields = ()
+
+    def get_readonly_fields(self, request, obj=None):
+        return all_fields(self.model)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # True allows opening the object detail page.
+        # All fields remain readonly.
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+# =========================
+# Temporary Password
+# =========================
+@admin.register(UserTemporaryPassword)
+class UserTemporaryPasswordAdmin(BaseAdmin):
+    """
+    Administrative view of temporary-password state.
+
+    The encrypted value is never displayed in the list and cannot
+    be edited through Django Admin.
+
+    Temporary passwords must be created/replaced/revealed through
+    the RESAAS temporary-password service.
+    """
+
+    list_display = (
+        'id',
+        'user',
+        'entity',
+        'expires_at',
+        'created_by',
+        'created_at',
+        'has_encrypted_password',
+    )
+
+    list_display_links = (
+        'id',
+        'user',
+    )
+
+    list_filter = (
+        'expires_at',
+        'created_at',
+        'entity',
+    )
+
+    search_fields = (
+        'user__username',
+        'user__email',
+        'entity__name',
+        'created_by__username',
+        'created_by__email',
+    )
+
+    readonly_fields = (
+        'id',
+        'user',
+        'entity',
+        'encrypted',
+        'expires_at',
+        'created_by',
+        'created_at',
+    )
+
+    @admin.display(
+        boolean=True,
+        description='Encrypted password',
+    )
+    def has_encrypted_password(self, obj):
+        return bool(obj.encrypted)
+
+    def has_add_permission(self, request):
+        # Creation must go through temporary_password_service.issue()
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # Allow opening detail page.
+        # readonly_fields prevents modification.
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        # Do not bypass the temporary-password lifecycle.
+        return False
 
 
 # =========================
@@ -306,12 +541,31 @@ class AppAdmin(BaseAdmin):
 class UserAdmin(BaseAdmin):
 
     def get_list_display(self, request):
-        exclude = ['password']
-        return [f for f in all_fields(self.model) if f not in exclude]
+        exclude = [
+            'password',
+        ]
 
-    list_display_links = ('id', 'username', 'email')
-    search_fields = ['username', 'mobile', 'email']
-    readonly_fields = ('password',)
+        return [
+            field
+            for field in all_fields(self.model)
+            if field not in exclude
+        ]
+
+    list_display_links = (
+        'id',
+        'username',
+        'email',
+    )
+
+    search_fields = [
+        'username',
+        'mobile',
+        'email',
+    ]
+
+    readonly_fields = (
+        'password',
+    )
 
 
 # =========================
@@ -319,8 +573,14 @@ class UserAdmin(BaseAdmin):
 # =========================
 @admin.register(Permission)
 class PermissionAdmin(admin.ModelAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
-    search_fields = ['id', 'name']
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
+    search_fields = [
+        'id',
+        'name',
+    ]
 
 
 # =========================
@@ -328,12 +588,21 @@ class PermissionAdmin(admin.ModelAdmin):
 # =========================
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
+
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
     search_fields = ("__all__",)
-    inlines = [DocumentInline]
+
+    inlines = [
+        DocumentInline,
+    ]
+
 
 @admin.register(PersonContact)
 class PersonContactAdmin(admin.ModelAdmin):
-    def get_list_display(self, request): return all_fields(self.model)
-    search_fields = ("__all__",)
 
+    def get_list_display(self, request):
+        return all_fields(self.model)
+
+    search_fields = ("__all__",)
