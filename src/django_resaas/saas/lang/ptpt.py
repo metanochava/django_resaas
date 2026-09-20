@@ -1285,4 +1285,8 @@ key_value = {
     "RESAAS context is required.": "O contexto RESAAS é obrigatório.",
     "Permission denied": "Permissão negada",
 
+    # frontend UI strings
+    "Add employee": "Adicionar funcionário",
+    "Pick the person who is this employee.": "Escolha a pessoa que é este funcionário.",
+
 }
