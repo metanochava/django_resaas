@@ -75,6 +75,11 @@ class MeSerializer(BaseSerializer):
             "username",
             "profile",
             "mobile",
+            # the account's own verification state (read-only): the Account
+            # Center shows "verified" only from these, never guesses it
+            "is_verified_email",
+            "is_verified_mobile",
+            "password_changed_at",
             "language",
             "last_login",
 

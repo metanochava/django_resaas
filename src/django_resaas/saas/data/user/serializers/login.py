@@ -7,7 +7,7 @@ from django_resaas.saas.models.user import User
 from django_resaas.saas.core.utils.translate import Translate
 from django.utils import timezone
 
-from django_resaas.saas.core.services import temporary_password_service
+from django_resaas.saas.core.services import session_service, temporary_password_service
 
 
 def authenticate(value=None, password=None):
@@ -97,11 +97,14 @@ class LoginSerializer(serializers.Serializer):
                 "tokens": None,
             }
 
+        tokens = user.tokens()
+        session_service.record_login(user, request, tokens)
+
         return {
             "id": user.id,
             "email": user.email,
             "username": user.username,
             "mobile": user.mobile,
             "must_change_password": False,
-            "tokens": user.tokens(),
+            "tokens": tokens,
         }
