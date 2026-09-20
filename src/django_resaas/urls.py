@@ -36,6 +36,11 @@ from django_resaas.saas.data.user.views.verify_email import VerifyEmail
 from django_resaas.saas.data.user.views.change_password_email import ChangePasswordEmailAPIView
 from django_resaas.saas.data.user.views.change_password_mobile import ChangePasswordMobileAPIView
 from django_resaas.saas.data.user.views.change_temporary_password import ChangeTemporaryPasswordAPIView
+from django_resaas.saas.data.user.views.two_factor import (
+    LoginTwoFactorAPIView, LoginTwoFactorSetupAPIView, LoginTwoFactorSetupConfirmAPIView,
+    TwoFactorConfirmAPIView, TwoFactorDisableAPIView, TwoFactorRecoveryAPIView,
+    TwoFactorSetupAPIView, TwoFactorStatusAPIView,
+)
 from django_resaas.saas.data.user.views.account_security import (
     SecurityActivityAPIView,
     SessionsAPIView,
@@ -212,6 +217,14 @@ urlpatterns = [
     path("password/change/email/", ChangePasswordEmailAPIView.as_view(), name="change_password_email"),
     path("password/change/mobile/", ChangePasswordMobileAPIView.as_view(), name="change_password_mobile"),
     path("password/change/temporary/", ChangeTemporaryPasswordAPIView.as_view(), name="change_temporary_password"),
+    path("two_factor/", TwoFactorStatusAPIView.as_view(), name="two_factor"),
+    path("two_factor/setup/", TwoFactorSetupAPIView.as_view(), name="two_factor_setup"),
+    path("two_factor/confirm/", TwoFactorConfirmAPIView.as_view(), name="two_factor_confirm"),
+    path("two_factor/disable/", TwoFactorDisableAPIView.as_view(), name="two_factor_disable"),
+    path("two_factor/recovery/", TwoFactorRecoveryAPIView.as_view(), name="two_factor_recovery"),
+    path("login/two_factor/", LoginTwoFactorAPIView.as_view(), name="login_two_factor"),
+    path("login/two_factor/setup/", LoginTwoFactorSetupAPIView.as_view(), name="login_two_factor_setup"),
+    path("login/two_factor/setup/confirm/", LoginTwoFactorSetupConfirmAPIView.as_view(), name="login_two_factor_setup_confirm"),
     path("sessions/", SessionsAPIView.as_view(), name="sessions"),
     path("sessions/terminate_others/", TerminateOtherSessionsAPIView.as_view(), name="sessions_terminate_others"),
     path("sessions/<str:jti>/terminate/", TerminateSessionAPIView.as_view(), name="session_terminate"),

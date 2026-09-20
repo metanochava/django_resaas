@@ -7,3 +7,4 @@ from .model_extra_action import ModelExtraAction
 from .address import Address
 from .audit_log import AuditLog
 from .user_temporary_password import UserTemporaryPassword
+from .two_factor import UserTwoFactor

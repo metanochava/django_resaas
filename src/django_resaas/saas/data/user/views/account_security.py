@@ -16,7 +16,7 @@ from django_resaas.saas.models.user_login import UserLogin
 
 # the account's own security events worth showing to its owner (an
 # administrator revealing a temporary password is deliberately NOT one of them)
-OWN_EVENTS = ("PASSWORD_CHANGED", "TEMPORARY_PASSWORD_CHANGED", "EMAIL_CHANGED", "MOBILE_CHANGED")
+OWN_EVENTS = ("PASSWORD_CHANGED", "TEMPORARY_PASSWORD_CHANGED", "EMAIL_CHANGED", "MOBILE_CHANGED", "TWO_FACTOR_ENABLED", "TWO_FACTOR_DISABLED", "TWO_FACTOR_RECOVERY_USED", "TWO_FACTOR_RECOVERY_REGENERATED")
 LIMIT = 30
 
 

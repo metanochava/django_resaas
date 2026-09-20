@@ -1,5 +1,7 @@
 from django.db import models
 
+from django_resaas.saas.models.two_factor_policy import policy_field
+
 from django_resaas.saas.models.user import User
 from django_resaas.saas.core.base.models import TimeModel
 
@@ -12,6 +14,9 @@ def logo_path(instance, file_name):
 
 
 class Entity(TimeModel):
+
+    # two-factor rule of this level (see TwoFactorPolicy / two_factor_service)
+    two_factor_policy = policy_field()
 
     # =========================================================
     # GENERAL
