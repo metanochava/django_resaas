@@ -340,8 +340,14 @@ class User(
         if self.mobile == '':
             self.mobile = None
 
+        # The flag is consumed BEFORE saving: a post_save receiver (sync_user)
+        # saves this same instance again while this save is still running, and
+        # that nested save must not see - and act on - the same replacement.
+        replaced = getattr(self, '_password_replaced', False)
+        self._password_replaced = False
+
         # a password the user chose (not one being issued as temporary)
-        if getattr(self, '_password_replaced', False) and not getattr(self, '_temporary_password_issuing', False):
+        if replaced and not getattr(self, '_temporary_password_issuing', False):
             from django.utils import timezone
 
             self.password_changed_at = timezone.now()
@@ -350,10 +356,13 @@ class User(
             if fields is not None and 'password_changed_at' not in fields:
                 kwargs['update_fields'] = [*fields, 'password_changed_at']
 
+        creating = self._state.adding
+
         super().save(*args, **kwargs)
 
-        if getattr(self, '_password_replaced', False):
-            self._password_replaced = False
+        if replaced:
+            # the very first password of a new account is not a "change"
+            self._password_change_is_creation = creating
 
             from django_resaas.saas.core.services import temporary_password_service
             temporary_password_service.discard_on_password_change(self)

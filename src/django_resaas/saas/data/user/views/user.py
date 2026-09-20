@@ -4,6 +4,7 @@ from django.apps import apps
 
 from rest_framework import viewsets, filters, status
 from django_resaas.saas.core.decorators.action import resaas_action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
 from django_resaas.saas.models.group import Group
@@ -21,6 +22,7 @@ from django_resaas.saas.data.entity.serializers.entity import EntitySerializer
 from django_resaas.saas.data.branch.serializers.branch import BranchSerializer
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.models.entity_group import EntityGroup
+from django_resaas.saas.models.user_login import UserLogin
 from django_resaas.saas.core.base.permissions import isPermited
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.services import temporary_password_service
@@ -42,6 +44,11 @@ class UserAPIView(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = "id"
+
+    # Everything here needs a signed-in user. This ViewSet used to run with no
+    # permission classes at all (DEFAULT_PERMISSION_CLASSES is empty), so its
+    # custom actions answered anonymous requests.
+    permission_classes = [IsAuthenticated]
 
     # method_permission= {
     #     'userEntitys': 'view',
@@ -220,7 +227,13 @@ class UserAPIView(viewsets.ModelViewSet):
 
     @resaas_action(detail=True, methods=["GET"])
     def userEntitys(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
+        try:
+            user = User.objects.filter(pk=id).first()
+        except (ValueError, DjangoValidationError):
+            user = None
+
+        if user is None:
+            return self._group_error(request, "user_not_found", "User not found.", status.HTTP_404_NOT_FOUND)
 
         if not request.user.is_superuser and str(request.user.id) != str(user.id):
             return Response(
@@ -261,9 +274,16 @@ class UserAPIView(viewsets.ModelViewSet):
         methods=['GET'],
     )
     def logins(self, request, id, *args, **kwargs):
-        userLogin = UserLogin.objects.filter(user_id = id).order_by('-data', 'hora')
-        userLogins = LoginSerializer(userLogin, many=True)
-        return Response(userLogins.data, status=status.HTTP_200_OK)
+        target, error = self._self_or_secure(request, id, 'view_user')
+        if error:
+            return error
+
+        logins = UserLogin.objects.filter(user_id=target.id).order_by('-created_at')[:30]
+
+        return Response(
+            [{'device': login.dispositivo or '', 'created_at': login.created_at} for login in logins],
+            status=status.HTTP_200_OK,
+        )
     
     
     @resaas_action(
@@ -271,8 +291,9 @@ class UserAPIView(viewsets.ModelViewSet):
         methods=['GET'],
     )
     def userBranchs(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
-        user = UserSerializer(user)
+        target, error = self._self_or_secure(request, id, 'view_user')
+        if error:
+            return error
 
 
         ar = []
@@ -290,9 +311,17 @@ class UserAPIView(viewsets.ModelViewSet):
         methods=['POST'],
     )
     def addUserBranch(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
+        # changing WHICH branches a user belongs to is an administrative act:
+        # permission + entity scope, never a self-service shortcut
+        user, error = self._secure_target(request, id, 'change_user')
+        if error:
+            return error
 
-        branch = Branch.objects.get(id= request.data['branch'])
+        branch = Branch.objects.filter(id=request.data.get('branch'), entity_id=request.entity_id).first() \
+            if request.data.get('branch') else None
+
+        if branch is None:
+            return self._group_error(request, "branch_not_found", "Branch not found.", status.HTTP_404_NOT_FOUND)
 
         ar = []
         userBranchs = BranchUser.objects.filter(user__id=id, branch__id= branch.id,  branch__entity__entity_type__id=request.entity_type_id, branch__entity__id=request.entity_id)
@@ -311,13 +340,33 @@ class UserAPIView(viewsets.ModelViewSet):
         methods=['POST'],
     )
     def removeUserBranch(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
-        branch = Branch.objects.get(id= request.data['branch'])
+        user, error = self._secure_target(request, id, 'change_user')
+        if error:
+            return error
 
-        userBranchs = BranchUser.objects.get(user__id=id, branch__id= branch.id, branch__entity__entity_type__id=request.entity_type_id, branch__entity__id=request.entity_id)
+        branch = Branch.objects.filter(id=request.data.get('branch'), entity_id=request.entity_id).first() \
+            if request.data.get('branch') else None
+        userBranchs = BranchUser.objects.filter(user__id=id, branch__id=branch.id if branch else None).first()
+
+        if branch is None or userBranchs is None:
+            return self._group_error(request, "branch_not_found", "Branch not found.", status.HTTP_404_NOT_FOUND)
+
         userBranchs.delete()
         add = {'alert_success': '<b>' + branch.name+ '</b> was removed successfully'}
         return Response(add, status = status.HTTP_200_OK)
+
+    # ------------------------------------------------------------------
+    # Who may act on `id`: the user themselves (own data needs no permission -
+    # it is how the login flow works before any profile is active), or someone
+    # holding the permission AND sharing the entity (see _secure_target).
+    # ------------------------------------------------------------------
+
+    def _self_or_secure(self, request, id, permission):
+        """Returns (target_user, error_response). Exactly one is not None."""
+        if str(id) == str(request.user.id):
+            return request.user, None
+
+        return self._secure_target(request, id, permission)
 
     # ------------------------------------------------------------------
     # GROUP ASSIGNMENT (userGroups / addGroup / removeGroup)
@@ -432,9 +481,10 @@ class UserAPIView(viewsets.ModelViewSet):
         methods=['GET'],
     )
     def permissions(self, request, id, *args, **kwargs):
-        user = User.objects.get(id=id)
+        target, error = self._self_or_secure(request, id, 'view_user')
+        if error:
+            return error
 
-        user = UserSerializer(user)
         branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id).first()
         
         per = []
@@ -725,8 +775,11 @@ class UserAPIView(viewsets.ModelViewSet):
         methods=['GET'],
     )
     def userPerson(self, request, id, *args, **kwargs):
+        target, error = self._self_or_secure(request, id, 'view_user')
+        if error:
+            return error
 
-        person = Person.objects.filter(user__id=id).first()
+        person = Person.objects.filter(user__id=target.id).first()
 
         if not person:
             return Response({}, status.HTTP_200_OK)

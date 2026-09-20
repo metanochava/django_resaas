@@ -16,6 +16,7 @@ from django_resaas.saas.core.services.otp_service import (
     send_registration_otp,
     verify_registration_otp,
 )
+from django_resaas.saas.core.services import audit_service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.user.serializers.user import UserSerializer
 from django_resaas.saas.models.user import User
@@ -115,9 +116,11 @@ class ConfirmProfileContactOTPView(generics.GenericAPIView):
             user.email = identifier
             user.is_verified_email = True
             user.save(update_fields=["email", "is_verified_email"])
+            audit_service.record(action="EMAIL_CHANGED", target=user, actor=user, request=request)
         else:
             user.mobile = identifier
             user.is_verified_mobile = True
             user.save(update_fields=["mobile", "is_verified_mobile"])
+            audit_service.record(action="MOBILE_CHANGED", target=user, actor=user, request=request)
 
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)

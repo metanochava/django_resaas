@@ -1,32 +1,21 @@
-from rest_framework import generics, status, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
-from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.user_login import UserLogin
-from django_resaas.saas.data.user.serializers.login import LoginSerializer
+
+LIMIT = 30
 
 
 class LoginsAPIView(generics.GenericAPIView):
+    """GET logins/ - the signed-in user's OWN recent sign-ins (newest first).
+    Own data only: authenticated, no other user's history is ever reachable."""
+
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        user_login = UserLogin.objects.filter(
-            user=request.user
-        ).order_by('data', '-hora')
-
-        user_logins = LoginSerializer(
-            user_login,
-            many=True
-        )
+        logins = UserLogin.objects.filter(user=request.user).order_by("-created_at")[:LIMIT]
 
         return Response(
-            {
-                'alert_success': Translate.tdc(
-                    request,
-                    'Login history loaded successfully'
-                ),
-                'data': user_logins.data
-            },
-            status=status.HTTP_200_OK
+            {"data": [{"device": login.dispositivo or "", "created_at": login.created_at} for login in logins]},
+            status=status.HTTP_200_OK,
         )
-
