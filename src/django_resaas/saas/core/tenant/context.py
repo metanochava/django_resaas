@@ -328,14 +328,16 @@ class ResaasContextService:
         except signing.SignatureExpired:
 
             raise PermissionDenied(
-                "RESAAS context has expired."
+                "RESAAS context has expired.",
+                code="resaas_context_expired",
             )
 
 
         except signing.BadSignature:
 
             raise PermissionDenied(
-                "Invalid RESAAS context."
+                "Invalid RESAAS context.",
+                code="resaas_context_invalid",
             )
 
 
@@ -370,7 +372,8 @@ class ResaasContextService:
         if not payload:
 
             raise PermissionDenied(
-                "RESAAS context is required."
+                "RESAAS context is required.",
+                code="resaas_context_required",
             )
 
 

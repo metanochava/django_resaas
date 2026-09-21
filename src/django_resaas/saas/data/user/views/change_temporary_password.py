@@ -2,6 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from django_resaas.saas.core.exceptions import error_response
 from django_resaas.saas.core.services import temporary_password_service, two_factor_service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.user.serializers.login import authenticate
@@ -26,7 +27,7 @@ class ChangeTemporaryPasswordAPIView(generics.GenericAPIView):
     authentication_classes = []
 
     def _fail(self, request, code, message, http_status=status.HTTP_400_BAD_REQUEST):
-        return Response({"code": code, "detail": Translate.tdc(request, message)}, status=http_status)
+        return error_response(request, message, http_status, code=code)
 
     def post(self, request):
         identifier = request.data.get("identifier")

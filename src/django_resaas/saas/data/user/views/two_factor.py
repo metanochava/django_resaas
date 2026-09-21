@@ -20,6 +20,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from django_resaas.saas.core.exceptions import error_response
 from django_resaas.saas.core.services import session_service, two_factor_service as service
 from django_resaas.saas.core.utils.translate import Translate
 
@@ -33,10 +34,7 @@ def _entity(request):
 
 
 def _error(request, error):
-    return Response(
-        {"code": error.code, "detail": Translate.tdc(request, error.message)},
-        status=error.http_status,
-    )
+    return error_response(request, error.message, error.http_status, code=error.code)
 
 
 def _setup_payload(user):
@@ -67,10 +65,7 @@ class TwoFactorStatusAPIView(_Base):
 class TwoFactorSetupAPIView(_Base):
     def post(self, request):
         if not service.details(request.user, _entity(request))["can_setup"]:
-            return Response(
-                {"code": "two_factor_disabled", "detail": Translate.tdc(request, "Two-factor authentication is not available for your organisation.")},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+            return error_response(request, "Two-factor authentication is not available for your organisation.", status.HTTP_403_FORBIDDEN, code="two_factor_disabled")
 
         try:
             return Response(_setup_payload(request.user), status=status.HTTP_200_OK)

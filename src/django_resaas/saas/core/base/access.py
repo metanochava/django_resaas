@@ -20,8 +20,10 @@ were (get_queryset, isPermited, ...): this only decides who may reach the view.
 """
 from rest_framework.permissions import SAFE_METHODS, AllowAny, IsAuthenticated
 
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
-class ExplicitAccessMixin:
+
+class ExplicitAccessMixin(ResaasResponseMixin):
     permission_classes = (IsAuthenticated,)
 
     # READ actions that are PUBLIC on purpose (empty = everything is PROTECTED)

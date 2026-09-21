@@ -2,6 +2,8 @@ from rest_framework.response import Response
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.clean import clean_name
 from rest_framework.exceptions import APIException
+
+from django_resaas.saas.core.exceptions.errors import ResaasAPIException
             
 
 class ApiResponse:
@@ -26,9 +28,14 @@ class ApiResponse:
 
     @classmethod
     def fail(cls, request, key, status=400, **extra):
-        exc = APIException(cls._msg(request, key))
-        exc.status_code = status
-        raise exc
+        """Raise the failure; the RESAAS exception handler shapes the body
+        ({"error": {code?, message, details}}). `code` / `details` are optional
+        keyword arguments; a 403 without one is published as "permission_denied"."""
+        code = extra.get("code") or ("permission_denied" if status == 403 else None)
+
+        raise ResaasAPIException(
+            cls._msg(request, key), code=code, details=extra.get("details"), status_code=status
+        )
 
     @classmethod
     def warn(cls, request, key, status=200, **extra):

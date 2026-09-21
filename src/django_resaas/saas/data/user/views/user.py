@@ -3,6 +3,7 @@ import importlib.util
 from django.apps import apps
 
 from rest_framework import viewsets, filters, status
+from django_resaas.saas.core.exceptions import error_response
 from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -390,10 +391,7 @@ class UserAPIView(viewsets.ModelViewSet):
 
     def _group_error(self, request, code, message, http_status):
         # stable machine code + translated human message
-        return Response(
-            {"code": code, "detail": Translate.tdc(request, message)},
-            status=http_status,
-        )
+        return error_response(request, message, http_status, code=code)
 
     def _group_assignment_guard(self, request, id, allow_self=False):
         """Returns (target_user, error_response). Exactly one is not None.

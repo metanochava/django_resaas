@@ -9,6 +9,7 @@ password/change/*, the account owner is the authorisation.
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
+from django_resaas.saas.core.exceptions import error_response
 from django_resaas.saas.core.services import session_service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.audit_log import AuditLog
@@ -39,16 +40,10 @@ class TerminateSessionAPIView(generics.GenericAPIView):
 
     def post(self, request, jti):
         if jti == session_service.current_session_id(request):
-            return Response(
-                {"code": "cannot_terminate_current_session", "detail": Translate.tdc(request, "Use sign out to end the current session.")},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+            return error_response(request, "Use sign out to end the current session.", status.HTTP_400_BAD_REQUEST, code="cannot_terminate_current_session")
 
         if not session_service.terminate(request.user, jti):
-            return Response(
-                {"code": "session_not_found", "detail": Translate.tdc(request, "Session not found.")},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            return error_response(request, "Session not found.", status.HTTP_404_NOT_FOUND, code="session_not_found")
 
         return Response({"alert_success": Translate.tdc(request, "Session ended.")}, status=status.HTTP_200_OK)
 
@@ -63,10 +58,7 @@ class TerminateOtherSessionsAPIView(generics.GenericAPIView):
 
         if not current:
             # a token issued before sessions existed cannot say which one it is
-            return Response(
-                {"code": "current_session_unknown", "detail": Translate.tdc(request, "Sign in again to manage your other sessions.")},
-                status=status.HTTP_409_CONFLICT,
-            )
+            return error_response(request, "Sign in again to manage your other sessions.", status.HTTP_409_CONFLICT, code="current_session_unknown")
 
         count = session_service.terminate_others(request.user, current)
 

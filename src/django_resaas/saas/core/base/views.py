@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django_resaas.saas.core.base.permissions import isPermited
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils import ok, fail  # noqa
 from django_resaas.saas.core.base.registry import VIEW_REGISTRY
@@ -236,7 +237,7 @@ class DynamicFilterBackend(DjangoFilterBackend):
 # 🚀 BASE API VIEW
 # -----------------------------------
 
-class BaseAPIView(SelectMixin, ModelViewSet):
+class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
     """
     ViewSet base multi-tenant com controlo automático de permissões.
     """
