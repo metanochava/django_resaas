@@ -231,23 +231,27 @@ def qr_data_uri(uri):
 
 
 def confirm_setup(user, code, request=None):
-    """Prove the first code: the factor becomes ACTIVE; returns the recovery codes."""
+    """Prove the first code: the factor becomes ACTIVE; returns the recovery codes.
+
+    Atomic and idempotent under retries / double clicks: the row is locked, so
+    two concurrent confirmations cannot both activate it (the second sees it
+    already active and is refused with 409)."""
     _check_not_locked(user)
 
-    row = _row(user)
-
-    if row is None or row.active:
-        raise TwoFactorError("two_factor_not_pending", "There is no two-factor setup in progress.", 409)
-
-    step = _matching_step(row, code)
-
-    if step is None:
-        _register_failure(user)
-        raise TwoFactorError("invalid_code", "Invalid or expired code", 400)
-
-    _clear_failures(user)
-
     with transaction.atomic():
+        row = UserTwoFactor.objects.select_for_update().filter(user_id=user.pk).first()
+
+        if row is None or row.active:
+            raise TwoFactorError("two_factor_not_pending", "There is no two-factor setup in progress.", 409)
+
+        step = _matching_step(row, code)
+
+        if step is None:
+            _register_failure(user)
+            raise TwoFactorError("invalid_code", "Invalid or expired code", 400)
+
+        _clear_failures(user)
+
         row.confirmed_at = timezone.now()
         row.last_used_step = step
         codes = _new_recovery_codes(row)
@@ -258,7 +262,12 @@ def confirm_setup(user, code, request=None):
 
 
 def verify(user, code, request=None):
-    """Accept a TOTP code OR a recovery code for an ACTIVE factor (once each)."""
+    """Accept a TOTP code OR a recovery code for an ACTIVE factor (once each).
+
+    Replay-proof under concurrency: the time step is claimed with a single
+    conditional UPDATE (`last_used_step < step`), so of two simultaneous
+    requests carrying the same code exactly one wins; recovery codes are
+    consumed under a row lock for the same reason."""
     _check_not_locked(user)
 
     row = _row(user)
@@ -268,13 +277,14 @@ def verify(user, code, request=None):
 
     step = _matching_step(row, code)
 
-    if step is not None and step > row.last_used_step:
-        row.last_used_step = step
-        row.save(update_fields=["last_used_step"])
-        _clear_failures(user)
-        return "totp"
+    if step is not None:
+        claimed = UserTwoFactor.objects.filter(pk=row.pk, last_used_step__lt=step).update(last_used_step=step)
 
-    if _consume_recovery_code(row, code):
+        if claimed:
+            _clear_failures(user)
+            return "totp"
+
+    if _consume_recovery_code(row.pk, code):
         _clear_failures(user)
         audit_service.record(action=RECOVERY_USED, target=user, actor=user, request=request)
         return "recovery"
@@ -324,14 +334,19 @@ def _new_recovery_codes(row):
     return [f"{code[:5]}-{code[5:]}" for code in codes]
 
 
-def _consume_recovery_code(row, code):
+def _consume_recovery_code(row_pk, code):
+    """Burn one recovery code. Locked read-modify-write: two concurrent uses of
+    the same code cannot both succeed."""
     candidate = _hash_code(code)
 
-    for stored in row.recovery_hashes:
-        if hmac.compare_digest(stored, candidate):
-            row.recovery_hashes = [item for item in row.recovery_hashes if item != stored]
-            row.save(update_fields=["recovery_hashes"])
-            return True
+    with transaction.atomic():
+        row = UserTwoFactor.objects.select_for_update().get(pk=row_pk)
+
+        for stored in row.recovery_hashes:
+            if hmac.compare_digest(stored, candidate):
+                row.recovery_hashes = [item for item in row.recovery_hashes if item != stored]
+                row.save(update_fields=["recovery_hashes"])
+                return True
 
     return False
 

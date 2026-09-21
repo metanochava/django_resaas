@@ -173,10 +173,8 @@ def test_employees_pdflist_denied_without_permission(bootstrap_tenant):
     core/signals/permissions.py::create_model_permissions). Um grupo
     novo, sem nenhuma permissão atribuída, deve continuar bloqueado -
     o relatório não é uma porta lateral à volta da autorização normal.
-    BaseAPIView.initial() devolve 400 (não 403) para falha de permissão
-    - fail(request, "Unauthorized") não passa status=403 - convenção
-    já pré-existente e usada em todas as fases anteriores, fora do
-    âmbito desta fase corrigir."""
+    BaseAPIView.initial() devolve 403 Forbidden para falha de permissão
+    (antes caía no 400 por omissão de ApiResponse.fail())."""
     tenant = bootstrap_tenant("hc-denied", modules=("hr",))
 
     empty_group = Group.objects.create(name="No Report Access")
@@ -193,4 +191,4 @@ def test_employees_pdflist_denied_without_permission(bootstrap_tenant):
 
     response = tenant["client"].get("/api/hr/employees/pdflist/")
 
-    assert response.status_code == 400
+    assert response.status_code == 403

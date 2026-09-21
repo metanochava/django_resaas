@@ -1,3 +1,4 @@
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 import base64
 import os
 import random
@@ -64,7 +65,9 @@ from django_resaas.saas.core.utils.sub_object_put import apply_sub_object_put
 
 
 @registerView("entitys", module="django_resaas")
-class EntityAPIView(viewsets.ModelViewSet):
+class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
     serializer_class = EntitySerializer

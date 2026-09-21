@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 from django_resaas.saas.core.services.registration_welcome_service import send_registration_welcome
@@ -11,6 +11,9 @@ class RegisterAPIView(generics.GenericAPIView):
     """Completes registration for an identifier already OTP-verified via
     RequestRegisterOTPView. Does not auto-login - the account is created,
     the user logs in separately through the normal login flow."""
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
 
     serializer_class = RegisterSerializer
 

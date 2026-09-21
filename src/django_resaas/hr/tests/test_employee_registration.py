@@ -154,10 +154,8 @@ def test_register_requires_its_own_permission(bootstrap_tenant):
     })
 
     # BaseAPIView.initial()'s own permission gate (register_employee, the
-    # action's own default codename) always responds with 400 via
-    # ApiResponse.fail() - see test_match_endpoint_requires_permission's
-    # own comment for the same convention.
-    assert response.status_code == 400
+    # action's own default codename) answers 403 Forbidden.
+    assert response.status_code == 403
 
 
 def test_register_requires_add_document_permission_when_documents_are_sent(bootstrap_tenant):

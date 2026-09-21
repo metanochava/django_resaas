@@ -1,6 +1,7 @@
 # =========================
 # Python standard library
 # =========================
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 import json
 
 
@@ -32,7 +33,9 @@ from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.data.group.serializers.group import GroupSerializer
 
 
-class GroupAPIView(viewsets.ModelViewSet):
+class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     """
     API de gestão de Groups (Profiles / Roles).
     """

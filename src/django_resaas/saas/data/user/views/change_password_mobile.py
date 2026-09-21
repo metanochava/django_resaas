@@ -2,7 +2,7 @@ import base64
 
 import pyotp
 
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 from django_resaas.saas.models.user import User
@@ -11,6 +11,9 @@ from django_resaas.saas.core.utils.generate_key_otp import generateKeyOTP
 
 
 class ChangePasswordMobileAPIView(generics.GenericAPIView):
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
     def post(self, request):
         phone = request.data.get('mobile')
         user = User.objects.get(mobile=phone)

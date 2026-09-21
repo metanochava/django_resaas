@@ -3,7 +3,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.encoding import smart_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 from django_resaas.saas.models.user import User
@@ -16,6 +16,9 @@ from django_resaas.saas.core.utils.email_branding import resolve_email_branding
 
 
 class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ResetPasswordEmailRequestSerializer
 
     def post(self, request):

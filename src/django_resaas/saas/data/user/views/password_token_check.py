@@ -5,7 +5,7 @@ from django.http import HttpResponsePermanentRedirect
 from django.utils.encoding import smart_str, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode
 
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 from django_resaas.saas.models.user import User
@@ -17,6 +17,9 @@ class CustomRedirect(HttpResponsePermanentRedirect):
 
 
 class PasswordTokenCheckAPIView(generics.GenericAPIView):
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
 
     def get(self, request, uidb64, token):
         redirect_url = request.GET.get('redirect_url')

@@ -1,6 +1,7 @@
 # =========================
 # Django
 # =========================
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -22,7 +23,9 @@ from django_resaas.saas.data.model.serializers.model import ModelSerializer
 
 
 
-class ModelAPIView(viewsets.ModelViewSet):
+class ModelAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     search_fields = ['id']
     filter_backends = (filters.SearchFilter,)
     serializer_class = ModelSerializer

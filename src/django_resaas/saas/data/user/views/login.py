@@ -1,6 +1,6 @@
 import re
 
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.translate import Translate
@@ -9,6 +9,9 @@ from django_resaas.saas.data.user.serializers.login import LoginSerializer
 from django.contrib.auth import authenticate
 
 class LoginAPIView(generics.GenericAPIView):
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
     serializer_class = LoginSerializer
 
     def post(self, request):

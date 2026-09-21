@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.encoding import smart_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from rest_framework import generics, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from django_resaas.saas.models.user import User
@@ -18,13 +18,21 @@ from django_resaas.saas.core.utils.templates import render_email_template
 
 class MailAPIView(generics.GenericAPIView):
     """
+    POST mail/  {email}   (DEPRECATED - use POST password/reset/email/)
+
     Generic email sending for password reset.
     Single responsibility: generate the link and send the HTML email.
+
+    PUBLIC (explicit): a password reset is requested before signing in. It
+    SENDS an email, so it is POST only - a GET must never have side effects
+    (link prefetchers and crawlers would trigger it). `email` is read from the
+    body, or from the query string for callers of the old GET contract.
     """
+    permission_classes = (permissions.AllowAny,)
     serializer_class = ResetPasswordEmailRequestSerializer
 
-    def get(self, request):
-        email = request.query_params.get('email')
+    def post(self, request):
+        email = request.data.get('email') or request.query_params.get('email')
 
         if not email:
             return Response(

@@ -467,7 +467,9 @@ class BaseAPIView(SelectMixin, ModelViewSet):
             )
 
         if not request._perm_cache[codename]:
-            fail(request, f"Unauthorized")
+            # a missing permission is 403 Forbidden (the caller is known),
+            # never a generic 400 Bad Request
+            fail(request, "Unauthorized", status=status.HTTP_403_FORBIDDEN)
             
 
     # -----------------------------------

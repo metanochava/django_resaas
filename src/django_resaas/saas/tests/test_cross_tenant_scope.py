@@ -129,5 +129,5 @@ def test_scope_opt_in_does_not_grant_permission(bootstrap_tenant, monkeypatch):
     tenant["client"].credentials(HTTP_X_RESAAS_CONTEXT=context["token"], HTTP_L="1")
 
     response = tenant["client"].get("/api/demo/products/")
-    assert response.status_code == 400
+    assert response.status_code == 403
     assert response.data["detail"] == "Unauthorized"
