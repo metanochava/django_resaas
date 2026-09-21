@@ -45,7 +45,7 @@ def test_document_type_create_is_blocked_without_add_documenttype(bootstrap_tena
         content_type="application/json",
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 403
     assert not DocumentType.objects.filter(name="Passport").exists()
 
 
