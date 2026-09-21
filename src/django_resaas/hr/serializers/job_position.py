@@ -22,7 +22,9 @@ class JobPositionSerializer(BaseSerializer):
 
         return {
             "id": obj.department.id,
-            "label": obj.department.label,
+            # RESAAS label (RESAAS.label_field), not a `label` attribute - the
+            # models have none, which made every job position LIST answer 500
+            "label": obj.department.get_label(),
             "name": getattr(obj.department, "name", None),
         }
 

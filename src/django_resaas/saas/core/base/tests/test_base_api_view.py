@@ -29,7 +29,7 @@ def test_request_denied_without_permission(bootstrap_tenant):
     )
 
     response = tenant["client"].get("/api/demo/products/")
-    assert response.status_code == 400
+    assert response.status_code == 403
     assert response.data["detail"] == "Unauthorized"
 
 
