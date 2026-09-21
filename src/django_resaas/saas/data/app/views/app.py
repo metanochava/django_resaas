@@ -1,3 +1,4 @@
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 from rest_framework import viewsets, status
 from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
@@ -10,7 +11,9 @@ from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.entity_type_app import EntityTypeApp
 
 
-class AppAPIView(viewsets.ModelViewSet):
+class AppAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     search_fields = ['name']
     filter_backends = (filters.SearchFilter,)
     serializer_class = AppSerializer

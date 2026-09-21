@@ -1,4 +1,5 @@
 # 📦 Standard library
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 import logging
 import shutil
 from pathlib import Path
@@ -676,7 +677,9 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
     return out
 
 
-class AppSchemaAPIView(ModelViewSet):
+class AppSchemaAPIView(ExplicitAccessMixin, ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
 
     A = []
     serializer_class = None

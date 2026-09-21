@@ -15,6 +15,7 @@ prefixos estáticos `{module}/{name}/`, sem parâmetros de path (ver
 saas/core/utils/autoload_urls.py).
 """
 
+from rest_framework import permissions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -37,6 +38,10 @@ class _DashboardEngineAPIView(APIView):
     único `module_name`/`permission_codename` fixos, porque estes
     endpoints são genéricos e resolvem o módulo a partir do path
     (`app_name`)."""
+
+    # PROTECTED (explicit): a signed-in user with a valid tenant context; the
+    # dashboard / widget permissions are then checked by DashboardPermissionService
+    permission_classes = (permissions.IsAuthenticated,)
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)

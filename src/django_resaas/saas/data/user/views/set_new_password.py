@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 
@@ -6,6 +6,9 @@ from django_resaas.saas.data.user.serializers.set_new_password import SetNewPass
 
 
 class SetNewPasswordAPIView(generics.GenericAPIView):
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
     serializer_class = SetNewPasswordSerializer
 
     def patch(self, request):

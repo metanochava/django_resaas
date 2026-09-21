@@ -1,6 +1,7 @@
 # =========================
 # Python standard library
 # =========================
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 import base64
 import os
 import random
@@ -53,7 +54,9 @@ from django_resaas.saas.data.file.serializers.file_gravar import FileGravarSeria
 
 
 
-class  BranchAPIView(viewsets.ModelViewSet):
+class BranchAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     #permission_classes = (permissions.IsAuthenticated)
     search_fields = ['id','name']
     filter_backends = (filters.SearchFilter,)

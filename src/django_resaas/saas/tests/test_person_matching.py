@@ -111,11 +111,10 @@ def test_match_endpoint_requires_permission(bootstrap_tenant):
         content_type="application/json",
     )
 
-    # BaseAPIView.initial()'s own permission gate always responds via
-    # ApiResponse.fail() (see saas/core/utils/api_response.py), whose
-    # default status is 400, not 403 - matches the rest of the API's
-    # existing convention for a denied action's own base permission.
-    assert response.status_code == 400
+    # BaseAPIView.initial()'s own permission gate answers 403 Forbidden (it
+    # used to fall through ApiResponse.fail()'s default 400 - see
+    # CLAUDE.md, "REST API ARCHITECTURE").
+    assert response.status_code == 403
 
 
 def test_match_endpoint_returns_candidates_with_matched_fields_and_documents(bootstrap_tenant):

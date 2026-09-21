@@ -1,3 +1,4 @@
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 from django.contrib.auth.models import Permission
 from django.db import transaction
 from django.db.models import F
@@ -14,7 +15,9 @@ from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.data.permission.serializers.permission import PermissionSerializer
 
 
-class PermissionAPIView(viewsets.ModelViewSet):
+class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
     filter_backends = (filters.SearchFilter,)

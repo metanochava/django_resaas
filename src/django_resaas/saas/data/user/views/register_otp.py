@@ -1,4 +1,4 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
 from django_resaas.saas.core.services.otp_service import send_registration_otp
@@ -13,6 +13,9 @@ class RequestRegisterOTPView(generics.GenericAPIView):
     """Step 1 of registration: send an OTP to an email or mobile that
     isn't already registered. No auth required - the account doesn't
     exist yet."""
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         channel = request.data.get("channel")

@@ -1,6 +1,6 @@
 from django.contrib import auth
 
-from rest_framework import generics, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.translate import Translate
@@ -9,7 +9,31 @@ from django_resaas.saas.data.user.serializers.login import LoginSerializer
 
 
 class ChangePasswordEmailAPIView(generics.GenericAPIView):
+    """
+    POST password/change/email/  {email, password, passwordNova}
+
+    PROTECTED: it changes the password of the SIGNED-IN account. It used to be
+    public - anyone could probe another account's password (no session, no
+    throttle) and replace it - so the account in `email` must now be the
+    authenticated one.
+    """
+
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request):
+        email = str(request.data.get('email') or '').strip().lower()
+
+        if not email or email != str(request.user.email or '').strip().lower():
+            return Response(
+                {
+                    'alert_error': Translate.tdc(
+                        request,
+                        'The current password is incorrect'
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         user = auth.authenticate(
             email=request.data.get('email'),
             password=request.data.get('password')

@@ -1,6 +1,7 @@
 # =========================
 # Python standard library
 # =========================
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 import importlib
 
 
@@ -30,7 +31,10 @@ from django_resaas.saas.data.language.serializers.language import LanguageSerial
 
 from django_resaas.saas.core.base.views import BaseAPIView
 
-class LanguageAPIView(viewsets.ModelViewSet):
+class LanguageAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PUBLIC (explicit, READ only): needed by the login screen before there is a session
+    public_actions = ('list', 'retrieve', 'translations')
+
     search_fields = ["id", "name"]
     filter_backends = (filters.SearchFilter,)
     serializer_class = LanguageSerializer

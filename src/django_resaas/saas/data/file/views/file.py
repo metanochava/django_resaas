@@ -1,6 +1,7 @@
 # =========================
 # Django
 # =========================
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 from django.http import Http404
 
 
@@ -29,7 +30,9 @@ from django_resaas.saas.data.file.serializers.file_gravar import (
 )
 
 
-class FileAPIView(viewsets.ModelViewSet):
+class FileAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     search_fields = ["id", "file"]
     filter_backends = (filters.SearchFilter,)
     serializer_class = FileSerializer

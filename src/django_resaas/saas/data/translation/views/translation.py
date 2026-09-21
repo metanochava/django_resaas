@@ -1,4 +1,5 @@
 
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 from rest_framework import filters
 from rest_framework import viewsets
 
@@ -7,7 +8,9 @@ from django_resaas.saas.models.translation import Translation
 from django_resaas.saas.data.translation.serializers.translation import TranslationSerializer
 
 
-class TranslationAPIView(viewsets.ModelViewSet):
+class TranslationAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     # Was querying Language/LanguageSerializer - a copy-paste bug that
     # meant GET django_resaas/translations/ actually served Language
     # rows, never a single real Translation (chave/translation) row.

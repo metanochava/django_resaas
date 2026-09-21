@@ -1,3 +1,4 @@
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 import importlib
 import importlib.util
 
@@ -44,7 +45,10 @@ from django_resaas.saas.data.entity_type.serializers.entity_type import (
 )
 
 
-class EntityTypeAPIView(viewsets.ModelViewSet):
+class EntityTypeAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PUBLIC (explicit, READ only): needed by the login screen before there is a session
+    public_actions = ('themeGet', 'layoutSettingsGet', 'typographyGet', 'animationSettingsGet')
+
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
 

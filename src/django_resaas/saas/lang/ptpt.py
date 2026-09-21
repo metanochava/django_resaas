@@ -1434,5 +1434,8 @@ key_value = {
     "Inherit": "Herdar",
     "Two-factor policy": "Política de dois fatores",
     "Two-factor authentication at this level. A REQUIRED level above can never be weakened by the levels below it.": "Autenticação de dois fatores neste nível. Um nível superior OBRIGATÓRIO nunca pode ser enfraquecido pelos níveis inferiores.",
+    "Create Person": "Criar pessoa",
+    "New person": "Nova pessoa",
+    "Preview PDF": "Pré-visualizar PDF",
 
 }

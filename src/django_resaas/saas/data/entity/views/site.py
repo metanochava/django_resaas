@@ -1,3 +1,4 @@
+from rest_framework import permissions
 from rest_framework.views import APIView
 
 from django_resaas.saas.models.entity_type import EntityType
@@ -10,6 +11,9 @@ from urllib.parse import urlparse
 
 
 class SiteAPIView(APIView):
+
+    # PUBLIC (explicit): used before there is a session
+    permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
         origin = request.headers.get("Origin")

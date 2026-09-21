@@ -1,3 +1,4 @@
+from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
 
@@ -69,6 +70,10 @@ class TenantDashboardAPIView(APIView):
     negócio (inventory, sales, saude, hr, ...) depende do core, nunca
     uns dos outros directamente.
     """
+
+    # PROTECTED (explicit): a signed-in user; tenant, module and permission are
+    # then enforced in initial() below
+    permission_classes = (permissions.IsAuthenticated,)
 
     module_name = None
     permission_codename = None

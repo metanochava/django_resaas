@@ -1,10 +1,13 @@
 
+from django_resaas.saas.core.base.access import ExplicitAccessMixin
 from rest_framework import viewsets
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.data.branch_user_group.serializers.branch_user_group import BranchUserGroupSerializer
 
 
-class  BranchUserGroupAPIView(viewsets.ModelViewSet):
+class BranchUserGroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions)
+
     serializer_class = BranchUserGroupSerializer
     queryset = BranchUserGroup.objects.all()
 
