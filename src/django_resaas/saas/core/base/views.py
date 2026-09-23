@@ -396,7 +396,9 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         super().initial(request, *args, **kwargs)
 
         if getattr(request, "tenant_context_error", None):
-            raise PermissionDenied(str(request.tenant_context_error))
+            # keep the original exception: it carries the stable code (e.g. resaas_context_expired)
+            error = request.tenant_context_error
+            raise error if isinstance(error, PermissionDenied) else PermissionDenied(str(error))
 
         if not getattr(request, "tenant_context", None):
             raise PermissionDenied("RESAAS context is required.")

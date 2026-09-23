@@ -37,7 +37,7 @@ def test_expires_in_follows_the_configured_ttl(bootstrap_tenant):
     assert result["expires_in"] == 120
 
 
-def test_an_expired_token_is_a_403_with_the_exact_detail_the_frontend_matches(bootstrap_tenant):
+def test_an_expired_token_is_a_403_with_the_exact_code_the_frontend_matches(bootstrap_tenant):
     tenant = bootstrap_tenant("context-expired")
     token = tenant["client"]._credentials["HTTP_X_RESAAS_CONTEXT"]
 
@@ -45,7 +45,10 @@ def test_an_expired_token_is_a_403_with_the_exact_detail_the_frontend_matches(bo
         response = tenant["client"].get("/api/django_resaas/persons/", HTTP_X_RESAAS_CONTEXT=token)
 
     assert response.status_code == 403
-    assert response.data["detail"] == "RESAAS context has expired."
+    # services/contextExpiry.js (quasar_resaas) branches on this exact code -
+    # CONTEXT_EXPIRED_CODE - not on the message text.
+    assert response.data["error"]["code"] == "resaas_context_expired"
+    assert response.data["error"]["message"] == "RESAAS context has expired."
 
 
 def test_a_fresh_token_is_accepted_after_the_client_renews_it(bootstrap_tenant):

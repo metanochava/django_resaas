@@ -2,7 +2,8 @@
 
 CONTRACT
 --------
-A failed request answers, next to its HTTP status (never repeated in the body):
+A failed request answers, next to its HTTP status (never repeated in the body),
+with exactly one top-level key:
 
     {"error": {"code": "...", "message": "...", "details": ...}}
 
@@ -12,11 +13,13 @@ A failed request answers, next to its HTTP status (never repeated in the body):
     details  structured extra data, null when there is none; for validation errors it
              is the field -> [messages] map, so a form can put each message on its field
 
-COMPATIBILITY (DEPRECATED aliases)
-----------------------------------
-The API used to answer {"detail": "..."} (+ top-level "code") and, for validation,
-the bare {"field": ["msg"]} map. Existing consumers still read those, so they are
-kept next to `error` until nothing depends on them. New code reads `error` only.
+The body used to also carry {"detail": "...", "code": "..."} (+ the bare {"field":
+["msg"]} map for validation) as DEPRECATED aliases of `error`, kept for older
+consumers. Every consumer (django_resaas, quasar_resaas, dev/front, pro/front) has
+been migrated onto `error`/`errorMessage()`/`errorCode()` - see
+utils/apiContract.js in quasar_resaas - so the aliases were removed instead of kept
+forever. New code must read `error` only; nothing reads `detail` or a top-level
+`code` any more.
 
 NEVER LEAKS
 -----------
@@ -98,48 +101,29 @@ def _code_of(exc):
 
 
 def _body_for(exc, request):
-    """(body, legacy) for a known API exception."""
+    """The {"error": {...}} body for a known API exception."""
     detail = exc.detail
 
     # A non-validation exception raised with {"code": ..., "detail": ...} (the
     # pattern some views already use) is one error with a stable code, not a field map.
     if isinstance(detail, dict) and not isinstance(exc, exceptions.ValidationError) and "detail" in detail:
-        original = str(detail["detail"])
         code = detail.get("code")
         code = str(code) if code else None
-        message = _translate(request, original)
-        legacy = {"detail": original}
+        message = _translate(request, str(detail["detail"]))
 
-        if code:
-            legacy["code"] = code
-
-        return error_body(message, code=code, details=None), legacy
+        return error_body(message, code=code, details=None)
 
     if isinstance(exc, exceptions.ValidationError) or isinstance(detail, (dict, list)):
         details = _translate_details(request, _plain(detail))
         message = _translate(request, VALIDATION_MESSAGE)
-        body = error_body(message, code=getattr(exc, "resaas_code", None), details=details)
 
-        # DEPRECATED alias: the bare field map DRF always answered
-        legacy = dict(details) if isinstance(details, dict) else {"non_field_errors": details}
+        return error_body(message, code=getattr(exc, "resaas_code", None), details=details)
 
-        return body, legacy
-
-    original = str(detail)
-    message = _translate(request, original)
+    message = _translate(request, str(detail))
     code = _code_of(exc)
     extra = _translate_details(request, _plain(getattr(exc, "resaas_details", None)))
-    body = error_body(message, code=code, details=extra)
 
-    # DEPRECATED aliases: {"detail": ..., "code": ...}. `detail` is the text exactly as
-    # the exception carried it (untranslated, as it always was): consumers that compare
-    # it must keep working. New code reads `error.code` / `error.message`.
-    legacy = {"detail": original}
-
-    if code:
-        legacy["code"] = code
-
-    return body, legacy
+    return error_body(message, code=code, details=extra)
 
 
 def resaas_exception_handler(exc, context):
@@ -160,10 +144,7 @@ def resaas_exception_handler(exc, context):
     response = drf_exception_handler(exc, context)
 
     if response is not None and isinstance(exc, exceptions.APIException):
-        body, legacy = _body_for(exc, request)
-
-        # `error` wins over any legacy key of the same name
-        response.data = {**legacy, **body}
+        response.data = _body_for(exc, request)
 
         return response
 
@@ -177,19 +158,15 @@ def resaas_exception_handler(exc, context):
         return None  # keep Django's debug page for developers
 
     return Response(
-        {**{"detail": _translate(request, SERVER_ERROR_MESSAGE)}, **error_body(_translate(request, SERVER_ERROR_MESSAGE))},
+        error_body(_translate(request, SERVER_ERROR_MESSAGE)),
         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
 
 def error_response(request, message, status_code=status.HTTP_400_BAD_REQUEST, code=None, details=None):
     """A failed answer built by hand (the view decided the error itself, nothing was
-    raised). Same contract - and same deprecated aliases - as an exception answer."""
+    raised). Same contract as an exception answer - {"error": {...}} only."""
     text = _translate(request, message)
     body = error_body(text, code=code, details=_translate_details(request, details))
-    legacy = {"detail": text}
 
-    if code:
-        legacy["code"] = code
-
-    return Response({**legacy, **body}, status=status_code)
+    return Response(body, status=status_code)
