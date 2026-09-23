@@ -7,6 +7,7 @@ from django_resaas.saas.data.entity.serializers.entity import EntitySerializer
 
 from django_resaas.saas.core.utils import all
 
+from django.db.models import Q
 from urllib.parse import urlparse
 
 
@@ -16,28 +17,40 @@ class SiteAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
+        # Entity.site is a URLField, stored WITH its scheme (e.g.
+        # "http://clinicaamal.co.mz") - but not consistently: existing rows
+        # use http even for sites that are actually served over https, and
+        # not every row was entered with the same trailing slash.
+        # (Previously this stripped the scheme via urlparse().netloc before
+        # filtering, so it compared a bare host against a full URL and could
+        # never match anything.) Match on host[:port] only, accepting either
+        # scheme and an optional trailing slash, rather than assuming the
+        # stored scheme mirrors the request's.
         origin = request.headers.get("Origin")
-        domain = None
+
+        entity = None
 
         if origin:
-            domain = urlparse(origin).netloc
+            netloc = urlparse(origin).netloc
 
-        entity = (
-            Entity.objects
-            .select_related(
-                "theme",
-                "typography",
-                "layout_settings",
-                "animation_settings",
-                "entity_type__theme",
-                "entity_type__typography",
-                "entity_type__layout_settings",
-                "entity_type__animation_settings",
+            entity = (
+                Entity.objects
+                .select_related(
+                    "theme",
+                    "typography",
+                    "layout_settings",
+                    "animation_settings",
+                    "entity_type__theme",
+                    "entity_type__typography",
+                    "entity_type__layout_settings",
+                    "entity_type__animation_settings",
+                )
+                .filter(
+                    Q(site=f"http://{netloc}") | Q(site=f"http://{netloc}/") |
+                    Q(site=f"https://{netloc}") | Q(site=f"https://{netloc}/")
+                )
+                .first()
             )
-            .filter(site=domain)
-            .first()
-        )
-
 
         if not entity:
             return all(request, Origin="Desconhecida")
