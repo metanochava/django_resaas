@@ -496,8 +496,10 @@ key_value = {
     # ADMIN
     # =========================================================
 
-    "Restore selected": "Restaurer la sélection",
-    "Soft delete selected": "Supprimer temporairement la sélection",
+    "Activate selected %(verbose_name_plural)s": "Activer les %(verbose_name_plural)s sélectionnés",
+    "Deactivate selected %(verbose_name_plural)s": "Désactiver les %(verbose_name_plural)s sélectionnés",
+    "Restore selected %(verbose_name_plural)s": "Restaurer les %(verbose_name_plural)s sélectionnés",
+    "Soft delete selected %(verbose_name_plural)s": "Supprimer temporairement les %(verbose_name_plural)s sélectionnés",
     "Deleted": "Supprimé",
 
     # =========================================================

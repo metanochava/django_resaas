@@ -571,6 +571,12 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         if hasattr(serializer.Meta.model, "branch_id"):
             data["branch_id"] = self.request.branch_id
 
+        # Created through the API means Active unless the client chose a state.
+        # Done here, not as the model default (TimeModel.state stays 'Inactive'),
+        # so shell/admin/import-created rows keep their existing behaviour.
+        if hasattr(serializer.Meta.model, "state") and "state" not in serializer.validated_data:
+            data["state"] = "Active"
+
         serializer.save(**data)
 
     def perform_update(self, serializer):

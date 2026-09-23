@@ -55,3 +55,21 @@ instance.delete(user=request.user)   # soft delete, stamps updated_by if the mod
 instance.restore(user=request.user)  # clears deleted_at, stamps updated_by
 instance.hard_delete()               # real deletion
 ```
+
+## Django admin bulk actions
+
+`BaseAdmin` (`saas/core/base/admin.py`) offers four bulk actions, each labelled with the model name
+last (Django's `%(verbose_name_plural)s`), e.g. "Activate selected departments":
+
+| Action | Effect | Offered when the model has |
+|---|---|---|
+| Activate selected … | `state = "Active"` | `state` |
+| Deactivate selected … | `state = "Inactive"` | `state` |
+| Restore selected … | clears `deleted_at` | `deleted_at` |
+| Soft delete selected … | sets `deleted_at` | `deleted_at` |
+
+Activate/Deactivate also stamp `updated_at`/`updated_by` (a queryset `update()` bypasses `save()`).
+The labels are translated per request through `Translate.tdc` (pt-pt, en-us, es-es, fr-fr, keys in
+`saas/lang/*.py`); an admin browser sends no `L` header, so it uses `LANGUAGE_CODE`.
+**Backward compatible**: the old plain labels ("Restore selected") were replaced; nothing read them.
+Tests: `saas/tests/test_admin_state_actions.py`.
