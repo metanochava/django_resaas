@@ -234,7 +234,7 @@ def test_employee_goal_rejects_cross_entity_relations(bootstrap_tenant):
         {"employee": str(employee_b.id), "cycle": str(cycle_a.id), "title": "X"},
     )
     assert response.status_code == 400
-    assert "employee" in response.data
+    assert "employee" in response.data["error"]["details"]
 
 
 def test_entity_a_cannot_update_progress_of_entity_b_goal(bootstrap_tenant):

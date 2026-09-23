@@ -134,7 +134,7 @@ def test_onboarding_template_task_rejects_cross_entity_template(bootstrap_tenant
         {"template": str(template_b.id), "title": "Sign contract"},
     )
     assert response.status_code == 400
-    assert "template" in response.data
+    assert "template" in response.data["error"]["details"]
 
 
 # =============================================================

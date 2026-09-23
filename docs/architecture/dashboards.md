@@ -98,6 +98,54 @@ por cada app instalada, com
 - nunca esconde um import interno quebrado. App sem `dashboard.py`:
 ignorada, sem erro.
 
+## Regra da grelha: cada linha de cards soma 12
+
+A grelha do dashboard é a do Quasar (12 colunas). **Em todos os breakpoints
+(`xs`, `sm`, `md`, `lg`, `xl`), os widgets - percorridos por `order` -
+têm de preencher linhas de exactamente 12 colunas.** Uma linha que soma
+menos, ou um card que não cabe e passaria para a linha seguinte, é um erro
+de configuração: `DashboardValidator` (`saas/core/dashboards/validator.py`,
+`_validate_layout`) levanta `DashboardConfigError` com
+`code="dashboard_row_not_full"` durante a descoberta, o dashboard é
+registado como inválido (logado em `discovery.py`) e **não aparece**.
+
+Como o valor de cada breakpoint é lido (espelha `WidgetContainer.vue`):
+
+| Situação | Largura efectiva |
+|---|---|
+| `xs` | sempre 12 (`col-12`) |
+| `sm` sem valor | o `xs` declarado (ou 12) |
+| `md`/`lg`/`xl` sem valor | herda o breakpoint menor declarado |
+| widget sem `cols` | `col-12 col-md-6` (12 em `xs`/`sm`, 6 a partir de `md`) |
+
+Cada valor tem de ser um inteiro de 1 a 12 e o breakpoint um de
+`xs|sm|md|lg|xl`; caso contrário `code="invalid_widget_cols"`.
+
+```python
+# 4 KPIs (3+3+3+3 em md) + 1 tabela de largura total
+{"cols": {"xs": 12, "sm": 6, "md": 3}}   # x4, order 10..40
+{"cols": {"xs": 12}}                      # tabela, order 50
+# sm: 6+6 | 6+6 | 12   md/lg/xl: 3+3+3+3 | 12   -> válido
+```
+
+Um KPI sozinho numa linha tem de ser `12` (não `3`):
+
+```python
+{"cols": {"xs": 12, "sm": 12, "md": 12}}
+```
+
+> [!WARNING]
+> Limite conhecido: a regra valida os widgets **declarados**. Um widget que
+> o utilizador não pode ver (permissões) é removido no pedido, pelo que a
+> linha desse utilizador pode ficar mais curta - não é detectável em
+> `dashboard.py`. Prefira agrupar widgets com a mesma permissão na mesma
+> linha.
+
+Mudança **breaking** para dashboards existentes: um `dashboard.py` cujas
+linhas não somem 12 deixa de carregar. Os do próprio `django_resaas`
+(`saas`, `hr`, `notifications`, `dev/demo`) e das apps de referência
+(`saude`, `sales`, `inventory`, `farmacia`) foram ajustados.
+
 ## Imutabilidade
 
 `DashboardRegistry` guarda uma cópia (`copy.deepcopy`) e devolve outra
@@ -269,7 +317,8 @@ página:
 3. Garantir que as permissões usadas em `permission`/`permissions` já
    existem (normalmente já existem: `view_<model>` é criado
    automaticamente para todo o modelo de `MY_APPS`).
-4. Criar uma página com `<s-dashboard-renderer name="..." />` e a
+4. Somar 12 colunas por linha em todos os breakpoints (ver *Regra da grelha*).
+5. Criar uma página com `<s-dashboard-renderer name="..." />` e a
    rota/entrada de sidebar correspondentes.
 
 Nada em `DashboardRenderer.vue`, no registry central, ou noutra app

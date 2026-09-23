@@ -175,7 +175,7 @@ class TestView:
         with mock.patch(PERMISSION_CHECK, return_value=False):
             response = _client(tenant).post(_url(user, "viewTemporaryPassword"))
 
-        assert response.status_code == 403 and response.data["code"] == "permission_denied"
+        assert response.status_code == 403 and response.data["error"]["code"] == "permission_denied"
         assert "password" not in response.data
         assert not AuditLog.objects.filter(action=service.VIEWED).exists()
 
@@ -209,7 +209,7 @@ class TestView:
 
         response = _client(mine).post(_url(victim, "viewTemporaryPassword"))
 
-        assert response.status_code == 404 and response.data["code"] == "user_not_found"
+        assert response.status_code == 404 and response.data["error"]["code"] == "user_not_found"
         assert password not in str(response.data)
         assert not AuditLog.objects.filter(action=service.VIEWED).exists()
 
@@ -258,7 +258,7 @@ class TestView:
 
         response = _client(tenant).post(_url(user, "viewTemporaryPassword"))
 
-        assert response.status_code == 404 and response.data["code"] == "no_temporary_password"
+        assert response.status_code == 404 and response.data["error"]["code"] == "no_temporary_password"
         assert not UserTemporaryPassword.objects.filter(user=user).exists()
 
 
@@ -277,7 +277,7 @@ class TestExpiry:
 
         response = _client(tenant).post(_url(user, "viewTemporaryPassword"))
 
-        assert response.status_code == 410 and response.data["code"] == "temporary_password_expired"
+        assert response.status_code == 410 and response.data["error"]["code"] == "temporary_password_expired"
         assert password not in str(response.data)
         # the recoverable copy is gone, and the expiry audited once
         assert UserTemporaryPassword.objects.get(user=user).encrypted is None
@@ -383,7 +383,7 @@ class TestRegenerate:
 
         response = _client(tenant).post(_url(tenant["user"], "regenerateTemporaryPassword"))
 
-        assert response.status_code == 400 and response.data["code"] == "cannot_regenerate_own_password"
+        assert response.status_code == 400 and response.data["error"]["code"] == "cannot_regenerate_own_password"
 
     def test_a_definitive_password_can_be_replaced_by_a_new_temporary_one(self, bootstrap_tenant):
         tenant = bootstrap_tenant("tp-regen-permanent")

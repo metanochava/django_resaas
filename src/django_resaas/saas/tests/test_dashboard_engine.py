@@ -208,10 +208,76 @@ class TestValidator:
         config = self._base(
             filters=[{"name": "period", "type": "date_range"}],
             widgets=[
-                {"name": "w", "type": "stat", "provider": "p", "accepts_filters": ["period"]},
+                {"name": "w", "type": "stat", "provider": "p", "accepts_filters": ["period"], "cols": {"xs": 12}},
             ],
         )
         DashboardValidator.validate(config, app_label="x")  # não deve levantar
+
+    # ---- layout rule: every row of cards adds up to exactly 12 columns ----
+
+    def _cards(self, *cols):
+        return self._base(widgets=[
+            {"name": f"w{i}", "type": "stat", "provider": f"p{i}", "order": i, "cols": c}
+            for i, c in enumerate(cols)
+        ])
+
+    def test_rows_that_add_up_to_12_pass(self):
+        config = self._cards(
+            {"xs": 12, "sm": 6, "md": 3}, {"xs": 12, "sm": 6, "md": 3},
+            {"xs": 12, "sm": 6, "md": 3}, {"xs": 12, "sm": 6, "md": 3},
+            {"xs": 12},
+        )
+        DashboardValidator.validate(config, app_label="x")
+
+    def test_a_row_shorter_than_12_raises(self):
+        with pytest.raises(DashboardConfigError, match="adds up to 6 columns at breakpoint 'md'") as exc:
+            DashboardValidator.validate(self._cards({"xs": 12, "md": 6}, {"xs": 12}), app_label="x")
+
+        assert exc.value.code == "dashboard_row_not_full"
+
+    def test_a_card_that_overflows_the_row_raises(self):
+        with pytest.raises(DashboardConfigError, match="breakpoint 'md'"):
+            DashboardValidator.validate(
+                self._cards({"xs": 12, "md": 8}, {"xs": 12, "md": 8}, {"xs": 12, "md": 8}), app_label="x",
+            )
+
+    def test_every_breakpoint_is_checked(self):
+        # md/lg/xl are fine (4+4+4), but at sm the three cards are 6+6 and a lone 6
+        with pytest.raises(DashboardConfigError, match="breakpoint 'sm'"):
+            DashboardValidator.validate(
+                self._cards(*[{"xs": 12, "sm": 6, "md": 4}] * 3), app_label="x",
+            )
+
+    def test_larger_breakpoints_inherit_the_nearest_smaller_one(self):
+        # lg/xl not declared: they inherit md (6+6)
+        DashboardValidator.validate(
+            self._cards(*[{"xs": 12, "sm": 12, "md": 6}] * 2), app_label="x",
+        )
+
+    def test_widgets_are_packed_by_order_not_by_declaration(self):
+        config = self._base(widgets=[
+            {"name": "b", "type": "stat", "provider": "pb", "order": 20, "cols": {"xs": 12, "md": 6}},
+            {"name": "full", "type": "stat", "provider": "pf", "order": 30, "cols": {"xs": 12}},
+            {"name": "a", "type": "stat", "provider": "pa", "order": 10, "cols": {"xs": 12, "md": 6}},
+        ])
+        DashboardValidator.validate(config, app_label="x")
+
+    def test_a_widget_without_cols_uses_the_frontend_default(self):
+        # WidgetContainer.vue renders no cols as `col-12 col-md-6`
+        DashboardValidator.validate(self._base(widgets=[
+            {"name": "a", "type": "stat", "provider": "pa"},
+            {"name": "b", "type": "stat", "provider": "pb"},
+        ]), app_label="x")
+
+        with pytest.raises(DashboardConfigError, match="breakpoint 'md'"):
+            DashboardValidator.validate(self._base(widgets=[
+                {"name": "a", "type": "stat", "provider": "pa"},
+            ]), app_label="x")
+
+    @pytest.mark.parametrize("cols", [{"md": 0}, {"md": 13}, {"md": "6"}, {"md": True}, {"tablet": 6}, "12"])
+    def test_invalid_cols_raise(self, cols):
+        with pytest.raises(DashboardConfigError):
+            DashboardValidator.validate(self._cards(cols), app_label="x")
 
 
 # ============================================================
