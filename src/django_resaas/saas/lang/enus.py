@@ -177,4 +177,10 @@ key_value = {
     "tipo and numero are required.": "Type and number are required.",
     "tipo not found.": "Type not found.",
 
+
+    # ADMIN actions
+    "Activate selected %(verbose_name_plural)s": "Activate selected %(verbose_name_plural)s",
+    "Deactivate selected %(verbose_name_plural)s": "Deactivate selected %(verbose_name_plural)s",
+    "Restore selected %(verbose_name_plural)s": "Restore selected %(verbose_name_plural)s",
+    "Soft delete selected %(verbose_name_plural)s": "Soft delete selected %(verbose_name_plural)s",
 }

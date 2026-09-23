@@ -1,14 +1,45 @@
 from django.contrib import admin
 from django.db import models
+from django.utils import timezone
 
-# mantém tuas funções
-@admin.action(description="Restore selected")
+from django_resaas.saas.core.utils.translate import Translate
+
+# Action descriptions keep Django's own `%(verbose_name_plural)s` placeholder,
+# so the model name comes last ("Activate selected Patients"). They are
+# canonical English here and translated per request in BaseAdmin.get_actions.
+
+@admin.action(description="Restore selected %(verbose_name_plural)s")
 def restore_selected(modeladmin, request, queryset):
     queryset.restore()
 
-@admin.action(description="Soft delete selected")
+@admin.action(description="Soft delete selected %(verbose_name_plural)s")
 def soft_delete_selected(modeladmin, request, queryset):
     queryset.soft_delete()
+
+
+def _set_state(request, queryset, state):
+    """Bulk state change that still records who/when, like save() would."""
+    values = {"state": state}
+    field_names = {f.name for f in queryset.model._meta.fields}
+
+    if "updated_at" in field_names:
+        values["updated_at"] = timezone.now()
+
+    if "updated_by" in field_names:
+        values["updated_by"] = request.user
+
+    return queryset.update(**values)
+
+
+@admin.action(description="Activate selected %(verbose_name_plural)s")
+def activate_selected(modeladmin, request, queryset):
+    _set_state(request, queryset, "Active")
+
+
+@admin.action(description="Deactivate selected %(verbose_name_plural)s")
+def deactivate_selected(modeladmin, request, queryset):
+    _set_state(request, queryset, "Inactive")
+
 
 def all_fields(model):
     return [field.name for field in model._meta.fields]
@@ -20,9 +51,37 @@ class BaseAdmin(admin.ModelAdmin):
             "all": ("admin/custom.css",)
         }
 
-    actions = [restore_selected, soft_delete_selected]
+    actions = [
+        activate_selected,
+        deactivate_selected,
+        restore_selected,
+        soft_delete_selected,
+    ]
 
     list_per_page = 25
+
+    # -----------------------------------
+    # ⚙️ ACTIONS (só as que o model suporta, com descrição traduzida)
+    # -----------------------------------
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        field_names = {f.name for f in self.model._meta.fields}
+
+        for name, needs in (
+            ("activate_selected", "state"),
+            ("deactivate_selected", "state"),
+            ("restore_selected", "deleted_at"),
+            ("soft_delete_selected", "deleted_at"),
+        ):
+            if name in actions and needs not in field_names:
+                del actions[name]
+
+        for name, (func, action_name, description) in list(actions.items()):
+            if name in ("activate_selected", "deactivate_selected", "restore_selected", "soft_delete_selected"):
+                actions[name] = (func, action_name, Translate.tdc(request, description))
+
+        return actions
 
     # -----------------------------------
     # 🔍 LIST DISPLAY (teu padrão + extra)

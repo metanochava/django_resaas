@@ -44,6 +44,14 @@ isolation before listing and search. Its own list is: apply
 requested -> **re-apply** `entity_id`/`branch_id` (the switched manager
 isn't tenant-scoped by itself) -> apply dynamic search.
 
+## New objects are `Active`
+
+`perform_create` saves `state="Active"` when the model has a `state` field and the client did not
+send one (an explicit `state` is respected). This is deliberately done in the view: `TimeModel.state`
+still defaults to `"Inactive"`, so rows created from the shell, the admin, fixtures or imports are
+unchanged. Rows created before this change keep the state they have; nothing is migrated.
+Tests: `saas/tests/test_admin_state_actions.py`.
+
 ## `?objects=` (soft delete)
 
 Every `BaseModel`/`SoftBaseModel` uses a soft-delete manager by default
