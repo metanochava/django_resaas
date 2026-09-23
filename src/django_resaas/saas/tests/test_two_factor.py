@@ -310,7 +310,7 @@ class TestSignIn:
 
         response = APIClient().post("/api/login/two_factor/", {"challenge": challenge, "code": "000000"}, format="json")
 
-        assert response.status_code == 400 and response.data["code"] == "invalid_code"
+        assert response.status_code == 400 and response.data["error"]["code"] == "invalid_code"
         assert "tokens" not in response.data
 
     def test_a_recovery_code_completes_the_sign_in(self):
@@ -333,7 +333,7 @@ class TestSignIn:
                 "/api/login/two_factor/", {"challenge": challenge, "code": _code(user, offset=1)}, format="json"
             )
             assert response.status_code == 401, challenge
-            assert response.data["code"] == "invalid_challenge"
+            assert response.data["error"]["code"] == "invalid_challenge"
 
     def test_an_expired_challenge_is_rejected(self, monkeypatch):
         user = _user()
@@ -456,7 +456,7 @@ class TestSelfServiceApi:
         with mock.patch("django_resaas.saas.data.user.views.two_factor._entity", return_value=org):
             response = _authed(user).post("/api/two_factor/setup/")
 
-        assert response.status_code == 403 and response.data["code"] == "two_factor_disabled"
+        assert response.status_code == 403 and response.data["error"]["code"] == "two_factor_disabled"
         assert not UserTwoFactor.objects.filter(user=user).exists()
 
     def test_a_user_only_ever_touches_their_own_factor(self):

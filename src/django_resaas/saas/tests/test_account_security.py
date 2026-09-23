@@ -142,7 +142,7 @@ class TestSessions:
 
         response = client.post(f"/api/sessions/{current['id']}/terminate/")
 
-        assert response.status_code == 400 and response.data["code"] == "cannot_terminate_current_session"
+        assert response.status_code == 400 and response.data["error"]["code"] == "cannot_terminate_current_session"
 
     def test_you_cannot_terminate_someone_elses_session(self):
         mine, theirs = _account("mine"), _account("theirs")
@@ -184,7 +184,7 @@ class TestSessions:
         with mock.patch("django_resaas.saas.data.user.views.account_security.session_service.current_session_id", return_value=None):
             response = client.post("/api/sessions/terminate_others/")
 
-        assert response.status_code == 409 and response.data["code"] == "current_session_unknown"
+        assert response.status_code == 409 and response.data["error"]["code"] == "current_session_unknown"
 
     def test_sessions_need_authentication(self):
         anonymous = APIClient(raise_request_exception=False)

@@ -87,7 +87,7 @@ DASHBOARD = {
             "permission_mode": "all",
 
             "visible": True,
-            "cols": {"xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4},
+            "cols": {"xs": 12, "sm": 12, "md": 4, "lg": 4, "xl": 4},
             "order": 30,
 
             "accepts_filters": [],

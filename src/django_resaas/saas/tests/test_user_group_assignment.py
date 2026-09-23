@@ -113,7 +113,7 @@ class TestListAssigned:
             denied = _client(tenant).get(_url(user, "userGroups"))
         anonymous = APIClient(raise_request_exception=False).get(_url(user, "userGroups"))
 
-        assert denied.status_code == 403 and denied.data["code"] == "permission_denied"
+        assert denied.status_code == 403 and denied.data["error"]["code"] == "permission_denied"
         assert anonymous.status_code in (401, 403)
 
     def test_a_user_can_always_read_their_own_profiles_without_any_permission(self, bootstrap_tenant):
@@ -159,7 +159,7 @@ class TestAssign:
 
         response = _client(tenant).post(_url(user, "addGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert response.status_code == 409 and response.data["code"] == "group_already_assigned"
+        assert response.status_code == 409 and response.data["error"]["code"] == "group_already_assigned"
         assert BranchUserGroup.all_objects.filter(user=user, group=nurse).count() == 1
 
     def test_a_previously_removed_assignment_is_restored_not_duplicated(self, bootstrap_tenant):
@@ -182,7 +182,7 @@ class TestAssign:
 
         response = _client(mine).post(_url(user, "addGroup"), {"group": str(foreign.id)}, format="json")
 
-        assert response.status_code == 404 and response.data["code"] == "group_not_in_entity"
+        assert response.status_code == 404 and response.data["error"]["code"] == "group_not_in_entity"
         assert not BranchUserGroup.objects.filter(user=user, group=foreign).exists()
 
     def test_a_group_that_no_entity_owns_cannot_be_assigned(self, bootstrap_tenant):
@@ -244,7 +244,7 @@ class TestAssign:
         with mock.patch(PERMISSION_CHECK, side_effect=only_assignment):
             refused = _client(tenant).post(_url(outsider, "addGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert refused.status_code == 403 and refused.data["code"] == "user_not_in_entity"
+        assert refused.status_code == 403 and refused.data["error"]["code"] == "user_not_in_entity"
         assert not EntityUser.objects.filter(user=outsider, entity=tenant["entity"]).exists()
 
         allowed = _client(tenant).post(_url(outsider, "addGroup"), {"group": str(nurse.id)}, format="json")
@@ -309,7 +309,7 @@ class TestRemove:
 
         response = _client(tenant).post(_url(user, "removeGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert response.status_code == 404 and response.data["code"] == "group_not_assigned"
+        assert response.status_code == 404 and response.data["error"]["code"] == "group_not_assigned"
 
     def test_is_denied_without_permission_and_removes_nothing(self, bootstrap_tenant):
         tenant = bootstrap_tenant("ug-remove-denied")
@@ -330,7 +330,7 @@ class TestRemove:
             _url(tenant["user"], "removeGroup"), {"group": str(tenant["root_group"].id)}, format="json"
         )
 
-        assert response.status_code == 400 and response.data["code"] == "cannot_remove_own_active_group"
+        assert response.status_code == 400 and response.data["error"]["code"] == "cannot_remove_own_active_group"
         assert BranchUserGroup.objects.filter(user=tenant["user"], group=tenant["root_group"]).exists()
 
     def test_anonymous_requests_are_refused(self, bootstrap_tenant):

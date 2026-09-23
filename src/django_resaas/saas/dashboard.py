@@ -106,7 +106,7 @@ DASHBOARD = {
             "permission_mode": "all",
 
             "visible": True,
-            "cols": {"xs": 12, "sm": 6, "md": 4, "lg": 3, "xl": 3},
+            "cols": {"xs": 12, "sm": 6, "md": 6, "lg": 3, "xl": 3},
             "order": 40,
 
             "accepts_filters": [],
@@ -125,7 +125,7 @@ DASHBOARD = {
             "permission_mode": "all",
 
             "visible": True,
-            "cols": {"xs": 12, "sm": 6, "md": 4, "lg": 3, "xl": 3},
+            "cols": {"xs": 12, "sm": 12, "md": 6, "lg": 3, "xl": 3},
             "order": 50,
 
             "accepts_filters": [],

@@ -114,7 +114,7 @@ def test_job_opening_rejects_cross_entity_department(bootstrap_tenant):
         {"title": "Accountant", "department": str(department_b.id)},
     )
     assert response.status_code == 400
-    assert "department" in response.data
+    assert "department" in response.data["error"]["details"]
 
 
 # =============================================================

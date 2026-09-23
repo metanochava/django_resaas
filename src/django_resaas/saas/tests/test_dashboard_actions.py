@@ -44,7 +44,7 @@ class TestTooltipValidation:
             tooltip="Dashboard overview",
             filters=[{"name": "period", "type": "date_range", "tooltip": "Filter by date"}],
             widgets=[{
-                "name": "w", "type": "stat", "provider": "p",
+                "name": "w", "type": "stat", "provider": "p", "cols": {"xs": 12},
                 "tooltip": "Widget tooltip",
             }],
         )
@@ -90,7 +90,7 @@ class TestActionValidation:
 
     def test_row_actions_and_primary_action_and_item_action_all_validated(self):
         config = _base(widgets=[{
-            "name": "w", "type": "table", "provider": "p",
+            "name": "w", "type": "table", "provider": "p", "cols": {"xs": 12},
             "primary_action": {"name": "open", "type": "route", "route": {"name": "list_x"}},
             "row_actions": [{"name": "view", "type": "route", "route": {"name": "view_x"}}],
             "item_action": {"name": "open_item", "type": "route", "route": {"name": "view_x"}},
@@ -107,7 +107,7 @@ class TestActionValidation:
 
     def test_all_four_supported_action_types_are_valid(self):
         config = _base(widgets=[{
-            "name": "w", "type": "stat", "provider": "p",
+            "name": "w", "type": "stat", "provider": "p", "cols": {"xs": 12},
             "actions": [
                 {"name": "a1", "type": "route", "route": {"name": "x"}},
                 {"name": "a2", "type": "refresh"},

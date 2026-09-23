@@ -33,6 +33,10 @@ KNOWN_WIDGET_TYPES = {
 # registadas.
 SUPPORTED_ACTION_TYPES = {"route", "refresh", "fullscreen", "dialog"}
 
+# Quasar grid: every row of cards must add up to exactly this many columns.
+GRID_COLUMNS = 12
+GRID_BREAKPOINTS = ("xs", "sm", "md", "lg", "xl")
+
 REQUIRED_DASHBOARD_FIELDS = ("name", "label")
 REQUIRED_WIDGET_FIELDS = ("name", "type", "provider")
 REQUIRED_ACTION_FIELDS = ("name", "type")
@@ -80,6 +84,8 @@ class DashboardValidator:
             global_filter_names=global_filter_names,
             app_label=app_label,
         )
+
+        cls._validate_layout(config.get("widgets") or [], app_label=app_label)
 
         permission = config.get("permission")
         if permission is not None and not isinstance(permission, str):
@@ -192,6 +198,95 @@ class DashboardValidator:
                 cls._validate_action(
                     widget["item_action"], context=f"{widget_context}.item_action"
                 )
+
+    @staticmethod
+    def effective_span(cols, breakpoint):
+        """Columns a widget takes at `breakpoint`, as the frontend renders them
+        (WidgetContainer.vue): xs is always a full row (`col-12`); sm falls back
+        to the declared xs; every larger breakpoint inherits the nearest smaller
+        declared one; no `cols` at all means `col-12 col-md-6`."""
+        if not cols:
+            return 12 if breakpoint in ("xs", "sm") else 6
+
+        if breakpoint == "xs":
+            return 12
+
+        span = cols.get("xs", 12) if "sm" not in cols else cols["sm"]
+
+        for name in GRID_BREAKPOINTS[2:GRID_BREAKPOINTS.index(breakpoint) + 1]:
+            span = cols.get(name, span)
+
+        return span
+
+    @classmethod
+    def _validate_layout(cls, widgets, *, app_label):
+        """RULE: at every breakpoint, the widgets (in `order`) fill rows of
+        exactly GRID_COLUMNS columns - a row that adds up to less (or a card
+        that would overflow into the next row) is a configuration error.
+
+        Checked on the declared widgets. A widget the current user cannot see
+        (permissions) is removed at request time, so a row can still end up
+        short for that user; that cannot be known here."""
+        ordered = sorted(
+            (w for w in widgets if isinstance(w, dict)),
+            key=lambda w: w.get("order", 999),
+        )
+
+        for widget in ordered:
+            cols = widget.get("cols")
+
+            if cols is None:
+                continue
+
+            if not isinstance(cols, dict):
+                raise DashboardConfigError(
+                    f"Widget '{widget['name']}' of '{app_label}' has invalid 'cols': "
+                    "expected a dict such as {'xs': 12, 'md': 4}.",
+                    fields={"cols": ["Must be a dict."]},
+                )
+
+            for breakpoint, span in cols.items():
+                if (
+                    breakpoint not in GRID_BREAKPOINTS
+                    or isinstance(span, bool)
+                    or not isinstance(span, int)
+                    or not 1 <= span <= GRID_COLUMNS
+                ):
+                    raise DashboardConfigError(
+                        f"Widget '{widget['name']}' of '{app_label}' has invalid cols "
+                        f"{breakpoint!r}: {span!r}. Breakpoints: {list(GRID_BREAKPOINTS)}; "
+                        f"each span must be an integer from 1 to {GRID_COLUMNS}.",
+                        code="invalid_widget_cols",
+                        fields={"cols": [f"Invalid value for {breakpoint!r}."]},
+                    )
+
+        for breakpoint in GRID_BREAKPOINTS:
+            row, total = [], 0
+
+            for widget in ordered:
+                span = cls.effective_span(widget.get("cols"), breakpoint)
+
+                if total + span > GRID_COLUMNS:
+                    cls._raise_incomplete_row(app_label, breakpoint, row, total)
+
+                row.append(widget["name"])
+                total += span
+
+                if total == GRID_COLUMNS:
+                    row, total = [], 0
+
+            if row:
+                cls._raise_incomplete_row(app_label, breakpoint, row, total)
+
+    @staticmethod
+    def _raise_incomplete_row(app_label, breakpoint, row, total):
+        raise DashboardConfigError(
+            f"'{app_label}.dashboard.DASHBOARD' has a row that adds up to {total} "
+            f"columns at breakpoint '{breakpoint}' (widgets {row}); every row must "
+            f"add up to exactly {GRID_COLUMNS}. Adjust the widgets' 'cols'.",
+            code="dashboard_row_not_full",
+            fields={"cols": [f"Row at '{breakpoint}' adds up to {total}, not {GRID_COLUMNS}."]},
+        )
 
     @classmethod
     def _validate_filters(cls, filters, *, context):

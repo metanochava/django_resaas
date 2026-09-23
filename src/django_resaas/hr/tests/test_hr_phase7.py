@@ -144,7 +144,7 @@ def test_training_session_rejects_cross_entity_course(bootstrap_tenant):
         },
     )
     assert response.status_code == 400
-    assert "course" in response.data
+    assert "course" in response.data["error"]["details"]
 
 
 def test_entity_a_cannot_see_entity_b_training_session(bootstrap_tenant):

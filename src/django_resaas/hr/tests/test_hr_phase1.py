@@ -240,7 +240,7 @@ def test_entity_a_cannot_assign_entity_b_department_to_position(bootstrap_tenant
         {"title": "Accountant", "department": str(department_b.id)},
     )
     assert response.status_code == 400
-    assert "department" in response.data
+    assert "department" in response.data["error"]["details"]
 
 
 def test_entity_a_cannot_assign_entity_b_manager_to_employee(bootstrap_tenant):
@@ -260,7 +260,7 @@ def test_entity_a_cannot_assign_entity_b_manager_to_employee(bootstrap_tenant):
         },
     )
     assert response.status_code == 400
-    assert "manager" in response.data
+    assert "manager" in response.data["error"]["details"]
 
 
 def test_entity_a_cannot_assign_entity_b_job_grade(bootstrap_tenant):
@@ -282,7 +282,7 @@ def test_entity_a_cannot_assign_entity_b_job_grade(bootstrap_tenant):
         },
     )
     assert response.status_code == 400
-    assert "job_grade" in response.data
+    assert "job_grade" in response.data["error"]["details"]
 
 
 def test_entity_a_cannot_assign_entity_b_manager_to_department(bootstrap_tenant):
@@ -297,7 +297,7 @@ def test_entity_a_cannot_assign_entity_b_manager_to_department(bootstrap_tenant)
         {"name": "Ops A", "manager": str(manager_b.id)},
     )
     assert response.status_code == 400
-    assert "manager" in response.data
+    assert "manager" in response.data["error"]["details"]
 
 
 # =============================================================
