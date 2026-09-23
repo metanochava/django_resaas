@@ -130,4 +130,4 @@ def test_scope_opt_in_does_not_grant_permission(bootstrap_tenant, monkeypatch):
 
     response = tenant["client"].get("/api/demo/products/")
     assert response.status_code == 403
-    assert response.data["detail"] == "Unauthorized"
+    assert response.data["error"]["message"] == "Unauthorized"

@@ -120,29 +120,30 @@ class TestDictDetailWithCode:
             "message": "The temporary password has expired.",
             "details": None,
         }
-        assert response.data["code"] == "temporary_password_expired"
-        assert response.data["detail"] == "The temporary password has expired."
 
 
-class TestDeprecatedAliases:
-    """The old shapes stay next to `error` until no consumer reads them."""
+class TestNoLegacyAliases:
+    """The old {"detail": ..., "code": ...} + bare field map aliases were removed
+    once every consumer (django_resaas, quasar_resaas, dev/front, pro/front) was
+    migrated onto `error`/`errorMessage()`/`errorCode()`. `error` is now the only
+    top-level key a failed request answers with - this is a regression guard."""
 
-    def test_detail_and_code_are_still_there(self):
+    def test_no_top_level_detail_or_code_next_to_error(self):
         body = _handle(ConflictError("Already assigned.", code="group_already_assigned")).data
 
-        assert body["detail"] == "Already assigned."
-        assert body["code"] == "group_already_assigned"
+        assert body == {"error": {"code": "group_already_assigned", "message": "Already assigned.", "details": None}}
 
-    def test_validation_keeps_the_bare_field_map(self):
+    def test_validation_does_not_keep_the_bare_field_map(self):
         body = _handle(ValidationError({"email": ["Taken."]})).data
 
-        assert body["email"] == ["Taken."]
+        assert "email" not in body
         assert body["error"]["details"]["email"] == ["Taken."]
 
-    def test_the_error_key_wins_over_a_legacy_key_of_the_same_name(self):
+    def test_a_field_literally_named_error_does_not_leak_into_the_top_level(self):
         body = _handle(ValidationError({"error": ["a field literally named error"]})).data
 
         assert body["error"]["message"] == "Please correct the highlighted fields."
+        assert body["error"]["details"] == {"error": ["a field literally named error"]}
 
 
 class TestTranslation:
@@ -332,7 +333,7 @@ class TestRealEndpoints:
 
         assert response.status_code == 401
         assert response.data["error"]["message"] == "Invalid credentials"
-        assert response.data["detail"] == "Invalid credentials"
+        assert "detail" not in response.data
 
     def test_a_missing_permission_on_a_base_view_is_403_with_a_code(self, bootstrap_tenant):
         from django_resaas.saas.models.group import Group
@@ -349,7 +350,7 @@ class TestRealEndpoints:
 
         assert response.status_code == 403
         assert response.data["error"]["code"] == "permission_denied"
-        assert response.data["detail"] == "Unauthorized"
+        assert "detail" not in response.data
 
     def test_a_validation_error_on_a_base_view_keeps_the_field_map(self, bootstrap_tenant):
         tenant = bootstrap_tenant("contract-validation")
@@ -358,7 +359,7 @@ class TestRealEndpoints:
 
         assert response.status_code == 400
         assert "name" in response.data["error"]["details"]
-        assert response.data["name"] == response.data["error"]["details"]["name"]  # deprecated alias
+        assert "name" not in response.data
 
     def test_another_tenants_object_is_a_plain_404_that_leaks_nothing(self, bootstrap_tenant):
         from django_resaas.hr.models.department import Department
@@ -385,7 +386,7 @@ class TestRealEndpoints:
 
         assert response.status_code == 409
         assert response.data["error"]["code"] == "two_factor_not_active"
-        assert response.data["code"] == "two_factor_not_active"  # deprecated alias
+        assert "code" not in response.data
 
     def test_a_resaas_action_denial_uses_the_same_contract(self, bootstrap_tenant):
         tenant = bootstrap_tenant("contract-action")
