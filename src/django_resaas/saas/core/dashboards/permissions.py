@@ -20,7 +20,9 @@ class DashboardPermissionService:
 
     @staticmethod
     def ensure_module_active(request, dashboard_config):
-        module_name = dashboard_config["name"]
+        # "module": the App a dashboard belongs to (set by discovery for
+        # DASHBOARDS entries); a plain DASHBOARD is named after its module
+        module_name = dashboard_config.get("module") or dashboard_config["name"]
 
         if not is_module_active(request.entity_id, module_name):
             raise DashboardPermissionError(

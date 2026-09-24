@@ -84,7 +84,9 @@ class BaseDashboardProvider:
         nunca confiar em entity/branch vindos do frontend."""
 
         return apply_tenant_scope(
-            self.request, qs, module_name=self.dashboard["name"]
+            self.request,
+            qs,
+            module_name=self.dashboard.get("module") or self.dashboard["name"],
         )
 
     def resolve(self):

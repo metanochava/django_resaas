@@ -54,32 +54,52 @@ class DashboardDiscoveryService:
                     continue
                 raise
 
-            config = getattr(dashboard_module, "DASHBOARD", None)
+            single = getattr(dashboard_module, "DASHBOARD", None)
+            many = getattr(dashboard_module, "DASHBOARDS", None)
 
-            if config is None:
+            if single is None and many is None:
                 message = (
                     f"'{module_name}' existe mas não define 'DASHBOARD' "
-                    "- ignorado."
+                    "nem 'DASHBOARDS' - ignorado."
                 )
                 logger.warning(message)
                 continue
 
-            try:
-                DashboardValidator.validate(config, app_label=app_config.label)
+            # DASHBOARD (one dict, its name is the module name - original
+            # contract) and/or DASHBOARDS (a list of extra dashboards of
+            # the same app, each with its own unique name). A dashboard of
+            # the list belongs to this app's module unless it says
+            # otherwise ("module"), so "module active" keeps being checked
+            # against the right App.
+            configs = [single] if single is not None else []
 
-            except DashboardConfigError as exc:
-                message = f"Dashboard inválido em '{module_name}': {exc.message}"
-                logger.error(message)
-                DashboardRegistry.record_error(message)
-                continue
+            for extra in many or []:
+                if isinstance(extra, dict):
+                    extra = {**extra}
+                    extra.setdefault("module", app_config.label)
+                configs.append(extra)
 
-            DashboardRegistry.register(
-                config["name"],
-                config,
-                app_label=app_config.label,
-            )
+            for config in configs:
+                DashboardDiscoveryService._register(config, module_name, app_config)
 
         _DISCOVERED = True
+
+    @staticmethod
+    def _register(config, module_name, app_config):
+        try:
+            DashboardValidator.validate(config, app_label=app_config.label)
+
+        except DashboardConfigError as exc:
+            message = f"Dashboard inválido em '{module_name}': {exc.message}"
+            logger.error(message)
+            DashboardRegistry.record_error(message)
+            return
+
+        DashboardRegistry.register(
+            config["name"],
+            config,
+            app_label=app_config.label,
+        )
 
     @staticmethod
     def reset():

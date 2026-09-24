@@ -90,6 +90,9 @@ class DashboardListAPIView(_DashboardEngineAPIView):
 
             summaries.append({
                 "name": dashboard["name"],
+                # the App it belongs to (several dashboards per app, see
+                # discovery.py) - lets a frontend group them
+                "module": dashboard.get("module") or dashboard["name"],
                 "label": dashboard["label"],
                 "icon": dashboard.get("icon"),
                 "route": dashboard.get("route"),

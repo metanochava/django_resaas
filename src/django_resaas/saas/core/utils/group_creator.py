@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 GROUPS = [
 "Guest",
 "Admin",
@@ -40,6 +44,18 @@ def group_creator(groups=None, rename_from=None):
 
     rename_from = rename_from or {}
 
+    # What happened, per run - returned to the caller and missing
+    # codenames logged: a default permission that does not exist is never
+    # created here, but it is never skipped silently either.
+    report = {
+        "groups_created": [],
+        "groups_reused": [],
+        "groups_renamed": [],
+        "permissions_assigned": {},
+        "permissions_already_assigned": {},
+        "permissions_missing": {},
+    }
+
     # ------------------------------------------------------
     # 🔥 GARANTE EntityType BASE
     # ------------------------------------------------------
@@ -76,8 +92,10 @@ def group_creator(groups=None, rename_from=None):
             and Group.objects.filter(name=old_name).exists()
         ):
             Group.objects.filter(name=old_name).update(name=name)
+            report["groups_renamed"].append((old_name, name))
 
-        group, _ = Group.objects.get_or_create(name=name)
+        group, created = Group.objects.get_or_create(name=name)
+        report["groups_created" if created else "groups_reused"].append(name)
 
         EntityTypeGroup.objects.get_or_create(
             entity_type=entity_type,
@@ -92,5 +110,25 @@ def group_creator(groups=None, rename_from=None):
         )
 
         if permission_codenames:
-            perms = Permission.objects.filter(codename__in=permission_codenames)
+            perms = list(Permission.objects.filter(codename__in=permission_codenames))
+            already = set(group.permissions.filter(
+                codename__in=permission_codenames
+            ).values_list("codename", flat=True))
+            found = {perm.codename for perm in perms}
+            missing = sorted(set(permission_codenames) - found)
+
             group.permissions.add(*perms)
+
+            report["permissions_assigned"][name] = sorted(found - already)
+            report["permissions_already_assigned"][name] = sorted(already)
+
+            if missing:
+                report["permissions_missing"][name] = missing
+                logger.warning(
+                    "group_creator: profile '%s' expects permissions that do not exist "
+                    "(not created, not assigned): %s",
+                    name,
+                    ", ".join(missing),
+                )
+
+    return report
