@@ -1,3 +1,6 @@
+import json
+
+from django.http import HttpResponse
 from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 import importlib
 import importlib.util
@@ -13,6 +16,7 @@ from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from django.db.models import F
 from django_resaas.saas.core.utils.translate import Translate
+from django_resaas.saas.core.services import entity_type_profiles_io_service, group_permissions_io_service
 from django_resaas.saas.core.utils.full_path import FullPath
 
 from django_resaas.saas.models.entity_type import EntityType
@@ -54,7 +58,7 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
     # else needs the entitytype permission - writes are platform level.
     # user_entitys only returns the caller's own Entities.
     membership_actions = ("user_entitys",)
-    own_type_read_actions = ("retrieve", "models", "apps", "groups", "permissions")
+    own_type_read_actions = ("retrieve", "models", "apps", "groups", "permissions", "profiles_json", "profiles_pdf")
 
     action_permissions = {
         "list": "list_entitytype",
@@ -82,6 +86,11 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
         "createGroup": "change_entitytype",
         "addGroup": "change_entitytype",
         "removeGroup": "change_entitytype",
+        # export / import of the type's profiles and their permissions
+        # (core/services/entity_type_profiles_io_service.py)
+        "profiles_json": "view_entitytype",
+        "profiles_pdf": "view_entitytype",
+        "import_profiles": "change_entitytype",
     }
 
     def is_membership_request(self, request, action, kwargs):
@@ -494,6 +503,45 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
     # 🔥 GROUPS (FINAL LIMPO)
     # ===============================
 
+
+    # ===============================
+    # PROFILES -> PERMISSIONS (export / import)
+    # ===============================
+    @resaas_action(detail=True, methods=["GET"], label="Download profiles (JSON)", icon="data_object",
+                   permission="view_entitytype")
+    def profiles_json(self, request, id):
+        entity_type = self.get_object()
+        response = HttpResponse(
+            json.dumps(entity_type_profiles_io_service.export(entity_type), ensure_ascii=False, indent=2),
+            content_type="application/json; charset=utf-8",
+        )
+        name = "".join(c if c.isalnum() or c in "-_" else "_" for c in entity_type.name)[:60] or "entity_type"
+        response["Content-Disposition"] = f'attachment; filename="{name}-profiles.json"'
+        return response
+
+    @resaas_action(detail=True, methods=["GET"], label="Download profiles (PDF)", icon="picture_as_pdf",
+                   permission="view_entitytype")
+    def profiles_pdf(self, request, id):
+        entity_type = self.get_object()
+        rows = entity_type_profiles_io_service.pdf_rows(entity_type)
+        return group_permissions_io_service.render_list_pdf(
+            self, request,
+            title=f"{Translate.tdc(request, 'Profiles')} - {entity_type.name}",
+            section_title=f"{len(rows)} {Translate.tdc(request, 'permissions')}",
+            fields=[("profile", "Profile"), ("app", "App"), ("model", "Model"),
+                    ("codename", "Codename"), ("name", "Name")],
+            rows=rows,
+        )
+
+    @resaas_action(detail=True, methods=["POST"], label="Import profiles (JSON)", icon="upload_file",
+                   permission="change_entitytype")
+    def import_profiles(self, request, id):
+        """multipart: file=<json>, mode=add|replace (default add). All or
+        nothing; profiles not in the file are untouched."""
+        summary = entity_type_profiles_io_service.import_json(
+            request, self.get_object(), request.FILES.get("file"), request.data.get("mode") or "add",
+        )
+        return Response(summary, status=status.HTTP_200_OK)
 
     @resaas_action(detail=True, methods=['POST'])
     def createGroup(self, request, id):
