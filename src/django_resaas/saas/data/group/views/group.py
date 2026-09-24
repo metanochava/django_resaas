@@ -11,6 +11,7 @@ import json
 from django_resaas.saas.models.group import Group
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 from django.db.models import F
 from django.http import Http404
 
@@ -29,8 +30,13 @@ from rest_framework.response import Response
 # =========================
 # Local application (absolute import)
 # =========================
+from django_resaas.saas.core.exceptions import ConflictError, ResaasAPIException
+from django_resaas.saas.core.services import group_access_service
 from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.data.group.serializers.group import GroupSerializer
+from django_resaas.saas.models.branch import Branch
+from django_resaas.saas.models.branch_group import BranchGroup
+from django_resaas.saas.models.entity_group import EntityGroup
 
 
 class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
@@ -38,6 +44,12 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
 
     """
     API de gestão de Groups (Profiles / Roles).
+
+    Every action needs its permission in the current signed context (fail
+    closed: an action missing from action_permissions is denied). What a
+    caller sees and may change follows core/services/group_access_service.py:
+    the current Entity's groups, changeable only when editable and not
+    shared - or every group at platform level (change_entitytype).
     """
 
     serializer_class = GroupSerializer
@@ -47,13 +59,71 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     search_fields = ["id", "name"]
     pagination_class = ResaasPagination
 
+    action_permissions = {
+        "list": "list_group",
+        "retrieve": "view_group",
+        "permissions": "view_group",
+        "create": "add_group",
+        "update": "change_group",
+        "partial_update": "change_group",
+        "destroy": "delete_group",
+        "addPermission": "change_group",
+        "removePermission": "change_group",
+    }
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+
+        codename = self.action_permissions.get(self.action)
+
+        if not codename:
+            raise ResaasAPIException(
+                "Permission denied",
+                code="permission_denied",
+                status_code=status.HTTP_403_FORBIDDEN,
+            )
+
+        group_access_service.require_permission(request, codename)
+
     # -------------------------
     # Queryset
     # -------------------------
 
     def get_queryset(self):
         # Group NÃO tem codename
-        return self.queryset.order_by("name")
+        return group_access_service.visible_groups(
+            self.request, Group.objects.all()
+        ).order_by("name")
+
+    def get_changeable_object(self):
+        group = self.get_object()
+        group_access_service.check_group_changeable(self.request, group)
+        return group
+
+    # -------------------------
+    # Create
+    # -------------------------
+
+    @transaction.atomic
+    def perform_create(self, serializer):
+        group = serializer.save()
+
+        if group_access_service.is_platform(self.request):
+            return
+
+        # An Entity creates a group FOR ITSELF: linked to the current Entity
+        # and its branches (as EntityAPIView.createGroup does) and editable,
+        # so it stays inside this tenant.
+        group.editable = True
+        group.save(update_fields=["editable"])
+
+        EntityGroup.objects.get_or_create(
+            entity_id=self.request.entity_id, group=group, defaults={"state": "Active"}
+        )
+        BranchGroup.objects.bulk_create([
+            BranchGroup(branch=branch, group=group, state="Active")
+            for branch in Branch.objects.filter(entity_id=self.request.entity_id)
+        ], ignore_conflicts=True)
 
     # -------------------------
     # Retrieve
@@ -96,7 +166,7 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     # -------------------------
 
     def update(self, request, id, *args, **kwargs):
-        group = self.get_object()
+        group = self.get_changeable_object()
         group.name = request.data.get("name", group.name)
         group.save()
 
@@ -114,7 +184,15 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     # -------------------------
 
     def destroy(self, request, id, *args, **kwargs):
-        group = self.get_object()
+        group = self.get_changeable_object()
+
+        # never lock yourself out of the profile you are acting with
+        if str(group.id) == str(request.group_id):
+            raise ResaasAPIException(
+                "You cannot delete the profile you are currently using.",
+                code="cannot_delete_active_group",
+            )
+
         name = group.name
         group.delete()
 
@@ -131,7 +209,7 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
 
     @resaas_action(detail=True, methods=["POST"])
     def addPermission(self, request, id):
-        group = self.get_object()
+        group = self.get_changeable_object()
 
         codename = request.data.get("codename")
         name = request.data.get("name")
@@ -147,11 +225,27 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
             model="custom_permission",
         )
 
-        permission, _ = Permission.objects.get_or_create(
-            content_type=content_type,
-            codename=codename,
-            defaults={"name": name},
-        )
+        # Authorization matches codenames only (check_permission), so a
+        # "custom" permission reusing a real codename would grant that
+        # capability - never allowed.
+        if Permission.objects.filter(codename=codename).exclude(content_type=content_type).exists():
+            raise ConflictError(
+                "A permission with this codename already exists.",
+                code="permission_codename_exists",
+            )
+
+        permission = Permission.objects.filter(
+            content_type=content_type, codename=codename
+        ).first()
+
+        if permission is None:
+            group_access_service.require_permission(request, "add_permission")
+            permission = Permission.objects.create(
+                content_type=content_type, codename=codename, name=name
+            )
+        else:
+            # an existing custom permission: adding it is a grant
+            group_access_service.check_delegation(request, [permission])
 
         group.permissions.add(permission)
 
@@ -170,8 +264,8 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
 
 
     @resaas_action(detail=True, methods=["POST"])
-    def removePermission(self, request, pk=None):
-        group = self.get_object()
+    def removePermission(self, request, id=None):
+        group = self.get_changeable_object()
 
         codename = request.data.get("codename")
 
@@ -181,13 +275,15 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            permission = Permission.objects.get(codename=codename)
-        except Permission.DoesNotExist:
+        permission = group.permissions.filter(codename=codename).first()
+
+        if permission is None:
             return Response(
                 {"alert_error": "Permission not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+        group_access_service.check_delegation(request, [permission])
 
         # 🔥 remover permissão
         group.permissions.remove(permission)
@@ -209,7 +305,7 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     )
     def permissions(self, request, id, *args, **kwargs):
         per = []
-        group = Group.objects.get(id=id)
+        group = self.get_object()
         permissions = group.permissions.all()
 
         for permission in permissions:

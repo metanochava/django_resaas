@@ -877,7 +877,10 @@ class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         if not name:
             return Response({"error": "name is required"}, status=400)
 
-        group = Group.objects.create(name=name)
+        # editable: a group the Entity creates for itself is the only kind an
+        # Entity may later change without platform level (see
+        # PermissionAPIView._check_group_scope)
+        group = Group.objects.create(name=name, editable=True)
 
         # 🔥 Entity
         EntityGroup.objects.create(

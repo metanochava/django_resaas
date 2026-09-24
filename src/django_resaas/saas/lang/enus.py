@@ -185,5 +185,10 @@ key_value = {
     "Soft delete selected %(verbose_name_plural)s": "Soft delete selected %(verbose_name_plural)s",
     "You are not allowed to change these fields.": "You are not allowed to change these fields.",
     "Field-level permissions": "Field-level permissions",
+    "This profile is shared with other entities and can only be changed at platform level.": "This profile is shared with other entities and can only be changed at platform level.",
+    "You cannot grant or revoke permissions you do not have.": "You cannot grant or revoke permissions you do not have.",
+    "This profile is not editable and can only be changed at platform level.": "This profile is not editable and can only be changed at platform level.",
+    "A permission with this codename already exists.": "A permission with this codename already exists.",
+    "You cannot delete the profile you are currently using.": "You cannot delete the profile you are currently using.",
 
 }

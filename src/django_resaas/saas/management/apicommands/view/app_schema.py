@@ -812,24 +812,11 @@ class AppSchemaAPIView(ExplicitAccessMixin, ModelViewSet):
         return all(request, models=models)
 
 
-    # ======================================================
-    # GET /api/django_resaas/app/<module>/<model>/data/
-    # Retorna todos os dados do model
-    # ======================================================
-    
-    @resaas_action(detail=True, methods=["get"], url_path=r"(?P<model>[^/.]+)/data")
-    def model_data(self, request, pk=None, model=None):
-        module = pk
-        Model = _get_model(module, model)
-
-        qs = Model.objects.all()
-
-        data = list(qs.values()[:50])
-
-        return Response({
-            "results": data,
-            "count": qs.count()
-        })
+    # GET <app>/<model>/data/ (model_data) was removed: it returned the first
+    # 50 raw rows of ANY model - every tenant's data, and every column,
+    # password hashes included - to any authenticated user. It had no
+    # consumer. Data is read through each model's own BaseAPIView, which
+    # applies tenant scope, action permissions and field permissions.
 
 
     # ======================================================

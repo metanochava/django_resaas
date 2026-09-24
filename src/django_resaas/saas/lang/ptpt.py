@@ -1458,5 +1458,10 @@ key_value = {
     "Messages from your actions will appear here.": "As mensagens das suas acções aparecem aqui.",
     "You are not allowed to change these fields.": "Não tem permissão para alterar estes campos.",
     "Field-level permissions": "Permissões por campo",
+    "This profile is shared with other entities and can only be changed at platform level.": "Este perfil é partilhado com outras entidades e só pode ser alterado ao nível da plataforma.",
+    "You cannot grant or revoke permissions you do not have.": "Não pode atribuir nem retirar permissões que não tem.",
+    "This profile is not editable and can only be changed at platform level.": "Este perfil não é editável e só pode ser alterado ao nível da plataforma.",
+    "A permission with this codename already exists.": "Já existe uma permissão com este codename.",
+    "You cannot delete the profile you are currently using.": "Não pode apagar o perfil que está a usar.",
 
 }
