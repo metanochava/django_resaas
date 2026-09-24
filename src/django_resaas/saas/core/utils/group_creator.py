@@ -21,7 +21,8 @@ def group_creator(groups=None, rename_from=None):
     nunca inventados aqui) são concedidas ao Group (aditivo - nunca
     remove permissões já lá postas manualmente por um admin).
 
-    `rename_from`: dict opcional `{novo_nome: nome_antigo}` - renomeia
+    `rename_from`: dict opcional `{novo_nome: nome_antigo}` (ou uma lista
+    de nomes antigos, por ordem de preferência) - renomeia
     em vez de criar duplicado quando o Group antigo já existir (ex.:
     migração de nomes em português para inglês). `Group.id` é a PK
     real (UUID) e todas as relações - BranchUserGroup, EntityGroup,
@@ -84,15 +85,18 @@ def group_creator(groups=None, rename_from=None):
             name = g
             permission_codenames = []
 
-        old_name = rename_from.get(name)
+        # one old name or a list of them (e.g. the Portuguese name and a
+        # later English one): the FIRST that exists is renamed in place
+        old_names = rename_from.get(name) or []
+        if isinstance(old_names, str):
+            old_names = [old_names]
 
-        if (
-            old_name
-            and not Group.objects.filter(name=name).exists()
-            and Group.objects.filter(name=old_name).exists()
-        ):
-            Group.objects.filter(name=old_name).update(name=name)
-            report["groups_renamed"].append((old_name, name))
+        if not Group.objects.filter(name=name).exists():
+            for old_name in old_names:
+                if Group.objects.filter(name=old_name).exists():
+                    Group.objects.filter(name=old_name).update(name=name)
+                    report["groups_renamed"].append((old_name, name))
+                    break
 
         group, created = Group.objects.get_or_create(name=name)
         report["groups_created" if created else "groups_reused"].append(name)

@@ -35,7 +35,8 @@ report = group_creator([{"name": "Registered Nurse", "permissions": ["view_pacie
 ```
 
 - **Idempotent and additive.** An existing Group (by name) is reused, never duplicated; `rename_from`
-  renames an old name in place (same `id`, relations kept). Default permissions are **added**; permissions
+  renames an old name in place (same `id`, relations kept). It accepts one old name or a **list**
+  (e.g. `{"Doctor": ["General Practitioner", "Médico Geral"]}`): the first that exists is renamed. Default permissions are **added**; permissions
   an administrator added are never removed.
 - **Real codenames only.** A codename that doesn't exist is **not created and not assigned**. It is logged as
   a warning and listed in the returned report (`permissions_missing`). The report also has `groups_created`,
