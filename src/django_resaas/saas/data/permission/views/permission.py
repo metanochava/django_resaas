@@ -9,9 +9,8 @@ from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.models.group import Group
-from django_resaas.saas.models.user import User
+from django_resaas.saas.core.services import group_access_service
 from django_resaas.saas.models.entity_type_model import EntityTypeModel
-from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.data.permission.serializers.permission import PermissionSerializer
 
 
@@ -24,6 +23,23 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     search_fields = ["id", "name"]
     lookup_field = "id"
     pagination_class = ResaasPagination
+
+    # Reading the permission catalogue only needs authentication (group
+    # screens list it); every WRITE needs the caller's effective permission
+    # in the current signed context - fail closed.
+    write_permissions = {
+        "create": "add_permission",
+        "update": "change_permission",
+        "partial_update": "change_permission",
+        "destroy": "delete_permission",
+    }
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+
+        codename = self.write_permissions.get(self.action)
+        if codename:
+            group_access_service.require_permission(request, codename)
 
     def get_queryset(self):
         queryset = Permission.objects.select_related("content_type").annotate(
@@ -53,6 +69,8 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
 
     @resaas_action(detail=False, methods=["POST"], url_path="setGroupPermissions")
     def setGroupPermissions(self, request):
+        group_access_service.require_permission(request, "change_group")
+
         group_id = request.data.get("group") or request.data.get("id")
         permission_ids = request.data.get("permissions", [])
 
@@ -68,6 +86,8 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
                 {"error": "Group not found"},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+        group_access_service.check_group_changeable(request, group)
 
         if not isinstance(permission_ids, list):
             return Response(
@@ -95,6 +115,16 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
             )
 
         with transaction.atomic():
+            group = Group.objects.select_for_update().get(pk=group.pk)
+
+            # No privilege escalation by delegation: every permission this
+            # request ADDS or REMOVES must be one the caller holds. Unchanged
+            # ones (the whole list is sent back) are not a grant.
+            current = set(group.permissions.all())
+            group_access_service.check_delegation(
+                request, current.symmetric_difference(set(permissions))
+            )
+
             group.permissions.set(permissions)
 
         saved_ids = list(group.permissions.values_list("id", flat=True))
@@ -110,100 +140,8 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-    @resaas_action(detail=True, methods=["POST"])
-    def addToGroup(self, request, id=None):
-        group = Group.objects.filter(id=request.data.get("id")).first()
-        permission = Permission.objects.filter(id=id).first()
-
-        if not group or not permission:
-            return Response(
-                {"error": "Group or Permission not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        group.permissions.add(permission)
-        return Response(
-            {
-                "id": permission.id,
-                "name": permission.codename,
-                "nameseparado": permission.name,
-                "alert_success": (
-                    f"Permission <b>{permission.name}</b> added"
-                ),
-            },
-            status=status.HTTP_200_OK,
-        )
-
-    @resaas_action(detail=True, methods=["POST"])
-    def removeFromGroup(self, request, id=None):
-        group = Group.objects.filter(id=request.data.get("id")).first()
-        permission = Permission.objects.filter(id=id).first()
-
-        if not group or not permission:
-            return Response(
-                {"error": "Group or Permission not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        group.permissions.remove(permission)
-        return Response(
-            {
-                "id": permission.id,
-                "name": permission.codename,
-                "nameseparado": permission.name,
-                "alert_info": (
-                    f"Permission <b>{permission.name}</b> removed"
-                ),
-            },
-            status=status.HTTP_200_OK,
-        )
-
-    @resaas_action(detail=True, methods=["POST"])
-    def addToUser(self, request, id=None):
-        user = User.objects.filter(id=request.data.get("user")).first()
-        group = Group.objects.filter(id=id).first()
-
-        if not user or not group:
-            return Response(
-                {"error": "User or Group not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        with transaction.atomic():
-            _, created = BranchUserGroup.objects.get_or_create(
-                branch_id=request.data.get("branch"),
-                user=user,
-                group=group,
-            )
-
-        return Response(
-            {"alert_success": f"Profile <b>{group.name}</b> added"},
-            status=(
-                status.HTTP_201_CREATED
-                if created
-                else status.HTTP_200_OK
-            ),
-        )
-
-    @resaas_action(detail=True, methods=["POST"])
-    def removeFromUser(self, request, id=None):
-        user = User.objects.filter(id=request.data.get("user")).first()
-        group = Group.objects.filter(id=id).first()
-
-        if not user or not group:
-            return Response(
-                {"error": "User or Group not found"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        with transaction.atomic():
-            BranchUserGroup.objects.filter(
-                branch_id=request.data.get("branch"),
-                user=user,
-                group=group,
-            ).delete()
-
-        return Response(
-            {"alert_success": f"Profile <b>{group.name}</b> removed"},
-            status=status.HTTP_200_OK,
-        )
+    # addToGroup / removeFromGroup / addToUser / removeFromUser were removed:
+    # they changed any group's permissions and any user's profile in any
+    # branch for any authenticated caller - no permission, no tenant check -
+    # and had no consumer. Profiles of a user: UserAPIView addGroup /
+    # removeGroup (users/{id}/addGroup/, permission- and tenant-checked).
