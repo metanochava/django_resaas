@@ -183,4 +183,7 @@ key_value = {
     "Deactivate selected %(verbose_name_plural)s": "Deactivate selected %(verbose_name_plural)s",
     "Restore selected %(verbose_name_plural)s": "Restore selected %(verbose_name_plural)s",
     "Soft delete selected %(verbose_name_plural)s": "Soft delete selected %(verbose_name_plural)s",
+    "You are not allowed to change these fields.": "You are not allowed to change these fields.",
+    "Field-level permissions": "Field-level permissions",
+
 }

@@ -23,6 +23,12 @@ destroy + patient -> delete_patient
 A per-request cache can avoid repeated checks of the same codename
 during the same request.
 
+## Field-level permissions
+
+A model can also gate individual fields (e.g. `Contract.salary`) with their own
+`view`/`change` permissions, layered on top of the action permission - see
+[Field-level permissions](field-permissions.md).
+
 ## Module
 
 Besides the permission itself, the application can check whether the

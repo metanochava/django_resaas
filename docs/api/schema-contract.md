@@ -27,6 +27,10 @@ schema = ResaasSchemaBuilder(Model=SomeModel, fields=serialized_field_list).buil
 `fields` is the list of field descriptors the caller already derived from the model's serializer
 (each at minimum `{"name": "<field_name>"}`); the builder does not introspect serializers itself.
 
+A field restricted by [field-level permissions](../security/field-permissions.md) additionally
+carries `"permissions": {"view": "<codename>", "change": "<codename>"}` in its descriptor. This is
+an additive key, and the schema stays identical for every user.
+
 ## Versioning policy
 
 - `schema_version` is currently frozen at `"1.0"`.

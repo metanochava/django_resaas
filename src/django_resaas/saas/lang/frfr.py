@@ -1434,5 +1434,7 @@ key_value = {
     "Clear all": "Tout effacer",
     "No alerts": "Aucune alerte",
     "Messages from your actions will appear here.": "Les messages de vos actions apparaîtront ici.",
+    "You are not allowed to change these fields.": "Vous n’êtes pas autorisé à modifier ces champs.",
+    "Field-level permissions": "Autorisations par champ",
 
 }

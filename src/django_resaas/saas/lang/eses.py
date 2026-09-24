@@ -1458,5 +1458,7 @@ key_value = {
     "Clear all": "Borrar todo",
     "No alerts": "Sin alertas",
     "Messages from your actions will appear here.": "Los mensajes de sus acciones aparecerán aquí.",
+    "You are not allowed to change these fields.": "No tiene permiso para modificar estos campos.",
+    "Field-level permissions": "Permisos por campo",
 
 }

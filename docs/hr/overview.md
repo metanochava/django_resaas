@@ -23,6 +23,10 @@ the framework's point of view: `django_resaas/urls.py` unconditionally does
     (`is_recurring=True`, e.g. Christmas). Queried via `hr/services/holiday_service.is_holiday(entity, branch, date)`.
 -   `JobGrade` - level/seniority independent of `JobPosition` (Junior/Senior/... ordered by
     `level`), assignable to an `Employee`.
+-   `Contract` - employment contract (dates, type, status). Its `salary` is a reference value,
+    not the payroll source of truth. It is gated by its own field permissions
+    (`view_contract_salary` / `change_contract_salary`): `view_contract` alone does not reveal it.
+    See [Field-level permissions](../security/field-permissions.md).
 -   `SalaryComponent`, `EmployeeSalary` - configurable pay components per employee.
 -   `PayrollPeriod`, `Payroll`, `PayrollItem`, `Payslip` - payroll runs and their line items.
 -   `Promotion`, `Transfer` - immutable history rows for a merit-based position/grade change or a

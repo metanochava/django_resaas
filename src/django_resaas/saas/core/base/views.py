@@ -13,6 +13,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django_resaas.saas.core.base.permissions import isPermited
+from django_resaas.saas.core.base.field_access import (
+    is_path_readable,
+    unreadable_fields,
+)
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils import ok, fail  # noqa
@@ -90,7 +94,7 @@ def is_valid_search_field(Model, field_path):
 # GERAR QUERY DE PESQUISA
 # ============================================================
 
-def build_search_query(Model, search):
+def build_search_query(Model, search, request=None):
 
     q = Q()
 
@@ -129,6 +133,11 @@ def build_search_query(Model, search):
             ):
                 continue
 
+            # a field the caller may not read is not searchable either
+            # (a match would reveal its value)
+            if not is_path_readable(request, Model, field):
+                continue
+
             q |= Q(
                 **{
                     f"{field}__icontains": search
@@ -142,7 +151,12 @@ def build_search_query(Model, search):
     # FALLBACK AUTOMÁTICO
     # --------------------------------------------------------
 
+    hidden = unreadable_fields(request, Model)
+
     for field in Model._meta.get_fields():
+
+        if field.name in hidden:
+            continue
 
         # campos texto do próprio model
         if isinstance(
@@ -195,10 +209,14 @@ class DynamicFilterBackend(DjangoFilterBackend):
 
         Model = queryset.model
 
+        # ?field=value on a field the caller may not read would reveal it
+        hidden = unreadable_fields(getattr(view, "request", None), Model)
+
         filter_fields = [
             field.name
             for field in Model._meta.fields
-            if not isinstance(
+            if field.name not in hidden
+            and not isinstance(
                 field,
                 (
                     models.FileField,
@@ -233,6 +251,20 @@ class DynamicFilterBackend(DjangoFilterBackend):
 
         return AutoFilterSet
 
+class FieldAccessOrderingFilter(OrderingFilter):
+    """OrderingFilter that never orders by a field the caller may not read
+    (the row order would reveal it) - see core/base/field_access.py."""
+
+    def get_valid_fields(self, queryset, view, context={}):
+        valid_fields = super().get_valid_fields(queryset, view, context)
+        request = context.get("request") or getattr(view, "request", None)
+
+        return [
+            item for item in valid_fields
+            if is_path_readable(request, queryset.model, item[0])
+        ]
+
+
 # -----------------------------------
 # 🚀 BASE API VIEW
 # -----------------------------------
@@ -246,7 +278,7 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
 
     filter_backends = [
         DynamicFilterBackend,
-        OrderingFilter
+        FieldAccessOrderingFilter
     ]
 
     ordering_fields = "__all__"
@@ -312,7 +344,8 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
 
         q = build_search_query(
             Model,
-            search
+            search,
+            request=self.request
         )
 
         # Se nenhum campo pesquisável foi encontrado,
@@ -835,11 +868,12 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             return str(value)
 
         fields = []
+        hidden = unreadable_fields(request, Model)
 
         for field in Model._meta.fields:
             name = field.name
 
-            if name in self.PDF_IGNORE_FIELDS:
+            if name in self.PDF_IGNORE_FIELDS or name in hidden:
                 continue
 
             if any(hint in name.lower() for hint in self.PDF_SECRET_HINTS):
@@ -856,6 +890,9 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             })
 
         for field in Model._meta.many_to_many:
+            if field.name in hidden:
+                continue
+
             try:
                 names = ", ".join(str(o) for o in getattr(instance, field.name).all())
             except Exception:
@@ -960,10 +997,13 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             "deleted_at",
         }
 
+        hidden = unreadable_fields(request, Model)
+
         fields = [
             field
             for field in Model._meta.fields
             if field.name not in ignore_fields
+            and field.name not in hidden
         ]
 
         pdf_fields = [
