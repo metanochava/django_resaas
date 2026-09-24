@@ -291,6 +291,20 @@ class TestLegacyUserActionsAreNotOpen:
             for action in ("userPerson", "userBranchs", "permissions", "logins", "userEntitys"):
                 assert tenant["client"].get(_url(tenant["user"], action)).status_code == 200, action
 
+    def test_user_entitys_carries_the_entity_type(self, bootstrap_tenant):
+        """The frontend reads the selected Entity's entity_type (the home
+        dashboards choose the module from it); entityType is kept too."""
+        tenant = bootstrap_tenant("legacy-entity-type")
+
+        response = tenant["client"].get(_url(tenant["user"], "userEntitys"))
+
+        assert response.status_code == 200
+        entity = next(e for e in response.json() if str(e["id"]) == str(tenant["entity"].id))
+        assert entity["entity_type"]["id"] == str(tenant["entity"].entity_type_id)
+        assert entity["entity_type"]["label"]
+        assert entity["entityType"] == entity["entity_type"]
+        assert entity["dashboard"]
+
     def test_another_users_data_needs_view_user_and_the_same_entity(self, bootstrap_tenant):
         mine = bootstrap_tenant("legacy-a")
         theirs = bootstrap_tenant("legacy-b")
