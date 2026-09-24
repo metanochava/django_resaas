@@ -74,5 +74,16 @@ class Contract(BaseModel):
 
         crud = True
 
+        # Field-level authorization (saas/core/base/field_access.py): seeing
+        # a contract (view_contract) does not reveal its salary.
+        fields = {
+            "salary": {
+                "permissions": {
+                    "view": "view_contract_salary",
+                    "change": "change_contract_salary",
+                },
+            },
+        }
+
     def __str__(self):
         return f"{self.employee} - {self.contract_type}"

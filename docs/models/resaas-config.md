@@ -81,6 +81,24 @@ class RESAAS:
     pdf = {"list": False}
 ```
 
+## `fields`
+
+Per-field metadata, keyed by field name. Among the keys the schema reads: `read_only` /
+`write_only` (describe a field the serializer only outputs / only accepts), `initial`,
+`relation_variant`, and file options (`accept`, `max_size`, `multiple`). The
+`permissions` key gates the field with its own permissions, and the backend enforces it:
+
+```python
+class RESAAS:
+    fields = {
+        "salary": {
+            "permissions": {"view": "view_contract_salary", "change": "change_contract_salary"},
+        },
+    }
+```
+
+See [Field-level permissions](../security/field-permissions.md).
+
 ## Recommendation
 
 Declare `search_fields` explicitly on any model with more than a couple of text fields, or where

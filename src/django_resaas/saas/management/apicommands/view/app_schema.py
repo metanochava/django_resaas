@@ -30,6 +30,7 @@ from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.management.apicommands.service.app_service import AppScaffoldService
 
 from django_resaas.saas.core.schema import  ResaasSchemaBuilder 
+from django_resaas.saas.core.base.field_access import get_field_permissions
 from django_resaas.saas.core.utils.relation_preview import get_relation_preview_config
 
 # 🔧 Logger
@@ -660,6 +661,15 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
                 # the multi-select
                 if isinstance(field_obj, models.ManyToManyField):
                     payload["relation_config"]["variant"] = "select"
+
+        # field-level authorization: the codenames that gate reading/writing
+        # this field (RESAAS.fields[<name>]["permissions"], see
+        # core/base/field_access.py). Static metadata like every other
+        # schema permission - the frontend checks them with User.can(); the
+        # serializer enforces them.
+        field_permissions = get_field_permissions(Model).get(field_obj.name)
+        if field_permissions:
+            payload["permissions"] = field_permissions
 
         # limpa keys None pra ficar bonito
         payload = {k: v for k, v in payload.items() if v is not None}

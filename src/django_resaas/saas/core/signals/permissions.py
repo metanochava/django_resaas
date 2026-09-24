@@ -6,8 +6,11 @@ from django.conf import settings
 from django.contrib.auth.models import Permission
 from django_resaas.saas.models.group import Group
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models.signals import post_migrate, post_save
 from django.dispatch import receiver
+
+from django_resaas.saas.core.base.field_access import get_field_permissions
 
 # 🔹 Models do sistema
 from django_resaas.saas.models.person import Person
@@ -240,6 +243,27 @@ def create_model_permissions(sender, **kwargs):
             )
 
             created_perms.append(perm)
+
+        # --------------------------------------------------
+        # FIELD PERMISSIONS (RESAAS.fields[<name>]["permissions"],
+        # see core/base/field_access.py)
+        # --------------------------------------------------
+        for field_name, perms in get_field_permissions(model).items():
+            try:
+                field_label = model._meta.get_field(field_name).verbose_name
+            except FieldDoesNotExist:
+                field_label = field_name.replace("_", " ")
+
+            for operation, label in (("view", "Can view"), ("change", "Can change")):
+                perm, _ = Permission.objects.get_or_create(
+                    codename=perms[operation],
+                    content_type=ct,
+                    defaults={
+                        "name": f"{label} {model._meta.verbose_name} {field_label}"
+                    },
+                )
+
+                created_perms.append(perm)
 
     # ======================================================
     # SCAFFOLD PERMISSIONS
