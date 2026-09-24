@@ -92,6 +92,26 @@ Ver `dev/demo/dashboard.py` (exemplo mínimo, testado em
 tipos de widget, modelos `Paciente`/`Agenda`/`Consulta`/`Person.gender`
 já existentes).
 
+### Vários dashboards por app (`DASHBOARDS`)
+
+Um `dashboard.py` pode declarar, além de (ou em vez de) `DASHBOARD`, uma
+lista `DASHBOARDS` com mais dashboards da mesma app, por exemplo um por
+área de trabalho (ver `back/saude/dashboard.py`: Reception, Nursing,
+Doctor). Regras:
+
+- cada dashboard tem um `name` **único em todo o sistema** (é a chave do
+  registo e dos endpoints, `dashboard/<name>/`); um nome repetido é
+  registado como erro e o segundo é ignorado;
+- `module` indica a App a que pertence. A descoberta preenche-o com o
+  `app_label` para os dashboards de `DASHBOARDS`; o `DASHBOARD` clássico
+  continua a usar o próprio `name` como módulo (comportamento anterior,
+  retrocompatível). `module` é o que conta para "módulo activo"
+  (`ensure_module_active`) e para a permissão de consolidado da Entity
+  (`view_consolidated_dashboard_<module>`);
+- quem vê cada dashboard é decidido **só por permissões** (`permission`
+  do dashboard + `permissions` de cada widget), nunca pelo nome do
+  perfil. A lista `GET dashboards/` devolve `module` em cada entrada.
+
 Descoberta: `importlib.import_module(f"{app_config.name}.dashboard")`
 por cada app instalada, com
 `except ModuleNotFoundError as exc: if exc.name == module_name: continue; raise`
@@ -290,6 +310,13 @@ responsivo, tooltip do widget, actions do cabeçalho, `primary_action`)
 → componente resolvido por `components/dashboard/registry.js`
 (`widgetComponents[type]`). Tipo desconhecido: mensagem "Unsupported
 widget type", nunca crash.
+
+`HomeDashboards.vue` (a home): mostra os dashboards autorizados do módulo
+do EntityType actual (`module` igual ao nome do EntityType). Havendo mais
+do que um, aparecem como separadores (`q-tabs`, `data-test="home-dashboard-tabs"`),
+o primeiro por `order` é o de omissão e o último escolhido fica guardado
+só como conveniência local (`localStorage`, opcional). A lista vem já
+filtrada pelo backend, por isso um separador nunca leva a um 403.
 
 `services/dashboardActions.js` (`resolveDashboardAction()`) é o único
 sítio que sabe como executar cada `type` de action - nenhum widget

@@ -23,6 +23,28 @@ destroy + patient -> delete_patient
 A per-request cache can avoid repeated checks of the same codename
 during the same request.
 
+## Profile templates (`group_creator`)
+
+Modules ship default profiles (Groups with a default permission set) through
+`saas/core/utils/group_creator.py`, called from their `post_migrate` (e.g.
+`saude/apps.py` with `saude/profiles.py`):
+
+```python
+report = group_creator([{"name": "Registered Nurse", "permissions": ["view_paciente", "add_dadovital"]}],
+                       rename_from={"Registered Nurse": "Enfermeiro"})
+```
+
+- **Idempotent and additive.** An existing Group (by name) is reused, never duplicated; `rename_from`
+  renames an old name in place (same `id`, relations kept). Default permissions are **added**; permissions
+  an administrator added are never removed.
+- **Real codenames only.** A codename that doesn't exist is **not created and not assigned**. It is logged as
+  a warning and listed in the returned report (`permissions_missing`). The report also has `groups_created`,
+  `groups_reused`, `groups_renamed`, `permissions_assigned` and `permissions_already_assigned` per profile.
+- **Ordering.** Permissions a module creates itself (e.g. dashboard permissions) must exist before its
+  profiles are seeded: connect that `post_migrate` receiver first.
+- Profiles are **global Groups** linked to the EntityType as templates (see *Managing group permissions*):
+  changing their permissions is a platform-level operation.
+
 ## Managing group permissions
 
 `Group` rows are **global**: the same group (e.g. the bootstrap `Admin`) can be linked to several
