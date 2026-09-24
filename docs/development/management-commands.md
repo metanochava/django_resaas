@@ -144,6 +144,31 @@ Warns and exits early if `VIEW_REGISTRY` is empty (no views were registered/impo
 > Kept as a permanent, fully-supported alias - see `resaas_sync` above, which hits the exact same
 > `ActionSyncService.sync_registry` call and additionally supports `--dry-run`/`--only`/`-v`.
 
+## `mark_editable_groups`
+
+```bash
+python manage.py mark_editable_groups          # dry run: lists what would change
+python manage.py mark_editable_groups --apply  # writes
+```
+
+Marks existing groups as `editable`. Only editable groups can have their
+permissions changed by the admins of their own Entity; see
+[Permissions -> Managing group permissions](../security/permissions.md). Groups
+created before that rule are all `editable=False`, so only platform level could
+change them.
+
+A group is marked only when **all** of these are true
+(`group_access_service.editable_eligibility()`):
+
+- it is linked to exactly one Entity (`EntityGroup`);
+- it is not an EntityType template (`EntityTypeGroup`);
+- no user of another Entity has it (`BranchUserGroup`);
+- it doesn't hold the platform permission `change_entitytype` (e.g. Root).
+
+Every other group is listed with the reason it was left unchanged (`shared by N
+entities`, `entity type template`, `platform group`, ...). The command is
+idempotent, never sets `editable=False`, and never changes permissions or links.
+
 ## `sync_language`
 
 ```bash
