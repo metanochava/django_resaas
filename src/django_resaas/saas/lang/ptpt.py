@@ -1463,5 +1463,6 @@ key_value = {
     "This profile is not editable and can only be changed at platform level.": "Este perfil não é editável e só pode ser alterado ao nível da plataforma.",
     "A permission with this codename already exists.": "Já existe uma permissão com este codename.",
     "You cannot delete the profile you are currently using.": "Não pode apagar o perfil que está a usar.",
+    'This profile is not available for this entity type.': 'Este perfil não está disponível para este tipo de entidade.',
 
 }

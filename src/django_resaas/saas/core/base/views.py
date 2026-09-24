@@ -492,6 +492,14 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             f"{model._meta.model_name}"
         )
 
+        # @resaas_action(permission="...") names the exact codename to
+        # reuse (it is what ActionSyncService / the schema publish for the
+        # action) - enforce that one, so declaration and enforcement never
+        # differ.
+        explicit = (getattr(getattr(self, action or "", None), "_resaas_action", None) or {}).get("permission")
+        if explicit:
+            codename = explicit
+
         # 🔥 cache de permissões
         if not hasattr(request, "_perm_cache"):
             request._perm_cache = {}

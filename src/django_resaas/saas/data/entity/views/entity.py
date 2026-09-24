@@ -1,4 +1,5 @@
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
+from django_resaas.saas.core.exceptions import ResaasAPIException
 import base64
 import os
 import random
@@ -59,14 +60,55 @@ from django_resaas.saas.core.utils import ok
 
 from django_resaas.saas.core.services.disc_manager import DiskManegarService
 from django_resaas.saas.core.base.views import BaseAPIView, registerView
-from django_resaas.saas.core.base.permissions import hasPermission
+from django_resaas.saas.core.base.permissions import hasPermission, isPermited
 from django_resaas.saas.core.decorators.action import resaas_action
 from django_resaas.saas.core.utils.sub_object_put import apply_sub_object_put
 
 
 @registerView("entitys", module="django_resaas")
-class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
-    # PROTECTED: authenticated callers only (no public actions)
+class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED. Membership reads (the caller's own Entities, needed by the
+    # login / context selection before a profile exists) need no permission;
+    # every other action needs its permission in the signed context AND
+    # works only on the context's Entity - unless platform level
+    # (change_entitytype). See core/base/access.py ActionPermissionMixin.
+
+    membership_actions = (
+        "list", "retrieve", "branchs",
+        "themeGet", "layoutSettingsGet", "typographyGet", "animationSettingsGet",
+        # active modules/models of the caller's Entity: read passively by
+        # every user for module gating (HeaderUser.vue)
+        "apps", "models",
+        # self-service registration of a NEW Entity (the creator becomes its
+        # admin) - creates a separate tenant, touches no existing one
+        "create",
+    )
+
+    action_permissions = {
+        "update": "change_entity",
+        "partial_update": "change_entity",
+        "destroy": "delete_entity",
+        "storage": "view_entity",
+        "profiles": "view_entity",
+        "users": "view_entity",
+        "groups": "view_entity",
+        "qr": "view_entity",
+        "pdf": "pdf_entity",
+        "addModel": "addModel_entity",
+        "removeModel": "removeModel_entity",
+        "addApp": "addApp_entity",
+        "removeApp": "removeApp_entity",
+        "addUser": "add_entityuser",
+        "removeUser": "delete_entityuser",
+        "logoPost": "change_entity",
+        "themePut": "change_entity",
+        "layoutSettingsPut": "change_entity",
+        "typographyPut": "change_entity",
+        "animationSettingsPut": "change_entity",
+        "createGroup": "add_group",
+        "addGroup": "add_entitygroup",
+        "removeGroup": "delete_entitygroup",
+    }
 
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)
@@ -87,6 +129,21 @@ class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
             Q(admins=user)
             | Q(entityuser__user=user, entityuser__deleted_at__isnull=True)
         ).distinct()
+
+    def get_object(self):
+        entity = super().get_object()
+
+        # a permission-guarded action acts on the Entity of the signed
+        # context only (a member of several Entities holds permissions per
+        # context) - another one is "not found", unless platform level
+        if (
+            self.action not in self.membership_actions
+            and str(entity.id) != str(getattr(self.request, "entity_id", None))
+            and not isPermited(request=self.request, role="change_entitytype")
+        ):
+            raise Http404
+
+        return entity
 
     def retrieve(self, request, *args, **kwargs):
         try:
@@ -455,7 +512,8 @@ class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     @resaas_action(detail=True, methods=['GET'])
     def users(self, request, *args, **kwargs):
         transformer = self.get_object()
-        search = self.request.query_params.get('search')
+        # without ?search= this used to fail (icontains=None -> 500)
+        search = self.request.query_params.get('search') or ''
 
         entity_users = EntityUser.objects.filter(
             entity=transformer,
@@ -564,7 +622,7 @@ class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         methods=['GET'],
     )
     def qr(self, request, pk):
-        id = pk
+        id = self.get_object().id
         var_qr = {}
         origin = request.headers['Origin']
         LANGUAGE_CODE = 'pt-pt'
@@ -912,6 +970,19 @@ class EntityAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         group = Group.objects.filter(id=group_id).first()
         if not group:
             return Response({"error": "Group not found"}, status=400)
+
+        # An Entity picks from ITS EntityType's template groups - linking any
+        # other group (e.g. Root) would let its admins hand it out through
+        # users/{id}/addGroup. Platform level may link any group.
+        if not (
+            EntityTypeGroup.objects.filter(entity_type_id=entity.entity_type_id, group=group).exists()
+            or isPermited(request=request, role="change_entitytype")
+        ):
+            raise ResaasAPIException(
+                "This profile is not available for this entity type.",
+                code="group_not_in_entity_type",
+                status_code=status.HTTP_403_FORBIDDEN,
+            )
 
         EntityGroup.objects.get_or_create(
             entity=entity,

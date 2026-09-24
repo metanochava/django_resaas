@@ -110,6 +110,12 @@ Django `Permission`.
   on an unrelated model is never reused by mistake, and a shared/explicit permission's `.name` is
   never auto-rewritten (unlike the default-convention case, where it IS kept in sync with the
   action's label/model as long as the permission is RESAAS-managed).
+- **Enforcement**: on a `BaseAPIView`, the explicit `permission=` is also the codename
+  `initial()` enforces (otherwise `{action}_{model}`), so what the schema publishes and what
+  the backend checks are always the same permission. Use a permission **of the view's own
+  model**. The sync looks it up (or creates it) on that model's ContentType, so a codename
+  of another model would end up duplicated there. Several actions of one model can share
+  one codename (e.g. `lab_parameters` reuses `lab_evolution_paciente`).
 - **Manual vs. decorator**: a `ModelExtraAction` row with `managed_by="manual"` (the default for
   anything created outside `ActionSyncService`, e.g. by hand via the admin) can never be silently
   taken over by a decorator of the same `app.model.action` — syncing raises

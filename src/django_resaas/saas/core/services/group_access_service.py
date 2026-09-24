@@ -115,3 +115,42 @@ def check_delegation(request, changed_permissions):
             details={"permissions": not_held},
             status_code=status.HTTP_403_FORBIDDEN,
         )
+
+
+# ============================================================
+# EDITABLE MARKING (manage.py mark_editable_groups)
+# ============================================================
+
+def editable_eligibility(group):
+    """(eligible, reason) - whether an existing group can be marked
+    editable, i.e. handed to ONE Entity to manage. Conservative: anything
+    shared or platform-level is left to the platform.
+
+    Eligible only when the group
+    - is linked to exactly one Entity (EntityGroup),
+    - is not an EntityType template (EntityTypeGroup),
+    - is not assigned to users of any other Entity (BranchUserGroup),
+    - does not hold the platform permission (change_entitytype - e.g. Root).
+    """
+    if group.editable:
+        return False, "already editable"
+
+    if group.permissions.filter(codename=PLATFORM_PERMISSION).exists():
+        return False, "platform group (holds change_entitytype)"
+
+    if EntityTypeGroup.objects.filter(group_id=group.id).exists():
+        return False, "entity type template"
+
+    entity_ids = set(EntityGroup.objects.filter(group_id=group.id).values_list("entity_id", flat=True))
+    if not entity_ids:
+        return False, "not linked to any entity"
+    if len(entity_ids) > 1:
+        return False, f"shared by {len(entity_ids)} entities"
+
+    used_in = set(
+        BranchUserGroup.objects.filter(group_id=group.id).values_list("branch__entity_id", flat=True)
+    )
+    if used_in - entity_ids:
+        return False, "assigned to users of another entity"
+
+    return True, "exclusive to one entity"

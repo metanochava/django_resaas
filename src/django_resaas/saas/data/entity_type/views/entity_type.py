@@ -1,4 +1,4 @@
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 import importlib
 import importlib.util
 
@@ -45,9 +45,54 @@ from django_resaas.saas.data.entity_type.serializers.entity_type import (
 )
 
 
-class EntityTypeAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
     # PUBLIC (explicit, READ only): needed by the login screen before there is a session
     public_actions = ('themeGet', 'layoutSettingsGet', 'typographyGet', 'animationSettingsGet')
+
+    # EntityTypes are platform configuration. A member may READ their own
+    # EntityType (the catalogue the Entity's group screens need); anything
+    # else needs the entitytype permission - writes are platform level.
+    # user_entitys only returns the caller's own Entities.
+    membership_actions = ("user_entitys",)
+    own_type_read_actions = ("retrieve", "models", "apps", "groups", "permissions")
+
+    action_permissions = {
+        "list": "list_entitytype",
+        "retrieve": "view_entitytype",
+        "models": "view_entitytype",
+        "apps": "view_entitytype",
+        "groups": "view_entitytype",
+        "permissions": "view_entitytype",
+        # every Entity / Branch of a type: crosses tenants
+        "entitys": "view_entitytype",
+        "branches_map": "view_entitytype",
+        "create": "add_entitytype",
+        "update": "change_entitytype",
+        "partial_update": "change_entitytype",
+        "destroy": "delete_entitytype",
+        "addModel": "change_entitytype",
+        "removeModel": "change_entitytype",
+        "syncModels": "change_entitytype",
+        "addApp": "change_entitytype",
+        "removeApp": "change_entitytype",
+        "themePut": "change_entitytype",
+        "layoutSettingsPut": "change_entitytype",
+        "typographyPut": "change_entitytype",
+        "animationSettingsPut": "change_entitytype",
+        "createGroup": "change_entitytype",
+        "addGroup": "change_entitytype",
+        "removeGroup": "change_entitytype",
+    }
+
+    def is_membership_request(self, request, action, kwargs):
+        if super().is_membership_request(request, action, kwargs):
+            return True
+        own_type = getattr(request, "entity_type_id", None)
+        return (
+            action in self.own_type_read_actions
+            and own_type is not None
+            and str(kwargs.get(self.lookup_field)) == str(own_type)
+        )
 
     search_fields = ['id', 'name']
     filter_backends = (filters.SearchFilter,)

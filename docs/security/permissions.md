@@ -59,7 +59,9 @@ is **PROTECTED** and checks, in order:
      another Entity is not revealed.
    - be `editable`, otherwise `403 group_not_editable`. Only a group an Entity creates for itself
      (`EntityAPIView.createGroup`) is `editable=True`. Bootstrap and template groups are not, and
-     clients cannot set the flag (read-only in `GroupSerializer`).
+     clients cannot set the flag (read-only in `GroupSerializer`). Groups that
+     existed before this rule can be marked with `manage.py mark_editable_groups`
+     (dry run by default).
    - not be shared with another Entity nor be an EntityType template, otherwise `403 group_shared`.
 3. **No escalation by delegation.** Every permission the request adds **or removes** must be held
    by the caller's active group, otherwise `403 permission_not_held` with
@@ -90,6 +92,41 @@ needs its permission in the current context. An action without a mapped permissi
 | `DELETE auth/groups/{id}/` | `delete_group` | changeable group; never the caller's active group (`400 cannot_delete_active_group`) |
 | `POST {id}/addPermission/` | `change_group` | changeable group. A codename that already exists outside the `custom` content type → `409 permission_codename_exists` (authorization matches codenames, so it would grant the real capability). Creating a new custom permission needs `add_permission`; adding an existing custom one is a grant (rule 3). |
 | `POST {id}/removePermission/` | `change_group` | changeable group; revoking needs the permission to be held (rule 3) |
+
+### Legacy viewsets: per-action permissions (`ActionPermissionMixin`)
+
+`ExplicitAccessMixin` only decides who may **reach** a plain `ModelViewSet`
+(authenticated, or public for listed safe actions). `ActionPermissionMixin`
+(`saas/core/base/access.py`) adds what `BaseAPIView` does: every action needs its
+permission in the signed context, and an undeclared action is refused (`403
+permission_denied`). Actions listed in `membership_actions` need no permission,
+and the view's `get_queryset` must scope them to the caller's own objects.
+`is_membership_request()` can decide this per request.
+
+```python
+class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
+    membership_actions = ("list", "retrieve", "branchs", "apps", "models", "themeGet", ...)
+    action_permissions = {"update": "change_entity", "addUser": "add_entityuser", ...}
+```
+
+| View | No permission (membership) | Everything else |
+|---|---|---|
+| `EntityAPIView` (`django_resaas/entitys/`) | the caller's own Entities: list, detail, branches, active apps/models, branding reads; `create` (self-service registration of a **new** Entity) | its permission (`change_entity`, `add_entityuser`, `add_entitygroup`, ...) **and** only on the Entity of the signed context (another one is `404`), unless platform level (`change_entitytype`) |
+| `EntityTypeAPIView` (`django_resaas/entitytypes/`) | branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
+
+`EntityAPIView.addGroup` only links a group that is a template of the Entity's own
+EntityType (`403 group_not_in_entity_type` otherwise, unless platform level).
+Linking any group, e.g. Root, would let the Entity's admins assign it through
+`users/{id}/addGroup/`.
+
+### Deploy endpoints (`deploy/*`)
+
+**PUBLIC by design** (GitHub webhook / operations), authenticated by a shared
+token: header `X-Deploy-Token` (preferred) or `?token=` (kept for existing
+webhooks), compared in constant time. There is **no default token**: without
+`settings.DEPLOY_TOKEN` every call is refused. `deploy/github/` and
+`deploy/rollback/` change the server and are **POST only** (`405` on GET).
+`status`, `releases` and `logs` are read-only GETs.
 
 ### Removed endpoints
 

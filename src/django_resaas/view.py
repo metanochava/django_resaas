@@ -6,13 +6,16 @@ import json
 from datetime import datetime
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
+import hmac
 import os, json, subprocess
 from datetime import datetime
 from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-DEPLOY_TOKEN = getattr(settings, "DEPLOY_TOKEN", "@SaaS@")  # mete no env/setting em produção
+# No default: without settings.DEPLOY_TOKEN every deploy endpoint refuses
+# (fail closed) - a hard-coded fallback would be a public password.
+DEPLOY_TOKEN = getattr(settings, "DEPLOY_TOKEN", None)
 
 STATUS_FILE = "/tmp/deploy_status.json"
 LOG_FILE = "/tmp/deploy.log"
@@ -83,11 +86,25 @@ def _tail(path, n=300):
 
 
 def _require_token(request):
-    return request.GET.get("token") == DEPLOY_TOKEN
+    """PUBLIC endpoints (GitHub webhook / ops) authenticated by a shared
+    token - X-Deploy-Token header (preferred) or ?token= (kept for existing
+    webhooks). Constant-time comparison."""
+    if not DEPLOY_TOKEN:
+        return False
+    supplied = request.headers.get("X-Deploy-Token") or request.GET.get("token") or ""
+    return hmac.compare_digest(str(supplied), str(DEPLOY_TOKEN))
+
+
+def _post_only(request):
+    # deploy/rollback change the server: never on a GET (link prefetchers,
+    # crawlers, logs replaying URLs)
+    return request.method == "POST"
 
 
 @csrf_exempt
 def deploy_github(request):
+    if not _post_only(request):
+        return HttpResponse("Method Not Allowed", status=405)
     if not _require_token(request):
         return HttpResponse("Unauthorized", status=403)
 
@@ -144,6 +161,8 @@ def deploy_logs(request):
 
 @csrf_exempt
 def deploy_rollback(request):
+    if not _post_only(request):
+        return HttpResponse("Method Not Allowed", status=405)
     if not _require_token(request):
         return HttpResponse("Unauthorized", status=403)
 
