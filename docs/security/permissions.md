@@ -93,6 +93,20 @@ needs its permission in the current context. An action without a mapped permissi
 | `DELETE auth/groups/{id}/` | `delete_group` | changeable group; never the caller's active group (`400 cannot_delete_active_group`) |
 | `POST {id}/addPermission/` | `change_group` | changeable group. A codename that already exists outside the `custom` content type → `409 permission_codename_exists` (authorization matches codenames, so it would grant the real capability). Creating a new custom permission needs `add_permission`; adding an existing custom one is a grant (rule 3). |
 | `POST {id}/removePermission/` | `change_group` | changeable group; revoking needs the permission to be held (rule 3) |
+| `GET {id}/permissions_csv/` | `view_group` | visible group; CSV `app, model, codename, name` (UTF-8 with BOM); cells starting with `= + - @` are prefixed with `'` (no spreadsheet formulas) |
+| `GET {id}/permissions_pdf/` | `view_group` | visible group; the generic list PDF (`django_resaas/pdf/list.html`) with the Entity's branding |
+| `POST {id}/import_permissions/` (multipart `file`, `mode=add\|replace`) | `change_group` | changeable group (rule 2) + no escalation (rule 3) on every permission added **or removed** |
+
+**CSV import** (`saas/core/services/group_permissions_io_service.py`): a `codename`
+column is required; `app` disambiguates a codename that exists in several apps
+(e.g. `view_group` in `django_resaas` and `auth`). The file is validated **before**
+anything changes. Any unknown or ambiguous row returns `400 invalid_rows` with
+`error.details.rows` (`{line: [message]}`), and nothing is applied. `mode=add`
+(default) only adds; `replace` makes the group's permissions exactly the file's.
+The limits are 1 MB and 5,000 rows, in UTF-8. The answer is
+`{mode, added, removed, unchanged, total}`. The change is audited
+(`GROUP_PERMISSIONS_IMPORTED`). A file downloaded with `permissions_csv` can be
+edited and imported back.
 
 ### Legacy viewsets: per-action permissions (`ActionPermissionMixin`)
 
@@ -114,6 +128,29 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
 |---|---|---|
 | `EntityAPIView` (`django_resaas/entitys/`) | the caller's own Entities: list, detail, branches, active apps/models, branding reads; `create` (self-service registration of a **new** Entity) | its permission (`change_entity`, `add_entityuser`, `add_entitygroup`, ...) **and** only on the Entity of the signed context (another one is `404`), unless platform level (`change_entitytype`) |
 | `EntityTypeAPIView` (`django_resaas/entitytypes/`) | branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
+
+**EntityType profiles export / import** (EntityType -> template profiles -> permissions, JSON
+because of the nesting; `saas/core/services/entity_type_profiles_io_service.py`, built on the
+group functions of `group_permissions_io_service`):
+
+| Action | Permission | Notes |
+|---|---|---|
+| `GET entitytypes/{id}/profiles_json/` | `view_entitytype` (or the caller's own type) | `{"format": "resaas.entity_type_profiles", "version": 1, "entity_type", "profiles": [{"name", "permissions": [{app, model, codename, name}]}]}` |
+| `GET entitytypes/{id}/profiles_pdf/` | `view_entitytype` (or own type) | generic list PDF: profile, app, model, codename, name |
+| `POST entitytypes/{id}/import_profiles/` (multipart `file`, `mode=add\|replace`) | `change_entitytype` | see below |
+
+Import: the whole file is validated first (`400 invalid_profiles`, `error.details.profiles`
+keyed `profiles[i] <name>`), and nothing changes if any profile is wrong. A profile that
+doesn't exist is created and linked as a template of the type. `mode` applies to each
+**listed** profile (`add` / `replace` its permissions); profiles not in the file are never
+touched. Permissions may be `{"app", "codename"}` or a bare codename (`app` is needed when
+the codename exists in several apps). **Refused**: a platform profile (one holding
+`change_entitytype`, e.g. Root) and the `change_entitytype` permission itself, because a
+template is inherited by every Entity of the type. The group rules also apply to every
+profile: no permission added or removed that the caller doesn't hold. Limits: 2 MB, 200
+profiles. Audited (`ENTITY_TYPE_PROFILES_IMPORTED`). The answer is
+`{mode, created, profiles: [{name, created, added, removed, total}]}`. An exported file
+imports back unchanged.
 
 `EntityAPIView.addGroup` only links a group that is a template of the Entity's own
 EntityType (`403 group_not_in_entity_type` otherwise, unless platform level).

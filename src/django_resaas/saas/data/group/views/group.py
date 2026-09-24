@@ -13,7 +13,7 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models import F
-from django.http import Http404
+from django.http import Http404, HttpResponse
 
 
 
@@ -31,7 +31,8 @@ from rest_framework.response import Response
 # Local application (absolute import)
 # =========================
 from django_resaas.saas.core.exceptions import ConflictError, ResaasAPIException
-from django_resaas.saas.core.services import group_access_service
+from django_resaas.saas.core.services import group_access_service, group_permissions_io_service
+from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django_resaas.saas.data.group.serializers.group import GroupSerializer
 from django_resaas.saas.models.branch import Branch
@@ -69,6 +70,11 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         "destroy": "delete_group",
         "addPermission": "change_group",
         "removePermission": "change_group",
+        # export / import of the group's permissions
+        # (core/services/group_permissions_io_service.py)
+        "permissions_csv": "view_group",
+        "permissions_pdf": "view_group",
+        "import_permissions": "change_group",
     }
 
     def initial(self, request, *args, **kwargs):
@@ -299,6 +305,47 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         )
 
     
+    # -------------------------
+    # Export / import of the permissions
+    # -------------------------
+
+    @resaas_action(detail=True, methods=["GET"], label="Download permissions (CSV)", icon="download",
+                   permission="view_group")
+    def permissions_csv(self, request, id, *args, **kwargs):
+        group = self.get_object()
+        response = HttpResponse(
+            group_permissions_io_service.to_csv(group), content_type="text/csv; charset=utf-8"
+        )
+        response["Content-Disposition"] = f'attachment; filename="{_safe_filename(group.name)}-permissions.csv"'
+        return response
+
+    @resaas_action(detail=True, methods=["GET"], label="Download permissions (PDF)", icon="picture_as_pdf",
+                   permission="view_group")
+    def permissions_pdf(self, request, id, *args, **kwargs):
+        """Reuses the generic list PDF (django_resaas/pdf/list.html) and the
+        entity branding helpers of BaseAPIView."""
+        group = self.get_object()
+        rows = group_permissions_io_service.permission_rows(group)
+        title = f"{Translate.tdc(request, 'Permissions')} - {group.name}"
+
+        return group_permissions_io_service.render_list_pdf(
+            self, request,
+            title=title,
+            section_title=f"{len(rows)} {Translate.tdc(request, 'permissions')}",
+            fields=[("app", "App"), ("model", "Model"), ("codename", "Codename"), ("name", "Name")],
+            rows=[[r["app"], r["model"], r["codename"], r["name"]] for r in rows],
+        )
+
+    @resaas_action(detail=True, methods=["POST"], label="Import permissions (CSV)", icon="upload",
+                   permission="change_group")
+    def import_permissions(self, request, id, *args, **kwargs):
+        """multipart: file=<csv>, mode=add|replace (default add). All or
+        nothing; the rules of setGroupPermissions apply."""
+        summary = group_permissions_io_service.import_csv(
+            request, self.get_object(), request.FILES.get("file"), request.data.get("mode") or "add",
+        )
+        return Response(summary, status=status.HTTP_200_OK)
+
     @resaas_action(
         detail=True,
         methods=['GET'],
@@ -314,3 +361,7 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         if True:
             return Response(per, status.HTTP_200_OK)
         return Response([], status.HTTP_400_BAD_REQUEST)
+
+
+def _safe_filename(name):
+    return "".join(c if c.isalnum() or c in "-_" else "_" for c in str(name))[:60] or "group"
