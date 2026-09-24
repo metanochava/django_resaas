@@ -257,6 +257,11 @@ class UserAPIView(viewsets.ModelViewSet):
 
             result.append({
                 "id": data["id"],
+                # entity_type ({id, value, label}) is what every frontend
+                # consumer of the selected Entity reads (the home dashboards
+                # pick the module from it). entityType is the old key, kept
+                # for compatibility (DEPRECATED).
+                "entity_type": data["entity_type"],
                 "entityType": data["entity_type"],
                 "name": data["name"],
                 "dashboard": data["dashboard"],

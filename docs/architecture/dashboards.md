@@ -318,6 +318,23 @@ o primeiro por `order` é o de omissão e o último escolhido fica guardado
 só como conveniência local (`localStorage`, opcional). A lista vem já
 filtrada pelo backend, por isso um separador nunca leva a um 403.
 
+O nome do EntityType vem de `User.Entity.entity_type.label` (em minúsculas).
+A Entity seleccionada vem de `GET django_resaas/users/{id}/userEntitys/`, que
+devolve `entity_type` (`{id, value, label}`) e ainda a chave antiga `entityType`
+(DEPRECATED, mantida por compatibilidade). Antes, só `entityType` era devolvida.
+Uma Entity guardada no `localStorage` nessa altura continua a funcionar, porque
+`HomeDashboards` também lê `entityType`.
+
+**Diagnóstico: o dashboard é pedido ao backend mas não aparece.**
+- `GET dashboards/` devolve dashboards do módulo? Se só aparecerem os que não
+  têm `permission` (ex.: `hr`), falta o cabeçalho `L`: `check_permission`
+  exige `request.lang_id` e recusa tudo o resto.
+- A Entity seleccionada tem `entity_type`? Sem ela, o módulo não é conhecido
+  e nenhum dashboard é escolhido (`DashboardRenderer` recebe `name = null`).
+- `Entity.dashboard` é `Auto`? `Manual` mostra o registo antigo (`DashboardComponent`).
+- `GET dashboard/<nome>/` devolve `widgets`? A lista vem filtrada pelas
+  permissões de cada widget (`permissions`/`permission_mode`).
+
 `services/dashboardActions.js` (`resolveDashboardAction()`) é o único
 sítio que sabe como executar cada `type` de action - nenhum widget
 implementa navegação por si próprio (`TableWidget`'s `row_actions`,
