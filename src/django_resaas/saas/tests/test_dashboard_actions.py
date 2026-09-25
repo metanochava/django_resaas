@@ -112,10 +112,19 @@ class TestActionValidation:
                 {"name": "a1", "type": "route", "route": {"name": "x"}},
                 {"name": "a2", "type": "refresh"},
                 {"name": "a3", "type": "fullscreen"},
-                {"name": "a4", "type": "dialog"},
+                {"name": "a4", "type": "dialog", "dialog": "demo.form"},
             ],
         }])
         DashboardValidator.validate(config, app_label="x")  # não deve levantar
+
+    def test_dialog_action_needs_the_dialog_name(self):
+        # the frontend opens the dialog registered under that name
+        config = _base(widgets=[{
+            "name": "w", "type": "stat", "provider": "p", "cols": {"xs": 12},
+            "actions": [{"name": "a4", "type": "dialog"}],
+        }])
+        with pytest.raises(DashboardConfigError):
+            DashboardValidator.validate(config, app_label="x")
 
 
 class TestActionPermissionFiltering:
