@@ -31,7 +31,8 @@ KNOWN_WIDGET_TYPES = {
 # o vue-router já existente - nunca inventa rotas novas aqui, o
 # dashboard.py de cada app é que aponta para rotas REAIS já
 # registadas.
-SUPPORTED_ACTION_TYPES = {"route", "refresh", "fullscreen", "dialog"}
+SUPPORTED_ACTION_TYPES = {"route", "refresh", "fullscreen", "dialog", "request"}
+REQUEST_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
 # Quasar grid: every row of cards must add up to exactly this many columns.
 GRID_COLUMNS = 12
@@ -382,6 +383,33 @@ class DashboardValidator:
                 f"Action '{action_name}' de {context} é do tipo 'dialog' mas "
                 "não define 'dialog' (o nome do diálogo registado no frontend).",
                 fields={"dialog": ["Obrigatório para type='dialog'."]},
+            )
+
+        # "request": the frontend calls the endpoint ({field} placeholders
+        # from the row/item) - a write, never GET (GET never changes state)
+        if action_type == "request":
+            request_def = action_def.get("request")
+            if (
+                not isinstance(request_def, dict)
+                or str(request_def.get("method", "")).upper() not in REQUEST_METHODS
+                or not isinstance(request_def.get("endpoint"), str)
+                or not request_def["endpoint"]
+            ):
+                raise DashboardConfigError(
+                    f"Action '{action_name}' de {context} é do tipo 'request' mas "
+                    "não define 'request' com 'method' (POST/PUT/PATCH/DELETE) e 'endpoint'.",
+                    fields={"request": ["Obrigatório para type='request'."]},
+                )
+
+        # "when": the action only applies to rows/items whose `field` is in `in`
+        when = action_def.get("when")
+        if when is not None and not (
+            isinstance(when, dict) and isinstance(when.get("field"), str) and isinstance(when.get("in"), list)
+        ):
+            raise DashboardConfigError(
+                f"Action '{action_name}' de {context} tem 'when' inválido: "
+                "use {'field': '<campo>', 'in': [valores]}.",
+                fields={"when": ["Use {'field': ..., 'in': [...]}."]},
             )
 
         permission_mode = action_def.get("permission_mode", "any")
