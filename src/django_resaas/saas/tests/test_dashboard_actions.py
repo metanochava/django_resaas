@@ -117,6 +117,25 @@ class TestActionValidation:
         }])
         DashboardValidator.validate(config, app_label="x")  # não deve levantar
 
+    def test_request_action_needs_a_write_method_and_an_endpoint(self):
+        def config(action):
+            return _base(widgets=[{"name": "w", "type": "stat", "provider": "p", "cols": {"xs": 12},
+                                   "actions": [action]}])
+
+        DashboardValidator.validate(config({
+            "name": "ok", "type": "request", "request": {"method": "post", "endpoint": "x/{id}/do/"},
+            "when": {"field": "estado", "in": ["a"]},
+        }), app_label="x")
+
+        for bad in (
+            {"name": "r", "type": "request"},
+            {"name": "r", "type": "request", "request": {"method": "GET", "endpoint": "x/"}},
+            {"name": "r", "type": "request", "request": {"method": "POST"}},
+            {"name": "r", "type": "refresh", "when": "estado=a"},
+        ):
+            with pytest.raises(DashboardConfigError):
+                DashboardValidator.validate(config(bad), app_label="x")
+
     def test_dialog_action_needs_the_dialog_name(self):
         # the frontend opens the dialog registered under that name
         config = _base(widgets=[{

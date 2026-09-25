@@ -230,7 +230,7 @@ item_action:    dict | None   - um destino único para qualquer item de 'list'/'
 `type` suportado (`SUPPORTED_ACTION_TYPES`, `validator.py`):
 `route` (obrigatório `route: {name, params?, query?}`, resolvido pelo
 vue-router real da app - nunca inventar rotas aqui), `refresh`,
-`fullscreen`, `dialog`. Extensível para `download`/`export`/`print`/
+`fullscreen`, `dialog`, `request`. Extensível para `download`/`export`/`print`/
 `provider_action`/`external_url` via
 `quasar_resaas/services/dashboardActions.js`'s `registerActionHandler()`
 sem tocar em nenhum widget existente.
@@ -334,6 +334,30 @@ Uma Entity guardada no `localStorage` nessa altura continua a funcionar, porque
 - `Entity.dashboard` é `Auto`? `Manual` mostra o registo antigo (`DashboardComponent`).
 - `GET dashboard/<nome>/` devolve `widgets`? A lista vem filtrada pelas
   permissões de cada widget (`permissions`/`permission_mode`).
+
+**Actions `request` e `when`.** Uma acção pode escrever no backend
+directamente e aplicar-se só a certas linhas:
+
+```python
+{"name": "check_in", "type": "request",
+ "request": {"method": "POST", "endpoint": "saude/agendas/{id}/check_in/"},
+ "when": {"field": "estado", "in": ["marcada", "confirmada"]},
+ "confirm": "…",            # opcional: pergunta antes de enviar
+ "success": "Patient checked in.",   # opcional: mensagem de sucesso (tdc)
+ "color": "positive", "icon": "login", "permissions": ["check_in_agenda"]}
+```
+
+- `request.method` tem de ser POST, PUT, PATCH ou DELETE: GET nunca muda
+  estado. `request.endpoint` é obrigatório e os `{campo}` vêm da linha.
+  O validador recusa o dashboard sem estes dados.
+- `when` (`{"field", "in"}`, validado) decide em que linhas ou itens o botão
+  aparece (`actionApplies()`). É só UX: o endpoint verifica de novo o estado
+  e a permissão.
+- Com sucesso, o frontend recarrega todos os widgets (`onChanged` →
+  `loadAllWidgets()`), porque um check-in muda contadores e filas. Um erro
+  (409, 403…) vai para o funil de alertas e não recarrega nada.
+- Os botões de acção (linha e cabeçalho do widget) são `s-btn` redondos de
+  tamanho médio (`size="md"`), com a cor da acção (`color`) e o tooltip.
 
 **Actions `dialog`.** O backend declara o nome do diálogo e o frontend
 regista o componente com esse nome:
