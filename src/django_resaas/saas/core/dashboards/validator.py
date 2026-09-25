@@ -375,6 +375,15 @@ class DashboardValidator:
                 fields={"route": ["Obrigatório para type='route'."]},
             )
 
+        # the frontend opens the dialog registered under this name
+        # (quasar_resaas services/dashboardDialogs.js registerDashboardDialog)
+        if action_type == "dialog" and not (isinstance(action_def.get("dialog"), str) and action_def["dialog"]):
+            raise DashboardConfigError(
+                f"Action '{action_name}' de {context} é do tipo 'dialog' mas "
+                "não define 'dialog' (o nome do diálogo registado no frontend).",
+                fields={"dialog": ["Obrigatório para type='dialog'."]},
+            )
+
         permission_mode = action_def.get("permission_mode", "any")
         if permission_mode not in ("all", "any"):
             raise DashboardConfigError(

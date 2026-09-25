@@ -335,6 +335,32 @@ Uma Entity guardada no `localStorage` nessa altura continua a funcionar, porque
 - `GET dashboard/<nome>/` devolve `widgets`? A lista vem filtrada pelas
   permissões de cada widget (`permissions`/`permission_mode`).
 
+**Actions `dialog`.** O backend declara o nome do diálogo e o frontend
+regista o componente com esse nome:
+
+```python
+# <app>/dashboard.py
+{"name": "record_vital_signs", "type": "dialog", "dialog": "saude.record_vital_signs",
+ "icon": "monitor_heart", "permissions": ["add_dadovital"]}
+```
+
+```js
+// frontend da app (ex.: dev/front pages/saude/dashboard/dashboard.js)
+import { registerDashboardDialog } from 'quasar_resaas'
+registerDashboardDialog('saude.record_vital_signs', VitalSignsDialog)
+```
+
+- `dialog` é obrigatório para `type: "dialog"` (`DashboardValidator`:
+  sem ele, o dashboard não é carregado).
+- `services/dashboardDialogs.js` guarda o registo; `DashboardDialogHost.vue`
+  (dentro do `DashboardRenderer`) mostra o diálogo aberto com as props
+  `modelValue`, `context` (a linha ou o item em que a acção correu) e `action`.
+  Quando o diálogo emite `saved`, os widgets do dashboard são recarregados.
+- Um nome sem componente registado não abre nada (aviso na consola).
+  Um widget que passe `onDialog` trata a acção ele próprio.
+- Abrir o diálogo é só navegação. O backend já filtrou a acção por
+  permissão e autoriza de novo o que o diálogo enviar.
+
 `services/dashboardActions.js` (`resolveDashboardAction()`) é o único
 sítio que sabe como executar cada `type` de action - nenhum widget
 implementa navegação por si próprio (`TableWidget`'s `row_actions`,
@@ -413,11 +439,8 @@ Só configuração + provider - nenhuma mudança no motor.
 - `date_range`/`number_range` não suportam ainda um "default dinâmico"
   declarado em `dashboard.py` (ex.: `"default": "current_month"`) - por
   agora a resolução dinâmica fica sempre a cargo do provider.
-- `type: "dialog"` só chama um `onDialog(action)` opcional que o
-  consumidor da página tem de fornecer - o resolver genérico não sabe
-  (nem deve saber) que diálogo mostrar para uma action arbitrária de
-  uma app qualquer. `type: "fullscreen"` já tem comportamento real
-  (`WidgetContainer` abre o próprio widget num `q-dialog` maximizado).
+- `type: "fullscreen"` abre o próprio widget num `q-dialog` maximizado
+  (`WidgetContainer`).
 - Route names/permission codenames de `dashboard.py` NÃO são
   validados contra o router real da app nem contra o modelo de
   permissões real - é responsabilidade de quem escreve `dashboard.py`
