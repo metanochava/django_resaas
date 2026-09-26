@@ -45,13 +45,18 @@ from django_resaas.saas.core.utils.sub_object_put import apply_sub_object_put
 
 
 from django_resaas.saas.data.entity_type.serializers.entity_type import (
-    EntityTypeSerializer
+    EntityTypePublicSerializer,
+    EntityTypeSerializer,
 )
+from django_resaas.saas.core.base.permissions import isPermited
 
 
 class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
-    # PUBLIC (explicit, READ only): needed by the login screen before there is a session
-    public_actions = ('themeGet', 'layoutSettingsGet', 'typographyGet', 'animationSettingsGet')
+    # PUBLIC (explicit, READ only): needed by the login screen before there is a
+    # session - the branding reads, and the catalogue list (header services
+    # menu, EntityType of the domain) which then shows public fields only
+    # (EntityTypePublicSerializer) unless the caller holds list_entitytype.
+    public_actions = ('list', 'themeGet', 'layoutSettingsGet', 'typographyGet', 'animationSettingsGet')
 
     # EntityTypes are platform configuration. A member may READ their own
     # EntityType (the catalogue the Entity's group screens need); anything
@@ -110,7 +115,31 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
     queryset = EntityType.all_objects.all()
     lookup_field = 'id'
 
+    def _full_catalogue(self):
+        """list_entitytype (or platform) sees every field and deleted types;
+        anyone else gets the public summary of the live ones."""
+        if getattr(self, "_full_catalogue_cache", None) is not None:
+            return self._full_catalogue_cache
+        request = self.request
+        allowed = False
+        if request.user and request.user.is_authenticated:
+            try:
+                allowed = isPermited(request=request, role="list_entitytype")
+            except Exception:
+                allowed = False
+        self._full_catalogue_cache = allowed
+        return allowed
+
+    def get_serializer_class(self):
+        if self.action == "list" and not self._full_catalogue():
+            return EntityTypePublicSerializer
+        return super().get_serializer_class()
+
     def get_queryset(self):
+        if self.action == "list" and not self._full_catalogue():
+            self._paginator = None
+            return EntityType.objects.filter(deleted_at__isnull=True).order_by("ordem")
+
         # print(self.request.query_params, self.request.query_params.get('all'), self.request.query_params.get('objects'))
         result = self.queryset.order_by('ordem')
         if self.request.query_params.get('objects')=='all':

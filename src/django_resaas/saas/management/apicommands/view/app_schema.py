@@ -1,5 +1,6 @@
 # 📦 Standard library
 from django_resaas.saas.core.base.access import ExplicitAccessMixin
+import builtins
 import logging
 import shutil
 from pathlib import Path
@@ -8,6 +9,7 @@ from typing import Any, Dict, List, Optional, Tuple
 # 📦 Django
 from django.apps import apps, apps as django_apps
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import PermissionDenied, FieldDoesNotExist
 from django.db import models
@@ -15,6 +17,7 @@ from django.db.models import Q
 from django.http import JsonResponse, Http404
 
 # 📦 Django REST Framework
+from rest_framework import exceptions as drf_exceptions
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -26,6 +29,9 @@ from django_resaas.saas.core.base.views import registerView
 from django_resaas.saas.core.base.permissions import hasPermission, isPermited as hasPermissionCode
 from django_resaas.saas.core.utils import ok, fail, warn, all, clean_name, reorder_fields, clean_class_name
 from django_resaas.saas.models.app import App
+from django_resaas.saas.models.branch_user_group import BranchUserGroup
+from django_resaas.saas.models.entity_user import EntityUser
+from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.management.apicommands.service.app_service import AppScaffoldService
 
@@ -847,6 +853,47 @@ class AppSchemaAPIView(ExplicitAccessMixin, ModelViewSet):
     
 
 
+# Audit columns point to User on every model; being able to write a record
+# is not a reason to list the Entity's users.
+_AUDIT_FIELDS = {"created_by", "updated_by", "deleted_by"}
+
+
+def _relation_pick_codenames(Model):
+    """list_/view_ of the model, plus add_/change_ of every RESAAS model with
+    an editable, non-audit field (FK / O2O / M2M) pointing to it."""
+    key = Model._meta.model_name
+    codenames = {f"list_{key}", f"view_{key}"}
+    for rel in Model._meta.related_objects:
+        field = rel.field
+        if not field.editable or field.name in _AUDIT_FIELDS:
+            continue
+        if getattr(field.model, "RESAAS", None) is None:
+            continue
+        owner = field.model._meta.model_name
+        codenames |= {f"add_{owner}", f"change_{owner}"}
+    return codenames
+
+
+def _can_pick(request, Model):
+    """One query: does the current context grant any of those codenames?
+    Same conditions as isPermited (check_permission)."""
+    if not builtins.all([
+        request.user, request.user.is_authenticated,
+        getattr(request, "entity_type_id", None), getattr(request, "entity_id", None),
+        getattr(request, "branch_id", None), getattr(request, "group_id", None),
+        getattr(request, "lang_id", None),
+    ]):
+        return False
+    return BranchUserGroup.objects.filter(
+        user=request.user,
+        group_id=request.group_id,
+        branch_id=request.branch_id,
+        branch__entity_id=request.entity_id,
+        branch__entity__entity_type_id=request.entity_type_id,
+        group__permissions__codename__in=_relation_pick_codenames(Model),
+    ).exists()
+
+
 class RelationsAPIView(APIView):
     """
     GET /api/django_resaas/relations/?model=app.Model&search=abc
@@ -859,7 +906,9 @@ class RelationsAPIView(APIView):
         search = (request.query_params.get("search") or "").strip()
 
         if "." not in model_str:
-            return Response({"detail": "model param must be app_label.ModelName"}, status=400)
+            raise drf_exceptions.ValidationError(
+                {"model": [Translate.tdc(request, "The model must be app_label.ModelName.")]}
+            )
 
         app_label, model_name = model_str.split(".", 1)
         Model = _get_model(app_label, model_name)
@@ -868,23 +917,26 @@ class RelationsAPIView(APIView):
 
         # Tenant + permission: this endpoint used to hand ANY model's rows to
         # ANY authenticated user. A RESAAS model (one that declares RESAAS)
-        # now needs its own list/view permission in the current context and
-        # only exposes the current Entity's rows; plain framework models
-        # (auth.Permission, ContentType, ...) carry no tenant/permission
-        # conventions and keep their previous behaviour.
+        # needs, in the current context, its own list/view permission OR the
+        # permission to write a form that has a field pointing to it
+        # (_relation_pick_codenames) - a picker only returns {id, value,
+        # label}, never the record. Rows are always the current Entity's:
+        # by entity_id, and a User by its EntityUser membership (User has no
+        # entity_id, so without this every platform user was listed). Plain
+        # framework models (auth.Permission, ContentType, ...) carry no
+        # tenant/permission conventions and keep their previous behaviour.
         if getattr(Model, "RESAAS", None) is not None:
-            model_key = Model._meta.model_name
-
-            if not (
-                hasPermissionCode(request, f"list_{model_key}")
-                or hasPermissionCode(request, f"view_{model_key}")
-            ):
-                return Response({"detail": "Permission denied"}, status=403)
+            if not _can_pick(request, Model):
+                raise drf_exceptions.PermissionDenied()
 
             entity_id = getattr(request, "entity_id", None)
 
             if hasattr(Model, "entity_id"):
                 qs = qs.filter(entity_id=entity_id)
+            elif Model is get_user_model():
+                qs = qs.filter(
+                    id__in=EntityUser.objects.filter(entity_id=entity_id).values("user_id")
+                )
 
         from django.db.models import Q, CharField, TextField, EmailField
 

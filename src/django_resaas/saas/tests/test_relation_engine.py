@@ -296,26 +296,24 @@ class TestRelationsEndpointIsTenantSafe:
         assert [r["label"] for r in response.data] == ["Mine Widget"]
 
     def test_a_resaas_model_needs_a_list_or_view_permission(self, bootstrap_tenant, create_product):
+        from django_resaas.saas.tests.test_relations_endpoint import _client_with
+
         tenant = bootstrap_tenant("relations-perm", modules=("demo",))
         create_product(tenant["client"], name="Widget", sku="W-1")
 
-        with mock.patch(
-            "django_resaas.saas.management.apicommands.view.app_schema.hasPermissionCode", return_value=False
-        ):
-            response = tenant["client"].get("/api/django_resaas/relations/?format=json&model=demo.Product")
+        response = _client_with(tenant, []).get("/api/django_resaas/relations/?format=json&model=demo.Product")
 
         assert response.status_code == 403
 
     def test_view_permission_alone_is_enough(self, bootstrap_tenant, create_product):
+        from django_resaas.saas.tests.test_relations_endpoint import _client_with
+
         tenant = bootstrap_tenant("relations-perm-view", modules=("demo",))
         create_product(tenant["client"], name="Widget", sku="W-1")
 
-        allowed = lambda request, role: role == "view_product"  # noqa: E731
-
-        with mock.patch(
-            "django_resaas.saas.management.apicommands.view.app_schema.hasPermissionCode", side_effect=allowed
-        ):
-            response = tenant["client"].get("/api/django_resaas/relations/?format=json&model=demo.Product")
+        response = _client_with(tenant, ["view_product"]).get(
+            "/api/django_resaas/relations/?format=json&model=demo.Product"
+        )
 
         assert response.status_code == 200
 

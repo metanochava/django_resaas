@@ -201,8 +201,12 @@ class TestMethodMatchesOperation:
 
 PROTECTED_COLLECTIONS = [
     "files", "translations", "themes", "layoutsettings", "branchusergroups", "branchusers",
-    "entitytypes", "entitys", "branchs", "models", "apps", "resaasapps",
+    "entitys", "branchs", "models", "apps", "resaasapps",
 ]
+# "entitytypes" left this list on purpose (product decision, 2026-09-25): the
+# catalogue is PUBLIC and READ only for the header services menu and the login
+# screen, with public fields only - pinned by test_the_entity_type_catalogue_*
+# in test_entity_access_security.py and by the test below.
 
 
 class TestLegacyViewSetsAreProtected:
@@ -240,6 +244,16 @@ class TestLegacyViewSetsAreProtected:
         response = APIClient().post("/api/django_resaas/languages/", {"name": "Klingon", "code": "tlh"}, format="json")
 
         assert response.status_code in (401, 403)
+
+    def test_the_entity_type_catalogue_is_public_but_only_its_public_fields(self, bootstrap_tenant):
+        bootstrap_tenant("rest-et-catalogue")
+        anonymous = APIClient(raise_request_exception=False)
+
+        rows = anonymous.get("/api/django_resaas/entitytypes/").json()
+        rows = rows.get("results", rows) if isinstance(rows, dict) else rows
+
+        assert rows and all(set(row) == {"id", "value", "name", "label", "icon", "ordem"} for row in rows)
+        assert anonymous.post("/api/django_resaas/entitytypes/", {"name": "x"}, format="json").status_code in (401, 403)
 
     def test_entity_type_branding_reads_stay_public_but_nothing_else_of_it(self, bootstrap_tenant):
         tenant = bootstrap_tenant("rest-branding")

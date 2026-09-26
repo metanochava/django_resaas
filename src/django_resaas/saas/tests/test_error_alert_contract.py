@@ -225,12 +225,13 @@ class TestAlertBuilding:
     def test_alerts_belong_to_their_own_request(self):
         first, second = factory.get("/"), factory.get("/")
 
-        add_alert(first, "one")
-        add_alert(first, "two", level="warning")
-        add_alert(second, "other")
+        # messages that are no translation key (tdc matches keys regardless of case)
+        add_alert(first, "first alert x1")
+        add_alert(first, "first alert x2", level="warning")
+        add_alert(second, "second alert x3")
 
-        assert [a["message"] for a in pending_alerts(first)] == ["one", "two"]
-        assert [a["message"] for a in pending_alerts(second)] == ["other"]
+        assert [a["message"] for a in pending_alerts(first)] == ["first alert x1", "first alert x2"]
+        assert [a["message"] for a in pending_alerts(second)] == ["second alert x3"]
 
     def test_merge_adds_to_a_dict_only(self):
         request = factory.get("/")
