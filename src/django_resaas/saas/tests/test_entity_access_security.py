@@ -160,3 +160,55 @@ def test_deploy_refuses_everything_without_a_configured_token(monkeypatch):
     # the old hard-coded fallback is not a password any more
     assert client.post("/api/deploy/github/?token=@SaaS@", {"tag": "x"}, format="json").status_code == 403
     assert client.get("/api/deploy/status/", {"token": "@SaaS@"}).status_code == 403
+
+
+# ------------------------------------------------------------------ public catalogue
+
+ET = "/api/django_resaas/entitytypes/"
+# + "value": BaseSerializer's label/value output (the id)
+PUBLIC_FIELDS = {"id", "value", "name", "label", "icon", "ordem"}
+
+
+def test_the_entity_type_catalogue_is_public_with_public_fields_only(bootstrap_tenant):
+    tenant = bootstrap_tenant("et-public")
+    gone = EntityType.objects.create(name="Retired Type", state="Active")
+    gone.delete()   # soft delete
+
+    response = APIClient().get(f"{ET}?objects=all")
+
+    assert response.status_code == 200
+    rows = response.json()
+    rows = rows.get("results", rows) if isinstance(rows, dict) else rows
+    names = {row["name"] for row in rows}
+    assert tenant["entity"].entity_type.name in names
+    assert "Retired Type" not in names                 # deleted types never go public
+    assert all(set(row) == PUBLIC_FIELDS for row in rows)
+
+
+def test_a_member_without_list_entitytype_also_gets_the_public_summary(bootstrap_tenant):
+    tenant = bootstrap_tenant("et-member-list")
+    client = _actor(tenant, "et-member-list-actor")
+
+    rows = client.get(ET).json()
+    rows = rows.get("results", rows) if isinstance(rows, dict) else rows
+
+    assert rows and all(set(row) == PUBLIC_FIELDS for row in rows)
+
+
+def test_list_entitytype_still_sees_every_field(bootstrap_tenant):
+    tenant = bootstrap_tenant("et-admin-list")
+    client = _actor(tenant, "et-admin-list-actor", "list_entitytype")
+
+    rows = client.get(ET).json()
+    rows = rows.get("results", rows) if isinstance(rows, dict) else rows
+
+    assert rows and {"license", "theme", "groups"} <= set(rows[0])
+
+
+def test_the_public_catalogue_is_read_only(bootstrap_tenant):
+    bootstrap_tenant("et-public-write")
+
+    response = APIClient(raise_request_exception=False).post(ET, {"name": "Mine"}, format="json")
+
+    assert response.status_code in (401, 403)
+    assert not EntityType.objects.filter(name="Mine").exists()

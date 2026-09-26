@@ -88,3 +88,15 @@ class EntityTypeSerializer(BaseSerializer):
     class Meta:
         model = EntityType
         fields = "__all__"
+
+class EntityTypePublicSerializer(BaseSerializer):
+    """What anyone may see of the EntityType catalogue (the header's services
+    menu, the login screen resolving the type from the domain): name, label,
+    icon, order. Licence, UI configuration links and profiles stay with
+    EntityTypeSerializer (list_entitytype)."""
+
+    permanent_fields_files = ["icon"]
+
+    class Meta:
+        model = EntityType
+        fields = ["id", "name", "label", "icon", "ordem"]

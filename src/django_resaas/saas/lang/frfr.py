@@ -1481,5 +1481,5 @@ key_value = {
     "A platform profile cannot be an entity type profile.": "Un profil de plateforme ne peut pas être un profil de type d’entité.",
     "A permission has no codename.": "Une autorisation n’a pas de codename.",
     "Some profiles are not valid. Nothing was changed.": "Certains profils ne sont pas valides. Rien n’a été modifié.",
-
+    'The model must be app_label.ModelName.': 'Le modèle doit être app_label.ModelName.',
 }

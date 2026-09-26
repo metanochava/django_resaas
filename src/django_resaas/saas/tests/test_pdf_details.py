@@ -39,10 +39,12 @@ def test_pdf_fields_are_label_value_pairs_and_never_raw_objects(bootstrap_tenant
     view.format_kwarg = None
 
     context = view.get_pdf_context(request, person)
-    fields = {f["label"]: f["value"] for f in context["pdf_fields"]}
+    # labels go through Translate.tdc, which matches keys regardless of case
+    # (like the frontend): compare them the same way
+    fields = {f["label"].lower(): f["value"] for f in context["pdf_fields"]}
 
-    assert fields["Gender"] == "Feminine"
-    assert fields["Date Of Birth"] == "20/05/1990"
-    assert fields["Name"] == "Marta"
-    assert "Id" not in fields and "Created At" not in fields
+    assert fields["gender"] == "Feminine"
+    assert fields["date of birth"] == "20/05/1990"
+    assert fields["name"] == "Marta"
+    assert "id" not in fields and "created at" not in fields
     assert all(isinstance(v, str) for v in fields.values())

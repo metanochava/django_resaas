@@ -127,7 +127,7 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
 | View | No permission (membership) | Everything else |
 |---|---|---|
 | `EntityAPIView` (`django_resaas/entitys/`) | the caller's own Entities: list, detail, branches, active apps/models, branding reads; `create` (self-service registration of a **new** Entity) | its permission (`change_entity`, `add_entityuser`, `add_entitygroup`, ...) **and** only on the Entity of the signed context (another one is `404`), unless platform level (`change_entitytype`) |
-| `EntityTypeAPIView` (`django_resaas/entitytypes/`) | branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
+| `EntityTypeAPIView` (`django_resaas/entitytypes/`) | **the catalogue list (`GET entitytypes/`) is PUBLIC**, read only: live types with `id`, `name`, `label`, `icon`, `ordem` (`EntityTypePublicSerializer`; header services menu, login screen) - every field and deleted types need `list_entitytype`; branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
 
 **EntityType profiles export / import** (EntityType -> template profiles -> permissions, JSON
 because of the nesting; `saas/core/services/entity_type_profiles_io_service.py`, built on the
