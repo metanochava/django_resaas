@@ -1,6 +1,6 @@
 # The RESAAS Schema Contract (v1.0)
 
-`ResaasSchemaBuilder` (`django_resaas.core.schema.ResaasSchemaBuilder`) turns a Django model into
+`ResaasSchemaBuilder` (`django_resaas.saas.core.schema.ResaasSchemaBuilder`) turns a Django model into
 a declarative JSON contract that a frontend (`quasar_resaas` in particular) consumes to render a
 full CRUD screen — table, form, filters, pagination, permissions, actions, PDF export — without
 hardcoding any of those conventions on the client.
@@ -19,7 +19,7 @@ This document is the authoritative reference for that shape.
 ## Usage
 
 ```python
-from django_resaas.core.schema import ResaasSchemaBuilder
+from django_resaas.saas.core.schema import ResaasSchemaBuilder
 
 schema = ResaasSchemaBuilder(Model=SomeModel, fields=serialized_field_list).build()
 ```

@@ -7,9 +7,9 @@ installed apps). The supported, working convention is **deep import** - importin
 directly from the module that defines it. This page documents that existing surface; it does not
 introduce a new one.
 
-## Base classes (`django_resaas.core.base`)
+## Base classes (`django_resaas.saas.core.base`)
 
-### `BaseModel` - `django_resaas.core.base.models.BaseModel`
+### `BaseModel` - `django_resaas.saas.core.base.models.BaseModel`
 
 The model base class most application models should inherit from. Built in layers:
 
@@ -28,7 +28,7 @@ Also exported from the same module: `SoftDeleteQuerySet`, `SoftDeleteManager`, `
 `AllObjectsManager`, and the `file_path(instance, file_name, pasta="")` upload-path helper (builds
 `{entity_type_id}/{entity_id}/{instance_id}/{pasta}/{filename}`).
 
-### `BaseSerializer` - `django_resaas.core.base.serializers.BaseSerializer`
+### `BaseSerializer` - `django_resaas.saas.core.base.serializers.BaseSerializer`
 
 The `ModelSerializer` base class, composed from four mixins (`DynamicFieldsMixin`,
 `SerializerUtilsMixin`, `FileFieldsMixin`, `RepresentationMixin`). Automatically marks
@@ -37,21 +37,21 @@ The `ModelSerializer` base class, composed from four mixins (`DynamicFieldsMixin
 list per serializer. `label_field` and `value_field` (default `"id"`) support the framework's
 generic label/value representation.
 
-### `BaseAPIView` - `django_resaas.core.base.views.BaseAPIView`
+### `BaseAPIView` - `django_resaas.saas.core.base.views.BaseAPIView`
 
 The `ModelViewSet` base class - see [`docs/api/base-api-view.md`](base-api-view.md) for its
 responsibilities (CRUD, filters, ordering, search, permissions, multi-tenancy, soft
 delete/restore/hard delete). Also in this module:
 
 -   `registerView(name=None, module=None)` - class decorator that registers a view class into the
-    global `VIEW_REGISTRY` (`django_resaas.core.base.registry.VIEW_REGISTRY`), keyed by
+    global `VIEW_REGISTRY` (`django_resaas.saas.core.base.registry.VIEW_REGISTRY`), keyed by
     `module` (default: the class's top-level package) and `name` (default: the class name,
     lowercased, `APIView` suffix stripped, pluralized with a trailing `s`). This registry is what
     `core.utils.autoload_urls.build_saas_urls()` walks to build the router automatically - see
     [`docs/development/creating-resource.md`](../development/creating-resource.md) for a full
     usage example.
 
-### `HasAppPermission` and friends - `django_resaas.core.base.permissions.py`
+### `HasAppPermission` and friends - `django_resaas.saas.core.base.permissions.py`
 
 -   `HasAppPermission` - a DRF `BasePermission`. Reads `permission_codename` off the view and
     delegates to `check_permission()`.
@@ -63,7 +63,7 @@ delete/restore/hard delete). Also in this module:
     (`EntityApp`, `state='Active'`) for the request's entity.
 
     > [!WARNING]
-    > Known issue: it filters on `app__codigo`, but `django_resaas.models.app.App` has no
+    > Known issue: it filters on `app__codigo`, but `django_resaas.saas.models.app.App` has no
     > `codigo` field - calling this decorator would raise `FieldError`. It has zero call
     > sites in the current codebase, so this hasn't surfaced; flagging it here rather than
     > fixing it, since fixing would mean guessing at the intended field name/semantics (out
@@ -74,7 +74,7 @@ delete/restore/hard delete). Also in this module:
     `fail()` response instead of raising.
 -   `isPermited(request=None, role=None)` - a thin alias for `check_permission()`.
 
-## `resaas_action` - `django_resaas.core.decorators.action.resaas_action`
+## `resaas_action` - `django_resaas.saas.core.decorators.action.resaas_action`
 
 ```python
 @resaas_action(*, methods=None, detail=False, label=None, icon=None, tooltip=None,
@@ -91,10 +91,10 @@ write to the database - metadata is stashed on the function as `_resaas_action` 
 which is what makes the action show up in `ResaasSchemaBuilder`'s `actions`/`permissions.custom`
 output (see [`docs/api/schema-contract.md`](schema-contract.md)).
 
-## `ResaasSchemaBuilder` - `django_resaas.core.schema.ResaasSchemaBuilder`
+## `ResaasSchemaBuilder` - `django_resaas.saas.core.schema.ResaasSchemaBuilder`
 
 ```python
-from django_resaas.core.schema import ResaasSchemaBuilder
+from django_resaas.saas.core.schema import ResaasSchemaBuilder
 ```
 
 Turns a model into the versioned "Schema 1.0" JSON contract consumed by frontends. Its exact
@@ -114,10 +114,10 @@ from django_resaas.models import Document, Person, EntityTypeGroup, CorsAllowedO
 Every other model is imported from its own module - e.g.:
 
 ```python
-from django_resaas.models.user import User
-from django_resaas.models.group import Group
-from django_resaas.models.entity import Entity
-from django_resaas.models.branch import Branch
+from django_resaas.saas.models.user import User
+from django_resaas.saas.models.group import Group
+from django_resaas.saas.models.entity import Entity
+from django_resaas.saas.models.branch import Branch
 ```
 
 There is no documented rule for why those five are re-exported and the rest aren't; treat it as

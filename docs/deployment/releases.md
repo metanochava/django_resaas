@@ -14,7 +14,7 @@ git branch -a | grep release
 > [!WARNING]
 > Starting a second release branch while one is still open is the single most common way this
 > process goes wrong — see
-> [Troubleshooting](../troubleshooting/common-errors.md#release-already-exists).
+> [Troubleshooting](../troubleshooting/common-errors.md#fatal-there-is-an-existing-release-branch).
 
 ## Flow
 

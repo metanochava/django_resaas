@@ -1482,4 +1482,11 @@ key_value = {
     "A permission has no codename.": "Une autorisation n’a pas de codename.",
     "Some profiles are not valid. Nothing was changed.": "Certains profils ne sont pas valides. Rien n’a été modifié.",
     'The model must be app_label.ModelName.': 'Le modèle doit être app_label.ModelName.',
+    'This site is not linked to any organisation.': "Ce site n'est lié à aucune organisation.",
+    'Enter a phone number or an email.': 'Indiquez un numéro de téléphone ou un e-mail.',
+    'Handled': 'Traitée',
+    'Site contact message': 'Message de contact du site',
+    'Site contact messages': 'Messages de contact du site',
+    'Founded On': 'Date de fondation',
+    'Date the organisation was founded.': "Date de fondation de l'organisation.",
 }

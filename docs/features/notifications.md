@@ -81,7 +81,7 @@ Then emit the event exactly as real business code would (see
 
 ```python
 from django.db import transaction
-from django_resaas.core.events import EventDispatcher
+from django_resaas.saas.core.events import EventDispatcher
 
 with transaction.atomic():
     EventDispatcher.emit(
@@ -108,7 +108,7 @@ NotificationOutbox.objects.filter(event="sales.sale.confirmed").values(
 name, a tenant, an actor, a serializable object reference and a context dict:
 
 ```python
-from django_resaas.core.events import EventDispatcher
+from django_resaas.saas.core.events import EventDispatcher
 
 with transaction.atomic():
     sale = SaleService.confirm(...)
