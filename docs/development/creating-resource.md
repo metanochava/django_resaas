@@ -15,7 +15,7 @@ Inherit `BaseModel` for anything tenant-scoped (gets `entity`/`branch`, soft del
 ```python
 # your_app/models/patient.py
 from django.db import models
-from django_resaas.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 class Patient(BaseModel):
     nid = models.CharField(max_length=30, unique=True)
@@ -43,7 +43,7 @@ label/value representation used across the framework:
 
 ```python
 # your_app/serializers/patient.py
-from django_resaas.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 from your_app.models.patient import Patient
 
 class PatientSerializer(BaseSerializer):
@@ -52,7 +52,7 @@ class PatientSerializer(BaseSerializer):
         fields = "__all__"
 ```
 
-Full mixin breakdown in [Public API reference](../api/public-api-reference.md#baseserializer---django_resaascorebaseserializersbaseserializer).
+Full mixin breakdown in [Public API reference](../api/public-api-reference.md#baseserializer---django_resaassaascorebaseserializersbaseserializer).
 
 ## 3. View
 
@@ -61,7 +61,7 @@ tenant scoping, permissions or module activation:
 
 ```python
 # your_app/views/patient.py
-from django_resaas.core.base.views import BaseAPIView, register_view
+from django_resaas.saas.core.base.views import BaseAPIView, register_view
 from your_app.models.patient import Patient
 from your_app.serializers.patient import PatientSerializer
 
@@ -146,8 +146,8 @@ A registered view isn't reachable for a tenant until its app is explicitly activ
 independent of Django installation:
 
 ```python
-from django_resaas.models.app import App
-from django_resaas.models.entity_app import EntityApp
+from django_resaas.saas.models.app import App
+from django_resaas.saas.models.entity_app import EntityApp
 
 app, _ = App.objects.get_or_create(name="your_app", defaults={"state": "Active"})
 EntityApp.objects.get_or_create(entity=my_entity, app=app, defaults={"state": "Active"})

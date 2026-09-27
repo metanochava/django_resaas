@@ -15,8 +15,8 @@
 The app is installed and its view is registered, but the tenant hasn't activated it:
 
 ```python
-from django_resaas.models.app import App
-from django_resaas.models.entity_app import EntityApp
+from django_resaas.saas.models.app import App
+from django_resaas.saas.models.entity_app import EntityApp
 
 app, _ = App.objects.get_or_create(name="<name>", defaults={"state": "Active"})
 EntityApp.objects.get_or_create(entity=my_entity, app=app, defaults={"state": "Active"})

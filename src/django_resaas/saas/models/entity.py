@@ -35,6 +35,14 @@ class Entity(TimeModel):
         help_text='Website associated with the entity.',
     )
 
+    # when the organisation was founded - public sites show the years of
+    # experience from it (null = unknown, nothing is shown)
+    founded_on = models.DateField(
+        null=True,
+        blank=True,
+        help_text='Date the organisation was founded.',
+    )
+
     # =========================================================
     # BRAND
     # =========================================================

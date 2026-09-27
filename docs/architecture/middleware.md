@@ -1,6 +1,6 @@
 # Middleware
 
-`django_resaas` ships three middleware classes under `django_resaas.core.middleware`. Only two are
+`django_resaas` ships three middleware classes under `django_resaas.saas.core.middleware`. Only two are
 enabled by default in the `src/dev` project's `MIDDLEWARE` setting.
 
 ## `TenantContextMiddleware` (`core/middleware/tenant.py`) - enabled by default
@@ -37,7 +37,7 @@ credentials) may call which URL scope (`/api/<scope>/...`) and with which HTTP m
 
 > [!WARNING]
 > Known issue: the commented-out entry in `src/dev/settings.py` references
-> `django_resaas.core.middleware.frontend.FrontEndMiddleware` (no underscore), but the real
-> module is `django_resaas.core.middleware.front_end` (with an underscore). Uncommenting
+> `django_resaas.saas.core.middleware.front_end.FrontEndMiddleware` (no underscore), but the real
+> module is `django_resaas.saas.core.middleware.front_end` (with an underscore). Uncommenting
 > that line as written would raise `ModuleNotFoundError` - the dotted path needs the
 > underscore added before this middleware can actually be enabled.

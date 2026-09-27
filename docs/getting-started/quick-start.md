@@ -14,7 +14,7 @@ Complete [Installation](installation.md) first.
 ```python
 # your_app/models/product.py
 from django.db import models
-from django_resaas.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
 class Product(BaseModel):          # entity/branch, soft delete, created/updated_by - all free
     name = models.CharField(max_length=150)
@@ -39,7 +39,7 @@ See [Models & RESAAS](../models/resaas-config.md) for every `class RESAAS` attri
 
 ```python
 # your_app/serializers/product.py
-from django_resaas.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 from your_app.models.product import Product
 
 class ProductSerializer(BaseSerializer):
@@ -50,13 +50,13 @@ class ProductSerializer(BaseSerializer):
 
 `BaseSerializer` already marks `id`/`entity`/`branch`/`created_by`/`updated_by`/`created_at`/
 `updated_at`/`deleted_at` read-only — see
-[Public API reference](../api/public-api-reference.md#baseserializer---django_resaascorebaseserializersbaseserializer).
+[Public API reference](../api/public-api-reference.md#baseserializer---django_resaassaascorebaseserializersbaseserializer).
 
 ## 3. View
 
 ```python
 # your_app/views/product.py
-from django_resaas.core.base.views import BaseAPIView, register_view
+from django_resaas.saas.core.base.views import BaseAPIView, register_view
 from your_app.models.product import Product
 from your_app.serializers.product import ProductSerializer
 
@@ -79,8 +79,8 @@ Installation) only activates `hr` by default — any other app, including this o
 treatment:
 
 ```python
-from django_resaas.models.app import App
-from django_resaas.models.entity_app import EntityApp
+from django_resaas.saas.models.app import App
+from django_resaas.saas.models.entity_app import EntityApp
 
 app, _ = App.objects.get_or_create(name="your_app", defaults={"state": "Active"})
 EntityApp.objects.get_or_create(entity=my_entity, app=app, defaults={"state": "Active"})

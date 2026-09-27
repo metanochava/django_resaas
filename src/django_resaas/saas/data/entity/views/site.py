@@ -1,14 +1,12 @@
 from rest_framework import permissions
 from rest_framework.views import APIView
 
-from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.data.entity.serializers.entity import EntitySerializer
 
 from django_resaas.saas.core.utils import all
 
-from django.db.models import Q
-from urllib.parse import urlparse
+from django_resaas.saas.core.services.site_service import entity_for_origin
 
 
 class SiteAPIView(APIView):
@@ -17,40 +15,22 @@ class SiteAPIView(APIView):
     permission_classes = (permissions.AllowAny,)
 
     def get(self, request):
-        # Entity.site is a URLField, stored WITH its scheme (e.g.
-        # "http://clinicaamal.co.mz") - but not consistently: existing rows
-        # use http even for sites that are actually served over https, and
-        # not every row was entered with the same trailing slash.
-        # (Previously this stripped the scheme via urlparse().netloc before
-        # filtering, so it compared a bare host against a full URL and could
-        # never match anything.) Match on host[:port] only, accepting either
-        # scheme and an optional trailing slash, rather than assuming the
-        # stored scheme mirrors the request's.
-        origin = request.headers.get("Origin")
-
-        entity = None
-
-        if origin:
-            netloc = urlparse(origin).netloc
-
-            entity = (
-                Entity.objects
-                .select_related(
-                    "theme",
-                    "typography",
-                    "layout_settings",
-                    "animation_settings",
-                    "entity_type__theme",
-                    "entity_type__typography",
-                    "entity_type__layout_settings",
-                    "entity_type__animation_settings",
-                )
-                .filter(
-                    Q(site=f"http://{netloc}") | Q(site=f"http://{netloc}/") |
-                    Q(site=f"https://{netloc}") | Q(site=f"https://{netloc}/")
-                )
-                .first()
-            )
+        # Entity by the request Origin (host[:port], either scheme, optional
+        # trailing slash): site_service.entity_for_origin, shared with the
+        # contact form (site/contact/).
+        entity = entity_for_origin(
+            request.headers.get("Origin"),
+            Entity.objects.select_related(
+                "theme",
+                "typography",
+                "layout_settings",
+                "animation_settings",
+                "entity_type__theme",
+                "entity_type__typography",
+                "entity_type__layout_settings",
+                "entity_type__animation_settings",
+            ),
+        )
 
         if not entity:
             return all(request, Origin="Desconhecida")

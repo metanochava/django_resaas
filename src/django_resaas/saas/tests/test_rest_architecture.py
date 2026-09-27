@@ -34,6 +34,8 @@ PUBLIC_BY_DESIGN = {
     "MailAPIView",
     "VerifyEmail",
     "SiteAPIView",
+    "SiteContactAPIView",       # contact form of a public site (Origin -> Entity, throttled)
+    "SiteBranchesAPIView",      # branches + address of a public site, for its map (Origin -> Entity)
     "TokenRefreshView",
     "LoginTwoFactorAPIView",
     "LoginTwoFactorSetupAPIView",

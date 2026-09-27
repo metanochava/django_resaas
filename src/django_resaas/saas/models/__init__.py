@@ -8,3 +8,4 @@ from .address import Address
 from .audit_log import AuditLog
 from .user_temporary_password import UserTemporaryPassword
 from .two_factor import UserTwoFactor
+from .site_contact_message import SiteContactMessage
