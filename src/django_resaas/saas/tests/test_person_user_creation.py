@@ -267,3 +267,32 @@ def test_person_payload_user_data_is_null_without_a_user():
     Person.objects.filter(pk=person.pk).update(user=None)
 
     assert PersonSerializer(Person.objects.get(pk=person.pk), context={}).data["user_data"] is None
+
+
+# =============================================================
+# NO EMAIL = NULL, NEVER "" (email is unique and nullable)
+# =============================================================
+
+def test_saving_users_without_email_never_writes_an_empty_string():
+    """Regression: the User <-> Person sync wrote "" for a missing e-mail. Two
+    people without e-mail then collided on the unique column the moment their
+    User was saved again (e.g. a patient's portal access issuing a password)."""
+    people = [_person(name, "Sem Email") for name in ("Ana", "Bruno", "Carla")]
+
+    for person in people:
+        user = User.objects.get(pk=person.user_id)  # fresh instance: the sync runs
+        user.set_password("x-Temp-123456")
+        user.save(update_fields=["password"])
+
+    assert not Person.objects.filter(email="").exists()
+    assert not User.objects.filter(email="").exists()
+    assert all(Person.objects.get(pk=p.pk).email is None for p in people)
+
+
+def test_a_person_saved_without_email_keeps_its_user_email_null():
+    first, second = _person("Diana", "Sem Email"), _person("Eva", "Sem Email")
+
+    for person in (first, second):
+        Person.objects.get(pk=person.pk).save()
+
+    assert list(User.objects.filter(pk__in=[first.user_id, second.user_id]).values_list("email", flat=True)) == [None, None]
