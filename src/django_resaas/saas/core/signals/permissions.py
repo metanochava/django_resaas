@@ -323,7 +323,8 @@ def criar_person_automaticamente(sender, instance, created, **kwargs):
             defaults={
                 "name": instance.first_name or "",
                 "surname": instance.last_name or "",
-                "email": instance.email or "",
+                # None, never "": email is unique and nullable - two "" collide
+                "email": instance.email or None,
                 "state": "Active"
             }
         )
@@ -364,7 +365,7 @@ def sync_person(sender, instance, **kwargs):
 
         person.name = instance.first_name or ""
         person.surname = instance.last_name or ""
-        person.email = instance.email or ""
+        person.email = instance.email or None  # unique + nullable: "" would collide
         person.state = instance.state or "Active"
 
         person.save()
@@ -383,7 +384,7 @@ def sync_user(sender, instance, **kwargs):
 
         user.first_name = instance.name or ""
         user.last_name = instance.surname or ""
-        user.email = instance.email or ""
+        user.email = instance.email or None  # unique + nullable: "" would collide
         user.state =   instance.state or "Active"
         user.save()
 
