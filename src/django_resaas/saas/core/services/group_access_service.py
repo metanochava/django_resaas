@@ -9,7 +9,8 @@ changes it everywhere it is linked.
 - Otherwise a caller only SEES the groups linked to the current Entity, and
   only CHANGES one that belongs to the current Entity, is editable (created by
   the Entity for itself) and is not shared with another Entity nor a template.
-- Nobody grants or revokes a permission their active group doesn't hold.
+- Below platform level, nobody grants or revokes a permission their active
+  group doesn't hold; platform level may grant any permission.
 
 All checks use the signed request context (check_permission), never ids from
 the request body.
@@ -99,7 +100,15 @@ def held_codenames(request):
 
 def check_delegation(request, changed_permissions):
     """No privilege escalation by delegation: every permission being granted
-    or revoked must be held by the caller's active group."""
+    or revoked must be held by the caller's active group.
+
+    Platform level (change_entitytype - Root by default) is exempt: it already
+    manages every profile (check_group_changeable) and must be able to grant
+    any permission, including ones its own group lacks - e.g. permissions a
+    module created after Root was set up."""
+
+    if is_platform(request):
+        return
 
     held = held_codenames(request)
     not_held = sorted(

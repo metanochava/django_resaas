@@ -167,16 +167,18 @@ def test_bad_files_are_rejected(bootstrap_tenant):
     assert _upload(client, type_id, _profiles(), mode="merge").json()["error"]["code"] == "invalid_mode"
 
 
-def test_import_cannot_grant_what_the_caller_does_not_hold(bootstrap_tenant):
+def test_platform_import_may_grant_what_the_caller_does_not_hold(bootstrap_tenant):
+    """Importing profiles is platform level (change_entitytype), and platform
+    level may grant any permission (group_access_service.check_delegation) -
+    except change_entitytype itself / Root, refused above."""
     tenant = bootstrap_tenant("etp-escalate")
     client = _actor(tenant, "etp-esc-actor", "change_entitytype", "view_entitytype")
 
     response = _upload(client, tenant["entity"].entity_type_id,
                        _profiles({"name": "New One", "permissions": [{"app": "django_resaas", "codename": "delete_group"}]}))
 
-    assert response.status_code == 403
-    assert response.json()["error"]["code"] == "permission_not_held"
-    assert not Group.objects.filter(name="New One").exists()
+    assert response.status_code == 200, response.json()
+    assert set(Group.objects.get(name="New One").permissions.values_list("codename", flat=True)) == {"delete_group"}
 
 
 def test_exported_file_imports_back_unchanged(bootstrap_tenant):

@@ -262,6 +262,21 @@ def test_platform_level_actor_can_change_a_shared_group(bootstrap_tenant):
     assert _codenames(shared) == {"view_contract"}
 
 
+def test_platform_level_actor_can_grant_permissions_they_do_not_hold(bootstrap_tenant):
+    """Platform level (change_entitytype - Root by default) manages every
+    profile: it may grant any permission, even one its own group lacks (e.g. a
+    permission created after Root was set up). Everyone else keeps the
+    delegation rule (test_actor_cannot_grant_a_permission_they_do_not_hold)."""
+    tenant = bootstrap_tenant("pa-platform-grant")
+    client = _actor(tenant, "pa-platform-granter", "change_group", "change_entitytype")
+    target = _entity_group(tenant, "Nurse")
+
+    response = _set(client, target, *_perms("view_contract", "view_contract_salary"))
+
+    assert response.status_code == 200, response.json()
+    assert _codenames(target) == {"view_contract", "view_contract_salary"}
+
+
 def test_non_editable_group_of_the_entity_needs_platform_permission(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-not-editable")
     client = _actor(tenant, "pa-ne-actor", "change_group", "view_contract")

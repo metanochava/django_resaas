@@ -64,10 +64,14 @@ is **PROTECTED** and checks, in order:
      existed before this rule can be marked with `manage.py mark_editable_groups`
      (dry run by default).
    - not be shared with another Entity nor be an EntityType template, otherwise `403 group_shared`.
-3. **No escalation by delegation.** Every permission the request adds **or removes** must be held
-   by the caller's active group, otherwise `403 permission_not_held` with
-   `error.details.permissions` (ids). Permissions the list keeps unchanged are not checked,
-   because the screen sends the whole list back.
+3. **No escalation by delegation.** Without `change_entitytype`, every permission the request adds
+   **or removes** must be held by the caller's active group, otherwise `403 permission_not_held`
+   with `error.details.permissions` (ids). Permissions the list keeps unchanged are not checked,
+   because the screen sends the whole list back. Platform level (`change_entitytype`, Root by
+   default) may grant or revoke **any** permission on any group, including permissions its own
+   group lacks (e.g. ones a module created after Root was set up). The same applies to
+   `addPermission` / `removePermission` and to the profile import/export of an EntityType, which
+   still refuses to create or grant `change_entitytype` / Root itself.
 
 The change runs in a transaction with the group row locked. The Root exception is carried by the
 `change_entitytype` **permission**, never by the group's name.
