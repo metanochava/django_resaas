@@ -40,22 +40,18 @@ class TestDiscovery:
 
     def test_app_without_dashboard_py_is_ignored(self):
         discovery.DashboardDiscoveryService.discover(force=True)
-        # hr/notifications/django_resaas now have a real <app>/dashboard.py
-        # too (see test_finds_hr_notifications_django_resaas_dashboards
-        # below) - an app genuinely without one (django.contrib.admin,
+        # notifications/django_resaas have a real <app>/dashboard.py
+        # (see test_finds_the_framework_dashboards below) - an app genuinely without one (django.contrib.admin,
         # part of INSTALLED_APPS but never django_resaas-flavoured) is
         # still silently ignored, never an error.
         assert registry.DashboardRegistry.get("admin") is None
 
-    def test_finds_hr_notifications_django_resaas_dashboards(self):
+    def test_finds_the_framework_dashboards(self):
         discovery.DashboardDiscoveryService.discover(force=True)
 
-        hr = registry.DashboardRegistry.get("hr")
-        assert hr is not None
-        assert {w["name"] for w in hr["widgets"]} == {
-            "headcount_total", "pending_leave_approvals",
-            "today_attendance", "open_payroll_periods", "upcoming_holidays",
-        }
+        # a business module's dashboard (e.g. an application's hr) is its
+        # own: the framework ships none
+        assert registry.DashboardRegistry.get("hr") is None
 
         notifications = registry.DashboardRegistry.get("notifications")
         assert notifications is not None

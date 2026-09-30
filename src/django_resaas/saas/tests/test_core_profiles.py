@@ -41,8 +41,10 @@ def test_organization_administrator_gets_entity_scoped_permissions():
     codenames = set(group.permissions.values_list("codename", flat=True))
 
     assert "add_branch" in codenames
-    assert "add_employee" in codenames
-    assert "add_department" in codenames
+    assert "add_person" in codenames
+    # a module (e.g. an application's hr) adds its own permissions to this
+    # profile in its own profiles.py - the core names none of them
+    assert "add_employee" not in codenames
     # Não cria/apaga EntityType - isso é da plataforma (System Administrator).
     assert "add_entitytype" not in codenames
 
@@ -54,7 +56,8 @@ def test_branch_administrator_gets_branch_scoped_permissions_only():
     codenames = set(group.permissions.values_list("codename", flat=True))
 
     assert "add_branchuser" in codenames
-    assert "view_employee" in codenames
+    assert "view_person" in codenames
+    assert "view_employee" not in codenames
     # Não gere outras Branches nem a própria Entity.
     assert "add_branch" not in codenames
     assert "change_entity" not in codenames

@@ -81,7 +81,7 @@ def test_model_data_endpoint_no_longer_exists(bootstrap_tenant):
 def test_unscoped_relation_actions_no_longer_exist(bootstrap_tenant, action):
     tenant = bootstrap_tenant(f"pa-removed-{action.lower()}")
     tenant["client"].raise_request_exception = False
-    permission = Permission.objects.get(codename="view_contract")
+    permission = Permission.objects.get(codename="view_agreement")
 
     response = tenant["client"].post(
         f"/api/auth/permissions/{permission.id}/{action}/", {"id": str(tenant["root_group"].id)}, format="json"
@@ -103,7 +103,7 @@ def test_catalogue_can_be_read_by_an_authenticated_member(bootstrap_tenant):
 def test_catalogue_writes_need_their_permission(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-write-denied")
     client = _actor(tenant, "pa-writer")
-    permission = Permission.objects.get(codename="view_contract")
+    permission = Permission.objects.get(codename="view_agreement")
 
     create = client.post("/api/auth/permissions/", {
         "name": "Can hack", "codename": "hack_everything",
@@ -116,7 +116,7 @@ def test_catalogue_writes_need_their_permission(bootstrap_tenant):
         assert response.status_code == 403
         assert response.json()["error"]["code"] == "permission_denied"
 
-    assert Permission.objects.filter(codename="view_contract").exists()
+    assert Permission.objects.filter(codename="view_agreement").exists()
     assert not Permission.objects.filter(codename="hack_everything").exists()
 
 
@@ -137,10 +137,10 @@ def test_catalogue_delete_is_allowed_with_delete_permission(bootstrap_tenant):
 
 def test_set_group_permissions_needs_change_group(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-set-denied")
-    client = _actor(tenant, "pa-noperm", "view_contract")
+    client = _actor(tenant, "pa-noperm", "view_agreement")
     target = _entity_group(tenant, "Nurse")
 
-    response = _set(client, target, *_perms("view_contract"))
+    response = _set(client, target, *_perms("view_agreement"))
 
     assert response.status_code == 403
     assert response.json()["error"]["code"] == "permission_denied"
@@ -149,26 +149,26 @@ def test_set_group_permissions_needs_change_group(bootstrap_tenant):
 
 def test_exclusive_group_gets_permissions_the_actor_holds(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-set-ok")
-    client = _actor(tenant, "pa-manager", "change_group", "view_contract")
+    client = _actor(tenant, "pa-manager", "change_group", "view_agreement")
     target = _entity_group(tenant, "Nurse")
 
-    response = _set(client, target, *_perms("view_contract"))
+    response = _set(client, target, *_perms("view_agreement"))
 
     assert response.status_code == 200, response.json()
-    assert _codenames(target) == {"view_contract"}
+    assert _codenames(target) == {"view_agreement"}
 
 
 def test_actor_cannot_grant_a_permission_they_do_not_hold(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-escalate")
-    client = _actor(tenant, "pa-escalator", "change_group", "view_contract")
+    client = _actor(tenant, "pa-escalator", "change_group", "view_agreement")
     target = _entity_group(tenant, "Nurse")
 
-    response = _set(client, target, *_perms("view_contract", "view_contract_salary"))
+    response = _set(client, target, *_perms("view_agreement", "view_agreement_amount"))
 
     assert response.status_code == 403
     error = response.json()["error"]
     assert error["code"] == "permission_not_held"
-    assert error["details"]["permissions"] == [str(p.id) for p in _perms("view_contract_salary")]
+    assert error["details"]["permissions"] == [str(p.id) for p in _perms("view_agreement_amount")]
     assert _codenames(target) == set()
 
 
@@ -188,35 +188,35 @@ def test_actor_cannot_revoke_a_permission_they_do_not_hold(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-revoke")
     client = _actor(tenant, "pa-revoker", "change_group")
     target = _entity_group(tenant, "Nurse")
-    target.permissions.set(_perms("view_contract_salary"))
+    target.permissions.set(_perms("view_agreement_amount"))
 
     response = _set(client, target)
 
     assert response.status_code == 403
-    assert _codenames(target) == {"view_contract_salary"}
+    assert _codenames(target) == {"view_agreement_amount"}
 
 
 def test_unchanged_permissions_the_actor_lacks_are_not_a_grant(bootstrap_tenant):
     """The screen sends the whole list back: keeping a permission the actor
     doesn't hold is not granting it."""
     tenant = bootstrap_tenant("pa-unchanged")
-    client = _actor(tenant, "pa-keeper", "change_group", "view_contract")
+    client = _actor(tenant, "pa-keeper", "change_group", "view_agreement")
     target = _entity_group(tenant, "Nurse")
-    target.permissions.set(_perms("view_contract_salary"))
+    target.permissions.set(_perms("view_agreement_amount"))
 
-    response = _set(client, target, *_perms("view_contract_salary", "view_contract"))
+    response = _set(client, target, *_perms("view_agreement_amount", "view_agreement"))
 
     assert response.status_code == 200, response.json()
-    assert _codenames(target) == {"view_contract_salary", "view_contract"}
+    assert _codenames(target) == {"view_agreement_amount", "view_agreement"}
 
 
 def test_group_of_another_entity_is_not_found(bootstrap_tenant):
     mine = bootstrap_tenant("pa-other-a")
     theirs = bootstrap_tenant("pa-other-b")
-    client = _actor(mine, "pa-outsider", "change_group", "view_contract")
+    client = _actor(mine, "pa-outsider", "change_group", "view_agreement")
     their_group = _entity_group(theirs, "Their Nurse")
 
-    response = _set(client, their_group, *_perms("view_contract"))
+    response = _set(client, their_group, *_perms("view_agreement"))
 
     assert response.status_code == 404
     assert response.json()["error"]["code"] == "group_not_in_entity"
@@ -226,11 +226,11 @@ def test_group_of_another_entity_is_not_found(bootstrap_tenant):
 def test_group_shared_with_another_entity_needs_platform_permission(bootstrap_tenant):
     mine = bootstrap_tenant("pa-shared-a")
     theirs = bootstrap_tenant("pa-shared-b")
-    client = _actor(mine, "pa-sharer", "change_group", "view_contract")
+    client = _actor(mine, "pa-sharer", "change_group", "view_agreement")
     shared = _entity_group(mine, "Shared Admin")
     EntityGroup.objects.create(entity=theirs["entity"], group=shared, state="Active")
 
-    response = _set(client, shared, *_perms("view_contract"))
+    response = _set(client, shared, *_perms("view_agreement"))
 
     assert response.status_code == 403
     assert response.json()["error"]["code"] == "group_shared"
@@ -239,11 +239,11 @@ def test_group_shared_with_another_entity_needs_platform_permission(bootstrap_te
 
 def test_entity_type_template_group_needs_platform_permission(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-template")
-    client = _actor(tenant, "pa-templater", "change_group", "view_contract")
+    client = _actor(tenant, "pa-templater", "change_group", "view_agreement")
     template = _entity_group(tenant, "Template Nurse")
     EntityTypeGroup.objects.create(entity_type=tenant["entity"].entity_type, group=template)
 
-    response = _set(client, template, *_perms("view_contract"))
+    response = _set(client, template, *_perms("view_agreement"))
 
     assert response.status_code == 403
     assert response.json()["error"]["code"] == "group_shared"
@@ -252,14 +252,14 @@ def test_entity_type_template_group_needs_platform_permission(bootstrap_tenant):
 def test_platform_level_actor_can_change_a_shared_group(bootstrap_tenant):
     mine = bootstrap_tenant("pa-platform-a")
     theirs = bootstrap_tenant("pa-platform-b")
-    client = _actor(mine, "pa-platform", "change_group", "change_entitytype", "view_contract")
+    client = _actor(mine, "pa-platform", "change_group", "change_entitytype", "view_agreement")
     shared = _entity_group(mine, "Shared Clerk")
     EntityGroup.objects.create(entity=theirs["entity"], group=shared, state="Active")
 
-    response = _set(client, shared, *_perms("view_contract"))
+    response = _set(client, shared, *_perms("view_agreement"))
 
     assert response.status_code == 200, response.json()
-    assert _codenames(shared) == {"view_contract"}
+    assert _codenames(shared) == {"view_agreement"}
 
 
 def test_platform_level_actor_can_grant_permissions_they_do_not_hold(bootstrap_tenant):
@@ -271,18 +271,18 @@ def test_platform_level_actor_can_grant_permissions_they_do_not_hold(bootstrap_t
     client = _actor(tenant, "pa-platform-granter", "change_group", "change_entitytype")
     target = _entity_group(tenant, "Nurse")
 
-    response = _set(client, target, *_perms("view_contract", "view_contract_salary"))
+    response = _set(client, target, *_perms("view_agreement", "view_agreement_amount"))
 
     assert response.status_code == 200, response.json()
-    assert _codenames(target) == {"view_contract", "view_contract_salary"}
+    assert _codenames(target) == {"view_agreement", "view_agreement_amount"}
 
 
 def test_non_editable_group_of_the_entity_needs_platform_permission(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-not-editable")
-    client = _actor(tenant, "pa-ne-actor", "change_group", "view_contract")
+    client = _actor(tenant, "pa-ne-actor", "change_group", "view_agreement")
     fixed = _entity_group(tenant, "Fixed Profile", editable=False)
 
-    response = _set(client, fixed, *_perms("view_contract"))
+    response = _set(client, fixed, *_perms("view_agreement"))
 
     assert response.status_code == 403
     assert response.json()["error"]["code"] == "group_not_editable"
@@ -291,10 +291,10 @@ def test_non_editable_group_of_the_entity_needs_platform_permission(bootstrap_te
 
 def test_platform_level_actor_can_change_a_non_editable_group(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-ne-platform")
-    client = _actor(tenant, "pa-ne-platform-actor", "change_group", "change_entitytype", "view_contract")
+    client = _actor(tenant, "pa-ne-platform-actor", "change_group", "change_entitytype", "view_agreement")
     fixed = _entity_group(tenant, "Fixed Clerk", editable=False)
 
-    response = _set(client, fixed, *_perms("view_contract"))
+    response = _set(client, fixed, *_perms("view_agreement"))
 
     assert response.status_code == 200, response.json()
 
