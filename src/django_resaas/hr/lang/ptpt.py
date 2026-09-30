@@ -468,5 +468,6 @@ key_value = {
     "Payroll Specialist": "Especialista em processamento salarial",
     "Recruitment Specialist": "Especialista em recrutamento",
     "Training and Development Specialist": "Especialista em formação e desenvolvimento",
-
+    'Payrolls': 'Folhas de salário',
+    'Processed': 'Processado',
 }

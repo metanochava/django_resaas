@@ -468,5 +468,6 @@ key_value = {
     "Payroll Specialist": "Spécialiste de la paie",
     "Recruitment Specialist": "Spécialiste du recrutement",
     "Training and Development Specialist": "Spécialiste formation et développement",
-
+    'Payrolls': 'Bulletins de paie',
+    'Processed': 'Traité',
 }

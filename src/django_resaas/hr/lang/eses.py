@@ -468,5 +468,6 @@ key_value = {
     "Payroll Specialist": "Especialista en nómina",
     "Recruitment Specialist": "Especialista en reclutamiento",
     "Training and Development Specialist": "Especialista en formación y desarrollo",
-
+    'Payrolls': 'Nóminas',
+    'Processed': 'Procesado',
 }
