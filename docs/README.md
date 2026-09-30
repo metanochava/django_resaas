@@ -29,8 +29,10 @@ backend framework.
 -   [Creating a new resource](development/creating-resource.md)
 -   [Minimal example app](../src/dev/README.md)
 -   [Management commands](development/management-commands.md)
+-   [Consolidation progress](development/consolidation-progress.md)
 -   [The hr app](hr/overview.md)
 -   [Git flow and releases](deployment/releases.md)
+-   [Upgrading (shipped migrations)](deployment/upgrading.md)
 -   [Troubleshooting](troubleshooting/common-errors.md)
 
 ## Purpose
