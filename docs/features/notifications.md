@@ -345,7 +345,7 @@ from .celery import app as celery_app
 __all__ = ("celery_app",)
 ```
 
-Add `"django_resaas.notifications"` to `INSTALLED_APPS` (same as `"hr"`), then run migrations,
+Add `"django_resaas.notifications"` to `INSTALLED_APPS`, then run migrations,
 a worker, and Beat:
 
 ```bash

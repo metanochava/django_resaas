@@ -7,7 +7,8 @@ normal action permission ([Permissions](permissions.md)), never instead of it.
 
 Implementation: `src/django_resaas/saas/core/base/field_access.py` (resolution),
 `saas/core/base/mixins/serializer/field_permissions.py` (serializer enforcement, part of
-`BaseSerializer`). Tests: `src/django_resaas/hr/tests/test_field_permissions.py`.
+`BaseSerializer`). Tests: `src/django_resaas/saas/tests/test_field_permissions.py` (on the dev
+demo's `Agreement.amount`).
 
 ## Declaring a restricted field
 
@@ -42,11 +43,15 @@ content type, named `Can view <model> <field>` / `Can change <model> <field>`. L
 permission it is added to the **Root** group. Every other group gets it only through an explicit
 grant, so an Entity can build a group that sees contracts but not salaries without any code change.
 
-Permissions currently declared:
+Examples:
 
 | Model | Field | Read | Write |
 |---|---|---|---|
-| `hr.Contract` | `salary` | `view_contract_salary` | `change_contract_salary` |
+| `demo.Agreement` (the framework's dev demo) | `amount` | `view_agreement_amount` | `change_agreement_amount` |
+| `hr.Contract` (an application's HR module) | `salary` | `view_contract_salary` | `change_contract_salary` |
+
+The framework declares none of its own: restricted fields are declared by the
+modules that own them.
 
 ## What the backend enforces
 

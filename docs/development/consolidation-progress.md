@@ -8,7 +8,7 @@ describes implemented behaviour. Everything under **Next** is a plan.
 
 | Decision | Choice | Why |
 |---|---|---|
-| Where HR goes | Its own module in this repository, outside the core package, keeping the Django app label `hr` | Applications (e.g. a health app whose doctor *is* an `hr.Employee`) keep working. Tables, ContentTypes, permissions and `'hr.Employee'` references stay identical, so there is no data migration. |
+| Where HR goes | Out of `django_resaas`, into the application that uses it, as its own `hr` module, keeping the Django app label `hr` | HR is domain, not framework. Keeping the label `hr` means tables, ContentTypes, permissions and `'hr.Employee'` references stay identical, so there is no data migration. There is no compatibility import, because the framework cannot depend on an application. |
 | Framework migrations | Shipped with the package (done, see below) | Prerequisite to move any app safely. Per-environment generated migrations diverged between environments. |
 | Pace | Phase by phase, reviewed before the next | The scope is large; each phase ships code + tests + docs |
 
@@ -43,10 +43,26 @@ describes implemented behaviour. Everything under **Next** is a plan.
   - `test_shipped_migrations.py` guards models against missing migrations;
   - see [Upgrading](../deployment/upgrading.md).
 
+- **HR out of the framework (backend)** (phase B): `django_resaas.hr`
+  removed, so the core names no business module:
+  - core URLs no longer include it;
+  - module permissions go through the public `ensure_module_permissions`;
+  - the administration profiles only name core permissions;
+  - default modules come from `settings.RESAAS_DEFAULT_MODULES`;
+  - scaffold protection covers framework apps only.
+
+  The core's tests use the dev demo's neutral test domain (`Category`,
+  `Member`, `Rate`, `Visit`, `Agreement`) instead of HR models. Two
+  framework mechanisms whose only tests lived in HR (field-level permissions,
+  person registration) now have their own. Tenant fixtures are public:
+  `django_resaas.testing`. See
+  [Upgrading](../deployment/upgrading.md) and
+  [Building a module](building-a-module.md).
+
 ## Next (plan, not implemented)
 
-1. HR out of the core package into its own module (label `hr` kept),
-   `django_resaas.hr` as a deprecated compatibility path.
+1. HR out of `quasar_resaas` (frontend pages, stores, routes), into the
+   application's frontend.
 2. Entitlements: a central service (features, capacities, modules) behind a
    provider interface. It is separate from authorization and enforced server-side.
 3. Public API policy (stable / advanced / internal / deprecated) and
