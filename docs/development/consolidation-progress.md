@@ -59,14 +59,19 @@ describes implemented behaviour. Everything under **Next** is a plan.
   [Upgrading](../deployment/upgrading.md) and
   [Building a module](building-a-module.md).
 
+- **HR out of the framework (frontend)**: `quasar_resaas` ships no HR. Its
+  pages, 42 stores and routes moved to the application's frontend
+  (`front/src/pages/hr`, `hrRoutes`). `useEmployeeStore` is no longer
+  exported. `FormTwo`, `AutoCrud` and `PersonProfilePanel` are now named
+  exports, so a module's pages import only from `'quasar_resaas'`. See
+  quasar_resaas [Building a module](https://github.com/metanochava/quasar_resaas/blob/main/docs/quasar-resaas/development/building-a-module.md).
+
 ## Next (plan, not implemented)
 
-1. HR out of `quasar_resaas` (frontend pages, stores, routes), into the
-   application's frontend.
-2. Entitlements: a central service (features, capacities, modules) behind a
+1. Entitlements: a central service (features, capacities, modules) behind a
    provider interface. It is separate from authorization and enforced server-side.
-3. Public API policy (stable / advanced / internal / deprecated) and
+2. Public API policy (stable / advanced / internal / deprecated) and
    deprecation helpers.
-4. Packaging validation (clean `pip install`, `npm pack --dry-run`), release
+3. Packaging validation (clean `pip install`, `npm pack --dry-run`), release
    safety in the Makefiles, CI for `quasar_resaas`.
-5. Quick Start / example app, then the public site.
+4. Quick Start / example app, then the public site.

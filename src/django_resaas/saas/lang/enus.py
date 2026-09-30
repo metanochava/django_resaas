@@ -245,4 +245,9 @@ key_value = {
     'Founded On': 'Founded On',
     'Date the organisation was founded.': 'Date the organisation was founded.',
     'Used': 'Used',
+    'Add action': 'Add action',
+    'Quick Access': 'Quick Access',
+    'Submit': 'Submit',
+    'active': 'active',
+    'Position': 'Position',
 }

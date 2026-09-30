@@ -1490,4 +1490,9 @@ key_value = {
     'Founded On': 'Date de fondation',
     'Date the organisation was founded.': "Date de fondation de l'organisation.",
     'Used': 'Utilisé',
+    'Add action': 'Ajouter une Action',
+    'Quick Access': 'Accès Rapide',
+    'Submit': 'Soumettre',
+    'active': 'actif',
+    'Position': 'Position',
 }
