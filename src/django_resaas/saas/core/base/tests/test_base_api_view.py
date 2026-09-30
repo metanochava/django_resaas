@@ -34,9 +34,24 @@ def test_request_denied_without_permission(bootstrap_tenant):
 
 
 def test_register_view_and_registerView_are_the_same_decorator():
-    """registerView (camelCase) is the original name every existing
-    @registerView(...) call site uses; register_view is the PEP 8-consistent
-    alias for new code - they must be the exact same object."""
+    """register_view is the canonical name; registerView (camelCase) is the
+    original name, kept as a supported alias because existing applications
+    decorate their views with it - they must be the exact same object."""
     from django_resaas.saas.core.base.views import register_view, registerView
 
     assert registerView is register_view
+
+
+def test_registerView_alias_still_registers_a_view():
+    from django_resaas.saas.core.base.registry import VIEW_REGISTRY
+    from django_resaas.saas.core.base.views import BaseAPIView, registerView
+
+    @registerView("alias_things", module="alias_compat_test")
+    class AliasThingAPIView(BaseAPIView):
+        pass
+
+    try:
+        assert VIEW_REGISTRY["alias_compat_test"]["alias_things"] is AliasThingAPIView
+        assert AliasThingAPIView.module_name == "alias_compat_test"
+    finally:
+        VIEW_REGISTRY.pop("alias_compat_test", None)

@@ -4,10 +4,10 @@ A model marks a sensitive field in its existing RESAAS.fields metadata:
 
     class RESAAS:
         fields = {
-            "salary": {
+            "amount": {
                 "permissions": {
-                    "view": "view_contract_salary",
-                    "change": "change_contract_salary",
+                    "view": "view_agreement_amount",
+                    "change": "change_agreement_amount",
                 },
             },
         }
@@ -21,7 +21,7 @@ The permissions are created by the post_migrate permission signal
 (core/signals/permissions.py) and resolved with the same effective-permission
 check as every other action (check_permission: current user + signed
 Entity/Branch/Group context). They are layered ON TOP of the model's normal
-action permission (view_contract, change_contract, ...), never instead of it.
+action permission (view_agreement, change_agreement, ...), never instead of it.
 
 Without a request (a service, task or shell serializing a record) access is
 denied: the field is hidden, never exposed by default.
@@ -101,8 +101,8 @@ def unwritable_fields(request, Model):
 
 
 def is_path_readable(request, Model, path):
-    """False when any step of a lookup path (salary, employee__contracts__salary,
-    -salary) crosses a field the request may not read."""
+    """False when any step of a lookup path (amount, member__agreements__amount,
+    -amount) crosses a field the request may not read."""
 
     from django.core.exceptions import FieldDoesNotExist
 

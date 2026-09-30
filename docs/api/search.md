@@ -36,7 +36,7 @@ itself a relation and the final step is a `Char`/`Text`/`Email` field:
 class RESAAS:
     search_fields = [
         "code",
-        "employee__person__full_name",
+        "person__full_name",
     ]
 ```
 

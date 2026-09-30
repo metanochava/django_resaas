@@ -33,6 +33,7 @@ from django_resaas.saas.data.person.serializers.person import PersonSerializer
 from django_resaas.saas.models.person import Person
 
 from django.db import transaction
+from django_resaas.saas.core.entitlements import has_module, require_capacity
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 from django_resaas.saas.core.base.views import BaseAPIView
@@ -109,6 +110,9 @@ class UserAPIView(viewsets.ModelViewSet):
                         status=400
                     )
 
+                # lock the Entity: two concurrent creates cannot both take the last seat
+                Entity.objects.select_for_update().filter(pk=entity_id).first()
+                require_capacity(request, "users")
                 EntityUser.objects.get_or_create(
                     user=new_user,
                     entity_id=entity_id
@@ -657,6 +661,10 @@ class UserAPIView(viewsets.ModelViewSet):
             if not is_active_app(app_config):
                 continue
 
+            # entitlements: a module outside what the tenant is entitled to has no menu
+            if not has_module(request, app_config.label):
+                continue
+
             module_name = f"{app_config.name}.sidebar"
 
             try:
@@ -848,6 +856,8 @@ class UserAPIView(viewsets.ModelViewSet):
                 if not isPermited(request=request, role='add_entityuser'):
                     return self._group_error(request, "user_not_in_entity", "This user is not a member of the current entity.", status.HTTP_403_FORBIDDEN)
 
+                Entity.objects.select_for_update().filter(pk=request.entity_id).first()
+                require_capacity(request, "users")
                 EntityUser.objects.get_or_create(user=target, entity_id=request.entity_id)
 
             branch = Branch.objects.get(id=request.branch_id, entity_id=request.entity_id)

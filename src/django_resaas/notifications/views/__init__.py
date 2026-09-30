@@ -1,6 +1,6 @@
 # Importing every view module here runs their @register_view decorators
-# (VIEW_REGISTRY population), the same import-side-effect pattern
-# hr/views/__init__.py uses. django_resaas/urls.py imports this package
+# (VIEW_REGISTRY population) - the import-side-effect pattern every module's
+# views/__init__.py uses. django_resaas/urls.py imports this package
 # before calling build_saas_urls().
 
 from .rule import NotificationRuleAPIView

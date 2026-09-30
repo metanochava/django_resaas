@@ -106,6 +106,7 @@ from django_resaas.view import deploy_github, deploy_status, deploy_releases, de
 from django_resaas.saas.core.utils.autoload_urls import build_saas_urls
 
 from django_resaas.saas.data.context.views.context import ResaasContextAPIView
+from django_resaas.saas.data.entitlement.views.entitlement import EntitlementsAPIView
 
 from django_resaas.saas.core.dashboards.views import (
     DashboardDetailAPIView,
@@ -161,6 +162,7 @@ urlpatterns = [
 
     path('', home, name='home'),
     path(  "resaas/context/", ResaasContextAPIView.as_view(), name="resaas_context" ),
+    path("resaas/entitlements/", EntitlementsAPIView.as_view(), name="resaas_entitlements"),
     
 
     path("deploy/github/", deploy_github),

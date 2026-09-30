@@ -170,6 +170,18 @@ webhooks), compared in constant time. There is **no default token**: without
 `deploy/rollback/` change the server and are **POST only** (`405` on GET).
 `status`, `releases` and `logs` are read-only GETs.
 
+> [!WARNING]
+> **Known issue (open):** `django_resaas/view.py` defines `deploy_status` and
+> `deploy_logs` twice, and the second, older definitions are the ones routed.
+> They compare `?token=` with `!=` (not in constant time, header ignored).
+> **Without `DEPLOY_TOKEN` they answer 200 to anonymous callers**, because
+> `None != None` is false: `deploy/status/` returns the deploy status and
+> `deploy/logs/` returns the deploy log. `deploy/github/`, `deploy/rollback/`
+> and `deploy/releases/` are not affected.
+>
+> Until this is fixed, set `DEPLOY_TOKEN` in every installation that includes
+> `django_resaas.urls`.
+
 ### Removed endpoints
 
 These endpoints were removed because they acted on any tenant with no permission check, and no

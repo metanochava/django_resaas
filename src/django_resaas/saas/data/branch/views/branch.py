@@ -40,6 +40,8 @@ from django_resaas.saas.core.services.disc_manager import DiskManegarService
 from django_resaas.saas.core.utils.pagination import ResaasPagination
 
 from django_resaas.saas.models.entity import Entity
+from django_resaas.saas.core.entitlements import require_capacity
+from django.db import transaction
 from django_resaas.saas.models.file import File
 from django_resaas.saas.models.branch import Branch
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
@@ -90,7 +92,11 @@ class BranchAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         # and without this override every new Branch failed with a
         # NOT NULL constraint on entity_id.
         entity_id = getattr(self.request, "entity_id", None)
-        serializer.save(entity_id=entity_id)
+        with transaction.atomic():
+            # lock the Entity: two concurrent creates cannot both take the last slot
+            Entity.objects.select_for_update().filter(pk=entity_id).first()
+            require_capacity(self.request, "branches")
+            serializer.save(entity_id=entity_id)
 
     @resaas_action(
         detail=True,

@@ -1,5 +1,17 @@
 # Upgrading
 
+## Entitlements, HR translations, packaging (next release after 0.0.624)
+
+| Change | Kind | What to do |
+|---|---|---|
+| Entitlements (`saas/core/entitlements`, `GET /api/resaas/entitlements/`) | Backward compatible | Nothing: without `RESAAS_ENTITLEMENTS` nothing is restricted. See [Entitlements](../security/entitlements.md). |
+| `BaseAPIView`, menus, dashboards and notification rules also ask `has_module()` | Backward compatible | Nothing unless you configure `RESAAS_ENTITLEMENTS["modules"]` or a provider |
+| The HR translation keys (`Employee Salary`, `Payroll Item`, `Leave Calendar`, `Add employee`, the HR dashboards' Portuguese labels, ...) left `django_resaas/saas/lang/*.py` | **Breaking** for an application that uses those strings **without** its own HR module | Add them to your HR module's `lang/<code>.py` (the reference application's `hr/lang/` has all four languages) |
+| `ResaasAPIException.translate_details`; numbers/booleans in `error.details` are no longer turned into strings | Backward compatible (a client that parsed `"3"` also accepts `3` in JS) | Nothing |
+| The scaffold writes `@register_view` (`registerView` stays a supported alias) | Backward compatible | Nothing |
+| The deprecated `dotenv==0.9.9` shim was removed from the dependencies (it shipped no code; `python-dotenv` stays) | Backward compatible | Nothing |
+| The wheel no longer ships the framework's tests (they need the repository's `src/dev`) | Backward compatible | Run the tests from a checkout |
+
 ## HR is no longer part of `django_resaas` (breaking change)
 
 `django_resaas.hr` has been removed from the package. HR is business domain,

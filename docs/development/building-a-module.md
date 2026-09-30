@@ -14,7 +14,7 @@ uses it, as described below.
 | What | How | Where |
 |---|---|---|
 | Models | `BaseModel` (tenant fields, soft delete, audit) | `<module>/models/` |
-| API | `BaseSerializer` + `BaseAPIView`, registered with `@registerView("<resource>", module="<label>")` | `<module>/views/` |
+| API | `BaseSerializer` + `BaseAPIView`, registered with `@register_view("<resource>", module="<label>")` | `<module>/views/` |
 | Routes | none to write: `build_saas_urls()` serves every registered view at `/api/<label>/<resource>/` | — |
 | Load the views at startup | import them in `AppConfig.ready()`, so their decorators (and `@resaas_action`) run before `post_migrate` | `<module>/apps.py` |
 | Activation per tenant | `App` + `EntityApp` (a module is active per Entity). New EntityTypes get the framework's own apps plus `settings.RESAAS_DEFAULT_MODULES` | settings |

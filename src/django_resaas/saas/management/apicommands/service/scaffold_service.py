@@ -95,12 +95,11 @@ class ScaffoldService:
     def create_view(self, module_path, module, name, dry_run=False):
         path = os.path.join(module_path, "views", f"{name.lower()}.py")
 
-        content = f'''from django_resaas.saas.core.base.views import BaseAPIView
-from django_resaas.saas.core.base.views import registerView
+        content = f'''from django_resaas.saas.core.base.views import BaseAPIView, register_view
 from {module}.models.{name.lower()} import {name}
 from {module}.serializers.{name.lower()} import {name}Serializer
 
-@registerView('{name.lower()}s')
+@register_view('{name.lower()}s')
 class {name}APIView(BaseAPIView):
     queryset = {name}.objects.all()
     serializer_class = {name}Serializer

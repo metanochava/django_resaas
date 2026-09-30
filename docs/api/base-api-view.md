@@ -82,7 +82,7 @@ Before any of this, `initial()` requires a valid tenant context on the request a
 or undecodable `X-RESAAS-Context` header (see [Multi-tenancy](../architecture/multi-tenancy.md))
 raises `PermissionDenied` immediately, before `module_name`/permission checks even run.
 
-`initial()` requires `self.module_name` to be set (via `@registerView(...)`
+`initial()` requires `self.module_name` to be set (via `@register_view(...)`
 - see [`../development/creating-resource.md`](../development/creating-resource.md))
 and checks `EntityApp.objects.filter(entity_id=request.entity_id,
 app__name=module_name, state="Active").exists()` before anything else

@@ -63,6 +63,7 @@ from django_resaas.saas.core.base.views import BaseAPIView, registerView
 from django_resaas.saas.core.base.permissions import hasPermission, isPermited
 from django_resaas.saas.core.decorators.action import resaas_action
 from django_resaas.saas.core.utils.sub_object_put import apply_sub_object_put
+from django_resaas.saas.core.entitlements import EntitlementContext, require_capacity
 
 
 @registerView("entitys", module="django_resaas")
@@ -201,6 +202,7 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         return Response(serializer.data)
 
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         
@@ -217,7 +219,13 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         # ------------------------
         serializer = EntityGravarSerializer(data=data)
         serializer.is_valid(raise_exception=True)
+        # entitlements: installation-wide number of Entities (before creating)
+        require_capacity(request, "entities")
         entity = serializer.save()
+        # the new Entity's own capacities (branches, users) are counted on it
+        entity_context = EntitlementContext(
+            entity_type_id=entity.entity_type_id, entity_id=entity.id
+        )
 
         # ------------------------
         # 🔥 TIPO ENTIDADE
@@ -244,6 +252,8 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
             # ------------------------
             entity.admins.add(user)
 
+            if not EntityUser.objects.filter(user=user, entity=entity).exists():
+                require_capacity(entity_context, "users")
             EntityUser.objects.get_or_create(
                 user=user,
                 entity=entity,
@@ -265,6 +275,7 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
             # ------------------------
             # 🔥 SUCURSAL PRINCIPAL
             # ------------------------
+            require_capacity(entity_context, "branches")
             branch = Branch.objects.create(
                 name=f"{entity.name} Main",
                 entity=entity,
@@ -537,11 +548,18 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         ).exists()
 
         if not exists:
-            EntityUser.objects.create(
-                user=user,
-                entity=transformer,
-                state = 'Active'
-            )
+            with transaction.atomic():
+                # lock the Entity: two concurrent adds cannot both take the last seat
+                Entity.objects.select_for_update().filter(pk=transformer.pk).first()
+                require_capacity(
+                    EntitlementContext(entity_type_id=transformer.entity_type_id, entity_id=transformer.id),
+                    "users",
+                )
+                EntityUser.objects.create(
+                    user=user,
+                    entity=transformer,
+                    state = 'Active'
+                )
             return Response(
                 {
                     "alert_seccess": f"User {user.username} added successfully!"

@@ -108,7 +108,8 @@ Doctor). Regras:
   `app_label` para os dashboards de `DASHBOARDS`; o `DASHBOARD` clássico
   continua a usar o próprio `name` como módulo (comportamento anterior,
   retrocompatível). `module` é o que conta para "módulo activo"
-  (`ensure_module_active`) e para a permissão de consolidado da Entity
+  (`ensure_module_active`, que também exige o entitlement do módulo -
+  ver [Entitlements](../security/entitlements.md)) e para a permissão de consolidado da Entity
   (`view_consolidated_dashboard_<module>`);
 - quem vê cada dashboard é decidido **só por permissões** (`permission`
   do dashboard + `permissions` de cada widget), nunca pelo nome do
@@ -165,8 +166,8 @@ Um KPI sozinho numa linha tem de ser `12` (não `3`):
 
 Mudança **breaking** para dashboards existentes: um `dashboard.py` cujas
 linhas não somem 12 deixa de carregar. Os do próprio `django_resaas`
-(`saas`, `hr`, `notifications`, `dev/demo`) e das apps de referência
-(`saude`, `sales`, `inventory`, `farmacia`) foram ajustados.
+(`saas`, `notifications`, `dev/demo`) e das apps de referência
+(`hr`, `saude`, `sales`, `inventory`, `farmacia`) foram ajustados.
 
 ## Imutabilidade
 

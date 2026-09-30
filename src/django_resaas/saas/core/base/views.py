@@ -20,6 +20,7 @@ from django_resaas.saas.core.base.field_access import (
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils import ok, fail  # noqa
+from django_resaas.saas.core.entitlements.service import has_module
 from django_resaas.saas.core.base.registry import VIEW_REGISTRY
 from django_resaas.saas.models.entity_app import EntityApp
 from django_resaas.saas.models.entity import Entity
@@ -192,9 +193,9 @@ def register_view(name=None, module=None):
     return decorator
 
 
-# Back-compat alias: registerView was the original (camelCase) name; every
-# existing @registerView(...) call site (hr/views/*.py and friends) keeps
-# working unchanged. register_view is the PEP 8-consistent name for new code.
+# register_view is the canonical name. registerView (camelCase) was the
+# original one: it stays as a supported alias because applications decorate
+# their views with it, so existing @registerView(...) call sites keep working.
 registerView = register_view
 
 
@@ -457,6 +458,11 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
 
             if not ativo:
                 return fail(request, f"Module <b>'{module}'</b> is not active.", status=403)
+
+            # entitlements: an active module may still be outside what this
+            # installation/tenant is entitled to (AND, never OR)
+            if not has_module(request, module):
+                return fail(request, f"Module <b>'{module}'</b> is not available.", status=403, code="module_not_available")
         else:
             return fail(request, f"Module <b>'{module}'</b> is not defined.", status=403)
 

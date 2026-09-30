@@ -28,8 +28,9 @@ urlpatterns = [
 ]
 
 # Must run after the include() above, which is what actually imports every
-# app's views (via django_resaas.urls -> hr.urls -> hr.views) and runs their
-# @registerView decorators. Calling build_saas_urls() any earlier sees an
+# app's views (django_resaas.urls, dev.demo.urls; an application usually
+# imports its views package in AppConfig.ready()) and runs their
+# @register_view decorators. Calling build_saas_urls() any earlier sees an
 # empty VIEW_REGISTRY and silently produces no routes.
 router, extra_patterns = build_saas_urls()
 urlpatterns += [path('api/', include(router.urls))]

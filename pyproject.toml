@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.624"
+version = "0.0.625"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -39,7 +39,6 @@ dependencies = [
   "django-cors-headers",
   "psycopg[binary]",
   "django-filter",
-  "dotenv==0.9.9",
 ]
 
 [project.optional-dependencies]
@@ -65,6 +64,8 @@ include-package-data = true   # ✅ ESSENCIAL (FALTAVA)
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["django_resaas*"]
+# the tests need the repository's dev project (src/dev): not shipped
+exclude = ["*.tests", "*.tests.*"]
 
 # 🔥 GARANTE QUE TEMPLATES ENTRAM NO BUILD
 [tool.setuptools.package-data]

@@ -17,11 +17,13 @@ def is_module_active(entity_id, module_name):
     if not module_name:
         return False
 
+    from django_resaas.saas.core.entitlements import EntitlementContext, has_module
+
     return EntityApp.objects.filter(
         entity_id=entity_id,
         app__name=module_name,
         state="Active"
-    ).exists()
+    ).exists() and has_module(EntitlementContext(entity_id=entity_id), module_name)
 
 
 def apply_tenant_scope(request, qs, *, module_name):

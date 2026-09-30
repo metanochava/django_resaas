@@ -71,9 +71,8 @@ class PatientAPIView(BaseAPIView):
     serializer_class = PatientSerializer
 ```
 
-`register_view` is the same decorator under a PEP 8-consistent name (`registerView =
-register_view`) — use whichever you like, both stay supported; every existing call site in
-`hr/views/*.py` uses `registerView`. `name` (the URL prefix segment) defaults to the class name
+`register_view` is the canonical name; `registerView` is the same decorator under its original
+name (`registerView = register_view`), still supported for existing code. `name` (the URL prefix segment) defaults to the class name
 lowercased with `APIView` stripped and an `s` appended if omitted; `module` defaults to the
 class's top-level package. See [View registry](../architecture/registry.md) for exactly what the
 decorator does.
@@ -84,7 +83,7 @@ schema endpoint — nothing else to write for the base behavior.
 ### Custom actions (`@resaas_action`)
 
 ```python
-@registerView("sales")
+@register_view("sales")
 class SaleAPIView(BaseAPIView):
     queryset = Sale.objects.all()
     serializer_class = SaleSerializer

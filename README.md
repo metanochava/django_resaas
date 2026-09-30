@@ -10,9 +10,9 @@
 
 ---
 
-If you've ever built a SaaS API in Django, you know the drill: multi-tenancy, per-group and per-branch permissions, soft delete, file uploads, PDF generation, i18n, plan-based billing… all of it **again**, project after project.
+If you've ever built a SaaS API in Django, you know the drill: multi-tenancy, per-group and per-branch permissions, soft delete, file uploads, PDF generation, i18n, usage limits… all of it **again**, project after project.
 
-**django_resaas** solves that part once and for all. It's a framework built on top of Django + DRF that gives any application a production-ready foundation: multi-tenancy, RBAC, smart CRUD, dynamic search, per-client feature modules, and billing — so your team can focus on what actually matters: the business.
+**django_resaas** solves that part once and for all. It's a framework built on top of Django + DRF that gives any application a production-ready foundation: multi-tenancy, RBAC, smart CRUD, dynamic search, per-client feature modules and entitlements (features and usage limits) — so your team can focus on what actually matters: the business.
 
 ```bash
 pip install django_resaas
@@ -30,7 +30,7 @@ pip install django_resaas
 - [Multi-tenancy & RBAC](#-multi-tenancy--rbac)
 - [Soft delete](#-soft-delete)
 - [Automatic search & filters](#-automatic-search--filters)
-- [Per-client modules + billing](#-per-client-modules--billing)
+- [Per-client modules & entitlements](#-per-client-modules--entitlements)
 - [Middlewares](#-middlewares)
 - [Internationalization (i18n)](#-internationalization-i18n)
 - [CLI / management commands](#-cli--management-commands)
@@ -68,6 +68,7 @@ Every multi-tenant SaaS app ends up needing the same set of building blocks. `dj
 * 🔎 **Dynamic search** — automatic search across text fields and relations
 * ♻️ **Soft delete** — `delete()` / `restore()` / `hard_delete()` + dedicated managers
 * 🧩 **Per-client modules** — toggle features on/off per entity without a deploy (`App` + `EntityApp`)
+* 🎚️ **Entitlements** — features and capacities (e.g. 3 branches, 20 users) behind a replaceable provider, enforced by the backend
 * 📎 **Files & PDF** — secure uploads, automatic metadata, PDF generation (WeasyPrint)
 * 🔑 **JWT auth + 2FA** — `simplejwt`, OTP (`pyotp`) and QR codes built in
 * 🌍 **Built-in i18n** — file-based translations (`pt-pt`, `en-us`, `es-es`, `fr-fr`) and database-backed
@@ -87,22 +88,26 @@ pip install -e .
 ```python
 # settings.py
 INSTALLED_APPS = [
+    "django_resaas.saas",           # the core
+    "django_resaas.notifications",  # email / SMS / WhatsApp outbox
+    "your_app",                     # your own modules
     ...
-    "django_resaas",
-    "hr",  # example module included
 ]
 
 MIDDLEWARE = [
     ...
-    "django_resaas.core.middleware.tenant.TenantContextMiddleware",
-    "django_resaas.core.middleware.front_end.FrontEndMiddleware",
+    "django_resaas.saas.core.middleware.file_access.FileAccessMiddleware",
+    "django_resaas.saas.core.middleware.tenant.TenantContextMiddleware",
 ]
 ```
 
+The complete, working settings (REST framework, JWT, CORS, `RESAAS_*`) are in
+[Installation](docs/getting-started/installation.md). Then:
+
 ```bash
-make migrate
-make superuser
-make run          # http://0.0.0.0:7002
+python manage.py migrate
+python manage.py create_root
+python manage.py runserver
 ```
 
 ---
@@ -110,18 +115,19 @@ make run          # http://0.0.0.0:7002
 ## 🧠 Architecture
 
 ```text
-User
- ↓
-Person
- ↓
-Employee (HR)
- ↓
+EntityType
+   ↓
 Entity (tenant)
- ↓
+   ↓
 Branch
- ↓
-Groups + Permissions
+   ↓
+Group ──→ Permission
+
+Person ──→ User ──→ BranchUserGroup (User + Branch + Group)
 ```
+
+Business modules (HR, Health, Sales, ...) are separate Django apps built on
+this core; the framework itself ships none.
 
 **Key concepts:**
 
@@ -131,6 +137,7 @@ Groups + Permissions
 | `Branch` | A unit/location within an `Entity` |
 | `Person` | Human data (name, email, contacts) |
 | `User` | Authentication |
+| `EntityType` | The kind of tenant; carries default groups and modules |
 | `BranchUserGroup` | Links `User` + `Branch` + `Group`, allowing multiple groups per branch |
 
 ---
@@ -141,11 +148,11 @@ Groups + Permissions
 
 ```python
 from django.db import models
-from django_resaas.core.base.models import BaseModel
+from django_resaas.saas.core.base.models import BaseModel
 
-class Employee(BaseModel):
-    person = models.ForeignKey("django_resaas.Person", on_delete=models.CASCADE)
-    role = models.CharField(max_length=100)
+class Product(BaseModel):
+    name = models.CharField(max_length=150)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
 ```
 
 `BaseModel` already ships `entity`, `branch`, `created_at`/`updated_at`, `created_by`/`updated_by` and soft delete.
@@ -153,24 +160,28 @@ class Employee(BaseModel):
 **Serializer**
 
 ```python
-from django_resaas.core.base.serializers import BaseSerializer
+from django_resaas.saas.core.base.serializers import BaseSerializer
 
-class EmployeeSerializer(BaseSerializer):
+class ProductSerializer(BaseSerializer):
     class Meta:
-        model = Employee
+        model = Product
         fields = "__all__"
 ```
 
 **View**
 
 ```python
-from django_resaas.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.base.views import BaseAPIView, register_view
 
-@registerView(module="hr")
-class EmployeeView(BaseAPIView):
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
+@register_view("products", module="your_app")
+class ProductAPIView(BaseAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 ```
+
+(`registerView` is the same decorator under its original name, still supported.)
+The module must be activated for the Entity (`App` + `EntityApp`) — see the
+[Quick start](docs/getting-started/quick-start.md).
 
 That's enough to automatically get: full CRUD, multi-tenant isolation, permissions, search, soft delete, restore, and protection based on the active module.
 
@@ -243,20 +254,20 @@ Model.all_objects        # everything
 ## 🔎 Automatic search & filters
 
 ```http
-GET /api/employees/?search=john
+GET /api/your_app/products/?search=john
 ```
 
 `BaseAPIView` automatically searches text fields and relations (`ForeignKey`), with no per-endpoint configuration required.
 
 ---
 
-## 🧩 Per-client modules
+## 🧩 Per-client modules & entitlements
 
 Each `Entity` only sees the modules it has activated:
 
 | Entity | Module | Status |
 |---|---|---|
-| Company A | HR | ✅ |
+| Company A | Sales | ✅ |
 | Company A | CRM | ❌ |
 
 Activation is a direct `App` ↔ `Entity` link via `EntityApp` (toggled with its `state` field):
@@ -265,10 +276,19 @@ Activation is a direct `App` ↔ `Entity` link via `EntityApp` (toggled with its
 EntityApp.objects.get_or_create(app=app, entity=entity, state='Active')
 ```
 
-> There is no plan-based billing layer yet (no `Plan`/`EntityPlan` model, no automatic
-> plan-to-module sync) - that's tracked under [Roadmap](#-roadmap). Module activation today is a
-> direct per-entity toggle, as used by `python manage.py create_root` (see
-> [`docs/development/management-commands.md`](docs/development/management-commands.md)).
+**Entitlements** add what the installation/tenant may use, on top of activation:
+features (`multi_entity`), capacities (`branches = 3`, `users = 20`) and allowed
+modules. They are off by default (nothing restricted), configured with
+`RESAAS_ENTITLEMENTS` or a custom provider, and always enforced by the backend:
+
+```python
+RESAAS_ENTITLEMENTS = {"features": {"advanced_audit": True},
+                       "capacities": {"branches": 3, "users": 20}}
+```
+
+The framework knows capabilities only — commercial plans are mapped to them by a
+provider. There is no billing or payment layer. See
+[Entitlements](docs/security/entitlements.md).
 
 ---
 
@@ -287,7 +307,7 @@ EntityApp.objects.get_or_create(app=app, entity=entity, state='Active')
 Translations are resolved in cascade — database first, then each app's `lang/` files — with automatic caching:
 
 ```python
-from django_resaas.core.utils.translate import Translate
+from django_resaas.saas.core.utils.translate import Translate
 
 Translate.tdc(request, "Register")
 ```
@@ -328,14 +348,14 @@ python manage.py check_metano       # validates compliance with the MetanoStack 
 
 Full technical documentation lives in [`docs/`](docs/README.md):
 
-- [**FAQ / Getting started**](docs/faq.md) — installation and the practical "how do I...?" questions
+- [Installation](docs/getting-started/installation.md) · [Quick start](docs/getting-started/quick-start.md)
 - [Architecture](docs/architecture/overview.md) · [Multi-tenancy](docs/architecture/multi-tenancy.md) · [Request lifecycle](docs/architecture/request-lifecycle.md) · [Middleware](docs/architecture/middleware.md) · [View registry](docs/architecture/registry.md)
 - [Schema 1.0 contract](docs/api/schema-contract.md) · [Public API reference](docs/api/public-api-reference.md)
 - [BaseAPIView](docs/api/base-api-view.md) · [Search](docs/api/search.md) · [Filters & pagination](docs/api/filters-pagination.md)
-- [Permissions](docs/security/permissions.md)
+- [Permissions](docs/security/permissions.md) · [Field-level permissions](docs/security/field-permissions.md) · [Entitlements](docs/security/entitlements.md)
 - [Soft delete](docs/features/soft-delete.md) · [Files & PDF](docs/features/files-pdf.md)
-- [Creating a new resource](docs/development/creating-resource.md) · [Management commands](docs/development/management-commands.md)
-- [The hr app](docs/hr/overview.md)
+- [Creating a new resource](docs/development/creating-resource.md) · [Building a module](docs/development/building-a-module.md) · [Management commands](docs/development/management-commands.md)
+- [Upgrading (breaking changes)](docs/deployment/upgrading.md)
 - [Git Flow & releases](docs/deployment/releases.md)
 - [Troubleshooting](docs/troubleshooting/common-errors.md)
 

@@ -21,12 +21,12 @@ key_value = {
 
     "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br><br>We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.": "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br><br>We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.",
 
-    # employee edit
+    # person edit
     "Generated automatically": "Generated automatically",
     "Save changes": "Save changes",
     "Use Promotion/Transfer to change this": "Use Promotion/Transfer to change this",
 
-    # employee profile
+    # person profile
     "Known as": "Known as",
     "years": "years",
     "No contact details on file.": "No contact details on file.",
@@ -120,7 +120,7 @@ key_value = {
     "Not emergency": "Not emergency",
     "Contact": "Contact",
 
-    # person/document/address/employee model labels
+    # person/document/address model labels
     "Arquivo": "File",
     "Data Emissao": "Issue Date",
     "Data Validade": "Expiry Date",
@@ -154,17 +154,9 @@ key_value = {
     "EntityType": "Entity Type",
 
     # frontend UI strings
-    "Ausências": "Absences",
-    "Ciclo de Vida do Colaborador": "Employee Lifecycle",
-    "Desempenho": "Performance",
-    "Formação": "Training",
-    "Organização": "Organization",
 
     # frontend UI strings
     "Other infoOther infoOther infoOther infoOther infoOther infoOther infoOther info": "Other info",
-    "Recrutamento": "Recruitment",
-    "Salário & Folha de Pagamento": "Salary & Payroll",
-    "Tempo & Presença": "Time & Attendance",
     "Ler Código": "Read Code",
     "Lido": "Read",
     "Aponta a câmara para o código de barras ou QR": "Point the camera at the barcode or QR code",
@@ -236,18 +228,22 @@ key_value = {
     "A platform profile cannot be an entity type profile.": "A platform profile cannot be an entity type profile.",
     "A permission has no codename.": "A permission has no codename.",
     "Some profiles are not valid. Nothing was changed.": "Some profiles are not valid. Nothing was changed.",
-    'The model must be app_label.ModelName.': 'The model must be app_label.ModelName.',
-    'This site is not linked to any organisation.': 'This site is not linked to any organisation.',
-    'Enter a phone number or an email.': 'Enter a phone number or an email.',
-    'Handled': 'Handled',
-    'Site contact message': 'Site contact message',
-    'Site contact messages': 'Site contact messages',
-    'Founded On': 'Founded On',
-    'Date the organisation was founded.': 'Date the organisation was founded.',
-    'Used': 'Used',
-    'Add action': 'Add action',
-    'Quick Access': 'Quick Access',
-    'Submit': 'Submit',
-    'active': 'active',
-    'Position': 'Position',
+    "The model must be app_label.ModelName.": "The model must be app_label.ModelName.",
+    "This site is not linked to any organisation.": "This site is not linked to any organisation.",
+    "Enter a phone number or an email.": "Enter a phone number or an email.",
+    "Handled": "Handled",
+    "Site contact message": "Site contact message",
+    "Site contact messages": "Site contact messages",
+    "Founded On": "Founded On",
+    "Date the organisation was founded.": "Date the organisation was founded.",
+    "Used": "Used",
+    "Add action": "Add action",
+    "Quick Access": "Quick Access",
+    "Submit": "Submit",
+    "active": "active",
+    "Position": "Position",
+
+    # entitlements (core/entitlements)
+    "This feature is not available.": "This feature is not available.",
+    "The usage limit for this resource has been reached.": "The usage limit for this resource has been reached.",
 }
