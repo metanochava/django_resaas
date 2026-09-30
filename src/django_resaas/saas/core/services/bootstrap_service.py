@@ -16,6 +16,25 @@ from django_resaas.saas.models.entity_app import EntityApp
 
 
 
+# the framework's own apps, always activated for a new EntityType
+FRAMEWORK_MODULES = ("django_resaas", "notifications")
+
+
+def default_modules():
+    """App labels activated for a new EntityType: the framework's own apps
+    (the installed ones) plus the application's settings.RESAAS_DEFAULT_MODULES
+    (e.g. ["hr"]). The framework never names a business module itself."""
+    from django.apps import apps
+    from django.conf import settings
+
+    installed = {config.label for config in apps.get_app_configs()}
+    names = [label for label in FRAMEWORK_MODULES if label in installed]
+    for label in getattr(settings, "RESAAS_DEFAULT_MODULES", []) or []:
+        if label not in names:
+            names.append(label)
+    return names
+
+
 class BootstrapService:
 
     @classmethod
@@ -68,7 +87,7 @@ class BootstrapService:
             state = 'Active'
         )
 
-        for name in ['django_resaas','hr','notifications']:
+        for name in default_modules():
             app, _ = App.objects.get_or_create(
                 name=name,
                 defaults={"state": "Active"},

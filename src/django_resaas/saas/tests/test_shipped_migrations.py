@@ -17,13 +17,14 @@ def test_every_model_change_has_a_shipped_migration():
     """A model changed without its migration fails here (and in CI)."""
     out = StringIO()
 
-    call_command("makemigrations", "django_resaas", "hr", "notifications", check=True, dry_run=True, stdout=out)
+    call_command("makemigrations", "django_resaas", "notifications", check=True, dry_run=True, stdout=out)
 
     assert "No changes detected" in out.getvalue()
 
 
 def test_framework_apps_are_detected_by_package():
-    assert {"django_resaas", "hr", "notifications"} <= framework_labels()
+    assert framework_labels() == {"django_resaas", "notifications"}
+    # an application's modules (demo here, hr in an application) are not framework apps
     assert "demo" not in framework_labels()
 
 

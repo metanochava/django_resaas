@@ -1,6 +1,6 @@
 """AppSchemaAPIView.destroy() only protected the exact names
-"django_resaas"/"hr" - any other "django_resaas.<something>" entry
-(django_resaas.saas, django_resaas.hr, django_resaas.notifications,
+"django_resaas" - any other "django_resaas.<something>" entry
+(django_resaas.saas, django_resaas.notifications,
 ...) was NOT protected by name, even though every one of them is core
 platform code, not a scaffolded business module. Fixed: any name equal
 to "django_resaas" or starting with "django_resaas." is protected,

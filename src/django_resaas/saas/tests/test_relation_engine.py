@@ -1,6 +1,6 @@
 """Generic relation engine (backend half): schema metadata, preview-aware
 select search, tenant isolation and permissions - proven on Person (a card
-relation), on a non-Person tenant model (dev.demo Product, hr JobPosition)
+relation), on a non-Person tenant model (dev.demo Product and Member)
 and on a many-to-many, so nothing here is Person-specific."""
 import pytest
 from unittest import mock
@@ -29,9 +29,9 @@ class TestRelationSchema:
     def test_a_declared_preview_alone_never_changes_an_existing_form(self):
         """Person declares a preview (for pages that build the picker by hand),
         but the schema-driven forms keep the plain select."""
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        config = _field(_schema_fields(Employee), "person")["relation_config"]
+        config = _field(_schema_fields(Member), "person")["relation_config"]
 
         assert config["variant"] == "select"
         assert config["preview"] == {
@@ -45,67 +45,67 @@ class TestRelationSchema:
         }
 
     def test_a_relation_field_can_opt_into_the_card_in_its_own_model(self):
-        """Medico.RESAAS.fields = {"employee": {"relation_variant": "card"}} style."""
-        from django_resaas.hr.models.employee import Employee
+        """Model.RESAAS.fields = {"<fk>": {"relation_variant": "card"}} style."""
+        from dev.demo.models import Member
 
-        with mock.patch.object(Employee.RESAAS, "fields", {"person": {"relation_variant": "card"}}, create=True):
-            fields = _schema_fields(Employee)
+        with mock.patch.object(Member.RESAAS, "fields", {"person": {"relation_variant": "card"}}, create=True):
+            fields = _schema_fields(Member)
 
         assert _field(fields, "person")["relation_config"]["variant"] == "card"
         # only the field that asked
         assert _field(fields, "manager")["relation_config"]["variant"] == "select"
 
     def test_a_relation_field_can_opt_into_the_modal_variant_and_carries_the_view_route(self):
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        with mock.patch.object(Employee.RESAAS, "fields", {"person": {"relation_variant": "modal"}}, create=True):
-            config = _field(_schema_fields(Employee), "person")["relation_config"]
+        with mock.patch.object(Member.RESAAS, "fields", {"person": {"relation_variant": "modal"}}, create=True):
+            config = _field(_schema_fields(Member), "person")["relation_config"]
 
         assert config["variant"] == "modal"
         # where "View" shows all the data of the related record
         assert config["routes"] == {"view": "view_person"}
 
     def test_an_unknown_variant_is_ignored(self):
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        with mock.patch.object(Employee.RESAAS, "fields", {"person": {"relation_variant": "nope"}}, create=True):
-            config = _field(_schema_fields(Employee), "person")["relation_config"]
+        with mock.patch.object(Member.RESAAS, "fields", {"person": {"relation_variant": "nope"}}, create=True):
+            config = _field(_schema_fields(Member), "person")["relation_config"]
 
         assert config["variant"] == "select"
 
     def test_the_related_model_can_make_every_relation_to_it_a_card(self):
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
         declared = {**Person.RESAAS.preview, "variant": "card"}
 
         with mock.patch.object(Person.RESAAS, "preview", declared):
-            config = _field(_schema_fields(Employee), "person")["relation_config"]
+            config = _field(_schema_fields(Member), "person")["relation_config"]
 
         assert config["variant"] == "card"
 
     def test_an_opt_in_without_a_declared_preview_has_nothing_to_show(self):
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        with mock.patch.object(Employee.RESAAS, "fields", {"position": {"relation_variant": "card"}}, create=True):
-            config = _field(_schema_fields(Employee), "position")["relation_config"]
+        with mock.patch.object(Member.RESAAS, "fields", {"category": {"relation_variant": "card"}}, create=True):
+            config = _field(_schema_fields(Member), "category")["relation_config"]
 
         assert config["variant"] == "select" and "preview" not in config
 
-    def test_employee_declares_its_own_preview_through_the_person(self):
+    def test_a_model_declares_its_own_preview_through_the_person(self):
         from django_resaas.saas.core.utils.relation_preview import get_relation_preview_config
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        assert get_relation_preview_config(Employee) == {
+        assert get_relation_preview_config(Member) == {
             "title": "person__full_name",
             "subtitle": ["code", "work_email"],
             "avatar": "person__photo",
-            "meta": ["position__title"],
+            "meta": ["category__name"],
         }
 
     def test_relation_without_declared_preview_stays_the_lightweight_select(self):
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        config = _field(_schema_fields(Employee), "position")["relation_config"]
+        config = _field(_schema_fields(Member), "category")["relation_config"]
 
         assert config["variant"] == "select"
         assert "preview" not in config
@@ -156,22 +156,21 @@ class TestPreviewConfig:
         assert item["values"] == {"email": "ana@example.com", "phone": "841110000", "nationality": "MZ"}
 
     def test_a_path_through_a_relation_is_labelled_by_its_first_hop(self):
-        from django_resaas.hr.models.employee import Employee
-        from django_resaas.hr.models.job_position import JobPosition
+        from dev.demo.models import Category, Member
 
         person = Person.objects.create(name="Rui", surname="Nhaca")
-        employee = Employee(person=person, position=JobPosition(title="Surgeon"))
+        member = Member(person=person, category=Category(name="Surgeon"))
 
-        item = build_preview_item(employee, get_relation_preview_config(Employee))
+        item = build_preview_item(member, get_relation_preview_config(Member))
 
-        assert item["meta"] == [{"field": "position__title", "label": "Position", "value": "Surgeon"}]
+        assert item["meta"] == [{"field": "category__name", "label": "Category", "value": "Surgeon"}]
 
     def test_dotted_paths_are_select_related(self):
-        from django_resaas.hr.models.employee import Employee
+        from dev.demo.models import Member
 
-        config = {"title": "person__full_name", "subtitle": ["position__title"], "avatar": None, "meta": []}
+        config = {"title": "person__full_name", "subtitle": ["category__name"], "avatar": None, "meta": []}
 
-        assert preview_select_related(Employee, config) == ["person", "position"]
+        assert sorted(preview_select_related(Member, config)) == ["category", "person"]
 
 
 # ---------------------------------------------------------------- select API
@@ -215,19 +214,19 @@ class TestPreviewSelectApi:
         assert [r["value"] for r in response.data["results"]] == [person.id]
         assert response.data["results"][0]["preview"]["subtitle"] == ["lookup@example.com"]
 
-    def test_employee_search_previews_through_its_person(self, bootstrap_tenant):
-        """The endpoint add_medico's employee picker uses (schema endpoint of the relation)."""
-        from django_resaas.hr.models.employee import Employee
+    def test_member_search_previews_through_its_person(self, bootstrap_tenant):
+        """The endpoint a relation picker uses (schema endpoint of the relation)."""
+        from dev.demo.models import Member
 
-        tenant = bootstrap_tenant("relation-employee")
+        tenant = bootstrap_tenant("relation-member", modules=("demo",))
         person = Person.objects.create(name="Rui", surname="Nhaca", email="rui@example.com")
-        employee = Employee.objects.create(person=person, entity=tenant["entity"], branch=tenant["branch"], code="EMP-1", work_email="rui@work.com", hire_date="2024-01-01")
+        member = Member.objects.create(person=person, entity=tenant["entity"], branch=tenant["branch"], code="EMP-1", work_email="rui@work.com", joined_on="2024-01-01")
 
-        config = _field(_schema_fields(Employee), "manager")["relation_config"]
+        config = _field(_schema_fields(Member), "manager")["relation_config"]
         response = tenant["client"].get(f"/api/{config['endpoint']}?select=true&preview=true&search=Nhaca")
 
         assert response.status_code == 200, response.data
-        row = next(r for r in response.data["results"] if r["value"] == employee.id)
+        row = next(r for r in response.data["results"] if r["value"] == member.id)
         assert row["preview"]["title"] == "Rui Nhaca"
         assert row["preview"]["subtitle"] == ["EMP-1", "rui@work.com"]
 
@@ -329,47 +328,43 @@ class TestTenantRelationAssignment:
 
     def _plain_serializer(self):
         """A serializer with NO hand-written tenant check - the mixin alone."""
-        from django_resaas.hr.models.job_position import JobPosition
+        from dev.demo.models import Member
         from django_resaas.saas.core.base.serializers import BaseSerializer
 
-        class PlainJobPositionSerializer(BaseSerializer):
+        class PlainMemberSerializer(BaseSerializer):
             class Meta:
-                model = JobPosition
-                fields = ["title", "department"]
+                model = Member
+                fields = ["code", "category"]
 
-        return PlainJobPositionSerializer
+        return PlainMemberSerializer
 
-    def _position(self, entity, branch, title):
-        from django_resaas.hr.models.job_position import JobPosition
-
-        return JobPosition.objects.create(title=title, entity=entity, branch=branch)
 
     def test_a_relation_from_another_entity_is_rejected(self, bootstrap_tenant):
-        JobPositionSerializer = self._plain_serializer()
+        PlainSerializer = self._plain_serializer()
 
         mine = bootstrap_tenant("assign-a")
         theirs = bootstrap_tenant("assign-b")
-        from django_resaas.hr.models.department import Department
+        from dev.demo.models import Category
 
-        foreign = Department.objects.create(name="Foreign", entity=theirs["entity"], branch=theirs["branch"])
+        foreign = Category.objects.create(name="Foreign", entity=theirs["entity"], branch=theirs["branch"])
 
-        serializer = JobPositionSerializer(
-            data={"title": "Nurse", "department": foreign.id},
+        serializer = PlainSerializer(
+            data={"code": "N-1", "category": foreign.id},
             context={"request": self._request(mine["entity"])},
         )
 
         assert not serializer.is_valid()
-        assert "department" in serializer.errors
+        assert "category" in serializer.errors
 
     def test_a_relation_from_the_current_entity_is_accepted(self, bootstrap_tenant):
-        from django_resaas.hr.models.department import Department
-        JobPositionSerializer = self._plain_serializer()
+        from dev.demo.models import Category
+        PlainSerializer = self._plain_serializer()
 
         mine = bootstrap_tenant("assign-own")
-        own = Department.objects.create(name="Own", entity=mine["entity"], branch=mine["branch"])
+        own = Category.objects.create(name="Own", entity=mine["entity"], branch=mine["branch"])
 
-        serializer = JobPositionSerializer(
-            data={"title": "Nurse", "department": own.id},
+        serializer = PlainSerializer(
+            data={"code": "N-1", "category": own.id},
             context={"request": self._request(mine["entity"])},
         )
 
@@ -377,12 +372,12 @@ class TestTenantRelationAssignment:
 
     def test_person_relations_are_not_tenant_scoped(self, bootstrap_tenant):
         """Person is a global identity (no entity) - the guard must not reject it."""
-        from django_resaas.hr.serializers.employee import EmployeeSerializer
+        from dev.demo.serializers import MemberSerializer
 
         mine = bootstrap_tenant("assign-person")
         person = Person.objects.create(name="Global", surname="Person")
 
-        serializer = EmployeeSerializer(
+        serializer = MemberSerializer(
             data={"person": person.id},
             context={"request": self._request(mine["entity"])},
         )
@@ -391,12 +386,12 @@ class TestTenantRelationAssignment:
         assert "person" not in serializer.errors
 
     def test_no_tenant_context_means_no_check(self, bootstrap_tenant):
-        from django_resaas.hr.models.department import Department
-        JobPositionSerializer = self._plain_serializer()
+        from dev.demo.models import Category
+        PlainSerializer = self._plain_serializer()
 
         theirs = bootstrap_tenant("assign-none")
-        foreign = Department.objects.create(name="Any", entity=theirs["entity"], branch=theirs["branch"])
+        foreign = Category.objects.create(name="Any", entity=theirs["entity"], branch=theirs["branch"])
 
-        serializer = JobPositionSerializer(data={"title": "Nurse", "department": foreign.id}, context={})
+        serializer = PlainSerializer(data={"code": "N-1", "category": foreign.id}, context={})
 
         assert serializer.is_valid(), serializer.errors

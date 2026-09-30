@@ -71,9 +71,6 @@ include = ["django_resaas*"]
 "django_resaas.saas" = [
   "templates/**/*"
 ]
-"django_resaas.hr" = [
-  "templates/**/*"
-]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "dev.settings"

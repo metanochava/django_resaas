@@ -79,7 +79,7 @@ def _resolve_app_label(app_name: str) -> str:
     """MY_APPS entries can be either the real app_label directly (e.g.
     'saude') or the dotted AppConfig import path (e.g. 'django_resaas.
     saas', whose actual app_label is 'django_resaas' - see saas/apps.py's
-    `label = "django_resaas"`, and likewise 'django_resaas.hr' -> 'hr',
+    `label = "django_resaas"`, and likewise
     'django_resaas.notifications' -> 'notifications'). Comparing
     `model._meta.app_label == app_name` (the bug) silently returns 0
     models/no rows for every dotted entry whose label differs from its
@@ -752,16 +752,13 @@ class AppSchemaAPIView(ExplicitAccessMixin, ModelViewSet):
         self._ensure_dev(request)
 
         # Qualquer app "django_resaas" ou "django_resaas.<algo>" (saas,
-        # hr, notifications, ...) é core da própria plataforma - nunca
+        # notifications, ...) é core da própria plataforma - nunca
         # apagável por aqui, independentemente de ter ou não pasta
-        # própria em BASE_DIR (django_resaas.saas/hr/notifications vivem
+        # própria em BASE_DIR (django_resaas.saas/notifications vivem
         # dentro do pacote da biblioteca, não como pasta scaffolded).
         # Verificado ANTES do "not found" - "protegido" é a resposta
         # certa mesmo quando module_path não existe fisicamente.
         if name == "django_resaas" or name.startswith("django_resaas."):
-            return warn(request, "module_protected")
-
-        if name == "hr":
             return warn(request, "module_protected")
 
         module_path = Path(settings.BASE_DIR) / name
@@ -791,7 +788,7 @@ class AppSchemaAPIView(ExplicitAccessMixin, ModelViewSet):
             return fail( request, str(e),  )
 
         try:
-            if name in ['django_resaas','hr','notifications']:
+            if name in ['django_resaas','notifications']:
                 return fail(request, "Module {name} is protected")
 
             AppScaffoldService.create_front(name)
