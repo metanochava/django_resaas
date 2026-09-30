@@ -3,7 +3,7 @@ retrieve/lookup, would) compare a MY_APPS entry directly against
 `model._meta.app_label` - correct for a flat entry like "saude", but
 silently wrong for a dotted AppConfig import path like "django_resaas.
 saas" (real app_label "django_resaas", see saas/apps.py's `label =
-"django_resaas"`) or "django_resaas.hr" (label "hr") - every such
+"django_resaas"`) or "dev.demo" (label "demo") - every such
 entry always showed 0 models / an empty model list, even though the
 app is very much installed and has real models.
 
@@ -62,14 +62,15 @@ class TestLookupResolvesDottedAppPath:
         assert "Entity" in response.data["models"]
         assert "EntityType" in response.data["models"]
 
-    def test_lookup_with_dotted_hr_path_lists_real_models(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("app-schema-dotted-lookup-hr", modules=("hr",))
+    def test_lookup_with_another_dotted_path_lists_real_models(self, bootstrap_tenant):
+        # dev.demo's app_label is "demo": the dotted path must resolve to it
+        tenant = bootstrap_tenant("app-schema-dotted-lookup-demo", modules=("demo",))
         client = tenant["client"]
 
-        response = client.get("/api/django_resaas/resaasapps/lookup/?app=django_resaas.hr")
+        response = client.get("/api/django_resaas/resaasapps/lookup/?app=dev.demo")
 
         assert response.status_code == 200, response.data
-        assert "Employee" in response.data["models"]
+        assert "Member" in response.data["models"]
 
     def test_lookup_with_plain_label_still_works(self, bootstrap_tenant):
         tenant = bootstrap_tenant("app-schema-plain-lookup")

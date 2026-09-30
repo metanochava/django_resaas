@@ -12,7 +12,7 @@ from django_resaas.saas.management.apicommands.service import workspace_service
 
 pytestmark = pytest.mark.django_db
 
-SCRATCH_ROOT = "django_resaas.hr"
+SCRATCH_ROOT = "django_resaas.notifications"
 SCRATCH_REL_PATH = "tests/_scaffold_ide_scratch_file.py"
 SCRATCH_REL_PATH_2 = "tests/_scaffold_ide_scratch_file_2.py"
 

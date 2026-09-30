@@ -144,6 +144,20 @@ Warns and exits early if `VIEW_REGISTRY` is empty (no views were registered/impo
 > Kept as a permanent, fully-supported alias - see `resaas_sync` above, which hits the exact same
 > `ActionSyncService.sync_registry` call and additionally supports `--dry-run`/`--only`/`-v`.
 
+## `resaas_migrations_rebaseline`
+
+One-off alignment of an environment created before the framework shipped its
+migrations (up to 0.0.621). It repoints the project's migrations that depend on
+framework migrations which no longer exist, and prunes their stale
+`django_migrations` rows. Dry run by default, `--apply` to write. Idempotent,
+and never changes the schema or data. Full procedure:
+[Upgrading](../deployment/upgrading.md).
+
+```bash
+python manage.py resaas_migrations_rebaseline          # plan
+python manage.py resaas_migrations_rebaseline --apply  # after a backup
+```
+
 ## `mark_editable_groups`
 
 ```bash

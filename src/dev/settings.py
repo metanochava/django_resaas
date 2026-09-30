@@ -36,7 +36,6 @@ LANGUAGE_CODE = 'EN-US'
 MY_APPS = [
     'django_resaas.saas',
     'django_resaas.notifications',
-    "django_resaas.hr",
     "dev.demo",
 ]
 

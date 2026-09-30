@@ -14,7 +14,10 @@ pytestmark = pytest.mark.django_db
 
 def test_installed_apps_loaded():
     assert apps.is_installed("django_resaas.saas")
-    assert apps.is_installed("django_resaas.hr")
+    assert apps.is_installed("django_resaas.notifications")
+    # the framework starts without any business module: HR is an
+    # application's module now, not part of django_resaas
+    assert not any(config.label == "hr" for config in apps.get_app_configs())
     # is_installed() checks AppConfig.name, not .label - the app_label
     # itself (used by migrations/permissions/EntityApp) stays "django_resaas"
     # even though the importable path is "django_resaas.saas" (see

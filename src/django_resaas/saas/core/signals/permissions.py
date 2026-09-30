@@ -51,48 +51,6 @@ MODULE_PERMISSIONS = {
         },
     ],
 
-    "hr": [
-        {
-            "codename": "view_hr_dashboard",
-            "name": "Can view HR dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_organizacao",
-            "name": "Can view Organização dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_tempo_presenca",
-            "name": "Can view Tempo & Presença dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_salario_folha",
-            "name": "Can view Salário & Folha de Pagamento dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_ausencias",
-            "name": "Can view Ausências dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_recrutamento",
-            "name": "Can view Recrutamento dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_onboarding",
-            "name": "Can view Onboarding dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_desempenho",
-            "name": "Can view Desempenho dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_formacao",
-            "name": "Can view Formação dashboard",
-        },
-        {
-            "codename": "view_dashboard_hr_ciclo_vida",
-            "name": "Can view Ciclo de Vida do Colaborador dashboard",
-        },
-    ],
 
     "notifications": [
         {
@@ -103,36 +61,37 @@ MODULE_PERMISSIONS = {
 }
 
 
+def ensure_module_permissions(app_label, permissions):
+    """Creates (idempotently) a module's own permissions that are not model
+    CRUD - e.g. `view_<module>_dashboard` - on one of the module's models.
+    Public: a module calls it from its AppConfig (post_migrate) with
+    [{"codename", "name"}, ...]. An app that is not installed is skipped."""
+
+    try:
+        app_config = apps.get_app_config(app_label)
+    except LookupError:
+        return
+
+    Model = next(iter(app_config.get_models()), None)
+    if not Model:
+        return
+
+    content_type = ContentType.objects.get_for_model(Model)
+
+    for item in permissions:
+        Permission.objects.update_or_create(
+            codename=item["codename"],
+            content_type=content_type,
+            defaults={"name": item["name"]},
+        )
+
+
 def create_module_permissions():
+    """The core's own module permissions (MODULE_PERMISSIONS). Modules create
+    theirs with ensure_module_permissions()."""
 
     for app_label, permissions in MODULE_PERMISSIONS.items():
-
-        app_config = apps.get_app_config(app_label)
-
-        Model = next(
-            iter(
-                app_config.get_models()
-            ),
-            None
-        )
-
-        if not Model:
-            continue
-
-        content_type = (
-            ContentType.objects
-            .get_for_model(Model)
-        )
-
-        for item in permissions:
-
-            Permission.objects.update_or_create(
-                codename=item["codename"],
-                content_type=content_type,
-                defaults={
-                    "name": item["name"]
-                }
-            )
+        ensure_module_permissions(app_label, permissions)
 
 
 @receiver(post_migrate)

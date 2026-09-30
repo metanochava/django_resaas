@@ -58,14 +58,16 @@ frontend (DashboardStore → DashboardRenderer → widget registry)
   motor novo resolve outro caso: dashboards *declarados no backend* e
   renderizados genericamente a partir de schema JSON. Não foram
   tocados.
-- **Gráficos sem biblioteca nova**: não há nenhuma lib de charting
-  instalada em `quasar_resaas`. `BarChartWidget`/`LineChartWidget`
-  reutilizam o padrão CSS/SVG já usado em
-  `pages/django_resaas/DashBoard.vue` (barras `var(--q-primary)` etc.).
-  `PieChartWidget` usa `conic-gradient`. `CalendarWidget` reutiliza o
-  `QDate` nativo do Quasar (`events`/`event-color`). Nenhuma dependência
-  nova foi adicionada - troca por uma biblioteca real fica como melhoria
-  futura se o volume/õs requisitos justificarem.
+- **Gráficos com ApexCharts**: `BarChartWidget`/`LineChartWidget`/
+  `PieChartWidget` desenham com `s-chart` (`quasar_resaas`,
+  `components/engine/ChartComponent.vue`, sobre ApexCharts - o único
+  componente de gráficos do RESAAS; ver
+  [quasar_resaas: s-chart](https://github.com/metanochava/quasar_resaas/blob/main/docs/quasar-resaas/components/chart.md)).
+  As cores vêm do **Theme da Entity** (primary, secondary, accent, info,
+  positive, warning, negative, por esta ordem fixa) e uma série/fatia pode
+  pedir uma cor semântica por nome (ver "Contratos" abaixo).
+  `CalendarWidget` reutiliza o `QDate` nativo do Quasar
+  (`events`/`event-color`).
 - **`entity`/`branch` como tipos de filtro**: nunca aceitam o valor do
   cliente - resolvem sempre a `request.entity_id`/`branch_id`; um valor
   diferente enviado pelo cliente é rejeitado (400), nunca ignorado
@@ -199,13 +201,29 @@ exigindo `view_consolidated_dashboard_<module>` - mesma regra de
 
 ```
 stat:       {value, formatted_value, variation?, variation_direction?, comparison_label?}
-bar_chart:  {labels: [...], series: [{name, data: [...]}]}
-line_chart: {labels: [...], series: [{name, data: [...]}]}
-pie_chart:  {labels: [...], series: [{name, data: [...]}]}  (só series[0])
+bar_chart:  {labels: [...], series: [{name, data: [...], color?}], codes?}
+line_chart: {labels: [...], series: [{name, data: [...], color?}]}
+pie_chart:  {labels: [...], series: [{name, data: [...], colors?}], codes?}  (só series[0])
 table:      {columns: [...], rows: [...], pagination: {count, next, previous}}
 list:       {items: [{id, title, description?, icon?, avatar?, date?, status?, route?}]}
 calendar:   {start, end, events: [{id, title, start, end, status?, status_color?}]}
 ```
+
+`color` (por série) e `colors` (por fatia do `pie_chart`, paralelo a
+`labels`) são opcionais: um nome de cor do Theme (`primary`, `secondary`,
+`accent`, `info`, `positive`, `warning`, `negative`, `dark`) ou uma cor
+literal. Sem eles, as séries seguem a ordem fixa das cores do Theme. Use-os
+para estados (ex.: `"colors": ["positive", "warning", "negative"]` para
+presente/atrasado/ausente).
+
+Opções de apresentação no próprio widget (`dashboard.py`), passadas tal como
+estão ao frontend:
+
+| Widget | Opções |
+|---|---|
+| `bar_chart` | `horizontal` (omissão `true`; `false` = colunas), `stacked`, `height` |
+| `line_chart` | `area` (preenchimento sob as linhas), `height` |
+| `pie_chart` | `donut` (omissão `true`; `false` = pizza), `height` |
 
 ## Tooltips e actions
 
@@ -457,9 +475,9 @@ Só configuração + provider - nenhuma mudança no motor.
 - Sem conceito real de Plano/Feature no projecto - os campos `feature`/
   `plan` do schema são aceites mas não têm enforcement (não existe
   nenhum modelo `Plan`/`Feature` para verificar).
-- Gráficos são CSS/SVG feitos à mão (sem biblioteca) - suficiente para
-  os contratos actuais, mas limitado para necessidades avançadas
-  (zoom, exportação de imagem, animações complexas).
+- Os gráficos (ApexCharts, `s-chart`) não expõem ainda zoom nem
+  exportação de imagem (a barra de ferramentas do ApexCharts está
+  desligada).
 - `date_range`/`number_range` não suportam ainda um "default dinâmico"
   declarado em `dashboard.py` (ex.: `"default": "current_month"`) - por
   agora a resolução dinâmica fica sempre a cargo do provider.

@@ -22,15 +22,14 @@ from django_resaas.saas.models.theme import Theme
 from django_resaas.saas.models.person import Person
 from django_resaas.saas.models.typography import Typography
 from django_resaas.saas.models.document import Document, DocumentType
-from django_resaas.hr.models.employee import Employee
-from django_resaas.hr.models.job_position import JobPosition
+from dev.demo.models import Member
 
 pytestmark = pytest.mark.django_db
 
 MODELS_WITH_EXPLICIT_LIST_ROUTE = [
     User, Entity, Address, AuditLog, AnimationSetting, App, LayoutSetting,
     ThemeSurface, Theme, Person, Typography, Document, DocumentType,
-    Employee, JobPosition,
+    Member,
 ]
 
 

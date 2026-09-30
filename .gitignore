@@ -22,9 +22,12 @@ venv/
 .env
 *.env
 
-*/migrations/*.py
-!*/migrations/__init__.py
-*/migrations/*.pyc
+# Migrations ARE versioned: the framework ships its own (see
+# docs/deployment/upgrading.md). *.pyc are covered above.
+
+# The development/example project is part of the repository: a global
+# "dev" ignore on a developer's machine must not hide new files in it.
+!/src/dev/
 
 # Sync .project/sourceTexts/ folder (source text files)
 

@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django_resaas.saas.core.services.bootstrap_service import default_modules
 from django.contrib.auth import get_user_model
 from getpass import getpass
 from django_resaas.saas.models.entity_type import EntityType
@@ -226,7 +227,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.WARNING(f"\n"))
 
-        for name in ['django_resaas','hr','notifications']:
+        for name in default_modules():
             app, _ = App.objects.get_or_create(
                 name=name,
                 defaults={"state": "Active"},

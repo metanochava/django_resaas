@@ -13,9 +13,9 @@ comes back over HTTP (through DRF's Response/JSON layer, not just the
 Python dict `.build()` returns).
 
 Two real, already-migrated models are used - no new migrations:
-- hr.SalaryComponent: CharField, ChoiceField (via choices=), DecimalField,
+- demo.Rate: CharField, ChoiceField (via choices=), DecimalField,
   BooleanField
-- hr.Attendance: ForeignKey, DateField, DateTimeField, IntegerField
+- demo.Visit: ForeignKey, DateField, DateTimeField, IntegerField
 """
 import pytest
 from rest_framework.viewsets import ModelViewSet
@@ -41,8 +41,8 @@ def _field(schema, name):
 # =========================================================
 
 def test_schema_has_every_documented_top_level_key(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-envelope-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-envelope-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     for key in (
         "schema_version", "model", "fields", "actions", "permissions",
@@ -54,22 +54,22 @@ def test_schema_has_every_documented_top_level_key(bootstrap_tenant):
 def test_schema_version_is_1_0(bootstrap_tenant):
     """The version must never change silently - a future incompatible
     change to this contract has to bump SCHEMA_VERSION explicitly."""
-    tenant = bootstrap_tenant("schema-version-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-version-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     assert schema["schema_version"] == "1.0"
 
 
 def test_model_metadata_is_exposed(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-model-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-model-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
-    assert schema["model"]["app"] == "hr"
-    assert schema["model"]["name"] == "salarycomponent"
-    assert schema["model"]["class_name"] == "SalaryComponent"
+    assert schema["model"]["app"] == "demo"
+    assert schema["model"]["name"] == "rate"
+    assert schema["model"]["class_name"] == "Rate"
     assert schema["model"]["pk"] == "id"
     # backend endpoint must prevail - frontend never re-derives this
-    assert schema["model"]["endpoint"] == "hr/salarycomponents/"
+    assert schema["model"]["endpoint"] == "demo/rates/"
 
 
 def test_model_endpoint_honors_a_resaas_override(bootstrap_tenant):
@@ -86,28 +86,28 @@ def test_model_endpoint_honors_a_resaas_override(bootstrap_tenant):
 
 
 def test_permissions_are_backend_computed(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-permissions-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-permissions-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
-    assert schema["permissions"]["list"] == "list_salarycomponent"
-    assert schema["permissions"]["add"] == "add_salarycomponent"
-    assert schema["permissions"]["delete"] == "delete_salarycomponent"
+    assert schema["permissions"]["list"] == "list_rate"
+    assert schema["permissions"]["add"] == "add_rate"
+    assert schema["permissions"]["delete"] == "delete_rate"
     assert "custom" in schema["permissions"]
 
 
 def test_routes_default_convention(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-routes-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-routes-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
-    assert schema["routes"]["list"] == "list_salarycomponent"
-    assert schema["routes"]["add"] == "add_salarycomponent"
-    assert schema["routes"]["change"] == "change_salarycomponent"
-    assert schema["routes"]["view"] == "view_salarycomponent"
+    assert schema["routes"]["list"] == "list_rate"
+    assert schema["routes"]["add"] == "add_rate"
+    assert schema["routes"]["change"] == "change_rate"
+    assert schema["routes"]["view"] == "view_rate"
 
 
 def test_pagination_is_present_and_typed(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-pagination-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-pagination-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     assert isinstance(schema["pagination"]["page_size"], int)
     assert isinstance(schema["pagination"]["page_size_options"], list)
@@ -115,13 +115,13 @@ def test_pagination_is_present_and_typed(bootstrap_tenant):
 
 
 def test_pdf_config_present_without_explicit_configuration(bootstrap_tenant):
-    """SalaryComponent has no RESAAS.pdf override - the schema must still
+    """Rate has no RESAAS.pdf override - the schema must still
     come back with sane defaults, not an empty/missing block."""
-    tenant = bootstrap_tenant("schema-pdf-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-pdf-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     assert schema["pdf"]["enabled"] is True
-    assert schema["pdf"]["detail_endpoint"] == "hr/salarycomponents/{id}/pdf/"
+    assert schema["pdf"]["detail_endpoint"] == "demo/rates/{id}/pdf/"
 
 
 # =========================================================
@@ -129,8 +129,8 @@ def test_pdf_config_present_without_explicit_configuration(bootstrap_tenant):
 # =========================================================
 
 def test_char_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-char-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-char-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     name_field = _field(schema, "name")
     assert name_field["type"] == "CharField"
@@ -139,12 +139,12 @@ def test_char_field_metadata(bootstrap_tenant):
 
 
 def test_field_readonly_defaults_to_false(bootstrap_tenant):
-    """SalaryComponent declares no RESAAS.fields read_only override and
+    """Rate declares no RESAAS.fields read_only override and
     every one of its fields stays editable=True (the Django default) -
     every field must still come back with an explicit read_only key,
     not a missing one, same as required always being present."""
-    tenant = bootstrap_tenant("schema-field-readonly-default-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-readonly-default-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     name_field = _field(schema, "name")
     assert name_field["read_only"] is False
@@ -184,8 +184,8 @@ def test_field_readonly_derived_from_editable_false(bootstrap_tenant):
     read_only automatically, the same way DRF's own ModelSerializer
     would, without needing a RESAAS.fields override for every single
     model that inherits these base fields."""
-    tenant = bootstrap_tenant("schema-field-editable-false-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-editable-false-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     id_field = _field(schema, "id")
     assert id_field["read_only"] is True
@@ -197,8 +197,8 @@ def test_field_write_only_and_allow_null_and_default(bootstrap_tenant):
     model field's own `null`, default from the model field's own
     `default`) - same "always explicit, never missing" contract as
     required/read_only."""
-    tenant = bootstrap_tenant("schema-field-write-only-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-write-only-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     name_field = _field(schema, "name")
     assert name_field["write_only"] is False
@@ -268,30 +268,27 @@ def test_file_field_without_config_still_defaults_sensibly_and_is_not_confused_w
 
 
 def test_choice_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-choice-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-choice-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
-    component_type = _field(schema, "component_type")
-    assert component_type["choices"] == [
+    rate_type = _field(schema, "rate_type")
+    assert rate_type["choices"] == [
         ["earning", "Earning"],
         ["deduction", "Deduction"],
-        # Fase 8 (Payroll): Employer Contribution - see
-        # hr/models/salary_component.py.
-        ["employer_contribution", "Employer Contribution"],
     ]
 
 
 def test_decimal_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-decimal-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-decimal-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     amount = _field(schema, "amount")
     assert amount["type"] == "DecimalField"
 
 
 def test_boolean_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-boolean-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-field-boolean-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     is_taxable = _field(schema, "is_taxable")
     assert is_taxable["type"] == "BooleanField"
@@ -302,12 +299,12 @@ def test_boolean_field_metadata(bootstrap_tenant):
 
 
 def test_foreign_key_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-fk-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "Attendance")
+    tenant = bootstrap_tenant("schema-field-fk-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Visit")
 
-    employee = _field(schema, "employee")
-    assert employee["type"] == "ForeignKey"
-    assert employee["relation"] == "hr.Employee"
+    member = _field(schema, "member")
+    assert member["type"] == "ForeignKey"
+    assert member["relation"] == "demo.Member"
 
 
 def test_relation_field_carries_relation_config(bootstrap_tenant):
@@ -318,54 +315,54 @@ def test_relation_field_carries_relation_config(bootstrap_tenant):
     re-guessed convention), and the add/change/view permission
     codenames the frontend already knows how to check via
     User.can()."""
-    tenant = bootstrap_tenant("schema-relation-config-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "Attendance")
+    tenant = bootstrap_tenant("schema-relation-config-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Visit")
 
-    employee = _field(schema, "employee")
-    assert employee["relation_config"] == {
-        "app": "hr",
-        "model": "Employee",
-        "endpoint": "hr/employees/",
+    member = _field(schema, "member")
+    assert member["relation_config"] == {
+        "app": "demo",
+        "model": "Member",
+        "endpoint": "demo/members/",
         "permissions": {
-            "list": "list_employee",
-            "add": "add_employee",
-            "change": "change_employee",
-            "view": "view_employee",
+            "list": "list_member",
+            "add": "add_member",
+            "change": "change_member",
+            "view": "view_member",
         },
         # relation picker metadata (additive): where "View" goes, how the
         # relation is presented, and the related model's declared preview
-        "routes": {"view": "view_employee"},
+        "routes": {"view": "view_member"},
         "variant": "select",
         "preview": {
             "title": "person__full_name",
             "subtitle": ["code", "work_email"],
             "avatar": "person__photo",
-            "meta": ["position__title"],
+            "meta": ["category__name"],
         },
     }
 
 
 def test_non_relation_field_has_no_relation_config(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-no-relation-config-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "SalaryComponent")
+    tenant = bootstrap_tenant("schema-no-relation-config-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Rate")
 
     name_field = _field(schema, "name")
     assert "relation_config" not in name_field
 
 
 def test_date_and_datetime_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-date-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "Attendance")
+    tenant = bootstrap_tenant("schema-field-date-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Visit")
 
     assert _field(schema, "date")["type"] == "DateField"
     assert _field(schema, "check_in")["type"] == "DateTimeField"
 
 
 def test_integer_field_metadata(bootstrap_tenant):
-    tenant = bootstrap_tenant("schema-field-integer-tenant", modules=("hr",))
-    schema = _schema(tenant["client"], "hr", "Attendance")
+    tenant = bootstrap_tenant("schema-field-integer-tenant", modules=("demo",))
+    schema = _schema(tenant["client"], "demo", "Visit")
 
-    assert _field(schema, "late_minutes")["type"] == "IntegerField"
+    assert _field(schema, "minutes")["type"] == "IntegerField"
 
 
 # =========================================================

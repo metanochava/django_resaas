@@ -340,36 +340,36 @@ class TestRealEndpoints:
         from django_resaas.saas.models.group import Group
         from django_resaas.saas.core.tenant.context import ResaasContextService
 
-        tenant = bootstrap_tenant("contract-403")
+        tenant = bootstrap_tenant("contract-403", modules=("demo",))
         guest = Group.objects.get(name="Guest")
         context = ResaasContextService.issue(
             user=tenant["user"], entity_id=tenant["entity"].id, branch_id=tenant["branch"].id, group_id=guest.id,
         )
         tenant["client"].credentials(HTTP_X_RESAAS_CONTEXT=context["token"], HTTP_L="1")
 
-        response = tenant["client"].get("/api/hr/departments/")
+        response = tenant["client"].get("/api/demo/categories/")
 
         assert response.status_code == 403
         assert response.data["error"]["code"] == "permission_denied"
         assert "detail" not in response.data
 
     def test_a_validation_error_on_a_base_view_keeps_the_field_map(self, bootstrap_tenant):
-        tenant = bootstrap_tenant("contract-validation")
+        tenant = bootstrap_tenant("contract-validation", modules=("demo",))
 
-        response = tenant["client"].post("/api/hr/departments/", {"name": ""}, format="json")
+        response = tenant["client"].post("/api/demo/categories/", {"name": ""}, format="json")
 
         assert response.status_code == 400
         assert "name" in response.data["error"]["details"]
         assert "name" not in response.data
 
     def test_another_tenants_object_is_a_plain_404_that_leaks_nothing(self, bootstrap_tenant):
-        from django_resaas.hr.models.department import Department
+        from dev.demo.models import Category
 
-        mine = bootstrap_tenant("contract-mine")
-        other = bootstrap_tenant("contract-other")
-        secret = Department.objects.create(entity=other["entity"], branch=other["branch"], name="Secret Oncology Unit")
+        mine = bootstrap_tenant("contract-mine", modules=("demo",))
+        other = bootstrap_tenant("contract-other", modules=("demo",))
+        secret = Category.objects.create(entity=other["entity"], branch=other["branch"], name="Secret Oncology Unit")
 
-        response = mine["client"].get(f"/api/hr/departments/{secret.id}/")
+        response = mine["client"].get(f"/api/demo/categories/{secret.id}/")
 
         assert response.status_code == 404
         text = str(response.data)

@@ -162,7 +162,6 @@ urlpatterns = [
     path('', home, name='home'),
     path(  "resaas/context/", ResaasContextAPIView.as_view(), name="resaas_context" ),
     
-    path('hr/', include('django_resaas.hr.urls')),
 
     path("deploy/github/", deploy_github),
     path("deploy/status/", deploy_status),
@@ -250,9 +249,9 @@ urlpatterns = [
 # ─────────────────────────────
 # Autoloaded resources (VIEW_REGISTRY)
 # ─────────────────────────────
-# Must run after urlpatterns above (specifically after `include('django_resaas.hr.urls')`)
-# has imported every app's views and run their @registerView decorators.
-# Any app's views decorated with @registerView (e.g. hr's) only get routed
+# Must run after urlpatterns above has imported every app's views and run
+# their @registerView decorators. Any app's views decorated with
+# @registerView only get routed
 # here - dev/urls.py already did this, but an app that installs
 # django_resaas and includes only this urls.py did not, so its registered
 # resources never appeared there.

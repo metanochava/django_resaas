@@ -617,8 +617,8 @@ class UserAPIView(viewsets.ModelViewSet):
                 past.app
                 app
                 past
-                django_resaas.hr
-                hr
+                django_resaas.notifications
+                notifications
 
             Django AppConfig may expose:
                 name  = full dotted Python path

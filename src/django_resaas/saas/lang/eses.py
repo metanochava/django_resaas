@@ -1513,4 +1513,5 @@ key_value = {
     'Site contact messages': 'Mensajes de contacto del sitio',
     'Founded On': 'Fecha de fundación',
     'Date the organisation was founded.': 'Fecha en que se fundó la organización.',
+    'Used': 'Utilizado',
 }
