@@ -27,9 +27,12 @@ AUTH_USER_MODEL = 'django_resaas.User'
 MY_APPS = [
     'django_resaas.saas',            # the core: tenants, users, groups, schema, CRUD engine
     'django_resaas.notifications',   # email / SMS / WhatsApp outbox
-    'django_resaas.hr',              # the bundled HR module - see hr/overview.md
-    'your_app',                      # your own app(s)
+    'your_app',                      # your own app(s) / modules
 ]
+
+# modules activated for every new EntityType, besides the framework's own
+# (optional; default [] - e.g. ["your_app"])
+RESAAS_DEFAULT_MODULES = []
 
 INSTALLED_APPS = MY_APPS + [
     'djmoney',

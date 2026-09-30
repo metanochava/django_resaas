@@ -8,7 +8,7 @@ describes implemented behaviour. Everything under **Next** is a plan.
 
 | Decision | Choice | Why |
 |---|---|---|
-| Where HR goes | Its own module in this repository, outside the core package, keeping the Django app label `hr` | Applications (e.g. a health app whose doctor *is* an `hr.Employee`) keep working. Tables, ContentTypes, permissions and `'hr.Employee'` references stay identical, so there is no data migration. |
+| Where HR goes | Out of `django_resaas`, into the application that uses it, as its own `hr` module, keeping the Django app label `hr` | HR is domain, not framework. Keeping the label `hr` means tables, ContentTypes, permissions and `'hr.Employee'` references stay identical, so there is no data migration. There is no compatibility import, because the framework cannot depend on an application. |
 | Framework migrations | Shipped with the package (done, see below) | Prerequisite to move any app safely. Per-environment generated migrations diverged between environments. |
 | Pace | Phase by phase, reviewed before the next | The scope is large; each phase ships code + tests + docs |
 
