@@ -796,7 +796,7 @@ key_value = {
     "Match": "Procurar correspondências",
     "Merge Patients": "Fundir pacientes",
     "Pdf": "PDF",
-    "Pdflist": "Lista em PDF",
+    "Pdf List": "Lista em PDF",
     "Procurar Paciente já existente noutra Entity antes de registar um novo": "Procurar paciente já existente noutra entidade antes de registar um novo",
     "Regista a revisão pós-acesso deste emergency access": "Regista a revisão pós-acesso deste acesso de emergência",
     "Revoga um consentimento previamente concedido para este Paciente": "Revoga um consentimento previamente concedido para este paciente",

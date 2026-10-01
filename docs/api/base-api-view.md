@@ -41,7 +41,7 @@ For a `Patient` model, creation may require `add_patient`, updating
 The base actions `pdf`, `pdf_list`, `restore` and `hard_delete` are `@resaas_action`s, so their
 permission is `<function name>_<model>`, like any custom action (`discharge()` →
 `discharge_patient`). An explicit `@resaas_action(permission="...")` overrides it. The list PDF is
-the function `pdf_list`, served at `GET .../pdflist/` and protected by `pdf_list_patient` — the
+the function `pdf_list`, served at `GET .../pdf_list/` and protected by `pdf_list_patient` — the
 codename the schema publishes as `permissions.pdf_list`. Tests:
 `saas/tests/test_list_pdf_permission.py`.
 

@@ -75,7 +75,7 @@ When a caller may not read the field, the field is also absent from:
   ordering applies.
 - **Search**: a restricted field listed in `RESAAS.search_fields`, including a path through a
   relation such as `agreement__amount`, is skipped. The automatic text-field fallback skips it too.
-- **PDF**: the detail PDF (`get_pdf_fields`) and the list PDF (`get_pdflist_context`) leave it out.
+- **PDF**: the detail PDF (`get_pdf_fields`) and the list PDF (`get_pdf_list_context`) leave it out.
 
 Without these, row order, filter results or search matches would reveal the value.
 

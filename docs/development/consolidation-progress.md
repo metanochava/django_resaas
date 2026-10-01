@@ -82,8 +82,9 @@ describes implemented behaviour. Everything under **Next** is a plan.
   - `pdfjs-dist` leaves the main bundle: `s-pdf-render-pro` is lazy.
   - Release safety: `make release-check` / `make publish` in both libraries validate before
     publishing, and push only after a successful publish.
+  - The deploy endpoints left the framework (status/logs answered anonymous callers without
+    `DEPLOY_TOKEN`); the list PDF is the action `pdf_list` (`pdf_list_<model>`, `.../pdf_list/`).
   - Open issues found, not fixed in this cycle:
-    - the deploy status/logs endpoints (see [Permissions](../security/permissions.md));
     - `BranchAPIView` has no per-action permission (any member of the Entity can create,
       change or delete its Branches);
     - `EntityAPIView.create` makes one "Main" Branch per admin;

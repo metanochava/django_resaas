@@ -608,7 +608,7 @@ class ResaasSchemaBuilder:
                 (
                     f"{self.app}/"
                     f"{self.model}s/"
-                    "pdflist/"
+                    "pdf_list/"
                 ),
 
         }
