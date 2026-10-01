@@ -322,3 +322,86 @@ def test_snapshot_reports_limits_and_the_current_tenants_usage(bootstrap_tenant)
     assert data["features"] == {"multi_entity": False, "advanced_audit": True}
     assert data["capacities"]["branches"] == {"limit": 2, "used": 1}
     assert data["capacities"]["users"]["limit"] == 3
+
+
+# ------------------------------------------------------------------ tenant comes from the signed context
+
+def test_snapshot_refuses_a_tampered_context(bootstrap_tenant):
+    tenant = bootstrap_tenant("ent-snap-tampered")
+    client = APIClient()
+    client.force_authenticate(user=tenant["user"])
+    client.credentials(HTTP_X_RESAAS_CONTEXT=tenant["context"]["token"] + "x", HTTP_L="1")
+
+    assert client.get(URL).status_code == 403
+
+
+@override_settings(RESAAS_ENTITLEMENTS=LIMITED)
+def test_tenant_ids_in_the_body_do_not_move_the_capacity_check(bootstrap_tenant):
+    """The capacity is counted on the Entity of the signed context: naming
+    another Entity (with room left) in the body changes nothing."""
+    full = bootstrap_tenant("ent-body-a")
+    other = bootstrap_tenant("ent-body-b")
+    _new_branch(full["client"], "A2")  # full: 2 of 2
+
+    response = full["client"].post(
+        BRANCHES,
+        {"name": "Sneaky", "entity": str(other["entity"].id), "entity_id": str(other["entity"].id)},
+        format="json",
+    )
+
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "capacity_exceeded"
+    assert not Branch.objects.filter(name="Sneaky").exists()
+
+
+# ------------------------------------------------------------------ installation-wide capacities through the API
+
+def test_entity_types_capacity_through_the_api(bootstrap_tenant):
+    from django_resaas.saas.models.entity_type import EntityType
+
+    tenant = bootstrap_tenant("ent-types")
+    used = EntityType.objects.count()
+
+    with override_settings(RESAAS_ENTITLEMENTS={"capacities": {"entity_types": used + 1}}):
+        first = tenant["client"].post("/api/django_resaas/entitytypes/", {"name": "Clinic"}, format="json")
+        second = tenant["client"].post("/api/django_resaas/entitytypes/", {"name": "School"}, format="json")
+
+    assert first.status_code == 201
+    assert second.status_code == 403
+    assert second.json()["error"]["details"] == {"capacity": "entity_types", "limit": used + 1, "current": used + 1}
+    assert not EntityType.objects.filter(name="School").exists()
+
+
+def test_entities_capacity_through_the_api(bootstrap_tenant):
+    from django_resaas.saas.models.entity import Entity
+
+    tenant = bootstrap_tenant("ent-entities")
+    used = Entity.objects.count()
+    payload = {"name": "Second Org", "entity_type": str(tenant["entity"].entity_type_id),
+               "admins": [str(tenant["user"].id)]}
+
+    with override_settings(RESAAS_ENTITLEMENTS={"capacities": {"entities": used, "branches": None, "users": None}}):
+        response = tenant["client"].post("/api/django_resaas/entitys/", payload, format="json")
+
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "capacity_exceeded"
+    assert Entity.objects.count() == used  # nothing half-created (atomic)
+
+
+# ------------------------------------------------------------------ frontend contract
+
+def test_snapshot_shape_is_what_the_entitlement_store_reads(bootstrap_tenant):
+    """quasar_resaas EntitlementStore reads exactly: restricted (bool),
+    features ({name: bool}) and capacities ({name: {limit: int|null, used: int}})."""
+    tenant = bootstrap_tenant("ent-contract")
+
+    with override_settings(RESAAS_ENTITLEMENTS=LIMITED):
+        data = tenant["client"].get(URL).json()
+
+    assert set(data) == {"restricted", "features", "capacities"}
+    assert isinstance(data["restricted"], bool)
+    assert all(isinstance(on, bool) for on in data["features"].values())
+    for capacity in data["capacities"].values():
+        assert set(capacity) == {"limit", "used"}
+        assert capacity["limit"] is None or isinstance(capacity["limit"], int)
+        assert isinstance(capacity["used"], int)
