@@ -142,7 +142,7 @@ key_value = {
     "Funde duas identidades de Paciente que afinal são a mesma pessoa": "Merges two patient identities that turn out to be the same person",
     "Linha do tempo clínica, incluindo eventos autorizados de outras Entities": "Clinical timeline, including authorized events from other Entities",
     "Pdf": "PDF",
-    "Pdflist": "PDF List",
+    "Pdf List": "PDF List",
     "Procurar Paciente já existente noutra Entity antes de registar um novo": "Look for a patient that already exists in another Entity before registering a new one",
     "Regista a revisão pós-acesso deste emergency access": "Records the post-access review of this emergency access",
     "Revoga um consentimento previamente concedido para este Paciente": "Revokes a consent previously granted for this patient",

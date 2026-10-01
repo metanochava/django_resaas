@@ -102,7 +102,6 @@ import django_resaas.notifications.views  # noqa: F401
 from django_resaas.saas.data.pdf.views.invoice import invoice_pdf
 
 from django_resaas.view import home
-from django_resaas.view import deploy_github, deploy_status, deploy_releases, deploy_logs, deploy_rollback
 from django_resaas.saas.core.utils.autoload_urls import build_saas_urls
 
 from django_resaas.saas.data.context.views.context import ResaasContextAPIView
@@ -165,11 +164,6 @@ urlpatterns = [
     path("resaas/entitlements/", EntitlementsAPIView.as_view(), name="resaas_entitlements"),
     
 
-    path("deploy/github/", deploy_github),
-    path("deploy/status/", deploy_status),
-    path("deploy/releases/", deploy_releases),
-    path("deploy/logs/", deploy_logs),
-    path("deploy/rollback/", deploy_rollback),
     
 
     path("django_resaas/", include(routerdjango_resaas.urls)),

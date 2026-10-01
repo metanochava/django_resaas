@@ -161,26 +161,14 @@ EntityType (`403 group_not_in_entity_type` otherwise, unless platform level).
 Linking any group, e.g. Root, would let the Entity's admins assign it through
 `users/{id}/addGroup/`.
 
-### Deploy endpoints (`deploy/*`)
+### Deploy endpoints — removed
 
-**PUBLIC by design** (GitHub webhook / operations), authenticated by a shared
-token: header `X-Deploy-Token` (preferred) or `?token=` (kept for existing
-webhooks), compared in constant time. There is **no default token**: without
-`settings.DEPLOY_TOKEN` every call is refused. `deploy/github/` and
-`deploy/rollback/` change the server and are **POST only** (`405` on GET).
-`status`, `releases` and `logs` are read-only GETs.
-
-> [!WARNING]
-> **Known issue (open):** `django_resaas/view.py` defines `deploy_status` and
-> `deploy_logs` twice, and the second, older definitions are the ones routed.
-> They compare `?token=` with `!=` (not in constant time, header ignored).
-> **Without `DEPLOY_TOKEN` they answer 200 to anonymous callers**, because
-> `None != None` is false: `deploy/status/` returns the deploy status and
-> `deploy/logs/` returns the deploy log. `deploy/github/`, `deploy/rollback/`
-> and `deploy/releases/` are not affected.
->
-> Until this is fixed, set `DEPLOY_TOKEN` in every installation that includes
-> `django_resaas.urls`.
+`django_resaas` exposes no deploy endpoint. Before 0.0.625 it routed `deploy/github`,
+`deploy/status`, `deploy/releases`, `deploy/logs` and `deploy/rollback` (PUBLIC, authenticated by
+`DEPLOY_TOKEN`). `status` and `logs` answered anonymous callers when no token was configured. They
+were host-specific operations (restarting a given gunicorn service) and do not belong in a
+reusable framework: deploying is each installation's own tooling. `/api/deploy/*` now answers 404
+(`saas/tests/test_entity_access_security.py`).
 
 ### Removed endpoints
 

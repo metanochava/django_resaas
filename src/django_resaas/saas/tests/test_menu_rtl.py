@@ -24,8 +24,14 @@ class TestMenuRtlResolution:
         user = tenant["user"]
         entity = tenant["entity"]
 
-        assert user.get_effective_layout(entity) is None
-        assert user.get_ui_sources(entity)["layout"] is None
+        # every new EntityType gets its default LayoutSetting (post_save signal
+        # criar_thema, core/signals/permissions.py): nothing configured means
+        # that default, inherited by the Entity, with menu_rtl off
+        layout = user.get_effective_layout(entity)
+
+        assert layout == entity.entity_type.layout_settings
+        assert layout.menu_rtl is False
+        assert user.get_ui_sources(entity)["layout"] == "entity_type"
 
     def test_entity_type_level_layout_is_used(self, bootstrap_tenant):
         tenant = bootstrap_tenant("menu-rtl-type")

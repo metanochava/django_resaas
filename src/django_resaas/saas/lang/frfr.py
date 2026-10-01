@@ -774,7 +774,7 @@ key_value = {
     "Match": "Rechercher des correspondances",
     "Merge Patients": "Fusionner les patients",
     "Pdf": "PDF",
-    "Pdflist": "Liste en PDF",
+    "Pdf List": "Liste en PDF",
     "Procurar Paciente já existente noutra Entity antes de registar um novo": "Rechercher un patient déjà existant dans une autre entité avant d'en enregistrer un nouveau",
     "Regista a revisão pós-acesso deste emergency access": "Enregistre la révision après accès de cet accès d'urgence",
     "Revoga um consentimento previamente concedido para este Paciente": "Révoque un consentement précédemment accordé pour ce patient",

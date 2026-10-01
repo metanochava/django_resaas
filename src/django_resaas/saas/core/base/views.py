@@ -1,3 +1,4 @@
+import warnings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
@@ -296,7 +297,7 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         'hard_delete': 'hard_delete',
 
         'pdf': 'pdf',
-        'pdflist': 'pdf_list',
+        'pdf_list': 'pdf_list',
     }
 
     # -----------------------------------
@@ -759,16 +760,18 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         ).template.name
 
 
-    def get_pdflist_template(self):
+    def get_pdf_list_template(self):
 
         model = self.get_model()._meta.model_name
         module = self.module_name
 
         templates = []
 
-        if getattr(self, "pdflist_template", None):
+        # pdflist_template: the attribute's name before 0.0.625 (deprecated)
+        explicit = getattr(self, "pdf_list_template", None) or getattr(self, "pdflist_template", None)
+        if explicit:
             templates.append(
-                self.pdflist_template
+                explicit
             )
 
         templates.append(
@@ -989,7 +992,7 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         }
 
 
-    def get_pdflist_context(
+    def get_pdf_list_context(
         self,
         request,
         queryset
@@ -1159,20 +1162,40 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
     # 📄 PDF LIST
     # -----------------------------------
 
+    def _legacy_pdf_hook(self, name):
+        hook = getattr(self, name, None)
+        if hook is None:
+            return None
+        warnings.warn(
+            f"{type(self).__name__}.{name}() is deprecated: rename it to "
+            f"{name.replace('pdflist', 'pdf_list')}().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return hook
+
     @resaas_action(
         detail=False,
         methods=["get"],
-        url_path="pdflist"
+        url_path="pdf_list"
     )
-    def pdflist(self, request, *args, **kwargs):
+    def pdf_list(self, request, *args, **kwargs):
+        # The function name is the permission prefix of a @resaas_action:
+        # pdf_list_<model>, what the schema publishes and the frontend checks.
 
         queryset = self.filter_queryset(
             self.get_queryset()
         )
 
-        template = self.get_pdflist_template()
+        # A view written before 0.0.625 overrides get_pdflist_template() /
+        # get_pdflist_context(): honour it (deprecated) instead of silently
+        # rendering the generic list.
+        get_template = self._legacy_pdf_hook("get_pdflist_template") or self.get_pdf_list_template
+        get_context = self._legacy_pdf_hook("get_pdflist_context") or self.get_pdf_list_context
 
-        context = self.get_pdflist_context(
+        template = get_template()
+
+        context = get_context(
             request=request,
             queryset=queryset
         )

@@ -6,7 +6,6 @@ permission - the login / context selection runs before any profile. Every
 other action needs its permission in the signed context and, for an Entity,
 works on the context's Entity only (unless platform level)."""
 import pytest
-from django.test import override_settings
 from rest_framework.test import APIClient
 
 from django_resaas.saas.models.entity_group import EntityGroup
@@ -139,27 +138,18 @@ def test_entity_type_branding_stays_public(bootstrap_tenant):
 
 # ------------------------------------------------------------------ deploy
 
-@override_settings(DEPLOY_TOKEN="test-deploy-token")
-def test_rollback_needs_post_and_the_token(monkeypatch):
-    from django_resaas import view
-
-    monkeypatch.setattr(view, "DEPLOY_TOKEN", "test-deploy-token")
+@pytest.mark.parametrize("path", [
+    "/api/deploy/github/", "/api/deploy/status/", "/api/deploy/releases/",
+    "/api/deploy/logs/", "/api/deploy/rollback/",
+])
+def test_the_framework_exposes_no_deploy_endpoint(path):
+    """Deploying is an operation of each installation, not of the framework:
+    django_resaas routes no deploy/* endpoint (they used to answer anonymous
+    callers when DEPLOY_TOKEN was unset)."""
     client = APIClient()
 
-    assert client.get("/api/deploy/rollback/", {"token": "test-deploy-token"}).status_code == 405
-    assert client.post("/api/deploy/rollback/", {}, HTTP_X_DEPLOY_TOKEN="wrong").status_code == 403
-    assert client.post("/api/deploy/github/", {}, format="json").status_code == 403
-
-
-def test_deploy_refuses_everything_without_a_configured_token(monkeypatch):
-    from django_resaas import view
-
-    monkeypatch.setattr(view, "DEPLOY_TOKEN", None)
-    client = APIClient()
-
-    # the old hard-coded fallback is not a password any more
-    assert client.post("/api/deploy/github/?token=@SaaS@", {"tag": "x"}, format="json").status_code == 403
-    assert client.get("/api/deploy/status/", {"token": "@SaaS@"}).status_code == 403
+    assert client.get(path).status_code == 404
+    assert client.post(path, {}, format="json").status_code == 404
 
 
 # ------------------------------------------------------------------ public catalogue
