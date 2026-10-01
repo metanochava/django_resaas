@@ -296,7 +296,7 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         'hard_delete': 'hard_delete',
 
         'pdf': 'pdf',
-        'pdflist': 'pdf_list',
+        'pdf_list': 'pdf_list',
     }
 
     # -----------------------------------
@@ -1164,7 +1164,10 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         methods=["get"],
         url_path="pdflist"
     )
-    def pdflist(self, request, *args, **kwargs):
+    def pdf_list(self, request, *args, **kwargs):
+        # The function name is the permission prefix of a @resaas_action
+        # (pdf_list_<model>, what the schema publishes and the frontend
+        # checks); the URL stays .../pdflist/ for existing consumers.
 
         queryset = self.filter_queryset(
             self.get_queryset()
