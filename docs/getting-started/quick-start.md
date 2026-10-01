@@ -66,6 +66,30 @@ class ProductAPIView(BaseAPIView):
     serializer_class = ProductSerializer
 ```
 
+`@register_view` only runs when the module is imported. Import the views when the app
+starts, or the route does not exist (404):
+
+```python
+# your_app/views/__init__.py
+from .product import ProductAPIView  # noqa: F401  (runs @register_view)
+```
+
+```python
+# your_app/apps.py
+from django.apps import AppConfig
+
+
+class YourAppConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "your_app"
+
+    def ready(self):
+        from . import views  # noqa: F401
+```
+
+With `models/` as a package, `your_app/models/__init__.py` imports the model too
+(`from .product import Product`), so that `makemigrations` finds it.
+
 That's the whole app. It already has full CRUD, pagination, ordering, `?search=`, soft
 delete/restore/hard delete, and a schema endpoint — see
 [Creating a new resource](../development/creating-resource.md) for the complete walkthrough
@@ -74,9 +98,9 @@ each of those does under the hood.
 
 ## 4. Activate the module for a tenant
 
-An app only becomes usable for a tenant once explicitly activated. `create_entity` (from
-Installation) only activates `hr` by default — any other app, including this one, needs the same
-treatment:
+An app only becomes usable for a tenant once explicitly activated. A new Entity gets the
+framework's own apps plus whatever `settings.RESAAS_DEFAULT_MODULES` lists (default: none) — any
+other app, including this one, needs the same treatment:
 
 ```python
 from django_resaas.saas.models.app import App
@@ -101,7 +125,8 @@ id. Get the first two once:
 curl -X POST http://localhost:7002/api/login/ \
   -H "Content-Type: application/json" \
   -d '{"identifier": "you@example.com", "password": "..."}'
-# -> {"access": "...", "refresh": "...", ...}
+# -> {"id": "...", "username": "...", ..., "tokens": {"refresh": "...", "access": "..."}}
+#    JWT = tokens.access
 
 # 2. issue a signed tenant context (entity/branch/group you created via create_entity)
 curl -X POST http://localhost:7002/api/resaas/context/ \

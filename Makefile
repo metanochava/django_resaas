@@ -58,7 +58,7 @@ endef
 	teste teste1 teste2 \
 	dbreset dbreset-migrate \
 	bump_patch bump_minor bump_major \
-	build upload \
+	build upload release-check publish \
 	flow_init \
 	features featuref \
 	releases releasef \
@@ -129,7 +129,9 @@ help:
 	@echo "  make bump_minor               - Increment minor version"
 	@echo "  make bump_major               - Increment major version"
 	@echo "  make build                    - Build the package"
-	@echo "  make upload                   - Upload the package to PyPI"
+	@echo "  make upload                   - Validate (release-check), then upload to PyPI"
+	@echo "  make release-check            - Clean tree, tests, build, twine check, wheel smoke test"
+	@echo "  make publish                  - release-check, upload to PyPI, then push main/develop/tags"
 	@echo ""
 	@echo "ENVIRONMENT / CLEANUP"
 	@echo "  make env                      - Show the command to activate the virtual environment"
@@ -420,8 +422,48 @@ build:
 	rm -rf build dist
 	$(PY) -m build
 
-upload:
+upload: release-check
 	$(PY) -m twine upload dist/*
+
+
+# =========================================================
+# RELEASE SAFETY
+# =========================================================
+# release-check: clean tree -> tests -> build -> twine check -> the wheel
+# installs in a fresh venv and ships its migrations, not its tests.
+# publish: release-check -> upload to PyPI -> push main, develop and tags.
+# If the upload fails nothing has been pushed: fix, then run it again.
+
+release-check:
+	if [[ -n "$$(git status --porcelain)" ]]; then
+		echo "Working tree is not clean: commit or stash first."
+		exit 1
+	fi
+	$(PY) -m pytest -q -x -p no:cacheprovider
+	rm -rf build dist
+	$(PY) -m build
+	$(PY) -m twine check dist/*
+	TMP="$$(mktemp -d)"
+	trap 'rm -rf "$$TMP"' EXIT
+	$(PY) -m venv "$$TMP/venv"
+	"$$TMP/venv/bin/pip" install -q dist/*.whl
+	"$$TMP/venv/bin/pip" check
+	"$$TMP/venv/bin/python" - <<'PYEOF'
+	import pathlib, django_resaas
+	root = pathlib.Path(django_resaas.__file__).parent
+	assert (root / "saas/migrations/0001_initial.py").exists(), "framework migrations missing"
+	assert (root / "notifications/migrations/0001_initial.py").exists(), "notifications migrations missing"
+	assert not list(root.rglob("tests/test_*.py")), "tests must not be shipped"
+	print("wheel OK")
+	PYEOF
+	rm -rf build
+	echo "Release check passed: dist/ is ready."
+
+publish: release-check
+	VERSION="$$( $(call GET_VERSION) )"
+	$(PY) -m twine upload dist/*
+	git push origin main develop --tags
+	echo "django_resaas $$VERSION published and pushed."
 
 
 # =========================================================
@@ -489,6 +531,9 @@ releases:
 releasef:
 	VERSION="$$( $(call GET_VERSION) )"
 
+	# validate BEFORE tagging: a failing test or a broken package stops here
+	$(MAKE) release-check
+
 	if ! git show-ref --verify --quiet \
 		"refs/heads/release/$$VERSION"; then
 		echo "Branch release/$$VERSION does not exist."
@@ -501,9 +546,9 @@ releasef:
 		-m "release: v$$VERSION - $$mensagem" \
 		"$$VERSION"
 
-	git push origin main develop --tags
-
-	echo "Release $$VERSION finished."
+	# nothing is pushed yet: `make publish` uploads to PyPI first and only
+	# then pushes main, develop and the tag
+	echo "Release $$VERSION finished locally. Run: make publish"
 
 
 # =========================================================

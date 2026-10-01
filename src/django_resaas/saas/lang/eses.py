@@ -1,6 +1,5 @@
 key_value = {
 
-    "HR": "RH",
 
     # =========================================================
     # GENERAL
@@ -613,12 +612,6 @@ key_value = {
     "Model created successfully": "Modelo creado correctamente",
     "Migrations completed successfully": "Migraciones completadas correctamente",
 
-    # =========================================================
-    # VALIDATION (HR)
-    # =========================================================
-
-    "An employee cannot be their own manager.": "Un empleado no puede ser su propio gerente.",
-    "The termination date cannot be earlier than the hire date.": "La fecha de rescisión no puede ser anterior a la fecha de contratación.",
 
     # =========================================================
     # FEEDBACK
@@ -633,12 +626,12 @@ key_value = {
 
     "Some account, entity, branch, and system information may be collected and processed to provide support, diagnose and resolve technical issues, maintain security, and improve the quality of our services. This information may be shared with authorized administrators or service providers when necessary, in accordance with the applicable Privacy Policy and Terms of Service. <br><br>We may contact you by email or other authorized communication channels if additional information is required or to provide updates regarding your request. For privacy, data protection, or legal matters, please contact your organization or the appropriate system administrator.": "Es posible que se recopile y procese cierta información de cuenta, entidad, sucursal y sistema para prestar soporte, diagnosticar y resolver problemas técnicos, mantener la seguridad y mejorar la calidad de nuestros servicios. Esta información puede compartirse con administradores autorizados o proveedores de servicios cuando sea necesario, de acuerdo con la Política de Privacidad y los Términos de Servicio aplicables. <br><br>Podemos ponernos en contacto con usted por correo electrónico u otros canales de comunicación autorizados si se requiere información adicional o para proporcionar actualizaciones sobre su solicitud. Para asuntos de privacidad, protección de datos o cuestiones legales, contacte con su organización o con el administrador de sistema correspondiente.",
 
-    # employee edit
+    # person edit
     "Generated automatically": "Generado automáticamente",
     "Save changes": "Guardar cambios",
     "Use Promotion/Transfer to change this": "Use Promoción/Traslado para cambiar esto",
 
-    # employee profile
+    # person profile
     "Known as": "Conocido como",
     "years": "años",
     "No contact details on file.": "Sin datos de contacto registrados.",
@@ -734,7 +727,7 @@ key_value = {
     "Is Primary": "Es principal",
     "Person": "Persona",
 
-    # person/document/address/employee model labels
+    # person/document/address model labels
     "Alternative Phone": "Teléfono alternativo",
     "Blood Type": "Grupo sanguíneo",
     "Country Of Birth": "País de nacimiento",
@@ -804,7 +797,7 @@ key_value = {
     "Match": "Buscar coincidencias",
     "Merge Patients": "Fusionar pacientes",
     "Pdf": "PDF",
-    "Pdflist": "Lista en PDF",
+    "Pdf List": "Lista en PDF",
     "Procurar Paciente já existente noutra Entity antes de registar um novo": "Buscar un paciente ya existente en otra entidad antes de registrar uno nuevo",
     "Regista a revisão pós-acesso deste emergency access": "Registra la revisión posterior a este acceso de emergencia",
     "Revoga um consentimento previamente concedido para este Paciente": "Revoca un consentimiento concedido previamente para este paciente",
@@ -817,28 +810,15 @@ key_value = {
     "Competency": "Competencia",
     "Courses": "Cursos",
     "Disciplinary Cases": "Casos disciplinarios",
-    "Employee Salary": "Salario del empleado",
-    "Employee Salary Component": "Componente salarial del empleado",
-    "Employee Shift": "Turno del empleado",
-    "Employee Specialty": "Especialidad del empleado",
     "Holiday": "Festivo",
     "Job Opening": "Vacante",
     "Job Position": "Puesto",
-    "Leave Approvals": "Aprobación de licencias",
-    "Leave Balance": "Saldo de licencias",
-    "Leave Calendar": "Calendario de licencias",
-    "Leave Type": "Tipo de licencia",
     "Onboarding Template Tasks": "Tareas de la plantilla de incorporación",
     "Onboarding Templates": "Plantillas de incorporación",
-    "Payroll Item": "Elemento de nómina",
-    "Payroll Period": "Período de nómina",
     "Payslip": "Recibo de nómina",
     "Performance Cycle": "Ciclo de desempeño",
     "Performance Reviews": "Evaluaciones de desempeño",
     "Recruitment Pipeline": "Embudo de reclutamiento",
-    "Salary Component": "Componente salarial",
-    "Shift": "Turno",
-    "Shift Schedule": "Horario de turnos",
     "Specialty": "Especialidad",
     "Access Control": "Control de acceso",
     "App": "Aplicación",
@@ -875,7 +855,6 @@ key_value = {
     "Are you sure you want to delete the module \"{name}\"?": "¿Seguro que quiere eliminar el módulo \"{name}\"?",
     "Are you sure you want to delete:": "¿Seguro que quiere eliminar:",
     "At least 8 characters": "Al menos 8 caracteres",
-    "Ausências": "Ausencias",
     "Auto": "Automático",
     "Auto Now": "Automático (actualización)",
     "Auto Now Add": "Automático (creación)",
@@ -902,7 +881,6 @@ key_value = {
     "Choose a feedback to view the conversation.": "Elija un comentario para ver la conversación.",
     "Choose an App + Model, add fields, then Generate Preview.": "Elija una aplicación y un modelo, añada campos y genere la vista previa.",
     "Choose which level you want to configure.": "Elija el nivel que quiere configurar.",
-    "Ciclo de Vida do Colaborador": "Ciclo de vida del colaborador",
     "Click for dark mode": "Clic para el modo oscuro",
     "Click for light mode": "Clic para el modo claro",
     "Click the photo to change it": "Haga clic en la foto para cambiarla",
@@ -936,7 +914,6 @@ key_value = {
     "Customize theme, layout, typography and animations.": "Personalice tema, diseño, tipografía y animaciones.",
     "Dark overlay": "Superposición oscura",
     "Delete permanently?": "¿Eliminar definitivamente?",
-    "Desempenho": "Desempeño",
     "Desktop": "Escritorio",
     "Diff": "Diferencias",
     "Display logo": "Mostrar logotipo",
@@ -963,7 +940,6 @@ key_value = {
     "Footer": "Pie de página",
     "For security, existing values are never shown here - enter new ones below only to replace them.": "Por seguridad, los valores existentes nunca se muestran aquí: introduzca nuevos abajo solo para reemplazarlos.",
     "Formatted address": "Dirección formateada",
-    "Formação": "Formación",
     "Full number": "Número completo",
     "Generate Preview": "Generar vista previa",
     "Geolocation is not supported by this browser.": "La geolocalización no es compatible con este navegador.",
@@ -1034,7 +1010,6 @@ key_value = {
     "Notification Providers": "Proveedores de notificaciones",
     "On this page": "En esta página",
     "Opacity": "Opacidad",
-    "Organização": "Organización",
 
     # frontend UI strings
     "Other infoOther infoOther infoOther infoOther infoOther infoOther infoOther info": "Otra información",
@@ -1050,7 +1025,6 @@ key_value = {
     "Preview in light mode": "Vista previa en modo claro",
     "Problems": "Problemas",
     "Province / State": "Provincia / Estado",
-    "Recrutamento": "Reclutamiento",
     "Redirect to home page": "Redirigir a la página de inicio",
     "Redo": "Rehacer",
     "Register Entity": "Registrar entidad",
@@ -1067,7 +1041,6 @@ key_value = {
     "Right": "Derecha",
     "Run a command to see its output here.": "Ejecute un comando para ver su salida aquí.",
     "SaaS": "SaaS",
-    "Salário & Folha de Pagamento": "Salario y nómina",
     "Saved": "Guardado",
     "Scaffold IDE": "IDE de generación de código",
     "Scaffold new backend/frontend modules and manage which entity types use them.": "Genere nuevos módulos de backend/frontend y gestione qué tipos de entidad los usan.",
@@ -1099,7 +1072,6 @@ key_value = {
     "Storage": "Almacenamiento",
     "Stretch": "Estirar",
     "Strike": "Tachado",
-    "Tempo & Presença": "Tiempo y asistencia",
     "Tenancy Dashboard": "Panel de tenencia",
     "The reset link is invalid or has expired": "El enlace de restablecimiento no es válido o ha caducado",
     "Theme": "Tema",
@@ -1209,7 +1181,6 @@ key_value = {
     "Person not found.": "Persona no encontrada.",
     "Could not generate a patient number.": "No se pudo generar el número de paciente.",
     "This person is already a patient in this branch.": "Esta persona ya es paciente en esta sucursal.",
-    "This person is already an employee in this branch.": "Esta persona ya es empleada en esta sucursal.",
 
     # frontend UI strings
     "No events": "Sin eventos",
@@ -1227,7 +1198,6 @@ key_value = {
     "New group": "Nuevo grupo",
 
     # frontend UI strings
-    "Edit employee": "Editar empleado",
 
     # frontend UI strings
     "Patient": "Paciente",
@@ -1290,8 +1260,6 @@ key_value = {
     "Permission denied": "Permiso denegado",
 
     # frontend UI strings
-    "Add employee": "Añadir empleado",
-    "Pick the person who is this employee.": "Elija la persona que es este empleado.",
 
     # frontend UI strings
     "This user has no temporary password.": "Este usuario no tiene una contraseña temporal.",
@@ -1505,13 +1473,22 @@ key_value = {
     "A platform profile cannot be an entity type profile.": "Un perfil de plataforma no puede ser perfil de un tipo de entidad.",
     "A permission has no codename.": "Un permiso no tiene codename.",
     "Some profiles are not valid. Nothing was changed.": "Algunos perfiles no son válidos. No se cambió nada.",
-    'The model must be app_label.ModelName.': 'El modelo debe ser app_label.ModelName.',
-    'This site is not linked to any organisation.': 'Este sitio no está vinculado a ninguna organización.',
-    'Enter a phone number or an email.': 'Indique un teléfono o un correo electrónico.',
-    'Handled': 'Atendida',
-    'Site contact message': 'Mensaje de contacto del sitio',
-    'Site contact messages': 'Mensajes de contacto del sitio',
-    'Founded On': 'Fecha de fundación',
-    'Date the organisation was founded.': 'Fecha en que se fundó la organización.',
-    'Used': 'Utilizado',
+    "The model must be app_label.ModelName.": "El modelo debe ser app_label.ModelName.",
+    "This site is not linked to any organisation.": "Este sitio no está vinculado a ninguna organización.",
+    "Enter a phone number or an email.": "Indique un teléfono o un correo electrónico.",
+    "Handled": "Atendida",
+    "Site contact message": "Mensaje de contacto del sitio",
+    "Site contact messages": "Mensajes de contacto del sitio",
+    "Founded On": "Fecha de fundación",
+    "Date the organisation was founded.": "Fecha en que se fundó la organización.",
+    "Used": "Utilizado",
+    "Add action": "Agregar Acción",
+    "Quick Access": "Acceso Rápido",
+    "Submit": "Enviar",
+    "active": "activo",
+    "Position": "Posición",
+
+    # entitlements (core/entitlements)
+    "This feature is not available.": "Esta funcionalidad no está disponible.",
+    "The usage limit for this resource has been reached.": "Se ha alcanzado el límite de uso de este recurso.",
 }

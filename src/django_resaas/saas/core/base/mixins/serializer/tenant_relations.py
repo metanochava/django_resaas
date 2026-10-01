@@ -9,7 +9,7 @@ class TenantRelationsMixin:
     sends. The picker's search is already tenant-scoped, but that is only UX -
     a hand-written request could still post another Entity's id.
 
-    This is the generic form of the check several hr serializers already
+    This is the generic form of the check several module serializers already
     wrote by hand (same message, same field attribution - the relation
     querysets stay unscoped on purpose so the error lands on the right field
     instead of the object just vanishing from the choices). Those checks keep

@@ -43,13 +43,17 @@ The `ModelViewSet` base class - see [`docs/api/base-api-view.md`](base-api-view.
 responsibilities (CRUD, filters, ordering, search, permissions, multi-tenancy, soft
 delete/restore/hard delete). Also in this module:
 
--   `registerView(name=None, module=None)` - class decorator that registers a view class into the
+-   `register_view(name=None, module=None)` - class decorator that registers a view class into the
     global `VIEW_REGISTRY` (`django_resaas.saas.core.base.registry.VIEW_REGISTRY`), keyed by
     `module` (default: the class's top-level package) and `name` (default: the class name,
     lowercased, `APIView` suffix stripped, pluralized with a trailing `s`). This registry is what
     `core.utils.autoload_urls.build_saas_urls()` walks to build the router automatically - see
     [`docs/development/creating-resource.md`](../development/creating-resource.md) for a full
     usage example.
+
+    `registerView` is the same decorator under its original (camelCase) name. It is a
+    supported alias (`registerView is register_view`), kept because applications decorate
+    their views with it; new code and the scaffold use `register_view`.
 
 ### `HasAppPermission` and friends - `django_resaas.saas.core.base.permissions.py`
 
@@ -73,6 +77,19 @@ delete/restore/hard delete). Also in this module:
 -   `hasPermission(role=None)` - method decorator wrapping `check_permission()`, returning a 403
     `fail()` response instead of raising.
 -   `isPermited(request=None, role=None)` - a thin alias for `check_permission()`.
+
+## Entitlements - `django_resaas.saas.core.entitlements`
+
+-   `has_feature(request_or_context, feature)` / `require_feature(...)`: 403 `feature_not_available`.
+-   `get_capacity(request_or_context, capacity)`: returns an `int`, or `None` for no limit.
+-   `require_capacity(request_or_context, capacity, current=None, adding=1)`: 403 `capacity_exceeded`.
+-   `has_module(request_or_context, module)`, `get_usage(...)`, `snapshot(...)`.
+-   `EntitlementProvider` (the interface), `SettingsEntitlementProvider` (the default) and
+    `EntitlementContext(entity_type_id, entity_id, branch_id)`.
+-   The exceptions `FeatureNotAvailable` and `CapacityExceeded` (`ResaasAPIException`, 403).
+
+Settings: `RESAAS_ENTITLEMENTS`, `RESAAS_ENTITLEMENT_PROVIDER`. See
+[Entitlements](../security/entitlements.md).
 
 ## `resaas_action` - `django_resaas.saas.core.decorators.action.resaas_action`
 

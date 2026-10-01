@@ -26,7 +26,7 @@ describes implemented behaviour. Everything under **Next** is a plan.
 - npm registry: `quasar_resaas` 0.0.4 vs 0.0.14xx in the repository. PyPI is
   current.
 - Existing extension points to reuse:
-  - `registerView`;
+  - `register_view` (alias `registerView`);
   - `<app>/dashboard.py` (autodiscovered);
   - `profiles.py` + `group_creator`;
   - `<app>/lang/`;
@@ -59,14 +59,40 @@ describes implemented behaviour. Everything under **Next** is a plan.
   [Upgrading](../deployment/upgrading.md) and
   [Building a module](building-a-module.md).
 
+- **HR out of the framework (frontend)**: `quasar_resaas` ships no HR. Its
+  pages, 42 stores and routes moved to the application's frontend
+  (`front/src/pages/hr`, `hrRoutes`). `useEmployeeStore` is no longer
+  exported. `FormTwo`, `AutoCrud` and `PersonProfilePanel` are now named
+  exports, so a module's pages import only from `'quasar_resaas'`. See
+  quasar_resaas [Building a module](https://github.com/metanochava/quasar_resaas/blob/main/docs/quasar-resaas/development/building-a-module.md).
+
+- **Stabilisation cycle** (phase C):
+  - Entitlements implemented ([Entitlements](../security/entitlements.md)):
+    - provider interface with a settings provider (off by default);
+    - capacities enforced at every core creation point;
+    - module entitlements ANDed with `EntityApp`;
+    - `GET /api/resaas/entitlements/`;
+    - `useEntitlementStore` in quasar_resaas.
+  - HR residue removed: translation keys moved to the HR module, neutral examples in the docs.
+  - `register_view` is canonical; `registerView` is a tested alias.
+  - Dependencies:
+    - django_resaas no longer depends on `dotenv==0.9.9`;
+    - quasar_resaas dropped `vue3-apexcharts` and now declares `@codemirror/state` and
+      `@codemirror/language`.
+  - `pdfjs-dist` leaves the main bundle: `s-pdf-render-pro` is lazy.
+  - Release safety: `make release-check` / `make publish` in both libraries validate before
+    publishing, and push only after a successful publish.
+  - The deploy endpoints left the framework (status/logs answered anonymous callers without
+    `DEPLOY_TOKEN`); the list PDF is the action `pdf_list` (`pdf_list_<model>`, `.../pdf_list/`).
+  - Open issues found, not fixed in this cycle:
+    - `BranchAPIView` has no per-action permission (any member of the Entity can create,
+      change or delete its Branches);
+    - `EntityAPIView.create` makes one "Main" Branch per admin;
+    - firebase is always in the main bundle (making it lazy would change `initFirebase`).
+
 ## Next (plan, not implemented)
 
-1. HR out of `quasar_resaas` (frontend pages, stores, routes), into the
-   application's frontend.
-2. Entitlements: a central service (features, capacities, modules) behind a
-   provider interface. It is separate from authorization and enforced server-side.
-3. Public API policy (stable / advanced / internal / deprecated) and
+1. Public API policy (stable / advanced / internal / deprecated) and
    deprecation helpers.
-4. Packaging validation (clean `pip install`, `npm pack --dry-run`), release
-   safety in the Makefiles, CI for `quasar_resaas`.
-5. Quick Start / example app, then the public site.
+2. CI for both libraries; publishing `quasar_resaas` to npm (the registry holds 0.0.4).
+3. Quick Start / example app, then the public site.

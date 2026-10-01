@@ -15,6 +15,7 @@ from rest_framework import viewsets, filters, status
 from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from django.db.models import F
+from django_resaas.saas.core.entitlements import require_capacity
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.services import entity_type_profiles_io_service, group_permissions_io_service
 from django_resaas.saas.core.utils.full_path import FullPath
@@ -114,6 +115,11 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
     serializer_class = EntityTypeSerializer
     queryset = EntityType.all_objects.all()
     lookup_field = 'id'
+
+    def perform_create(self, serializer):
+        # entitlements: installation-wide number of EntityTypes
+        require_capacity(self.request, "entity_types")
+        serializer.save()
 
     def _full_catalogue(self):
         """list_entitytype (or platform) sees every field and deleted types;

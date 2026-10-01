@@ -40,7 +40,7 @@ field and the last step is a `Char`/`Text`/`Email` field:
 
 ```python
 class RESAAS:
-    search_fields = ["code", "employee__person__full_name"]
+    search_fields = ["code", "person__full_name"]
 ```
 
 If omitted, search falls back to every direct `Char`/`Text`/`Email` field **on the model itself**

@@ -56,10 +56,9 @@ class TestMenusRespectActiveGroupEvenForSuperuser:
         """Confirma que a correcção não partiu o caso normal: um
         superuser num grupo com permissões (Root, já com todas as
         permissões CRUD/módulo via create_model_permissions) continua
-        a ver o menu. 'hr' é o único módulo activado por omissão pelo
-        BootstrapService - 'django_resaas' (saas) só aparece se
-        também estiver activo para o EntityType, por isso o teste
-        verifica o grupo 'Hr', não 'Engine'."""
+        a ver o menu. Verifica o grupo 'Notifications', um módulo do
+        próprio framework activado por omissão pelo BootstrapService
+        (os módulos de negócio, ex. hr, são da aplicação)."""
         tenant = bootstrap_tenant("menus-super-root")
         tenant["user"].is_superuser = True
         tenant["user"].save(update_fields=["is_superuser"])
@@ -69,9 +68,9 @@ class TestMenusRespectActiveGroupEvenForSuperuser:
         )
 
         assert response.status_code == 200, response.data
-        hr_menu = next((m for m in response.data if m["menu"] == "Hr"), None)
-        assert hr_menu is not None, response.data
-        assert len(hr_menu["submenu"]) > 0
+        menu = next((m for m in response.data if m["menu"] == "Notifications"), None)
+        assert menu is not None, response.data
+        assert len(menu["submenu"]) > 0
 
     def test_non_superuser_on_guest_also_sees_an_empty_menu(self, bootstrap_tenant):
         """Mesmo comportamento para uma conta normal (não-superuser) -

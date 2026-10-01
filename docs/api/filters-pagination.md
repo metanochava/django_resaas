@@ -7,7 +7,7 @@ Filtering is **fully automatic** — there is no `filterset_fields` to declare p
 from every field on the model **except** `FileField`/`ImageField`, using exact-match lookups:
 
 ```text
-GET /api/hr/employees/?state=Active
+GET /api/demo/members/?state=Active
 ```
 
 Any model field is filterable this way the moment the model exists — including foreign keys (by
@@ -19,7 +19,7 @@ Search (`?search=`) and filters compose freely — search is applied as an addit
 of whatever `DynamicFilterBackend`/`DjangoFilterBackend` already filtered:
 
 ```text
-GET /api/hr/employees/?search=dias&state=Active&page=1&page_size=10
+GET /api/demo/members/?search=dias&state=Active&page=1&page_size=10
 ```
 
 ## Ordering
@@ -28,7 +28,7 @@ GET /api/hr/employees/?search=dias&state=Active&page=1&page_size=10
 standard `OrderingFilter` query param:
 
 ```text
-GET /api/hr/employees/?ordering=-created_at
+GET /api/demo/members/?ordering=-created_at
 ```
 
 ## Pagination

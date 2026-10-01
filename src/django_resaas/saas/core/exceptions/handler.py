@@ -72,7 +72,10 @@ def _translate_details(request, value):
     if isinstance(value, (list, tuple)):
         return [_translate_details(request, item) for item in value]
 
-    return _translate(request, str(value)) if value is not None else value
+    if value is None or isinstance(value, (bool, int, float)):
+        return value  # numbers and flags are data, not messages
+
+    return _translate(request, str(value))
 
 
 def _plain(value):
@@ -83,7 +86,10 @@ def _plain(value):
     if isinstance(value, (list, tuple)):
         return [_plain(item) for item in value]
 
-    return str(value) if value is not None else value
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+
+    return str(value)
 
 
 def _code_of(exc):
@@ -121,7 +127,11 @@ def _body_for(exc, request):
 
     message = _translate(request, str(detail))
     code = _code_of(exc)
-    extra = _translate_details(request, _plain(getattr(exc, "resaas_details", None)))
+    extra = _plain(getattr(exc, "resaas_details", None))
+    # details are usually messages (translated); an exception whose details are
+    # machine values (names, limits) sets translate_details = False
+    if getattr(exc, "translate_details", True):
+        extra = _translate_details(request, extra)
 
     return error_body(message, code=code, details=extra)
 

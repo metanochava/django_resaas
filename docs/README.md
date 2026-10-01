@@ -22,6 +22,7 @@ backend framework.
 -   [Filters and pagination](api/filters-pagination.md)
 -   [Permissions](security/permissions.md)
 -   [Field-level permissions](security/field-permissions.md)
+-   [Entitlements (features, capacities, modules)](security/entitlements.md)
 -   [Soft delete](features/soft-delete.md)
 -   [Files and PDF](features/files-pdf.md)
 -   [Notifications (Email/SMS/WhatsApp)](features/notifications.md)

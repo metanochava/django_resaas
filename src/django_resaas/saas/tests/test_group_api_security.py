@@ -42,19 +42,19 @@ def test_collection_actions_need_their_permission(bootstrap_tenant, method, suff
     ("put", "", {"name": "Renamed"}),
     ("delete", "", None),
     ("post", "addPermission/", {"codename": "x_custom", "name": "X"}),
-    ("post", "removePermission/", {"codename": "view_contract"}),
+    ("post", "removePermission/", {"codename": "view_agreement"}),
 ])
 def test_detail_actions_need_their_permission(bootstrap_tenant, method, suffix, body):
     tenant = bootstrap_tenant(f"ga-det-{method}-{suffix.strip('/').lower() or 'x'}")
     client = _actor(tenant, f"ga-det-{method}-{suffix.strip('/').lower() or 'x'}-actor")
     target = _entity_group(tenant, "Nurse")
-    target.permissions.set(_perms("view_contract"))
+    target.permissions.set(_perms("view_agreement"))
 
     response = getattr(client, method)(f"{URL}{target.id}/{suffix}", body, format="json")
 
     assert response.status_code == 403
     assert Group.objects.filter(id=target.id, name="Nurse").exists()
-    assert set(target.permissions.values_list("codename", flat=True)) == {"view_contract"}
+    assert set(target.permissions.values_list("codename", flat=True)) == {"view_agreement"}
 
 
 # ------------------------------------------------------------------ visibility
@@ -162,13 +162,13 @@ def test_cannot_delete_the_active_group(bootstrap_tenant):
 
 def test_add_permission_cannot_reuse_a_real_codename(bootstrap_tenant):
     """check_permission matches codenames only: a 'custom' permission named
-    view_contract_salary would grant the real capability."""
+    view_agreement_amount would grant the real capability."""
     tenant = bootstrap_tenant("ga-codename")
     client = _actor(tenant, "ga-codename-actor", "change_group", "add_permission")
     target = _entity_group(tenant, "Nurse")
 
     response = client.post(
-        f"{URL}{target.id}/addPermission/", {"codename": "view_contract_salary", "name": "x"}, format="json"
+        f"{URL}{target.id}/addPermission/", {"codename": "view_agreement_amount", "name": "x"}, format="json"
     )
 
     assert response.status_code == 409
@@ -212,16 +212,16 @@ def test_new_custom_permission_needs_add_permission(bootstrap_tenant):
 def test_remove_permission_needs_the_permission_to_be_held(bootstrap_tenant):
     tenant = bootstrap_tenant("ga-remove")
     target = _entity_group(tenant, "Nurse")
-    target.permissions.set(_perms("view_contract_salary", "view_contract"))
+    target.permissions.set(_perms("view_agreement_amount", "view_agreement"))
 
     denied = _actor(tenant, "ga-remove-denied", "change_group").post(
-        f"{URL}{target.id}/removePermission/", {"codename": "view_contract_salary"}, format="json"
+        f"{URL}{target.id}/removePermission/", {"codename": "view_agreement_amount"}, format="json"
     )
     assert denied.status_code == 403
     assert denied.json()["error"]["code"] == "permission_not_held"
 
-    allowed = _actor(tenant, "ga-remove-allowed", "change_group", "view_contract").post(
-        f"{URL}{target.id}/removePermission/", {"codename": "view_contract"}, format="json"
+    allowed = _actor(tenant, "ga-remove-allowed", "change_group", "view_agreement").post(
+        f"{URL}{target.id}/removePermission/", {"codename": "view_agreement"}, format="json"
     )
     assert allowed.status_code == 200, allowed.json()
-    assert set(target.permissions.values_list("codename", flat=True)) == {"view_contract_salary"}
+    assert set(target.permissions.values_list("codename", flat=True)) == {"view_agreement_amount"}

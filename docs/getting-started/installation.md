@@ -34,6 +34,9 @@ MY_APPS = [
 # (optional; default [] - e.g. ["your_app"])
 RESAAS_DEFAULT_MODULES = []
 
+# entitlements (optional; not set = nothing restricted) - see security/entitlements.md
+# RESAAS_ENTITLEMENTS = {"features": {...}, "capacities": {"branches": 3, "users": 20}}
+
 INSTALLED_APPS = MY_APPS + [
     'djmoney',
     'django.contrib.admin',
@@ -124,7 +127,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
-# every @registerView class becomes a route: /api/<module>/<name>/
+# every @register_view class becomes a route: /api/<module>/<name>/
 router, extra_patterns = build_saas_urls()
 urlpatterns += [path('api/', include(router.urls))]
 urlpatterns += extra_patterns
@@ -132,7 +135,7 @@ urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 ```
 
 `build_saas_urls()` walks `VIEW_REGISTRY`; call it after the `include()`s above so every
-`@registerView` class has been imported — see
+`@register_view` class has been imported — see
 [View registry](../architecture/registry.md#when-view_registry-is-actually-populated).
 
 ## 4. Migrate and bootstrap

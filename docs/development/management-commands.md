@@ -71,7 +71,7 @@ nothing is ever actually persisted.
 
 Each check lives in `core/doctor/checks.py` as a small, independent `Check` subclass registered
 into `core/doctor/base.CHECK_REGISTRY` via a `@register_check` decorator - the same
-dict-plus-decorator shape `VIEW_REGISTRY`/`registerView` already uses for views. Any app
+dict-plus-decorator shape `VIEW_REGISTRY`/`register_view` already uses for views. Any app
 (`notifications`, `hr`, `sales`, ...) can contribute a check by importing `core.doctor.base` and
 decorating a `Check` subclass; `resaas_doctor` never needs to know about them ahead of time.
 
@@ -109,8 +109,8 @@ The full enterprise bootstrap command. Interactively prompts for a username/emai
 already-used email) and a password (hidden input, with confirmation), then creates a superuser and
 the complete default tenant structure in one pass: an `EntityType` ("SaaS"), an `Entity`
 ("Tenant"), a `Branch` ("Main"), the default `GROUPS` (Guest, Admin, Root) linked to the entity
-type/entity/branch/user, the `django_resaas` and `hr` apps registered and linked to the entity
-type/entity, plus frontend and language defaults (via `FrontEndService.load_defaults` and
+type/entity/branch/user, the framework's apps (`django_resaas`, `notifications`) plus
+`settings.RESAAS_DEFAULT_MODULES` registered and linked to the entity type/entity, plus frontend and language defaults (via `FrontEndService.load_defaults` and
 `LanguageService.load_defaults`). Intended to be run once per environment to get a fully working
 system from a blank database.
 
@@ -134,7 +134,7 @@ python manage.py sync_actions
 Synchronizes `@resaas_action`-decorated methods with `ModelExtraAction` rows and Django
 `Permission` objects. Reads every view registered in `VIEW_REGISTRY` (see
 [`docs/api/public-api-reference.md`](../api/public-api-reference.md) for how views get registered
-via `registerView`), prints each module and view found, then calls
+via `register_view`), prints each module and view found, then calls
 `ActionSyncService.sync_registry(VIEW_REGISTRY)` (which manages its own transaction). Run this
 after adding or changing `@resaas_action` methods so their metadata (label, icon, permission,
 endpoint) becomes visible through `ResaasSchemaBuilder`'s `actions`/`permissions.custom` output.

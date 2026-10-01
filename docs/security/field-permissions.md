@@ -1,7 +1,7 @@
 # Field-level permissions
 
 Some fields are more sensitive than the record that holds them. A user who may see an
-employee's contract (`view_contract`) should not automatically see its salary. Field-level
+agreement (`view_agreement`) should not automatically see its amount. Field-level
 permissions gate **individual fields** with their own permission, **on top of** the model's
 normal action permission ([Permissions](permissions.md)), never instead of it.
 
@@ -16,15 +16,15 @@ Use the existing per-field metadata, `RESAAS.fields` ([Models & `class RESAAS`](
 with a `permissions` key:
 
 ```python
-class Contract(BaseModel):
-    salary = models.DecimalField(max_digits=12, decimal_places=2)
+class Agreement(BaseModel):
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
 
     class RESAAS:
         fields = {
-            "salary": {
+            "amount": {
                 "permissions": {
-                    "view": "view_contract_salary",      # needed to READ it
-                    "change": "change_contract_salary",  # needed to WRITE it
+                    "view": "view_agreement_amount",      # needed to READ it
+                    "change": "change_agreement_amount",  # needed to WRITE it
                 },
             },
         }
@@ -41,7 +41,7 @@ The codenames are created by the same `post_migrate` signal that creates the mod
 (`saas/core/signals/permissions.py`): one `Permission` per declared codename, on the model's
 content type, named `Can view <model> <field>` / `Can change <model> <field>`. Like every model
 permission it is added to the **Root** group. Every other group gets it only through an explicit
-grant, so an Entity can build a group that sees contracts but not salaries without any code change.
+grant, so an Entity can build a group that sees agreements but not their amounts without any code change.
 
 Examples:
 
@@ -69,13 +69,13 @@ id or sending another `group_id` does not change the result.
 
 When a caller may not read the field, the field is also absent from:
 
-- **Filters**: `?salary=1000` is not a filter for that caller. `DynamicFilterBackend` does not
+- **Filters**: `?amount=1000` is not a filter for that caller. `DynamicFilterBackend` does not
   build it, so the query parameter is ignored.
-- **Ordering**: `?ordering=-salary` is dropped (`FieldAccessOrderingFilter`), and the default
+- **Ordering**: `?ordering=-amount` is dropped (`FieldAccessOrderingFilter`), and the default
   ordering applies.
 - **Search**: a restricted field listed in `RESAAS.search_fields`, including a path through a
-  relation such as `contract__salary`, is skipped. The automatic text-field fallback skips it too.
-- **PDF**: the detail PDF (`get_pdf_fields`) and the list PDF (`get_pdflist_context`) leave it out.
+  relation such as `agreement__amount`, is skipped. The automatic text-field fallback skips it too.
+- **PDF**: the detail PDF (`get_pdf_fields`) and the list PDF (`get_pdf_list_context`) leave it out.
 
 Without these, row order, filter results or search matches would reveal the value.
 
@@ -89,21 +89,21 @@ A write is rejected **before** validation, with the standard RESAAS error contra
 (`ResaasAPIException` → `resaas_exception_handler`, `saas/core/exceptions/`):
 
 ```http
-PATCH /api/hr/contracts/<id>/
-{"salary": "9999.00"}
+PATCH /api/demo/agreements/<id>/
+{"amount": "9999.00"}
 
 403 Forbidden
 {"error": {"code": "field_permission_denied",
            "message": "You are not allowed to change these fields.",
-           "details": {"fields": ["salary"]}}}
+           "details": {"fields": ["amount"]}}}
 ```
 
 - `code` is stable, and `details.fields` lists the blocked field names. The message is translated
   (`Translate.tdc`, in all four languages).
 - **Re-sending the current value is not a change.** An update that sends the value the record
   already holds is accepted. `BaseStore` PATCHes the whole loaded record back, so a view-only
-  user can still edit the contract's other fields.
-- **Required fields.** If the restricted field is required on the model (`Contract.salary` is)
+  user can still edit the agreement's other fields.
+- **Required fields.** If the restricted field is required on the model (`Agreement.amount` is)
   and the caller may not write it, a **create** is rejected with the same 403, whether or not the
   field was sent. The caller cannot create the record at all. This is deliberate: the alternative
   is a database error or an invented value.
@@ -116,8 +116,8 @@ The Schema 1.0 field descriptor (`/api/django_resaas/resaasapps/<app>/<model>/sc
 the codenames as **static metadata**. The schema is the same for every user:
 
 ```json
-{"name": "salary", "type": "DecimalField",
- "permissions": {"view": "view_contract_salary", "change": "change_contract_salary"}}
+{"name": "amount", "type": "DecimalField",
+ "permissions": {"view": "view_agreement_amount", "change": "change_agreement_amount"}}
 ```
 
 The frontend compares them with the user's permissions. See quasar_resaas *Permissions → Field-level
@@ -126,15 +126,12 @@ permissions*. Hiding the field there is **UX only**. The serializer is what enfo
 ## Limits
 
 - Protection follows the **model field**. A serializer field that exposes the value under
-  another name through `source="salary"` is covered. A field built from a relation path
-  (`source="contract.salary"` on another model's serializer), a `SerializerMethodField`, or a
+  another name through `source="amount"` is covered. A field built from a relation path
+  (`source="agreement.amount"` on another model's serializer), a `SerializerMethodField`, or a
   hand-built response is **not** covered. Don't expose a restricted value that way. Serialize
   the related record with its own `BaseSerializer` instead.
 - Views that are not `BaseAPIView`, and serializers that are not `BaseSerializer`, do not apply
   the rules.
-- `Contract.salary` is a reference value on the contract. What an employee is actually paid lives
-  in `EmployeeSalary` / `SalaryComponent` / `Payroll`, which are separate models with their own
-  model permissions (`view_employeesalary`, `view_payroll`, ...).
 
 ## Troubleshooting
 

@@ -1,3 +1,4 @@
+import warnings
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
@@ -20,6 +21,7 @@ from django_resaas.saas.core.base.field_access import (
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils import ok, fail  # noqa
+from django_resaas.saas.core.entitlements.service import has_module
 from django_resaas.saas.core.base.registry import VIEW_REGISTRY
 from django_resaas.saas.models.entity_app import EntityApp
 from django_resaas.saas.models.entity import Entity
@@ -192,9 +194,9 @@ def register_view(name=None, module=None):
     return decorator
 
 
-# Back-compat alias: registerView was the original (camelCase) name; every
-# existing @registerView(...) call site (hr/views/*.py and friends) keeps
-# working unchanged. register_view is the PEP 8-consistent name for new code.
+# register_view is the canonical name. registerView (camelCase) was the
+# original one: it stays as a supported alias because applications decorate
+# their views with it, so existing @registerView(...) call sites keep working.
 registerView = register_view
 
 
@@ -295,7 +297,7 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         'hard_delete': 'hard_delete',
 
         'pdf': 'pdf',
-        'pdflist': 'pdf_list',
+        'pdf_list': 'pdf_list',
     }
 
     # -----------------------------------
@@ -457,6 +459,11 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
 
             if not ativo:
                 return fail(request, f"Module <b>'{module}'</b> is not active.", status=403)
+
+            # entitlements: an active module may still be outside what this
+            # installation/tenant is entitled to (AND, never OR)
+            if not has_module(request, module):
+                return fail(request, f"Module <b>'{module}'</b> is not available.", status=403, code="module_not_available")
         else:
             return fail(request, f"Module <b>'{module}'</b> is not defined.", status=403)
 
@@ -753,16 +760,18 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         ).template.name
 
 
-    def get_pdflist_template(self):
+    def get_pdf_list_template(self):
 
         model = self.get_model()._meta.model_name
         module = self.module_name
 
         templates = []
 
-        if getattr(self, "pdflist_template", None):
+        # pdflist_template: the attribute's name before 0.0.625 (deprecated)
+        explicit = getattr(self, "pdf_list_template", None) or getattr(self, "pdflist_template", None)
+        if explicit:
             templates.append(
-                self.pdflist_template
+                explicit
             )
 
         templates.append(
@@ -983,7 +992,7 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         }
 
 
-    def get_pdflist_context(
+    def get_pdf_list_context(
         self,
         request,
         queryset
@@ -1153,20 +1162,40 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
     # 📄 PDF LIST
     # -----------------------------------
 
+    def _legacy_pdf_hook(self, name):
+        hook = getattr(self, name, None)
+        if hook is None:
+            return None
+        warnings.warn(
+            f"{type(self).__name__}.{name}() is deprecated: rename it to "
+            f"{name.replace('pdflist', 'pdf_list')}().",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return hook
+
     @resaas_action(
         detail=False,
         methods=["get"],
-        url_path="pdflist"
+        url_path="pdf_list"
     )
-    def pdflist(self, request, *args, **kwargs):
+    def pdf_list(self, request, *args, **kwargs):
+        # The function name is the permission prefix of a @resaas_action:
+        # pdf_list_<model>, what the schema publishes and the frontend checks.
 
         queryset = self.filter_queryset(
             self.get_queryset()
         )
 
-        template = self.get_pdflist_template()
+        # A view written before 0.0.625 overrides get_pdflist_template() /
+        # get_pdflist_context(): honour it (deprecated) instead of silently
+        # rendering the generic list.
+        get_template = self._legacy_pdf_hook("get_pdflist_template") or self.get_pdf_list_template
+        get_context = self._legacy_pdf_hook("get_pdflist_context") or self.get_pdf_list_context
 
-        context = self.get_pdflist_context(
+        template = get_template()
+
+        context = get_context(
             request=request,
             queryset=queryset
         )

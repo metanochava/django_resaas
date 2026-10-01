@@ -30,11 +30,20 @@ permission_action_map = {
     "destroy": "delete",
     "restore": "restore",
     "hard_delete": "hard_delete",
+    "pdf": "pdf",
+    "pdf_list": "pdf_list",
 }
 ```
 
 For a `Patient` model, creation may require `add_patient`, updating
 `change_patient` and removal `delete_patient`.
+
+The base actions `pdf`, `pdf_list`, `restore` and `hard_delete` are `@resaas_action`s, so their
+permission is `<function name>_<model>`, like any custom action (`discharge()` →
+`discharge_patient`). An explicit `@resaas_action(permission="...")` overrides it. The list PDF is
+the function `pdf_list`, served at `GET .../pdf_list/` and protected by `pdf_list_patient` — the
+codename the schema publishes as `permissions.pdf_list`. Tests:
+`saas/tests/test_list_pdf_permission.py`.
 
 ## Queryset
 
@@ -82,7 +91,7 @@ Before any of this, `initial()` requires a valid tenant context on the request a
 or undecodable `X-RESAAS-Context` header (see [Multi-tenancy](../architecture/multi-tenancy.md))
 raises `PermissionDenied` immediately, before `module_name`/permission checks even run.
 
-`initial()` requires `self.module_name` to be set (via `@registerView(...)`
+`initial()` requires `self.module_name` to be set (via `@register_view(...)`
 - see [`../development/creating-resource.md`](../development/creating-resource.md))
 and checks `EntityApp.objects.filter(entity_id=request.entity_id,
 app__name=module_name, state="Active").exists()` before anything else

@@ -342,11 +342,13 @@ class NotificationEngine:
     def _module_active(cls, rule):
         from django_resaas.saas.models.entity_app import EntityApp
 
+        from django_resaas.saas.core.entitlements import EntitlementContext, has_module
+
         return EntityApp.objects.filter(
             entity__id=rule.entity_id,
             app__name=rule.module,
             state="Active",
-        ).exists()
+        ).exists() and has_module(EntitlementContext(entity_id=rule.entity_id), rule.module)
 
     @classmethod
     def _get_settings(cls, rule):

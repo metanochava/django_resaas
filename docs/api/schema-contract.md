@@ -131,7 +131,7 @@ an additive key, and the schema stays identical for every user.
     "enabled": true, "detail": true, "list": true,
     "detail_permission": "pdf_group", "list_permission": "pdf_list_group",
     "detail_endpoint": "django_resaas/groups/{id}/pdf/",
-    "list_endpoint": "django_resaas/groups/pdflist/"
+    "list_endpoint": "django_resaas/groups/pdf_list/"
     // overridable via `RESAAS.pdf = {...}` (merged over defaults)
   },
 

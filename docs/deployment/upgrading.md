@@ -1,5 +1,19 @@
 # Upgrading
 
+## Entitlements, HR translations, packaging (next release after 0.0.624)
+
+| Change | Kind | What to do |
+|---|---|---|
+| Entitlements (`saas/core/entitlements`, `GET /api/resaas/entitlements/`) | Backward compatible | Nothing: without `RESAAS_ENTITLEMENTS` nothing is restricted. See [Entitlements](../security/entitlements.md). |
+| `BaseAPIView`, menus, dashboards and notification rules also ask `has_module()` | Backward compatible | Nothing unless you configure `RESAAS_ENTITLEMENTS["modules"]` or a provider |
+| The HR translation keys (`Employee Salary`, `Payroll Item`, `Leave Calendar`, `Add employee`, the HR dashboards' Portuguese labels, ...) left `django_resaas/saas/lang/*.py` | **Breaking** for an application that uses those strings **without** its own HR module | Add them to your HR module's `lang/<code>.py` (the reference application's `hr/lang/` has all four languages) |
+| `ResaasAPIException.translate_details`; numbers/booleans in `error.details` are no longer turned into strings | Backward compatible (a client that parsed `"3"` also accepts `3` in JS) | Nothing |
+| **List PDF renamed** (bug fix + **breaking**): the base action is now the function `pdf_list` at `GET .../pdf_list/` (was `pdflist` at `.../pdflist/`, which now answers 404), protected by `pdf_list_<model>` — what the schema publishes and the frontend checks — instead of `pdflist_<model>` (users saw the button and got 403). The hooks are `get_pdf_list_context()` / `get_pdf_list_template()` and the attribute `pdf_list_template` | Clients that call the URL by hand: use `.../pdf_list/` (the schema's `pdf.list_endpoint` and quasar_resaas already do). A view that overrides `get_pdflist_context()`/`get_pdflist_template()` or sets `pdflist_template` keeps working with a `DeprecationWarning` — rename them. The action sync drops the old `pdflist` action and its `pdflist_<model>` permissions on the next `migrate`/`resaas_sync`; a group that held only `pdflist_<model>` needs `pdf_list_<model>` (in dev and pro every such group already holds it) |
+| **Deploy endpoints removed** (breaking): `django_resaas.view` keeps only `home`; the framework no longer routes `deploy/github`, `status`, `releases`, `logs`, `rollback` (status/logs answered anonymous callers when `DEPLOY_TOKEN` was unset) | An application that imports `deploy`/`deploy_*` from `django_resaas.view` in its own `urls.py` must drop that import and route; deploying belongs to each installation's own tooling |
+| The scaffold writes `@register_view` (`registerView` stays a supported alias) | Backward compatible | Nothing |
+| The deprecated `dotenv==0.9.9` shim was removed from the dependencies (it shipped no code; `python-dotenv` stays) | Backward compatible | Nothing |
+| The wheel no longer ships the framework's tests (they need the repository's `src/dev`) | Backward compatible | Run the tests from a checkout |
+
 ## HR is no longer part of `django_resaas` (breaking change)
 
 `django_resaas.hr` has been removed from the package. HR is business domain,

@@ -44,9 +44,8 @@ ALL = [{
         # Outbox/Delivery Attempts são read-only por desenho (ver
         # notifications/views/outbox.py e delivery_attempt.py -
         # create/update/partial_update/destroy devolvem sempre 405) -
-        # por isso não têm add_role/add_route, tal como Payroll Run/
-        # Leave Calendar em hr/sidebar.py seguem a mesma convenção
-        # para workflows não-CRUD.
+        # por isso não têm add_role/add_route - a mesma convenção de
+        # qualquer entrada de menu de um workflow não-CRUD.
         {
             "icon": "outbox",
             "menu": "Outbox",

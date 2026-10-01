@@ -61,7 +61,7 @@ def test_model_with_custom_routes_overrides_defaults():
     schema = builder.build()
 
     assert schema["routes"] == {
-        "list": "add_address",
+        "list": "list_address",
         "add": "add_address",
         "change": "change_address",
         "view": "view_address",

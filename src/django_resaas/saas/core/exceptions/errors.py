@@ -18,6 +18,9 @@ class ResaasAPIException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "The request could not be completed."
     default_code = "error"
+    # details hold messages (translated with the request language) unless a
+    # subclass carries machine values there (names, numbers) and sets False
+    translate_details = True
 
     def __init__(self, detail=None, code=None, details=None, status_code=None):
         super().__init__(detail=detail, code=code)

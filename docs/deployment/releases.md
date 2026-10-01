@@ -1,7 +1,27 @@
 # Git Flow and Releases
 
-A `develop` → `release/x.y.z` → `main` flow, tagged on merge. There's no release script in this
-repo — this page documents the convention, checked by hand or in CI.
+A `develop` → `release/x.y.z` → `main` flow, tagged on merge, driven by the `Makefile`.
+
+## Commands
+
+```bash
+make releases        # develop -> bump version (patch/minor/major) -> release/x.y.z
+make releasef        # release-check, then git flow release finish (local: nothing pushed)
+make publish         # release-check, upload to PyPI, THEN push main, develop and the tag
+```
+
+`make release-check` runs on its own too. It fails, and nothing continues, when:
+
+1. the working tree is not clean;
+2. the tests fail (`pytest -x`);
+3. the package does not build, or `twine check` rejects it;
+4. the built wheel does not install in a fresh virtualenv (`pip check`), lacks the framework
+   migrations, or ships tests.
+
+**Failure behaviour.** `releasef` validates before `git flow release finish`, so a failing test
+leaves the release branch open and untagged. `publish` uploads before pushing: if the upload
+fails, nothing has been pushed. Fix the problem and run `make publish` again. The tag stays
+local until the upload succeeds. `make upload` also runs `release-check` first.
 
 ## Before starting a release
 

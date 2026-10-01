@@ -30,7 +30,7 @@ def _make_user():
     )
 
 
-def test_bootstrapped_hr_app_is_actually_active():
+def test_bootstrapped_default_module_is_actually_active():
     user = _make_user()
 
     result = BootstrapService.run(
@@ -39,7 +39,7 @@ def test_bootstrapped_hr_app_is_actually_active():
 
     entity_app = EntityApp.objects.get(
         entity=result["entity"],
-        app__name="hr",
+        app__name="notifications",
     )
     assert entity_app.state == "Active"
 
@@ -47,7 +47,7 @@ def test_bootstrapped_hr_app_is_actually_active():
     # request through - it must find this row.
     assert EntityApp.objects.filter(
         entity__id=result["entity"].id,
-        app__name="hr",
+        app__name="notifications",
         state="Active",
     ).exists()
 
@@ -58,7 +58,7 @@ def test_bootstrap_self_heals_a_preexisting_broken_row():
     user = _make_user()
 
     result = BootstrapService.run("SaaS", "Tenant", "Main", user, "Admin")
-    entity_app = EntityApp.objects.get(entity=result["entity"], app__name="hr")
+    entity_app = EntityApp.objects.get(entity=result["entity"], app__name="notifications")
 
     # simulate a row left over from the old buggy code path
     entity_app.state = "Active"
@@ -71,5 +71,5 @@ def test_bootstrap_self_heals_a_preexisting_broken_row():
     entity_app.refresh_from_db()
     assert entity_app.state == "Active"
     assert EntityApp.objects.filter(
-        entity=result["entity"], app__name="hr"
+        entity=result["entity"], app__name="notifications"
     ).count() == 1

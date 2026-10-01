@@ -1,7 +1,7 @@
 """Alerts: extra messages a request wants the user to see next to its normal result.
 
     {"...normal payload...", "alerts": [{"level": "warning", "message": "...",
-                                         "code": "employee_without_profile", "details": null}]}
+                                         "code": "member_without_category", "details": null}]}
 
 An alert is NOT the failure of the request (that is `error`, see
 core/exceptions/handler.py) and a failed request must not repeat its error here.
@@ -15,8 +15,8 @@ core/exceptions/handler.py) and a failed request must not repeat its error here.
 Usage - anywhere a `request` is at hand (view, action, service):
 
     from django_resaas.saas.core.alerts import add_alert
-    add_alert(request, "The employee has no profile yet.", level="warning",
-              code="employee_without_profile")
+    add_alert(request, "The member has no category yet.", level="warning",
+              code="member_without_category")
 
 Alerts live on the request (never in module state), so concurrent requests cannot
 see each other's. ResaasResponseMixin (BaseAPIView and the legacy viewsets) merges

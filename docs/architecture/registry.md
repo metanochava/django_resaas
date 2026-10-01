@@ -1,10 +1,10 @@
 # View registry
 
 Every `BaseAPIView` subclass registers itself with `@register_view(name=None, module=None)`
-(`core/base/views.py`). `registerView` is the original camelCase name every
-existing call site uses (`hr/views/*.py` and friends) and remains a plain
-alias - `registerView = register_view` - so nothing breaks; new code can
-use either.
+(`core/base/views.py`). That is the canonical name, used by new code and the
+scaffold. `registerView` is the original camelCase name: it remains a supported
+alias (`registerView = register_view`, covered by a test) because applications
+decorate their views with it.
 
 ```python
 @register_view("patients")
@@ -61,7 +61,7 @@ ResaasSchemaBuilder.build()      (per model, at request time - see
 
 `@register_view` only runs when its module is *imported*. `dev/urls.py`
 imports every view (directly or via each app's own `views/__init__.py`,
-e.g. `hr/views/__init__.py`) as a side effect of building the router -
+e.g. `notifications/views/__init__.py`) as a side effect of building the router -
 see the comment at the top of `dev/urls.py` for why `build_saas_urls()`
 specifically runs *after* the `include(...)` calls. A process that never
 touches `ROOT_URLCONF` (a bare `manage.py migrate`, for instance) may
