@@ -248,4 +248,6 @@ key_value = {
     "The usage limit for this resource has been reached.": "The usage limit for this resource has been reached.",
     # profile button (quasar_resaas GroupSelector)
     "Click: profiles · Double-click: reload permissions": "Click: profiles · Double-click: reload permissions",
+    # dashboard calendar widget (quasar_resaas CalendarWidget)
+    "Events": "Events",
 }

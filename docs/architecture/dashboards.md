@@ -210,6 +210,12 @@ list:       {items: [{id, title, description?, icon?, avatar?, date?, status?, r
 calendar:   {start, end, events: [{id, title, start, end, status?, status_color?}]}
 ```
 
+`count_label` (por widget `calendar`) é opcional: o nome do que se conta no dia
+seleccionado, mostrado como `"<label>: n"` (por omissão `Events`; o saude usa
+`Appointments`). O `CalendarWidget` do quasar_resaas mostra o mês e, por baixo,
+o resumo do dia seleccionado; clicar num dia com eventos abre a lista desse dia
+numa modal (`s-modal-card`, só o corpo faz scroll).
+
 `badge` (por coluna de `table`) é opcional: `{valor: cor}`. O `TableWidget` do
 quasar_resaas mostra cada valor dessa coluna como uma etiqueta colorida e traduzida
 (`tdc()`); um valor sem cor própria fica cinzento e `-`/vazio fica sem etiqueta. As
