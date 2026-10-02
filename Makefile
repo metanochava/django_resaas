@@ -462,7 +462,6 @@ release-check:
 publish: release-check
 	VERSION="$$( $(call GET_VERSION) )"
 	$(PY) -m twine upload dist/*
-	git push origin main develop --tags
 	echo "django_resaas $$VERSION published and pushed."
 
 
@@ -545,9 +544,10 @@ releasef:
 		-m "release: v$$VERSION - $$mensagem" \
 		"$$VERSION"
 
+	git push origin main develop --tags
 	# nothing is pushed yet: `make publish` uploads to PyPI first and only
 	# then pushes main, develop and the tag
-	echo "Release $$VERSION finished locally. Run: make publish"
+	echo "Release $$VERSION finished locally and Github. Run: make publish to publish in PyPI"
 
 
 # =========================================================
