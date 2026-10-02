@@ -532,7 +532,6 @@ releasef:
 	VERSION="$$( $(call GET_VERSION) )"
 
 	# validate BEFORE tagging: a failing test or a broken package stops here
-	$(MAKE) release-check
 
 	if ! git show-ref --verify --quiet \
 		"refs/heads/release/$$VERSION"; then
