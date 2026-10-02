@@ -1490,4 +1490,6 @@ key_value = {
     # entitlements (core/entitlements)
     "This feature is not available.": "Esta funcionalidade não está disponível.",
     "The usage limit for this resource has been reached.": "Foi atingido o limite de utilização deste recurso.",
+    # profile button (quasar_resaas GroupSelector)
+    "Click: profiles · Double-click: reload permissions": "Clique: perfis · Duplo clique: recarregar permissões",
 }
