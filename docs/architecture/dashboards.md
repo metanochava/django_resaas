@@ -205,10 +205,17 @@ stat:       {value, formatted_value, variation?, variation_direction?, compariso
 bar_chart:  {labels: [...], series: [{name, data: [...], color?}], codes?}
 line_chart: {labels: [...], series: [{name, data: [...], color?}]}
 pie_chart:  {labels: [...], series: [{name, data: [...], colors?}], codes?}  (só series[0])
-table:      {columns: [...], rows: [...], pagination: {count, next, previous}}
+table:      {columns: [{name, label, align?, sortable?, badge?}], rows: [...], pagination: {count, next, previous}}
 list:       {items: [{id, title, description?, icon?, avatar?, date?, status?, route?}]}
 calendar:   {start, end, events: [{id, title, start, end, status?, status_color?}]}
 ```
+
+`badge` (por coluna de `table`) é opcional: `{valor: cor}`. O `TableWidget` do
+quasar_resaas mostra cada valor dessa coluna como uma etiqueta colorida e traduzida
+(`tdc()`); um valor sem cor própria fica cinzento e `-`/vazio fica sem etiqueta. As
+chaves são os valores tal como vêm em `rows` (as etiquetas canónicas em inglês, não
+as traduções). Exemplo (saude, filas de recepção e de enfermagem):
+`{"name": "vital_signs", "label": "Vital Signs", "badge": {"Recorded": "positive", "Pending": "warning"}}`.
 
 `color` (por série) e `colors` (por fatia do `pie_chart`, paralelo a
 `labels`) são opcionais: um nome de cor do Theme (`primary`, `secondary`,
