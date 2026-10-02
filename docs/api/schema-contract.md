@@ -115,7 +115,8 @@ an additive key, and the schema stays identical for every user.
     "enabled": true,
     "search": true,
     "search_fields": [],            // RESAAS.search_fields
-    "fields": ["name", "editable"]  // names pulled from the `fields` argument
+    "fields": ["name", "editable"]  // names pulled from the `fields` argument,
+                                    // without the tenant fields entity / branch
     // overridable via `RESAAS.filters = {...}` (merged over defaults)
   },
 
@@ -145,6 +146,12 @@ an additive key, and the schema stays identical for every user.
 ```
 
 ## Merge semantics
+
+`filters.fields` never proposes the tenant fields `entity` and `branch`
+(`TENANT_FIELDS`, `saas/core/schema/builder.py`): a list is always the current
+Entity/Branch, so filtering by them changes nothing, and their pickers are
+refused (403) to whoever cannot pick an Entity/Branch. A model that needs one
+lists it explicitly in `RESAAS.filters["fields"]`.
 
 Every overridable section (`ui`, `filters`, `pagination`, `pdf`, `routes`) is a **shallow dict
 merge**: `{**default, **(configured or {})}`. Supplying `RESAAS.ui = {"dense": False}` only

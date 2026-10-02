@@ -31,6 +31,7 @@ from django_resaas.saas.core.utils import ok, fail, warn, all, clean_name, reord
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.models.entity_user import EntityUser
+from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.management.apicommands.service.app_service import AppScaffoldService
@@ -930,6 +931,10 @@ class RelationsAPIView(APIView):
 
             if hasattr(Model, "entity_id"):
                 qs = qs.filter(entity_id=entity_id)
+            elif Model is Entity:
+                # the Entity itself has no entity_id: without this a picker
+                # listed every Entity of the platform - only the current one
+                qs = qs.filter(id=entity_id)
             elif Model is get_user_model():
                 qs = qs.filter(
                     id__in=EntityUser.objects.filter(entity_id=entity_id).values("user_id")

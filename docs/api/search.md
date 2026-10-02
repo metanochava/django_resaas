@@ -85,8 +85,10 @@ a reason to list users. Without any of these permissions the answer is
 `error.details.model`.
 
 **Multi-tenancy:** only rows of the current Entity are returned: by
-`entity_id` when the model has it, and for `User` by membership of the current
-Entity (`EntityUser`). A user of another Entity is never listed, even with
+`entity_id` when the model has it, for `User` by membership of the current
+Entity (`EntityUser`), and for `Entity` itself only the current one (it has no
+`entity_id`: before this, an Entity picker listed every Entity of the
+platform). A user of another Entity is never listed, even with
 `list_user`. Knowing an id does not help: the endpoint only lists.
 
 Plain framework models (`auth.Permission`, `contenttypes.ContentType`, ...)

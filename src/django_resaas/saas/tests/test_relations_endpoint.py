@@ -145,6 +145,30 @@ class TestRelationPicker:
         assert tenant["user"].id in ids
         assert other["user"].id not in ids
 
+    def test_the_entity_picker_lists_only_the_current_entity(self, bootstrap_tenant):
+        """Entity has no entity_id: it used to list every Entity of the platform."""
+        tenant = bootstrap_tenant("picker-entity")
+        other = bootstrap_tenant("picker-entity-other")
+        client = _client_with(tenant, ["add_branch"])  # Branch.entity -> Entity
+
+        response = client.get("/api/django_resaas/relations/?format=json&model=django_resaas.Entity")
+
+        assert response.status_code == 200, response.data
+        ids = {str(r["id"]) for r in response.data}
+        assert ids == {str(tenant["entity"].id)}
+        assert str(other["entity"].id) not in ids
+
+    def test_the_schema_does_not_offer_the_tenant_fields_as_filters(self, bootstrap_tenant):
+        """A list is always the current Entity/Branch: no Entity/Branch filter
+        (and no picker request refused for it)."""
+        tenant = bootstrap_tenant("picker-filters", modules=("demo",))
+
+        schema = tenant["client"].get("/api/django_resaas/resaasapps/demo/member/schema/").json()
+
+        assert "entity" not in schema["filters"]["fields"]
+        assert "branch" not in schema["filters"]["fields"]
+        assert "code" in schema["filters"]["fields"]
+
     def test_a_malformed_model_is_400_with_the_field(self, bootstrap_tenant):
         tenant = bootstrap_tenant("picker-bad")
 
