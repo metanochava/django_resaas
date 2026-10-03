@@ -1,5 +1,13 @@
 # Upgrading
 
+## Person filiation, POST status codes (next release after 0.0.632)
+
+| Change | Kind | What to do |
+|---|---|---|
+| `Person.father_name` and `Person.mother_name` (optional text, max 150): the parents' names as on identity documents. Shipped migration `django_resaas.0002_person_father_name_person_mother_name`; the Person API and schema expose them; quasar_resaas shows them in the personal data (`PersonIntakeSections`, `PersonProfilePanel`) | Backward compatible (new nullable columns) | `python manage.py migrate` |
+| A successful `POST` answers `201` (created), `202` (an operation with a result) or `204` (nothing to return) - never `200`; `ResaasResponseMixin` does it centrally. See [Errors and alerts](../api/errors-and-alerts.md#success-status-codes) | **Behaviour change** for a client that compared a POST answer with `200` | Accept any 2xx (axios already does) |
+| `setGroupPermissions` also takes a delta `{group, add, remove}` that never removes an unlisted permission. See [Permissions](../security/permissions.md) | Backward compatible (the full list mode stays) | Prefer the delta in new clients |
+
 ## Entitlements, HR translations, packaging (next release after 0.0.624)
 
 | Change | Kind | What to do |

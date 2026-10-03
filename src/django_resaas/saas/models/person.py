@@ -39,6 +39,9 @@ class Person(AddressMixin,TimeModel):
     nationality=models.CharField(max_length=100,null=True,blank=True)
     country_of_birth=models.CharField(max_length=100,null=True,blank=True)
     place_of_birth=models.CharField(max_length=150,null=True,blank=True)
+    # filiation as written on identity documents: names only (a parent need not be a Person here)
+    father_name=models.CharField(max_length=150,null=True,blank=True)
+    mother_name=models.CharField(max_length=150,null=True,blank=True)
 
     photo=models.ImageField(upload_to=person_photo_path,null=True,blank=True)
 
