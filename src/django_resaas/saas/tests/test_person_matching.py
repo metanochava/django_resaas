@@ -131,7 +131,7 @@ def test_match_endpoint_returns_candidates_with_matched_fields_and_documents(boo
         content_type="application/json",
     )
 
-    assert response.status_code == 200, response.data
+    assert response.status_code == 202, response.data
     results = response.data["results"]
     assert len(results) == 1
     assert results[0]["id"] == str(person.id)
@@ -150,5 +150,5 @@ def test_match_endpoint_returns_empty_results_for_no_match(bootstrap_tenant):
         content_type="application/json",
     )
 
-    assert response.status_code == 200, response.data
+    assert response.status_code == 202, response.data
     assert response.data["results"] == []

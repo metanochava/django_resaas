@@ -35,7 +35,7 @@ def _sign_in(user, agent=CHROME_MAC, password="Own-Password-1"):
     response = APIClient().post(
         "/api/login/", {"identifier": user.username, "password": password}, format="json", HTTP_USER_AGENT=agent
     )
-    assert response.status_code == 200, response.data
+    assert response.status_code == 202, response.data
 
     client = APIClient(raise_request_exception=False)
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['tokens']['access']}")
@@ -130,7 +130,7 @@ class TestSessions:
 
         response = current.post(f"/api/sessions/{target['id']}/terminate/")
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert [row["current"] for row in current.get("/api/sessions/").data["data"]] == [True]
         refreshed = APIClient(raise_request_exception=False).post("/api/refresh_token/", {"refresh": old.refresh}, format="json")
         assert refreshed.status_code == 401
@@ -163,7 +163,7 @@ class TestSessions:
 
         response = current.post("/api/sessions/terminate_others/")
 
-        assert response.status_code == 200 and response.data["count"] == 2
+        assert response.status_code == 202 and response.data["count"] == 2
         rows = current.get("/api/sessions/").data["data"]
         assert len(rows) == 1 and rows[0]["current"] is True
 
@@ -358,7 +358,7 @@ class TestLegacyUserActionsAreNotOpen:
         assert added.status_code == 201 and BranchUser.objects.filter(user=member, branch=second).exists()
 
         removed = tenant["client"].post(_url(member, "removeUserBranch"), {"branch": str(second.id)}, format="json")
-        assert removed.status_code == 200 and not BranchUser.objects.filter(user=member, branch=second).exists()
+        assert removed.status_code == 202 and not BranchUser.objects.filter(user=member, branch=second).exists()
 
     def test_removing_a_branch_that_is_not_there_is_a_404_not_a_crash(self, bootstrap_tenant):
         tenant = bootstrap_tenant("legacy-missing")

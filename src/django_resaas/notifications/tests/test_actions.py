@@ -87,7 +87,7 @@ def test_cancel_pending_outbox(make_rule, notification_tenant):
     client = notification_tenant["client"]
     response = client.post(f"/api/notifications/outbox/{outbox.id}/cancel/")
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     outbox.refresh_from_db()
     assert outbox.status == OutboxStatus.CANCELLED
 
@@ -134,7 +134,7 @@ def test_retry_from_failed_resets_to_pending(make_rule, notification_tenant):
     client = notification_tenant["client"]
     response = client.post(f"/api/notifications/outbox/{outbox.id}/retry/")
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     outbox.refresh_from_db()
     assert outbox.status == OutboxStatus.PENDING
     assert outbox.last_error is None

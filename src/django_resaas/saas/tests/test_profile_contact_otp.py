@@ -87,7 +87,7 @@ def test_request_email_otp_sends_code(bootstrap_tenant, fake_notification_provid
         {"channel": "email", "identifier": "new-email@example.com"},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     assert len(fake_notification_providers["email"].sent) == 1
     assert fake_notification_providers["email"].sent[0]["recipient"] == "new-email@example.com"
 
@@ -118,7 +118,7 @@ def test_request_otp_for_own_current_email_is_allowed(bootstrap_tenant):
         {"channel": "email", "identifier": "self@example.com"},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
 
 
 # =============================================================
@@ -135,7 +135,7 @@ def test_confirm_email_otp_with_correct_code_changes_email(bootstrap_tenant):
         {"channel": "email", "identifier": new_email, "otp": _current_otp(new_email)},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
 
     tenant["user"].refresh_from_db()
     assert tenant["user"].email == new_email
@@ -151,7 +151,7 @@ def test_confirm_mobile_otp_with_correct_code_changes_mobile(bootstrap_tenant):
         {"channel": "mobile", "identifier": new_mobile, "otp": _current_otp(new_mobile)},
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
 
     tenant["user"].refresh_from_db()
     assert tenant["user"].mobile == new_mobile

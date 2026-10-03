@@ -147,7 +147,7 @@ class TestAssign:
 
         response = _client(tenant).post(_url(user, "addGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert BranchUserGroup.objects.filter(user=user, group=nurse, branch=tenant["branch"]).count() == 1
         assert response.data["group"] == str(nurse.id) and response.data["branch"] == str(tenant["branch"].id)
 
@@ -170,7 +170,7 @@ class TestAssign:
 
         response = _client(tenant).post(_url(user, "addGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert BranchUserGroup.all_objects.filter(user=user, group=nurse).count() == 1
         assert BranchUserGroup.objects.filter(user=user, group=nurse).exists()
 
@@ -249,7 +249,7 @@ class TestAssign:
 
         allowed = _client(tenant).post(_url(outsider, "addGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert allowed.status_code == 200
+        assert allowed.status_code == 202
         assert EntityUser.objects.filter(user=outsider, entity=tenant["entity"]).exists()
         assert BranchUserGroup.objects.filter(user=outsider, group=nurse, branch=tenant["branch"]).exists()
 
@@ -266,7 +266,7 @@ class TestRemove:
 
         response = _client(tenant).post(_url(user, "removeGroup"), {"group": str(nurse.id)}, format="json")
 
-        assert response.status_code == 200
+        assert response.status_code == 204
         assert not BranchUserGroup.objects.filter(user=user, group=nurse).exists()
         # the Group, its EntityGroup, the user and the membership stay
         assert Group.objects.filter(pk=nurse.pk).exists()

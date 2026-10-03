@@ -91,7 +91,7 @@ class TestAppEntityTypes:
             {"id": str(entity_type.id)},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert not EntityTypeApp.objects.filter(app=app, entity_type=entity_type).exists()
 
     def test_remove_entity_type_never_touches_other_apps(self, bootstrap_tenant):
@@ -113,6 +113,6 @@ class TestAppEntityTypes:
             {"id": str(entity_type.id)},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert not EntityTypeApp.objects.filter(app=app_a, entity_type=entity_type).exists()
         assert EntityTypeApp.objects.filter(app=app_b, entity_type=entity_type).exists()

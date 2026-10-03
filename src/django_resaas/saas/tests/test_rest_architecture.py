@@ -378,7 +378,7 @@ class TestStateChangingLinksArePost:
         assert sent == []
 
         # POST reaches the handler: an unknown address gets the neutral answer
-        assert client.post("/api/mail/", {"email": "nobody@rest.test"}, format="json").status_code == 200
+        assert client.post("/api/mail/", {"email": "nobody@rest.test"}, format="json").status_code == 202
         assert client.post("/api/mail/", {}, format="json").status_code == 400
         assert sent == []
 
@@ -395,7 +395,7 @@ class TestStateChangingLinksArePost:
         user.refresh_from_db()
         assert user.is_verified_email is False
 
-        assert client.post("/api/email/verify/", {"token": token}, format="json").status_code == 200
+        assert client.post("/api/email/verify/", {"token": token}, format="json").status_code == 202
         user.refresh_from_db()
         assert user.is_verified_email is True
 

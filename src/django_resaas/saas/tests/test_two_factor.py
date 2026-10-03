@@ -277,7 +277,7 @@ class TestSignIn:
         _user()
         response = _login()
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["tokens"]["access"] and not response.data["two_factor"]
 
     def test_an_active_factor_withholds_tokens_and_returns_a_challenge(self):
@@ -286,7 +286,7 @@ class TestSignIn:
 
         response = _login()
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["tokens"] is None
         assert response.data["two_factor"] == "two_factor_required" and response.data["challenge"]
 
@@ -299,7 +299,7 @@ class TestSignIn:
             "/api/login/two_factor/", {"challenge": challenge, "code": _code(user, offset=1)}, format="json"
         )
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert response.data["tokens"]["access"]
         assert user.logins.count() == 1 if hasattr(user, "logins") else True
 
@@ -320,7 +320,7 @@ class TestSignIn:
 
         response = APIClient().post("/api/login/two_factor/", {"challenge": challenge, "code": codes[0]}, format="json")
 
-        assert response.status_code == 200 and response.data["tokens"]["access"]
+        assert response.status_code == 202 and response.data["tokens"]["access"]
 
     def test_a_forged_tampered_or_missing_challenge_is_rejected(self):
         user = _user()
@@ -364,7 +364,7 @@ class TestSignIn:
 
         client = APIClient()
         started = client.post("/api/login/two_factor/setup/", {"challenge": first.data["challenge"]}, format="json")
-        assert started.status_code == 200
+        assert started.status_code == 202
         assert started.data["secret"] and started.data["qr"].startswith("data:image/png;base64,")
 
         done = client.post(
@@ -373,7 +373,7 @@ class TestSignIn:
             format="json",
         )
 
-        assert done.status_code == 200, done.data
+        assert done.status_code == 202, done.data
         assert done.data["tokens"]["access"] and len(done.data["recovery_codes"]) == service.RECOVERY_CODES
         assert service.is_active(user)
 
@@ -399,7 +399,7 @@ class TestSignIn:
             format="json",
         )
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert response.data["tokens"] is None and response.data["two_factor"] == "two_factor_required"
 
     def test_a_disabled_policy_still_enforces_an_already_active_factor(self):
@@ -435,16 +435,16 @@ class TestSelfServiceApi:
         client = _authed(user)
 
         started = client.post("/api/two_factor/setup/")
-        assert started.status_code == 200 and started.data["qr"].startswith("data:image/png;base64,")
+        assert started.status_code == 202 and started.data["qr"].startswith("data:image/png;base64,")
 
         confirmed = client.post("/api/two_factor/confirm/", {"code": _code(user)}, format="json")
-        assert confirmed.status_code == 200 and len(confirmed.data["recovery_codes"]) == service.RECOVERY_CODES
+        assert confirmed.status_code == 202 and len(confirmed.data["recovery_codes"]) == service.RECOVERY_CODES
 
         assert client.get("/api/two_factor/").data["state"] == "active"
         assert client.get("/api/two_factor/").data["recovery_codes_remaining"] == service.RECOVERY_CODES
 
         assert client.post("/api/two_factor/disable/", {"code": "000000"}, format="json").status_code == 400
-        assert client.post("/api/two_factor/disable/", {"code": _code(user, offset=1)}, format="json").status_code == 200
+        assert client.post("/api/two_factor/disable/", {"code": _code(user, offset=1)}, format="json").status_code == 202
         assert client.get("/api/two_factor/").data["state"] == "not_configured"
 
     def test_setup_is_refused_when_the_organisation_disabled_it(self):

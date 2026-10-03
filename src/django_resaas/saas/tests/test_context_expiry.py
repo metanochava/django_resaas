@@ -21,7 +21,7 @@ def test_issue_tells_the_client_how_long_the_token_lives(bootstrap_tenant):
         format="json",
     )
 
-    assert response.status_code == 200, response.data
+    assert response.status_code == 202, response.data
     assert response.data["token"]
     assert response.data["expires_in"] == ResaasContextService.get_ttl()
 

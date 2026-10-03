@@ -105,7 +105,7 @@ def test_import_adds_by_default(bootstrap_tenant):
 
     response = _import(client, group, [("auth", "view_permission")])
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     summary = response.json()
     # view_group exists for two models (RESAAS Group and auth.Group) - count
     # what the import changed, not the rows the group already had
@@ -121,7 +121,7 @@ def test_import_replace_makes_the_group_match_the_file(bootstrap_tenant):
 
     response = _import(client, group, [("auth", "view_permission")], mode="replace")
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert _codenames(group) == {"view_permission"}
     assert response.json()["removed"] >= 1
 
@@ -151,7 +151,7 @@ def test_an_ambiguous_codename_needs_the_app_column(bootstrap_tenant):
     explicit = _import(client, group, [("django_resaas", "view_group")])
 
     assert ambiguous.status_code == 400
-    assert explicit.status_code == 200, explicit.json()
+    assert explicit.status_code == 202, explicit.json()
 
 
 def test_import_cannot_grant_what_the_caller_does_not_hold(bootstrap_tenant):
@@ -203,6 +203,6 @@ def test_exported_file_imports_back_unchanged(bootstrap_tenant):
         "file": SimpleUploadedFile("p.csv", exported, content_type="text/csv"), "mode": "replace",
     }, format="multipart")
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert response.json()["added"] == 0 and response.json()["removed"] == 0
     assert _codenames(group) == {"view_group", "view_permission"}

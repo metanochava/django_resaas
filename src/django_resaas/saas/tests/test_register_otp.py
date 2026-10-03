@@ -68,7 +68,7 @@ def test_request_otp_for_fresh_email_sends_code(client, fake_notification_provid
         "/api/register/otp/request/", {"channel": "email", "identifier": "new@example.com"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     assert len(fake_notification_providers["email"].sent) == 1
     assert fake_notification_providers["email"].sent[0]["recipient"] == "new@example.com"
 
@@ -78,7 +78,7 @@ def test_request_otp_for_fresh_mobile_sends_code(client, fake_notification_provi
         "/api/register/otp/request/", {"channel": "mobile", "identifier": "+258840000000"}
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     assert len(fake_notification_providers["sms"].sent) == 1
 
 
@@ -289,10 +289,10 @@ def test_request_password_reset_email_does_not_crash(client, fake_notification_p
         HTTP_ORIGIN="http://example.test",
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
 
 
-def test_request_password_reset_unknown_email_still_returns_200(client):
+def test_request_password_reset_unknown_email_still_succeeds(client):
     """Existence of the email must never be revealed either way."""
 
     response = client.post(
@@ -301,7 +301,7 @@ def test_request_password_reset_unknown_email_still_returns_200(client):
         HTTP_ORIGIN="http://example.test",
     )
 
-    assert response.status_code == 200
+    assert response.status_code == 202
 
 
 def test_set_new_password_actually_changes_the_password(client):

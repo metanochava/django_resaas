@@ -223,5 +223,5 @@ def test_remove_permission_needs_the_permission_to_be_held(bootstrap_tenant):
     allowed = _actor(tenant, "ga-remove-allowed", "change_group", "view_agreement").post(
         f"{URL}{target.id}/removePermission/", {"codename": "view_agreement"}, format="json"
     )
-    assert allowed.status_code == 200, allowed.json()
+    assert allowed.status_code == 202, allowed.json()
     assert set(target.permissions.values_list("codename", flat=True)) == {"view_agreement_amount"}

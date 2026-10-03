@@ -32,7 +32,7 @@ def test_logout_blacklists_a_valid_refresh_token(bootstrap_tenant):
 
     response = client.post("/api/logout/", {"refresh": str(refresh)}, format="json")
 
-    assert response.status_code == 200
+    assert response.status_code == 202
     assert BlacklistedToken.objects.filter(token__jti=refresh["jti"]).exists()
 
 

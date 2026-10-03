@@ -86,7 +86,7 @@ def test_an_entity_can_only_link_its_entity_types_template_groups(bootstrap_tena
     assert root.status_code == 403
     assert root.json()["error"]["code"] == "group_not_in_entity_type"
     assert not EntityGroup.objects.filter(entity=tenant["entity"], group=tenant["root_group"]).exists()
-    assert ok.status_code == 200
+    assert ok.status_code == 202
     assert EntityGroup.objects.filter(entity=tenant["entity"], group=template).exists()
 
 
