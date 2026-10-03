@@ -1495,4 +1495,7 @@ key_value = {
     "Click: profiles · Double-click: reload permissions": "Clic: perfiles · Doble clic: recargar permisos",
     # dashboard calendar widget (quasar_resaas CalendarWidget)
     "Events": "Eventos",
+    # person filiation (Person.father_name / mother_name)
+    "Father's name": "Nombre del padre",
+    "Mother's name": "Nombre de la madre",
 }
