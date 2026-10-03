@@ -14,6 +14,7 @@ from django_resaas.saas.data.site_contact_message.serializers.site_contact_messa
     SiteContactMessageSerializer,
 )
 from django_resaas.saas.models.site_contact_message import SiteContactMessage
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
 class SiteContactThrottle(SimpleRateThrottle):
@@ -61,7 +62,7 @@ class SiteBranchesAPIView(APIView):
         return Response(site_service.public_branches(entity))
 
 
-class SiteContactAPIView(APIView):
+class SiteContactAPIView(ResaasResponseMixin, APIView):
     """POST site/contact/  {name, phone?, email?, message}
 
     PUBLIC (explicit): the contact form of an Entity's public site, sent by

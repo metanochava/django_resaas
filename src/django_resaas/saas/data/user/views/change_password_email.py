@@ -6,9 +6,10 @@ from rest_framework.response import Response
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.user import User
 from django_resaas.saas.data.user.serializers.login import LoginSerializer
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class ChangePasswordEmailAPIView(generics.GenericAPIView):
+class ChangePasswordEmailAPIView(ResaasResponseMixin, generics.GenericAPIView):
     """
     POST password/change/email/  {email, password, passwordNova}
 

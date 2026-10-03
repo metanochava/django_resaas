@@ -28,6 +28,7 @@ from django_resaas.saas.management.apicommands.service import (
     workspace_service,
 )
 from django_resaas.saas.management.apicommands.service.workspace_service import WorkspaceError
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ def _ide_enabled():
 
 
 @registerView("ide", "django_resaas")
-class IDEWorkspaceAPIView(ViewSet):
+class IDEWorkspaceAPIView(ResaasResponseMixin, ViewSet):
 
     permission_classes = [IsAdminUser]
 

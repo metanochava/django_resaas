@@ -13,9 +13,10 @@ from django_resaas.saas.data.user.serializers.request_password_reset_email impor
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.utils.email_branding import resolve_email_branding
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class RequestPasswordResetEmailAPIView(generics.GenericAPIView):
+class RequestPasswordResetEmailAPIView(ResaasResponseMixin, generics.GenericAPIView):
 
     # PUBLIC (explicit): used before there is a session
     permission_classes = (permissions.AllowAny,)

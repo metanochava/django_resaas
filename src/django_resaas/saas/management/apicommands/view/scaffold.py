@@ -34,6 +34,7 @@ import importlib.util
 import importlib
 import pprint
 from io import StringIO
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
 # =========================================================
@@ -423,7 +424,7 @@ def write_python_pretty(code: str) -> str:
 # =========================================================
 
 @registerView("scaffold", "django_resaas")
-class ScaffoldAPIView(ViewSet):
+class ScaffoldAPIView(ResaasResponseMixin, ViewSet):
 
     permission_classes = [IsAdminUser]
 

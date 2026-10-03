@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django_resaas.saas.core.tenant.context import ResaasContextService
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class ResaasContextAPIView(APIView):
+class ResaasContextAPIView(ResaasResponseMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):

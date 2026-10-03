@@ -5,6 +5,7 @@ from django.db.models import F
 
 from rest_framework import filters, status, viewsets
 from django_resaas.saas.core.decorators.action import resaas_action
+from django_resaas.saas.core.exceptions import ResaasAPIException
 from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.pagination import ResaasPagination
@@ -89,6 +90,13 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
 
         group_access_service.check_group_changeable(request, group)
 
+        # Delta mode ({add, remove}): only the permissions the caller actually
+        # ticked / unticked change - a client that loaded nothing, or a stale
+        # editor, can never wipe what the group already has. The full-list
+        # mode ({permissions}) below stays for existing clients.
+        if "add" in request.data or "remove" in request.data:
+            return self._apply_permission_delta(request, group)
+
         if not isinstance(permission_ids, list):
             return Response(
                 {"error": "permissions must be a list"},
@@ -145,3 +153,56 @@ class PermissionAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     # branch for any authenticated caller - no permission, no tenant check -
     # and had no consumer. Profiles of a user: UserAPIView addGroup /
     # removeGroup (users/{id}/addGroup/, permission- and tenant-checked).
+
+    def _apply_permission_delta(self, request, group):
+        add_ids = request.data.get("add") or []
+        remove_ids = request.data.get("remove") or []
+
+        if not isinstance(add_ids, list) or not isinstance(remove_ids, list):
+            raise ResaasAPIException("add and remove must be lists", code="invalid_permission_delta", status_code=400)
+
+        add_ids = list(dict.fromkeys(str(value) for value in add_ids))
+        remove_ids = list(dict.fromkeys(str(value) for value in remove_ids))
+
+        if set(add_ids) & set(remove_ids):
+            raise ResaasAPIException(
+                "A permission cannot be added and removed at once",
+                code="invalid_permission_delta", status_code=400,
+            )
+
+        wanted = Permission.objects.filter(id__in=add_ids + remove_ids)
+        found = {str(permission.id): permission for permission in wanted}
+        invalid = [value for value in add_ids + remove_ids if value not in found]
+
+        if invalid:
+            raise ResaasAPIException(
+                "One or more permissions were not found",
+                code="permission_not_found", details={"invalid_permissions": invalid}, status_code=400,
+            )
+
+        with transaction.atomic():
+            group = Group.objects.select_for_update().get(pk=group.pk)
+            current = set(group.permissions.all())
+
+            to_add = {found[value] for value in add_ids} - current
+            to_remove = {found[value] for value in remove_ids} & current
+
+            # no privilege escalation by delegation: only what really changes
+            group_access_service.check_delegation(request, to_add | to_remove)
+
+            if to_add:
+                group.permissions.add(*to_add)
+            if to_remove:
+                group.permissions.remove(*to_remove)
+
+        saved_ids = list(group.permissions.values_list("id", flat=True))
+        return Response(
+            {
+                "group": str(group.id),
+                "permissions": saved_ids,
+                "total": len(saved_ids),
+                "added": len(to_add),
+                "removed": len(to_remove),
+            },
+            status=status.HTTP_200_OK,
+        )

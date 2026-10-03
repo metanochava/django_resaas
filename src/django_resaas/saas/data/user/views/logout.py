@@ -3,9 +3,10 @@ from rest_framework.response import Response
 
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.user.serializers.logout import LogoutSerializer
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class LogoutAPIView(generics.GenericAPIView):
+class LogoutAPIView(ResaasResponseMixin, generics.GenericAPIView):
     serializer_class = LogoutSerializer
     permission_classes = (permissions.IsAuthenticated,)
 

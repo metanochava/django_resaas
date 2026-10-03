@@ -37,10 +37,11 @@ from django_resaas.saas.core.entitlements import has_module, require_capacity
 from django.core.exceptions import ValidationError as DjangoValidationError
 
 from django_resaas.saas.core.base.views import BaseAPIView
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
 
-class UserAPIView(viewsets.ModelViewSet):
+class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
     search_fields = ['id','username']
     filter_backends = (filters.SearchFilter,)
     serializer_class = UserSerializer

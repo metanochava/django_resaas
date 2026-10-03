@@ -5,11 +5,12 @@ from django_resaas.saas.core.services.otp_service import send_registration_otp
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.user import User
 from django_resaas.notifications.exceptions import NotificationError
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 _CHANNELS = ("email", "mobile")
 
 
-class RequestRegisterOTPView(generics.GenericAPIView):
+class RequestRegisterOTPView(ResaasResponseMixin, generics.GenericAPIView):
     """Step 1 of registration: send an OTP to an email or mobile that
     isn't already registered. No auth required - the account doesn't
     exist yet."""

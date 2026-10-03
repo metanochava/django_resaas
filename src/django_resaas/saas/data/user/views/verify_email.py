@@ -8,9 +8,10 @@ from rest_framework.response import Response
 from django_resaas.saas.models.user import User
 from django_resaas.saas.data.user.serializers.me import MeSerializer
 from django_resaas.saas.core.utils.translate import Translate
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class VerifyEmail(views.APIView):
+class VerifyEmail(ResaasResponseMixin, views.APIView):
     """
     POST email/verify/  {token}
 

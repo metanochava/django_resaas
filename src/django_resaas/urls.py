@@ -20,7 +20,6 @@ from django.urls import path
 
 from rest_framework import routers
 
-from rest_framework_simplejwt.views import TokenRefreshView
 
 
 
@@ -28,7 +27,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 # ─────────────────────────────
 # User / Auth views
 # ─────────────────────────────
-from django_resaas.saas.data.user.views.login import LoginAPIView
+from django_resaas.saas.data.user.views.login import LoginAPIView, TokenRefreshView
 from django_resaas.saas.data.user.views.logins import LoginsAPIView
 from django_resaas.saas.data.user.views.logout import LogoutAPIView
 from django_resaas.saas.data.user.views.me import MeAPIView

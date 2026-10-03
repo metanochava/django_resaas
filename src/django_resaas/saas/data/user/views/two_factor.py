@@ -23,6 +23,7 @@ from rest_framework.response import Response
 from django_resaas.saas.core.exceptions import error_response
 from django_resaas.saas.core.services import session_service, two_factor_service as service
 from django_resaas.saas.core.utils.translate import Translate
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
 def _entity(request):
@@ -53,7 +54,7 @@ def _code(request):
     return value if isinstance(value, str) else ""
 
 
-class _Base(generics.GenericAPIView):
+class _Base(ResaasResponseMixin, generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
 
@@ -111,7 +112,7 @@ class TwoFactorRecoveryAPIView(_Base):
 
 # ---------------------------------------------------------------- sign-in
 
-class _Public(generics.GenericAPIView):
+class _Public(ResaasResponseMixin, generics.GenericAPIView):
     permission_classes = [AllowAny]
     authentication_classes = []
 

@@ -14,9 +14,10 @@ from django_resaas.saas.data.user.serializers.request_password_reset_email impor
 )
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.templates import render_email_template
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class MailAPIView(generics.GenericAPIView):
+class MailAPIView(ResaasResponseMixin, generics.GenericAPIView):
     """
     POST mail/  {email}   (DEPRECATED - use POST password/reset/email/)
 
