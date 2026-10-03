@@ -10,8 +10,10 @@ docs/deployment/upgrading.md). On an environment created before that:
   exist (they are pruned);
 - the project's own app migrations (generated locally) may depend on them,
   e.g. ('django_resaas', '0003_entity_founded_on_...'): each such dependency
-  is pointed at the latest migration the framework ships, whose schema is the
-  same.
+  is pointed at the newest migration the framework ships that is already
+  applied (0001_initial on an old environment: same schema). A shipped
+  migration that is not applied yet is never used as the target, or `migrate`
+  would refuse the history (InconsistentMigrationHistory).
 
 Dry run by default (prints the plan, changes nothing). --apply rewrites the
 project's migration files (only files under BASE_DIR - never an installed
@@ -68,6 +70,25 @@ class Command(BaseCommand):
             for label, names in shipped.items() if names
         }
 
+        recorder = MigrationRecorder(connection)
+        applied = recorder.applied_migrations() if recorder.has_table() else {}
+
+        # The repoint target is the newest SHIPPED migration already APPLIED here:
+        # that is the schema the database has. Pointing an applied project
+        # migration at a shipped one that is not applied yet (e.g. a 0002 that
+        # came with the new package) makes `migrate` fail with
+        # InconsistentMigrationHistory. Only with nothing shipped applied (a new
+        # database) is the latest shipped migration used.
+        targets = {}
+        for label, names in shipped.items():
+            if not names:
+                continue
+            done = {name for name in names if (label, name) in applied}
+            targets[label] = (
+                leaf_of(done, {k: v for k, v in disk.items() if k[0] == label and k[1] in done})
+                if done else leaves.get(label)
+            )
+
         # 1. project migrations depending on framework migrations that are gone
         rewrites = []
         for (app, name), migration in disk.items():
@@ -78,11 +99,9 @@ class Command(BaseCommand):
                 continue  # an installed package: never touched
             for dep_app, dep_name in migration.dependencies:
                 if dep_app in labels and dep_name not in shipped.get(dep_app, set()) and dep_name != "__first__":
-                    rewrites.append((path, dep_app, dep_name, leaves.get(dep_app)))
+                    rewrites.append((path, dep_app, dep_name, targets.get(dep_app)))
 
         # 2. stale django_migrations rows of framework apps
-        recorder = MigrationRecorder(connection)
-        applied = recorder.applied_migrations() if recorder.has_table() else {}
         stale = sorted((app, name) for (app, name) in applied if app in labels and name not in shipped.get(app, set()))
         missing = sorted(
             (label, leaf) for label, leaf in leaves.items()

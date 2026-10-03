@@ -104,6 +104,16 @@ pg_dump ... > before-rebaseline.dump
 # 2. install the new django_resaas (it brings its migrations)
 pip install -U django_resaas
 
+# 2b. move away the migrations this environment generated inside the package:
+#     pip only removes the files it installed, so the old local ones stay next
+#     to the shipped ones (two leaf nodes: "Conflicting migrations detected").
+#     Keep only what the package ships (its RECORD lists them).
+SITE=$(python -c "import django_resaas, os; print(os.path.dirname(django_resaas.__file__))")
+mkdir -p backups/stale-framework-migrations
+for f in "$SITE"/saas/migrations/0*.py "$SITE"/notifications/migrations/0*.py; do
+  grep -q "${f#$SITE/}" "$SITE"/../django_resaas-*.dist-info/RECORD || mv "$f" backups/stale-framework-migrations/
+done
+
 # 3. see what will change - dry run, changes nothing
 python manage.py resaas_migrations_rebaseline
 
@@ -118,8 +128,11 @@ python manage.py makemigrations --check --dry-run   # "No changes detected"
 `resaas_migrations_rebaseline` does two things, and prints them first:
 
 - **Repoints project migrations.** A migration of one of your apps that depends
-  on a framework migration which no longer exists is pointed at the latest
-  migration the framework ships (same schema). Only files under `BASE_DIR` are
+  on a framework migration which no longer exists is pointed at the newest
+  migration the framework ships **that is already applied** - `0001_initial` on
+  an environment created before (same schema). A shipped migration that is not
+  applied yet (e.g. a `0002` that came with the new package) is never the
+  target: `migrate` would refuse the history (`InconsistentMigrationHistory`). Only files under `BASE_DIR` are
   touched, never an installed package.
 - **Prunes stale rows.** Rows of `django_migrations` for framework migrations
   that no longer exist are deleted. Otherwise, a future shipped migration with
@@ -134,6 +147,8 @@ schema or any data.
 | Symptom | Cause / fix |
 |---|---|
 | `NodeNotFoundError: ... dependencies reference nonexistent parent node ('django_resaas', '000X_...')` | Step 4 has not run yet: run `resaas_migrations_rebaseline --apply` |
+| `InconsistentMigrationHistory: Migration <app>.000X is applied before its dependency django_resaas.0002_...` | A project migration was pointed at a shipped migration not applied yet (`resaas_migrations_rebaseline` before 0.0.635 did that when the package shipped more than `0001_initial`): point that dependency at `("django_resaas", "0001_initial")` |
+| `Conflicting migrations detected; multiple leaf nodes ... (0002_<shipped>, 000X_<local> in django_resaas)` | The environment's own old framework migrations are still inside the installed package: do step 2b, then steps 3-5 |
 | `makemigrations --check` reports changes in `django_resaas`/`notifications` after the upgrade | The database was not fully migrated with the previous version (step 0), or the project runs an older package: stop, restore the backup, redo from step 0 |
 | `makemigrations` creates files inside the installed package | Never commit or keep those. The framework's migrations come from the package. Report the model change upstream |
 
