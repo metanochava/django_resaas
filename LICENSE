@@ -1,21 +1,63 @@
-MIT License
+RESAAS Commercial License
 
-Copyright (c) 2025 Metano Chavana
+Copyright (c) 2025-2026 Dias Metano Salvador Chavana. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This license applies to django_resaas ("the Software"), part of RESAAS. Versions of
+the Software published before this license was introduced remain under the
+license they were published with.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Ownership
+   The Software is licensed, not sold. All rights, title and interest in the
+   Software, including all intellectual property rights, remain with the
+   copyright holder.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+2. Grant
+   Subject to the terms of this license, you may download, install and use the
+   Software to build and run applications, only:
+   a) within the features, capacities and modules enabled for your installation
+      or tenant by the Software's entitlements mechanism; and
+   b) within the scope of any written license agreement entered into with the
+      copyright holder, which prevails over this license where they differ.
+   Any use beyond that requires a separate written license from the copyright
+   holder.
+
+3. Restrictions
+   Unless a written agreement with the copyright holder expressly allows it,
+   you may not:
+   a) copy, distribute, publish, sell, rent, lease, sublicense or otherwise make
+      the Software, or any modified version of it, available to third parties,
+      except as an integral part of an application you build with it and run
+      for your own users;
+   b) remove, disable, bypass or alter the entitlements, licensing or tenant
+      isolation mechanisms of the Software, or enable features, capacities or
+      modules that have not been granted to you;
+   c) offer the Software, or a product whose main value is the Software, as a
+      development framework, platform or service to third parties;
+   d) remove or alter any copyright, license or proprietary notice.
+
+4. Modifications
+   You may modify the Software only for your own use under section 2. Modified
+   versions remain subject to this license.
+
+5. Third-party components
+   Third-party components included with or required by the Software are
+   licensed under their own terms.
+
+6. Termination
+   This license terminates automatically if you breach any of its terms. On
+   termination you must stop using the Software and delete all copies in your
+   possession.
+
+7. No warranty
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
+
+8. Limitation of liability
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL THE COPYRIGHT
+   HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+   ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+   WITH THE SOFTWARE OR THE USE OF OR OTHER DEALINGS IN THE SOFTWARE.
+
+For commercial licensing, contact the copyright holder:
+https://github.com/metanochava

@@ -1,11 +1,11 @@
 # 🚀 django_resaas
 
-**The framework you've been missing for building multi-tenant SaaS apps in Django — without reinventing the wheel on every project.**
+**Full-stack framework for building secure, multi-tenant business applications with Django and Quasar** — this is the Django backend; [quasar_resaas](https://github.com/metanochava/quasar_resaas) is the frontend.
 
 [![PyPI](https://img.shields.io/badge/pypi-django__resaas-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/django_resaas/)
 [![Python](https://img.shields.io/badge/python-3.9%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![Django](https://img.shields.io/badge/django-5.2-0C4B33?logo=django&logoColor=white)](pyproject.toml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: Commercial](https://img.shields.io/badge/license-commercial-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active%20development-orange)](https://github.com/metanochava/django_resaas)
 
 ---
@@ -68,7 +68,7 @@ Every multi-tenant SaaS app ends up needing the same set of building blocks. `dj
 * 🔎 **Dynamic search** — automatic search across text fields and relations
 * ♻️ **Soft delete** — `delete()` / `restore()` / `hard_delete()` + dedicated managers
 * 🧩 **Per-client modules** — toggle features on/off per entity without a deploy (`App` + `EntityApp`)
-* 🎚️ **Entitlements** — features and capacities (e.g. 3 branches, 20 users) behind a replaceable provider, enforced by the backend
+* 🎚️ **Entitlements** — features, capacities (quantitative limits) and modules per installation/tenant, behind a replaceable provider, enforced by the backend
 * 📎 **Files & PDF** — secure uploads, automatic metadata, PDF generation (WeasyPrint)
 * 🔑 **JWT auth + 2FA** — `simplejwt`, OTP (`pyotp`) and QR codes built in
 * 🌍 **Built-in i18n** — file-based translations (`pt-pt`, `en-us`, `es-es`, `fr-fr`) and database-backed
@@ -277,17 +277,27 @@ EntityApp.objects.get_or_create(app=app, entity=entity, state='Active')
 ```
 
 **Entitlements** add what the installation/tenant may use, on top of activation:
-features (`multi_entity`), capacities (`branches = 3`, `users = 20`) and allowed
-modules. They are off by default (nothing restricted), configured with
+features (`multi_entity`), capacities (quantitative limits such as `branches`) and
+allowed modules. They are off by default (nothing restricted), configured with
 `RESAAS_ENTITLEMENTS` or a custom provider, and always enforced by the backend:
 
 ```python
+# illustrative values - RESAAS ships no plans or official limits
 RESAAS_ENTITLEMENTS = {"features": {"advanced_audit": True},
                        "capacities": {"branches": 3, "users": 20}}
 ```
 
-The framework knows capabilities only — commercial plans are mapped to them by a
-provider. There is no billing or payment layer. See
+Entitlements sit between the tenant context and permissions — they never replace
+a permission:
+
+```text
+Authentication → Signed tenant context → Entitlements → Permissions → Object scope → Field authorization → Business operation
+```
+
+Installing the package does not mean unlimited use: what an installation may use
+follows the [license](LICENSE) and its entitlements. The framework knows
+capabilities only — commercial plans are mapped to them by a provider. There is no
+billing or payment layer. See
 [Entitlements](docs/security/entitlements.md).
 
 ---
@@ -387,7 +397,10 @@ make check
 
 ## 📄 License
 
-Distributed under the [MIT](LICENSE) license.
+Distributed under the [RESAAS Commercial License](LICENSE). The package can be installed
+and used within the terms of that license and the entitlements enabled for your
+installation; anything beyond that needs a written license. Versions published
+before this license keep the license they were published with.
 
 ---
 

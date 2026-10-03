@@ -4,11 +4,15 @@
 
 An **entitlement** says what an installation or tenant may use:
 
-| Concept | Question it answers | Example |
+| Concept | Question it answers | Example (illustrative values) |
 |---|---|---|
 | **Feature** | Is this functionality available here? | `multi_entity`, `advanced_audit` |
-| **Capacity** | How much of it may be used? | `branches = 3`, `users = 20` |
+| **Capacity** | How much of it may be used? (a quantitative limit) | `branches = 3`, `users = 20` |
 | **Module** | May this business module run at all? | `hr`, `saude` |
+
+The numbers on this page are **examples**, not official limits: RESAAS ships no
+plans, prices or free-tier limits. An installation without entitlements
+configured is not restricted (see *Configuration*).
 
 It is **not** authorization. The other layers stay as they are:
 
@@ -20,12 +24,49 @@ It is **not** authorization. The other layers stay as they are:
 | Tenant | Within which Entity/Branch? ([Multi-tenancy](../architecture/multi-tenancy.md)) |
 | Module activation | Is the module switched on for the Entity? (`App`/`EntityApp`) |
 
-A request must pass **all** of them. An entitlement never grants a permission,
-and a permission never lifts an entitlement.
+A request must pass **all** of them, in this order:
 
-The core knows capabilities only. Commercial products or plans ("Business",
-"Enterprise", ...) are outside the framework: whoever sells them turns a plan
-into features and capacities through a provider.
+```text
+Authentication
+      ↓
+Signed tenant context (X-RESAAS-Context)
+      ↓
+Entitlements          (installation / tenant: feature, capacity, module)
+      ↓
+Permissions           (user: may perform the operation)
+      ↓
+Object scope
+      ↓
+Field authorization
+      ↓
+Business operation
+```
+
+An entitlement never grants a permission, and a permission never lifts an
+entitlement: **entitlements do not replace permissions.**
+
+The core knows capabilities only. Commercial products or plans are outside the
+framework: whoever licenses them turns a plan into features and capacities
+through a provider.
+
+### Not billing
+
+Entitlements are **not** a billing or payment system. RESAAS has no billing,
+subscriptions, payments or payment-provider integration. The intended chain is:
+
+```text
+Billing / payment            (outside RESAAS)
+        ↓
+Commercial licensing         (the RESAAS Commercial License and any written agreement)
+        ↓
+Entitlements                 (what was granted: features, capacities, modules)
+        ↓
+RESAAS enforcement           (has_feature / require_capacity / has_module, backend)
+```
+
+Installing the package does not grant unlimited use: what an installation may
+use follows the [license](https://github.com/metanochava/django_resaas/blob/main/LICENSE)
+and the entitlements its provider returns.
 
 ## Why
 
@@ -41,6 +82,7 @@ entitlements behaves exactly as before.
 
 ```python
 # settings.py
+# illustrative values
 RESAAS_ENTITLEMENTS = {
     "features": {"multi_entity": False, "advanced_audit": True},
     "capacities": {"entities": 1, "branches": 3, "users": 20, "entity_types": 1},
