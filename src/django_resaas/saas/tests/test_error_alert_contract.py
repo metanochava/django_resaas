@@ -318,6 +318,69 @@ class TestAlertsOnResponses:
         assert "SELECT" not in str(response.data)
 
 
+class _PostDemo(ResaasResponseMixin, APIView):
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request):
+        kind = request.data.get("kind")
+
+        if kind == "created":
+            return Response({"id": 1}, status=201)
+        if kind == "result":
+            return Response({"checked_in": True})
+        if kind == "alert_only":
+            add_alert(request, "Checked in.", level="success")
+            return Response({})
+        if kind == "invalid":
+            raise ResaasAPIException("Bad.", status_code=400)
+        return Response()
+
+    def patch(self, request):
+        return Response({"id": 1})
+
+
+def _post(kind):
+    return _PostDemo.as_view()(factory.post("/", {"kind": kind}, format="json"))
+
+
+class TestPostStatus:
+    """A successful POST never answers 200: 201 created, 202 operation with a
+    result, 204 operation with nothing to return. Other methods are untouched."""
+
+    def test_a_creation_keeps_201(self):
+        response = _post("created")
+
+        assert (response.status_code, response.data) == (201, {"id": 1})
+
+    def test_an_operation_with_a_result_answers_202_and_keeps_the_body(self):
+        response = _post("result")
+
+        assert (response.status_code, response.data) == (202, {"checked_in": True})
+
+    def test_an_operation_with_nothing_to_return_answers_204_without_body(self):
+        response = _post("nothing")
+        response.render()
+
+        assert response.status_code == 204
+        assert response.content == b""
+
+    def test_alerts_are_a_body_so_the_operation_answers_202(self):
+        response = _post("alert_only")
+
+        assert response.status_code == 202
+        assert response.data["alerts"][0]["message"] == "Checked in."
+
+    def test_an_error_keeps_its_status(self):
+        assert _post("invalid").status_code == 400
+
+    def test_patch_and_get_keep_200(self):
+        patched = _PostDemo.as_view()(factory.patch("/", {}, format="json"))
+
+        assert patched.status_code == 200
+        assert _call("plain").status_code == 200
+
+
 # ------------------------------------------------------------------ the real endpoints
 
 class TestRealEndpoints:

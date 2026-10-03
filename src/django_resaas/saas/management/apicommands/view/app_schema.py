@@ -895,7 +895,7 @@ def _can_pick(request, Model):
 class RelationsAPIView(APIView):
     """
     GET /api/django_resaas/relations/?model=app.Model&search=abc
-    -> [{id, label}, ...]
+    -> [{id, label, value}, ...]
     """
     permission_classes = [IsAuthenticated]
 

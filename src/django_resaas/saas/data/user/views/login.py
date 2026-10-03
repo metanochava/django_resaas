@@ -2,13 +2,15 @@ import re
 
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
+from rest_framework_simplejwt import views as jwt_views
 
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.user_login import UserLogin
 from django_resaas.saas.data.user.serializers.login import LoginSerializer
 from django.contrib.auth import authenticate
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
-class LoginAPIView(generics.GenericAPIView):
+class LoginAPIView(ResaasResponseMixin, generics.GenericAPIView):
 
     # PUBLIC (explicit): used before there is a session
     permission_classes = (permissions.AllowAny,)
@@ -54,3 +56,8 @@ class LoginAPIView(generics.GenericAPIView):
             response,
             status=status.HTTP_200_OK,
         )
+
+
+class TokenRefreshView(ResaasResponseMixin, jwt_views.TokenRefreshView):
+    """simplejwt's refresh, with the RESAAS response behaviour (error contract,
+    POST status). PUBLIC (explicit, upstream): the caller only has a refresh token."""

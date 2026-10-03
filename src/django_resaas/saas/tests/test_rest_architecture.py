@@ -5,7 +5,9 @@ They keep three rules true for every routed view, whoever adds it:
   1. every non-BaseAPIView endpoint is explicitly PUBLIC or PROTECTED
      (never public by omission - DRF's default here is "allow");
   2. a GET never changes state;
-  3. the HTTP method of an endpoint matches what it does.
+  3. the HTTP method of an endpoint matches what it does;
+  4. a POST never answers 200 (every DRF view that accepts POST goes through
+     ResaasResponseMixin, which answers 201 / 202 / 204).
 """
 import ast
 import inspect
@@ -15,7 +17,9 @@ import pytest
 from django.urls import get_resolver
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.test import APIClient
+from rest_framework.views import APIView
 
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.base.views import BaseAPIView
 
 pytestmark = pytest.mark.django_db
@@ -399,3 +403,36 @@ class TestStateChangingLinksArePost:
         response = APIClient().post("/api/email/verify/", {"token": "not-a-token"}, format="json")
 
         assert response.status_code == 400
+
+
+class TestPostNeverAnswers200:
+
+    def test_every_view_that_accepts_post_uses_the_response_mixin(self):
+        """ResaasResponseMixin turns a POST 200 into 202 (with a body) or 204
+        (without). A DRF view that accepts POST without it would answer 200."""
+        missing = sorted(
+            f"{route}  ({view.__module__}.{view.__name__})"
+            for view, route in _routed_views().items()
+            if issubclass(view, APIView)
+            and "post" in _post_methods(view)
+            and not issubclass(view, ResaasResponseMixin)
+        )
+
+        assert missing == [], (
+            "These views accept POST without ResaasResponseMixin, so a success would "
+            "answer 200. Add the mixin first in the bases:\n  " + "\n  ".join(missing)
+        )
+
+    def test_a_real_post_operation_answers_202(self):
+        response = APIClient().post("/api/mail/", {"email": "nobody@rest.test"}, format="json")
+
+        assert response.status_code == 202
+
+
+def _post_methods(view):
+    names = {name.lower() for name in getattr(view, "http_method_names", [])}
+    if hasattr(view, "post") or hasattr(view, "create"):
+        return names & {"post"}
+    # a ViewSet whose only POST handlers are @action(methods=["post"])
+    actions = getattr(view, "get_extra_actions", lambda: [])()
+    return {"post"} if any("post" in action.mapping for action in actions) else set()

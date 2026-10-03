@@ -21,6 +21,7 @@ from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.user.serializers.user import UserSerializer
 from django_resaas.saas.models.user import User
 from django_resaas.notifications.exceptions import NotificationError
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 _CHANNELS = ("email", "mobile")
 _PURPOSE = {"email": "email_change", "mobile": "mobile_change"}
@@ -59,7 +60,7 @@ def _validate_channel_and_identifier(request):
     return channel, identifier, None
 
 
-class RequestProfileContactOTPView(generics.GenericAPIView):
+class RequestProfileContactOTPView(ResaasResponseMixin, generics.GenericAPIView):
     """Step 1: send an OTP to the NEW email/mobile the user wants to
     switch to (not their current one - it's the new value that needs
     proving)."""
@@ -91,7 +92,7 @@ class RequestProfileContactOTPView(generics.GenericAPIView):
         )
 
 
-class ConfirmProfileContactOTPView(generics.GenericAPIView):
+class ConfirmProfileContactOTPView(ResaasResponseMixin, generics.GenericAPIView):
     """Step 2: verify the OTP and only then actually change
     request.user.email/mobile - never before this point."""
 

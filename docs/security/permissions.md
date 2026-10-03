@@ -51,8 +51,17 @@ report = group_creator([{"name": "Registered Nurse", "permissions": ["view_pacie
 `Group` rows are **global**: the same group (e.g. the bootstrap `Admin`) can be linked to several
 Entities (`EntityGroup`) and used as an EntityType template (`EntityTypeGroup`). Changing a group's
 permissions changes them everywhere it is linked. For that reason `POST auth/permissions/setGroupPermissions/`
-(`PermissionAPIView`, body `{"group": <id>, "permissions": [<id>, ...]}`, replaces the whole list)
-is **PROTECTED** and checks, in order:
+(`PermissionAPIView`) is **PROTECTED** and takes one of two bodies:
+
+| Body | Effect |
+|---|---|
+| `{"group": <id>, "add": [<id>, ...], "remove": [<id>, ...]}` | **delta** (recommended, used by the frontend editor): adds / removes only the listed permissions; nothing that is not listed changes. An empty delta changes nothing. Answer: `group`, `permissions` (ids after the change), `total`, `added`, `removed`. |
+| `{"group": <id>, "permissions": [<id>, ...]}` | **full list** (kept for existing clients): replaces the whole list - an empty or incomplete list removes the rest. |
+
+Use the delta: an editor that failed to load the group's current permissions, or that is stale,
+cannot wipe them. In delta mode an id in both `add` and `remove` is `400 invalid_permission_delta`,
+and an unknown id is `400 permission_not_found` (`error.details.invalid_permissions`). Both modes
+check, in order:
 
 1. `change_group` in the current signed context, otherwise `403 permission_denied`.
 2. Without `change_entitytype` (platform level, which only **Root** holds by default), the group must:
@@ -66,8 +75,8 @@ is **PROTECTED** and checks, in order:
    - not be shared with another Entity nor be an EntityType template, otherwise `403 group_shared`.
 3. **No escalation by delegation.** Without `change_entitytype`, every permission the request adds
    **or removes** must be held by the caller's active group, otherwise `403 permission_not_held`
-   with `error.details.permissions` (ids). Permissions the list keeps unchanged are not checked,
-   because the screen sends the whole list back. Platform level (`change_entitytype`, Root by
+   with `error.details.permissions` (ids). Only what really changes is checked: permissions a full
+   list keeps unchanged, a delta `add` the group already has or a `remove` it lacks, are not. Platform level (`change_entitytype`, Root by
    default) may grant or revoke **any** permission on any group, including permissions its own
    group lacks (e.g. ones a module created after Root was set up). The same applies to
    `addPermission` / `removePermission` and to the profile import/export of an EntityType, which

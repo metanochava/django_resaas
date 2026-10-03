@@ -112,6 +112,39 @@ Business notifications (a contract about to expire, an order awaiting approval) 
 concern and belong to `django_resaas.notifications`, not to alerts — see
 [Notifications](../features/notifications.md).
 
+## Success status codes
+
+A successful `POST` never answers `200`. Each method answers:
+
+| Request | Success status | Body |
+|---|---|---|
+| `POST` that creates a record (`create`, `Response(..., status=201)`) | `201 Created` | the record |
+| `POST` operation with a result (check-in, approve, login, OTP, `@resaas_action`) | `202 Accepted` | the result |
+| `POST` operation with nothing to return | `204 No Content` | none |
+| `GET` | `200 OK` | the data |
+| `PATCH` / `PUT` | `200 OK` | the updated record (`BaseStore` reads it back) |
+| `DELETE` | `204 No Content` | none |
+
+Views do not have to remember this: `ResaasResponseMixin.finalize_response`
+(`saas/core/base/response_mixin.py`) turns a successful `POST` answered with `200` into `202` when
+the body has content (alerts count as content) and into `204` with no body when it is empty
+(`None`, `{}`, `[]`, `""`). A `201` the view sets itself is kept, and errors keep their own status.
+Only DRF `Response` objects are touched — a file/PDF `HttpResponse` is left alone.
+
+`202` is used here as "processed", not in its strict HTTP sense of "accepted for later
+processing": the operation has already run when the answer arrives.
+
+**Every DRF view that accepts `POST` must include `ResaasResponseMixin`** — `BaseAPIView` and
+`ExplicitAccessMixin` already do; a plain `APIView` / `GenericAPIView` / `ViewSet` adds it first in
+its bases (`class MyView(ResaasResponseMixin, generics.GenericAPIView)`).
+`saas/tests/test_rest_architecture.py::TestPostNeverAnswers200` fails for any routed view that
+accepts `POST` without it. `refresh_token/` uses a thin subclass of simplejwt's `TokenRefreshView`
+(`saas/data/user/views/login.py`) for the same reason.
+
+**Breaking change (behaviour):** clients that compared a `POST` answer with `200` must accept any
+2xx (axios already treats every 2xx as success). The frontend toasts per status — see the
+quasar_resaas *Errors and alerts* page.
+
 ## Multi-tenancy and security
 
 This page only covers the shape of the response body. Every request still goes through the full
@@ -123,5 +156,5 @@ security chain before it can succeed or fail this way — see [BaseAPIView](base
 
 `saas/tests/test_error_alert_contract.py` is the source of truth for the exact behaviour documented
 above — including the "no legacy alias leaks" regression tests
-(`TestNoLegacyAliases`) and real-endpoint checks (`TestRealEndpoints`) that exercise the actual URL
+(`TestNoLegacyAliases`), the POST status policy (`TestPostStatus`) and real-endpoint checks (`TestRealEndpoints`) that exercise the actual URL
 routing, not just the handler function in isolation.

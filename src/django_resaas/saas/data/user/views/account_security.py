@@ -14,6 +14,7 @@ from django_resaas.saas.core.services import session_service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.audit_log import AuditLog
 from django_resaas.saas.models.user_login import UserLogin
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 # the account's own security events worth showing to its owner (an
 # administrator revealing a temporary password is deliberately NOT one of them)
@@ -33,7 +34,7 @@ class SessionsAPIView(generics.GenericAPIView):
         )
 
 
-class TerminateSessionAPIView(generics.GenericAPIView):
+class TerminateSessionAPIView(ResaasResponseMixin, generics.GenericAPIView):
     """POST sessions/<jti>/terminate/ - end one of YOUR sessions."""
 
     permission_classes = (permissions.IsAuthenticated,)
@@ -48,7 +49,7 @@ class TerminateSessionAPIView(generics.GenericAPIView):
         return Response({"alert_success": Translate.tdc(request, "Session ended.")}, status=status.HTTP_200_OK)
 
 
-class TerminateOtherSessionsAPIView(generics.GenericAPIView):
+class TerminateOtherSessionsAPIView(ResaasResponseMixin, generics.GenericAPIView):
     """POST sessions/terminate_others/ - end every session but this one."""
 
     permission_classes = (permissions.IsAuthenticated,)

@@ -6,11 +6,12 @@ from django_resaas.saas.core.exceptions import error_response
 from django_resaas.saas.core.services import temporary_password_service, two_factor_service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.data.user.serializers.login import authenticate
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 MIN_LENGTH = 8
 
 
-class ChangeTemporaryPasswordAPIView(generics.GenericAPIView):
+class ChangeTemporaryPasswordAPIView(ResaasResponseMixin, generics.GenericAPIView):
     """
     POST password/change/temporary/  {identifier, password, new_password}
 

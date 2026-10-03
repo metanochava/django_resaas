@@ -318,3 +318,96 @@ def test_editable_cannot_be_set_by_the_client(bootstrap_tenant):
 
     group = Group.objects.filter(name="Sneaky").first()
     assert group is None or group.editable is False
+
+
+# ------------------------------------------------------------------ delta mode {add, remove}
+
+def _delta(client, group, add=(), remove=()):
+    return client.post(
+        SET_URL,
+        {"group": str(group.id), "add": [p.id for p in add], "remove": [p.id for p in remove]},
+        format="json",
+    )
+
+
+def test_delta_changes_only_what_was_ticked_or_unticked(bootstrap_tenant):
+    tenant = bootstrap_tenant("pa-delta")
+    client = _actor(tenant, "pa-delta-actor", "change_group", "view_agreement", "view_agreement_amount")
+    target = _entity_group(tenant, "Nurse")
+    target.permissions.set(_perms("view_agreement_amount", "change_group"))
+
+    response = _delta(client, target, add=_perms("view_agreement"), remove=_perms("change_group"))
+
+    assert response.status_code == 202, response.json()
+    assert response.json()["added"] == 1 and response.json()["removed"] == 1
+    assert _codenames(target) == {"view_agreement_amount", "view_agreement"}
+
+
+def test_an_empty_delta_never_wipes_the_group(bootstrap_tenant):
+    """The bug this mode exists for: an editor that loaded nothing must not
+    replace the group's permissions with nothing."""
+    tenant = bootstrap_tenant("pa-delta-empty")
+    client = _actor(tenant, "pa-delta-empty-actor", "change_group")
+    target = _entity_group(tenant, "Nurse")
+    target.permissions.set(_perms("view_agreement_amount", "view_agreement"))
+
+    response = _delta(client, target)
+
+    assert response.status_code == 202, response.json()
+    assert _codenames(target) == {"view_agreement_amount", "view_agreement"}
+
+
+def test_delta_keeps_the_delegation_rule(bootstrap_tenant):
+    tenant = bootstrap_tenant("pa-delta-escalate")
+    client = _actor(tenant, "pa-delta-escalator", "change_group", "view_agreement")
+    target = _entity_group(tenant, "Nurse")
+
+    response = _delta(client, target, add=_perms("view_agreement", "view_agreement_amount"))
+
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "permission_not_held"
+    assert _codenames(target) == set()
+
+
+def test_delta_ignores_what_is_already_so_for_delegation(bootstrap_tenant):
+    """Adding a permission the group already has, or removing one it lacks,
+    changes nothing - so it is not a grant/revoke the actor must hold."""
+    tenant = bootstrap_tenant("pa-delta-noop")
+    client = _actor(tenant, "pa-delta-noop-actor", "change_group")
+    target = _entity_group(tenant, "Nurse")
+    target.permissions.set(_perms("view_agreement_amount"))
+
+    response = _delta(client, target, add=_perms("view_agreement_amount"), remove=_perms("view_agreement"))
+
+    assert response.status_code == 202, response.json()
+    assert _codenames(target) == {"view_agreement_amount"}
+
+
+def test_delta_rejects_unknown_and_contradictory_ids(bootstrap_tenant):
+    tenant = bootstrap_tenant("pa-delta-invalid")
+    client = _actor(tenant, "pa-delta-invalid-actor", "change_group", "view_agreement")
+    target = _entity_group(tenant, "Nurse")
+    permission = _perms("view_agreement")
+
+    unknown = client.post(SET_URL, {"group": str(target.id), "add": [999999]}, format="json")
+    both = _delta(client, target, add=permission, remove=permission)
+
+    assert unknown.status_code == 400
+    assert unknown.json()["error"]["code"] == "permission_not_found"
+    assert both.status_code == 400
+    assert both.json()["error"]["code"] == "invalid_permission_delta"
+    assert _codenames(target) == set()
+
+
+def test_delta_on_a_group_of_another_entity_is_refused(bootstrap_tenant):
+    tenant = bootstrap_tenant("pa-delta-own")
+    other = bootstrap_tenant("pa-delta-other")
+    client = _actor(tenant, "pa-delta-own-actor", "change_group", "view_agreement")
+    foreign = _entity_group(other, "Foreign")
+    foreign.permissions.set(_perms("view_agreement_amount"))
+
+    response = _delta(client, foreign, remove=_perms("view_agreement_amount"))
+
+    assert response.status_code == 404
+    assert response.json()["error"]["code"] == "group_not_in_entity"
+    assert _codenames(foreign) == {"view_agreement_amount"}

@@ -8,9 +8,10 @@ from rest_framework.response import Response
 from django_resaas.saas.models.user import User
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.generate_key_otp import generateKeyOTP
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class ChangePasswordMobileAPIView(generics.GenericAPIView):
+class ChangePasswordMobileAPIView(ResaasResponseMixin, generics.GenericAPIView):
 
     # PUBLIC (explicit): used before there is a session
     permission_classes = (permissions.AllowAny,)

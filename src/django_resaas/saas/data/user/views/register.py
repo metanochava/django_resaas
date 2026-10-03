@@ -5,9 +5,10 @@ from django_resaas.saas.core.services.registration_welcome_service import send_r
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.username import UserName
 from django_resaas.saas.data.user.serializers.register import RegisterSerializer
+from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
 
-class RegisterAPIView(generics.GenericAPIView):
+class RegisterAPIView(ResaasResponseMixin, generics.GenericAPIView):
     """Completes registration for an identifier already OTP-verified via
     RequestRegisterOTPView. Does not auto-login - the account is created,
     the user logs in separately through the normal login flow."""
