@@ -52,3 +52,49 @@ def test_rebaseline_dry_run_changes_nothing_on_an_aligned_project():
     text = out.getvalue()
     assert "Project migration dependencies to repoint: 0" in text
     assert "Dry run - nothing changed" in text
+
+
+@override_settings(MIGRATION_MODULES={})
+def test_an_applied_project_migration_is_pointed_at_an_applied_framework_migration(monkeypatch):
+    """The production case: a project migration (already applied) depends on
+    an old local framework migration; the new package ships 0001_initial AND a
+    newer 0002 that is not applied yet. The target must be 0001_initial (the
+    schema the database has) - pointing at the unapplied 0002 makes `migrate`
+    fail with InconsistentMigrationHistory."""
+    from django.db.migrations.loader import MigrationLoader
+    from django.db.migrations.recorder import MigrationRecorder
+
+    real_load_disk = MigrationLoader.load_disk
+
+    class OldProjectMigration:
+        __module__ = "dev.demo.migrations.0001_initial"   # a file under BASE_DIR
+        app_label = "demo"
+        dependencies = [("django_resaas", "0003_old_local_history")]
+
+    def load_disk(self):
+        real_load_disk(self)
+        self.disk_migrations[("demo", "9999_old_project")] = OldProjectMigration()
+
+    shipped = sorted(name for (app, name) in _disk() if app == "django_resaas")
+    assert len(shipped) >= 2, "this case needs a shipped migration newer than 0001_initial"
+    applied = {("django_resaas", "0001_initial"): None, ("django_resaas", "0003_old_local_history"): None,
+               ("notifications", "0001_initial"): None, ("demo", "9999_old_project"): None}
+
+    monkeypatch.setattr(MigrationLoader, "load_disk", load_disk)
+    monkeypatch.setattr(MigrationRecorder, "applied_migrations", lambda self: applied)
+    out = StringIO()
+
+    call_command("resaas_migrations_rebaseline", stdout=out)
+
+    text = out.getvalue()
+    assert "('django_resaas', '0003_old_local_history') -> ('django_resaas', '0001_initial')" in text
+    assert "django_resaas.0003_old_local_history" in text      # the stale row is pruned
+    assert "Dry run - nothing changed" in text
+
+
+def _disk():
+    from django.db.migrations.loader import MigrationLoader
+
+    loader = MigrationLoader(None, ignore_no_migrations=True, load=False)
+    loader.load_disk()
+    return loader.disk_migrations
