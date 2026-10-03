@@ -162,7 +162,7 @@ class TestView:
 
         response = _client(tenant).post(_url(user, "viewTemporaryPassword"))
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["password"] == password
         assert response["Cache-Control"] == "no-store"
         assert response.data["state"] == "temporary" and response.data["expires_at"]
@@ -221,7 +221,7 @@ class TestView:
         user = User.objects.create_user(username="provisioned", email=None, password="x")
         _issue(user, mine)
 
-        assert _client(mine).post(_url(user, "viewTemporaryPassword")).status_code == 200
+        assert _client(mine).post(_url(user, "viewTemporaryPassword")).status_code == 202
         assert _client(theirs).post(_url(user, "viewTemporaryPassword")).status_code == 404
 
     def test_viewing_is_audited_without_the_password(self, bootstrap_tenant):
@@ -323,8 +323,8 @@ class TestExpiry:
         _issue(user, tenant)
         self._expire(user)
 
-        assert _client(tenant).post(_url(user, "regenerateTemporaryPassword")).status_code == 200
-        assert _client(tenant).post(_url(user, "viewTemporaryPassword")).status_code == 200
+        assert _client(tenant).post(_url(user, "regenerateTemporaryPassword")).status_code == 202
+        assert _client(tenant).post(_url(user, "viewTemporaryPassword")).status_code == 202
 
     def test_the_sweep_retires_every_overdue_copy(self, bootstrap_tenant):
         first, second = _member(bootstrap_tenant("tp-sweep"), "one"), User.objects.create_user(username="two", email="two@x.com", password="x")
@@ -348,7 +348,7 @@ class TestRegenerate:
         old_ciphertext = UserTemporaryPassword.objects.get(user=user).encrypted
 
         response = _client(tenant).post(_url(user, "regenerateTemporaryPassword"))
-        assert response.status_code == 200 and "password" not in response.data
+        assert response.status_code == 202 and "password" not in response.data
 
         assert UserTemporaryPassword.objects.filter(user=user).count() == 1
         assert UserTemporaryPassword.objects.get(user=user).encrypted != old_ciphertext
@@ -390,7 +390,7 @@ class TestRegenerate:
         user = _member(tenant)
 
         assert service.state_of(user) == service.PERMANENT
-        assert _client(tenant).post(_url(user, "regenerateTemporaryPassword")).status_code == 200
+        assert _client(tenant).post(_url(user, "regenerateTemporaryPassword")).status_code == 202
         assert service.state_of(user) == service.TEMPORARY
 
 
@@ -404,7 +404,7 @@ class TestFirstLogin:
 
         response = _login(user.username, password)
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["must_change_password"] is True
         assert response.data["tokens"] is None
         assert User.objects.get(pk=user.pk).last_login is None
@@ -415,7 +415,7 @@ class TestFirstLogin:
 
         response = _login(person.user.username, password)
 
-        assert response.status_code == 200 and response.data["must_change_password"] is True
+        assert response.status_code == 202 and response.data["must_change_password"] is True
 
     def test_changing_it_removes_the_copy_audits_and_opens_the_session(self, bootstrap_tenant):
         user = _member(bootstrap_tenant("tp-change"))
@@ -423,7 +423,7 @@ class TestFirstLogin:
 
         response = _change(user.username, password, "My-own-Password-1")
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["tokens"]["access"] and response.data["must_change_password"] is False
         assert not UserTemporaryPassword.objects.filter(user=user).exists()
         assert not User.objects.get(pk=user.pk).must_change_password
@@ -477,7 +477,7 @@ class TestFirstLogin:
 
         response = _login("ordinary", "Ordinary-Pass-1")
 
-        assert response.status_code == 200 and response.data["tokens"]["access"]
+        assert response.status_code == 202 and response.data["tokens"]["access"]
         assert response.data["must_change_password"] is False
 
 

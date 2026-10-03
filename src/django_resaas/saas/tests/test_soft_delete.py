@@ -69,7 +69,7 @@ def test_restore_works_within_the_same_tenant(bootstrap_tenant, create_product):
     tenant["client"].delete(f"/api/demo/products/{product_id}/")
 
     response = tenant["client"].post(f"/api/demo/products/{product_id}/restore/")
-    assert response.status_code == 200
+    assert response.status_code == 202
 
     product = Product.objects.get(id=product_id)  # default manager = alive only
     assert product.deleted_at is None

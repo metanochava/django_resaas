@@ -102,7 +102,7 @@ def test_import_creates_and_links_profiles_and_adds_permissions(bootstrap_tenant
         {"name": "Clinic Porter", "permissions": ["view_entity"]},
     ))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert response.json()["created"] == 1
     assert _codenames(existing) == {"view_group", "view_permission"}
     porter = Group.objects.get(name="Clinic Porter")
@@ -119,7 +119,7 @@ def test_replace_only_touches_the_profiles_in_the_file(bootstrap_tenant):
     response = _upload(client, tenant["entity"].entity_type_id,
                        _profiles({"name": "Listed", "permissions": ["view_entity"]}), mode="replace")
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert _codenames(listed) == {"view_entity"}
     assert _codenames(untouched) == {"view_group"}
 
@@ -177,7 +177,7 @@ def test_platform_import_may_grant_what_the_caller_does_not_hold(bootstrap_tenan
     response = _upload(client, tenant["entity"].entity_type_id,
                        _profiles({"name": "New One", "permissions": [{"app": "django_resaas", "codename": "delete_group"}]}))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert set(Group.objects.get(name="New One").permissions.values_list("codename", flat=True)) == {"delete_group"}
 
 
@@ -190,7 +190,7 @@ def test_exported_file_imports_back_unchanged(bootstrap_tenant):
 
     response = _upload(client, type_id, None, raw=exported, mode="replace")
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     mine = next(p for p in response.json()["profiles"] if p["name"] == "Round Trip")
     assert (mine["added"], mine["removed"]) == (0, 0)
     assert _codenames(group) == {"view_group", "view_entity"}

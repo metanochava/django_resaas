@@ -145,7 +145,7 @@ class TestEntityAddApp:
             {"id": str(app.id)},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert not EntityApp.objects.filter(entity=entity, app=app).exists()
 
     def test_apps_list_reflects_current_state(self, bootstrap_tenant):

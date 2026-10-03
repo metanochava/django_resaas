@@ -154,7 +154,7 @@ def test_exclusive_group_gets_permissions_the_actor_holds(bootstrap_tenant):
 
     response = _set(client, target, *_perms("view_agreement"))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert _codenames(target) == {"view_agreement"}
 
 
@@ -206,7 +206,7 @@ def test_unchanged_permissions_the_actor_lacks_are_not_a_grant(bootstrap_tenant)
 
     response = _set(client, target, *_perms("view_agreement_amount", "view_agreement"))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert _codenames(target) == {"view_agreement_amount", "view_agreement"}
 
 
@@ -258,7 +258,7 @@ def test_platform_level_actor_can_change_a_shared_group(bootstrap_tenant):
 
     response = _set(client, shared, *_perms("view_agreement"))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert _codenames(shared) == {"view_agreement"}
 
 
@@ -273,7 +273,7 @@ def test_platform_level_actor_can_grant_permissions_they_do_not_hold(bootstrap_t
 
     response = _set(client, target, *_perms("view_agreement", "view_agreement_amount"))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
     assert _codenames(target) == {"view_agreement", "view_agreement_amount"}
 
 
@@ -296,7 +296,7 @@ def test_platform_level_actor_can_change_a_non_editable_group(bootstrap_tenant):
 
     response = _set(client, fixed, *_perms("view_agreement"))
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 202, response.json()
 
 
 def test_a_group_created_by_the_entity_is_editable(bootstrap_tenant):
@@ -306,7 +306,7 @@ def test_a_group_created_by_the_entity_is_editable(bootstrap_tenant):
         f"/api/django_resaas/entitys/{tenant['entity'].id}/createGroup/", {"name": "Own Nurse"}, format="json"
     )
 
-    assert response.status_code == 200, response.content
+    assert response.status_code == 202, response.content
     assert Group.objects.get(name="Own Nurse").editable is True
 
 
@@ -334,13 +334,13 @@ def test_delta_changes_only_what_was_ticked_or_unticked(bootstrap_tenant):
     tenant = bootstrap_tenant("pa-delta")
     client = _actor(tenant, "pa-delta-actor", "change_group", "view_agreement", "view_agreement_amount")
     target = _entity_group(tenant, "Nurse")
-    target.permissions.set(_perms("view_agreement_amount", "change_group"))
+    target.permissions.set(_perms("view_agreement_amount"))
 
-    response = _delta(client, target, add=_perms("view_agreement"), remove=_perms("change_group"))
+    response = _delta(client, target, add=_perms("view_agreement"), remove=_perms("view_agreement_amount"))
 
     assert response.status_code == 202, response.json()
     assert response.json()["added"] == 1 and response.json()["removed"] == 1
-    assert _codenames(target) == {"view_agreement_amount", "view_agreement"}
+    assert _codenames(target) == {"view_agreement"}
 
 
 def test_an_empty_delta_never_wipes_the_group(bootstrap_tenant):

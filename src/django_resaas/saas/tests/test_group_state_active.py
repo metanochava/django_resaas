@@ -32,7 +32,7 @@ class TestEntityCreateAddGroupState:
             {"name": "Clinical Operations Supervisor"},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         group_id = response.json()["id"]
 
         entity_group = EntityGroup.objects.get(entity=entity, group_id=group_id)
@@ -51,7 +51,7 @@ class TestEntityCreateAddGroupState:
             {"group": group.id},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         entity_group = EntityGroup.objects.get(entity=entity, group=group)
         assert entity_group.state == "Active"
 
@@ -70,7 +70,7 @@ class TestEntityTypeCreateAddGroupState:
             {"name": "Ward Supervisor"},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         group_id = response.json()["id"]
 
         et_group = EntityTypeGroup.objects.get(entity_type_id=entity_type_id, group_id=group_id)
@@ -90,7 +90,7 @@ class TestEntityTypeCreateAddGroupState:
             {"group": group.id},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         et_group = EntityTypeGroup.objects.get(entity_type_id=entity_type_id, group=group)
         assert et_group.state == "Active"
 

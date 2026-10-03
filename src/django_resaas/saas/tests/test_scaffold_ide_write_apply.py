@@ -51,7 +51,7 @@ class TestWrite:
             format="json",
         )
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert scratch_path.exists()
         assert scratch_path.read_text() == "x = 1\n"
 
@@ -73,7 +73,7 @@ class TestWrite:
             {"root": SCRATCH_ROOT, "path": SCRATCH_REL_PATH, "content": "x = 1\n"},
             format="json",
         )
-        assert first.status_code == 200
+        assert first.status_code == 202
 
         # Alguém (ou outro separador) muda o ficheiro externamente.
         scratch_path.write_text("x = 999\n")
@@ -111,7 +111,7 @@ class TestApply:
             format="json",
         )
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert scratch_path.exists()
         assert scratch_path_2.exists()
 
@@ -142,7 +142,7 @@ class TestValidateEndpointNeverWrites:
             format="json",
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["valid"] is True
         assert not scratch_path.exists()
 
@@ -161,7 +161,7 @@ class TestCommandsAndRun:
             "/api/django_resaas/ide/run/", {"key": "rm -rf /"}, format="json",
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["ok"] is False
 
     def test_run_django_check_executes_the_real_command(self, ide_client):
@@ -169,6 +169,6 @@ class TestCommandsAndRun:
             "/api/django_resaas/ide/run/", {"key": "django_check"}, format="json",
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 202
         assert response.data["ok"] is True
         assert "issue" in response.data["stdout"].lower()

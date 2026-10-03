@@ -37,7 +37,7 @@ class TestToggleSidebarMiniEndpoint:
             content_type="application/json",
         )
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert response.data["ui_config"]["layout"]["sidebar"]["mini"] is True
         assert response.data["ui_sources"]["layout"] == "user"
 
@@ -61,7 +61,7 @@ class TestToggleSidebarMiniEndpoint:
             content_type="application/json",
         )
 
-        assert response.status_code == 200, response.data
+        assert response.status_code == 202, response.data
         assert response.data["ui_config"]["layout"]["sidebar"]["mini"] is True
 
         own_layout.refresh_from_db()
