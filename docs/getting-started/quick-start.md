@@ -9,6 +9,24 @@ actually runs against this exact flow.
 
 Complete [Installation](installation.md) first.
 
+The full stack, of which this page is the backend half:
+
+```text
+Django project
+      ↓
+django_resaas              pip install django_resaas
+      ↓
+Model → Serializer → BaseAPIView → @register_view
+      ↓
+Schema / REST API          (this page ends here)
+      ↓
+quasar_resaas              the frontend library
+      ↓
+AutoCrud / AutoForm        render the screen from the schema
+```
+
+No business module (HR, Health, ...) is needed: `Product` lives in your own app.
+
 ## 1. Model
 
 ```python
@@ -171,3 +189,11 @@ it's validated on every request.
 - **The Schema 1.0 contract** — the schema endpoint's response matches
   [Schema 1.0 contract](../api/schema-contract.md) exactly: `ui.icon`, `filters.search_fields` and
   `model.endpoint` all come straight from `Product`'s `RESAAS` config.
+
+## Next: the frontend
+
+The schema this page ends with is what `quasar_resaas` renders. Continue with its
+[Quick start](https://github.com/metanochava/quasar_resaas/blob/main/docs/quasar-resaas/getting-started/quick-start.md)
+(same `your_app` / `Product`): `<s-auto-crud app="your_app" model="Product" />` gives the
+list, search, filters and create/edit form with no further code.
+

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.630"
+version = "0.0.631"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -17,6 +17,7 @@ authors = [
 keywords = ["django", "saas", "framework"]
 
 classifiers = [
+  "License :: Other/Proprietary License",
   "Framework :: Django",
   "Programming Language :: Python :: 3",
 ]

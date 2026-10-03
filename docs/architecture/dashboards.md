@@ -214,7 +214,8 @@ calendar:   {start, end, events: [{id, title, start, end, status?, status_color?
 seleccionado, mostrado como `"<label>: n"` (por omissão `Events`; o saude usa
 `Appointments`). O `CalendarWidget` do quasar_resaas mostra o mês e, por baixo,
 o resumo do dia seleccionado; clicar num dia com eventos abre a lista desse dia
-numa modal (`s-modal-card`, só o corpo faz scroll).
+numa modal (`s-modal-card`): uma pesquisa estática no `#subheader` (título, estado,
+hora; sem distinguir maiúsculas nem acentos) e, por baixo, só a lista faz scroll.
 
 `badge` (por coluna de `table`) é opcional: `{valor: cor}`. O `TableWidget` do
 quasar_resaas mostra cada valor dessa coluna como uma etiqueta colorida e traduzida
