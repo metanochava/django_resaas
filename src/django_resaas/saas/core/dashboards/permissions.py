@@ -92,10 +92,20 @@ class DashboardPermissionService:
         só no frontend não é segurança (mesmo princípio dos widgets)."""
 
         return [
-            action
+            DashboardPermissionService._with_authorized_dblclick(request, action)
             for action in (actions or [])
             if DashboardPermissionService.can_view_action(request, action)
         ]
+
+    @staticmethod
+    def _with_authorized_dblclick(request, action):
+        """An action's `dblclick_action` is checked on its own permissions:
+        without them it is dropped (a copy - the registered config is never
+        changed), so the button keeps only its single click."""
+        secondary = action.get("dblclick_action") if isinstance(action, dict) else None
+        if secondary is None or DashboardPermissionService.can_view_action(request, secondary):
+            return action
+        return {key: value for key, value in action.items() if key != "dblclick_action"}
 
     @staticmethod
     def filter_single_action(request, action):
@@ -109,7 +119,9 @@ class DashboardPermissionService:
         if action is None:
             return None
 
-        return action if DashboardPermissionService.can_view_action(request, action) else None
+        if not DashboardPermissionService.can_view_action(request, action):
+            return None
+        return DashboardPermissionService._with_authorized_dblclick(request, action)
 
     @staticmethod
     def _filter_widget_actions(request, widget):

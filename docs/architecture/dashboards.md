@@ -392,6 +392,29 @@ directamente e aplicar-se só a certas linhas:
 - Os botões de acção (linha e cabeçalho do widget) são `s-btn` redondos de
   tamanho médio (`size="md"`), com a cor da acção (`color`) e o tooltip.
 
+**Duplo clique (`dblclick_action`).** Um botão do cabeçalho do widget
+(`actions`) pode ter uma segunda acção, corrida com duplo clique:
+
+```python
+{"name": "patients", "type": "route", "route": {"name": "list_paciente"},
+ "icon": "groups", "tooltip": "Patients (double click: open in a window)",
+ "permissions": ["list_paciente"],
+ "dblclick_action": {"name": "patients_dialog", "type": "dialog",
+                     "dialog": "saude.patient_list", "permissions": ["list_paciente"]}}
+```
+
+- `dblclick_action` é uma action completa: o validador valida-a como as
+  outras e recusa uma `dblclick_action` dentro dela.
+- As permissões são verificadas à parte (`DashboardPermissionService`): sem
+  elas, a `dblclick_action` sai do payload (numa cópia, o registo não muda) e o
+  botão fica só com o clique simples. Sem as permissões da acção principal,
+  o botão não aparece.
+- Frontend (`WidgetContainer.vue`): o clique simples espera 250 ms antes de
+  correr, para um duplo clique não correr também a acção principal; o duplo
+  clique corre só a `dblclick_action`. Sem `dblclick_action`, o clique corre
+  logo, como antes. Diga no `tooltip` que o duplo clique existe: o
+  utilizador não tem outra forma de o saber.
+
 **Actions `dialog`.** O backend declara o nome do diálogo e o frontend
 regista o componente com esse nome:
 
