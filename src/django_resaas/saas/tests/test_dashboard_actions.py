@@ -221,3 +221,50 @@ class TestActionPermissionFiltering:
 
         assert widgets[0]["primary_action"] is None
         assert {a["name"] for a in widgets[0]["row_actions"]} == {"view"}
+
+
+class TestDblclickAction:
+    """dblclick_action: a second action on the same button (double click),
+    validated like any action and filtered on its own permissions."""
+
+    LIST = {"name": "patients", "type": "route", "route": {"name": "list_paciente"},
+            "permissions": ["list_paciente"],
+            "dblclick_action": {"name": "patients_dialog", "type": "dialog", "dialog": "saude.patient_list",
+                                "permissions": ["list_paciente", "view_paciente"], "permission_mode": "all"}}
+
+    def _widget(self, action):
+        return _base(widgets=[{"name": "w", "type": "stat", "provider": "p", "actions": [action],
+                               "cols": {"xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12}}])
+
+    def test_a_valid_dblclick_action_passes(self):
+        DashboardValidator.validate(self._widget(self.LIST), app_label="x")
+
+    def test_the_dblclick_action_is_validated_like_any_action(self):
+        broken = {**self.LIST, "dblclick_action": {"name": "d", "type": "dialog"}}   # no "dialog"
+        with pytest.raises(DashboardConfigError):
+            DashboardValidator.validate(self._widget(broken), app_label="x")
+
+    def test_it_cannot_nest_another_dblclick_action(self):
+        nested = {**self.LIST, "dblclick_action": {**self.LIST["dblclick_action"], "dblclick_action": {}}}
+        with pytest.raises(DashboardConfigError):
+            DashboardValidator.validate(self._widget(nested), app_label="x")
+
+    def _filter(self, monkeypatch, granted):
+        request = TestActionPermissionFiltering()._request(granted)
+        TestActionPermissionFiltering()._isPermited_stub(monkeypatch, request)
+        return DashboardPermissionService.filter_authorized_actions(request, [self.LIST])
+
+    def test_with_both_permissions_the_double_click_stays(self, monkeypatch):
+        actions = self._filter(monkeypatch, ["list_paciente", "view_paciente"])
+
+        assert actions[0]["dblclick_action"]["dialog"] == "saude.patient_list"
+
+    def test_without_its_permissions_only_the_double_click_is_dropped(self, monkeypatch):
+        actions = self._filter(monkeypatch, ["list_paciente"])
+
+        assert actions[0]["name"] == "patients"
+        assert "dblclick_action" not in actions[0]
+        assert "dblclick_action" in self.LIST          # the registered config is not changed
+
+    def test_without_the_main_permission_nothing_is_returned(self, monkeypatch):
+        assert self._filter(monkeypatch, ["view_paciente"]) == []

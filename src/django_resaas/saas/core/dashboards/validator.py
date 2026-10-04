@@ -422,6 +422,20 @@ class DashboardValidator:
 
         cls._validate_tooltip(action_def.get("tooltip"), context=f"action '{action_name}' de {context}")
 
+        # "dblclick_action": a second action run on a double click of the same
+        # button (e.g. click = open a page, double click = the same list in a
+        # dialog). A full action itself, filtered by its own permissions; it
+        # cannot nest another one.
+        secondary = action_def.get("dblclick_action")
+        if secondary is not None:
+            if not isinstance(secondary, dict) or "dblclick_action" in secondary:
+                raise DashboardConfigError(
+                    f"Action '{action_name}' de {context} tem 'dblclick_action' inválida: "
+                    "use uma action (dict) sem outra 'dblclick_action' dentro.",
+                    fields={"dblclick_action": ["Use uma action (dict)."]},
+                )
+            cls._validate_action(secondary, context=f"{context}.{action_name}.dblclick_action")
+
     @classmethod
     def _validate_actions_list(cls, actions, *, context):
         if actions is None:
