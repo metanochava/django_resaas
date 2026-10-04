@@ -144,6 +144,7 @@ class DjangoResaasConfig(AppConfig):
         try:
 
             import django_resaas.saas.core.signals.permissions  # noqa: F401
+            import django_resaas.saas.core.signals.guest_profile  # noqa: F401
 
         except Exception as e:
 

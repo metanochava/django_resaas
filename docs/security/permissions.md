@@ -46,6 +46,27 @@ report = group_creator([{"name": "Registered Nurse", "permissions": ["view_pacie
 - Profiles are **global Groups** linked to the EntityType as templates (see *Managing group permissions*):
   changing their permissions is a platform-level operation.
 
+## The Guest profile: every member holds it
+
+Every user holds the core **Guest** profile in every Branch they belong to -
+and only there (never in an Entity they are not a member of):
+
+- `core/services/guest_profile_service.py` `ensure_guest(user, branch)` assigns
+  it (`BranchUserGroup`) and links Guest to the Branch and its Entity
+  (`BranchGroup`, `EntityGroup`). Idempotent; an assignment that was
+  soft-deleted or set inactive is restored.
+- A `post_save` signal on `BranchUser` (`core/signals/guest_profile.py`) calls it
+  for every new membership, whatever creates it.
+- `python manage.py resaas_ensure_guest_profile` (dry run) /
+  `--apply` gives it to the memberships that existed before. Run it once per
+  environment after upgrading.
+- Guest is never chosen at login on its own: when a user has one profile
+  besides Guest, the frontend selects that one (quasar_resaas `GroupStore`,
+  `singleWorkingGroup`); with two or more working profiles the user chooses.
+- What Guest may do is its own permissions (`saas/profiles.py`); holding it
+  grants nothing else.
+- Tests: `saas/tests/test_guest_profile.py`.
+
 ## Managing group permissions
 
 `Group` rows are **global**: the same group (e.g. the bootstrap `Admin`) can be linked to several
