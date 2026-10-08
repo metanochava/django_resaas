@@ -60,6 +60,17 @@ Represents persistent data. `BaseModel` (via `TimeModel`/`SoftBaseModel`) adds t
 soft delete, and audit fields to any model that inherits it — see
 [Multi-tenancy](multi-tenancy.md).
 
+### Audit log (`audit_service`)
+
+`core/services/audit_service.py` `record(action=, target=, actor=, request=,
+entity_id=, details=)` is the one place that writes `AuditLog` rows: who
+(`user`) did what (`action`, a short code) to which record (`model`,
+`object_id`), in which Entity, from which IP. `details` (JSON, optional, added in
+migration `0003_auditlog_details`) keeps the facts of the event, e.g.
+`{"reason": "...", "from": "colhido", "to": "recolha_necessaria"}`. Events
+without details store `null`. Never put secrets in an event: only ids, codes and
+short texts. Tests: `saas/tests/test_audit_service.py`.
+
 ### Schema (`ResaasSchemaBuilder`)
 
 Turns a model plus its serializer fields into the declarative Schema 1.0 JSON contract a frontend

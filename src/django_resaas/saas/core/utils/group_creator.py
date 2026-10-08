@@ -21,6 +21,12 @@ def group_creator(groups=None, rename_from=None):
     nunca inventados aqui) são concedidas ao Group (aditivo - nunca
     remove permissões já lá postas manualmente por um admin).
 
+    `revoke` (opcional, no mesmo dict): codenames que o perfil deixa de ter -
+    a única forma de um ficheiro de perfis RETIRAR uma permissão (o resto é
+    aditivo). Explícito e idempotente: só tira os codenames listados, uma
+    segunda execução não muda nada. Um codename não pode estar em
+    `permissions` e em `revoke` do mesmo perfil (ValueError).
+
     `rename_from`: dict opcional `{novo_nome: nome_antigo}` (ou uma lista
     de nomes antigos, por ordem de preferência) - renomeia
     em vez de criar duplicado quando o Group antigo já existir (ex.:
@@ -55,6 +61,7 @@ def group_creator(groups=None, rename_from=None):
         "permissions_assigned": {},
         "permissions_already_assigned": {},
         "permissions_missing": {},
+        "permissions_revoked": {},
     }
 
     # ------------------------------------------------------
@@ -81,9 +88,17 @@ def group_creator(groups=None, rename_from=None):
         if isinstance(g, dict):
             name = g["name"]
             permission_codenames = g.get("permissions") or []
+            revoke_codenames = g.get("revoke") or []
         else:
             name = g
             permission_codenames = []
+            revoke_codenames = []
+
+        both = sorted(set(permission_codenames) & set(revoke_codenames))
+        if both:
+            raise ValueError(
+                f"group_creator: profile '{name}' both grants and revokes: {', '.join(both)}"
+            )
 
         # one old name or a list of them (e.g. the Portuguese name and a
         # later English one): the FIRST that exists is renamed in place
@@ -134,5 +149,10 @@ def group_creator(groups=None, rename_from=None):
                     name,
                     ", ".join(missing),
                 )
+
+        if revoke_codenames:
+            revoked = list(group.permissions.filter(codename__in=revoke_codenames))
+            group.permissions.remove(*revoked)
+            report["permissions_revoked"][name] = sorted(p.codename for p in revoked)
 
     return report

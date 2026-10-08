@@ -14,11 +14,13 @@ def client_ip(request):
     return ip or None
 
 
-def record(*, action, target, actor=None, request=None, entity_id=None):
+def record(*, action, target, actor=None, request=None, entity_id=None, details=None):
     """
     action  a short event code (<= 50 chars), e.g. "TEMPORARY_PASSWORD_VIEWED"
     target  the model instance the event is about
     actor   who did it (None: the system, e.g. a scheduled expiry)
+    details optional JSON-serialisable dict of the event's facts, e.g.
+            {"reason": "...", "from": "colhido", "to": "recolha_necessaria"}
     """
     entity_id = entity_id or getattr(request, "entity_id", None) or current_entity_id()
 
@@ -29,4 +31,5 @@ def record(*, action, target, actor=None, request=None, entity_id=None):
         object_id=str(target.pk),
         entity_id=entity_id,
         ip_address=client_ip(request),
+        details=details or None,
     )

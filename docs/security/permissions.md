@@ -38,6 +38,13 @@ report = group_creator([{"name": "Registered Nurse", "permissions": ["view_pacie
   renames an old name in place (same `id`, relations kept). It accepts one old name or a **list**
   (e.g. `{"Doctor": ["General Practitioner", "Médico Geral"]}`): the first that exists is renamed. Default permissions are **added**; permissions
   an administrator added are never removed.
+- **Explicit revoke.** The only way a profile file takes a permission away is the optional `revoke`
+  list in the same dict: `{"name": "Doctor", "permissions": [...], "revoke": ["validate_resultadoexamemedico"]}`.
+  Only the listed codenames are removed (whoever granted them, the file or an administrator); a second
+  run changes nothing; the report lists them in `permissions_revoked`. A codename in both `permissions`
+  and `revoke` of the same profile is a `ValueError`. Groups are shared by name across modules: do not
+  revoke in one module what another module's profile file grants to the same Group, or each run undoes
+  the other. Tests: `saas/tests/test_group_creator_revoke.py`.
 - **Real codenames only.** A codename that doesn't exist is **not created and not assigned**. It is logged as
   a warning and listed in the returned report (`permissions_missing`). The report also has `groups_created`,
   `groups_reused`, `groups_renamed`, `permissions_assigned` and `permissions_already_assigned` per profile.
@@ -56,7 +63,12 @@ and only there (never in an Entity they are not a member of):
   (`BranchGroup`, `EntityGroup`). Idempotent; an assignment that was
   soft-deleted or set inactive is restored.
 - A `post_save` signal on `BranchUser` (`core/signals/guest_profile.py`) calls it
-  for every new membership, whatever creates it.
+  for every new membership, whatever creates it, and when a soft-deleted
+  membership is restored with `restore()` / `save()`. A queryset
+  `.update(deleted_at=None)` sends no signal: run the command below after one.
+- Guest is not a working relationship: code that removes a membership once
+  "no profile is left" must not count Guest, and removes it together with the
+  membership (example: saude's patient portal revoke).
 - `python manage.py resaas_ensure_guest_profile` (dry run) /
   `--apply` gives it to the memberships that existed before. Run it once per
   environment after upgrading.

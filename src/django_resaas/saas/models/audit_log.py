@@ -12,6 +12,9 @@ class AuditLog(TimeModel):
     # request context of the event (both optional: shell/commands have none)
     entity = models.ForeignKey('django_resaas.Entity', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     ip_address = models.GenericIPAddressField(null=True, blank=True)
+    # structured facts of the event (a reason, the state it moved from/to);
+    # optional - most events need none. Never secrets: ids, codes and short texts.
+    details = models.JSONField(null=True, blank=True)
     class RESAAS:
         label_field = "action"
         crud = True
