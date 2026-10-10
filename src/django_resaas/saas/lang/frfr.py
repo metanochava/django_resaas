@@ -1168,7 +1168,6 @@ key_value = {
     "Root": "Racine",
     "Admin": "Administrateur",
     "Organization Administrator": "Administrateur de l'organisation",
-    "System Administrator": "Administrateur système",
     "Branch Administrator": "Administrateur de la succursale",
 
     # frontend UI strings
@@ -1478,4 +1477,5 @@ key_value = {
     'Details': 'Détails',
     'Father Name': 'Nom du père',
     'Mother Name': 'Nom de la mère',
+    "Open the website (double-click: new tab)": "Ouvrir le site (double-clic : nouvel onglet)",
 }

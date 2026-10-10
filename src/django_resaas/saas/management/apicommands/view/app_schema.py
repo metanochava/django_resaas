@@ -1,5 +1,5 @@
 # 📦 Standard library
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 import builtins
 import logging
 import shutil
@@ -694,8 +694,20 @@ def _schema_fields(Model) -> List[Dict[str, Any]]:
     return out
 
 
-class AppSchemaAPIView(ExplicitAccessMixin, ModelViewSet):
-    # PROTECTED: authenticated callers only (no public actions)
+class AppSchemaAPIView(ActionPermissionMixin, ExplicitAccessMixin, ModelViewSet):
+    # PROTECTED, permission per action (fail closed). Listing, inspecting,
+    # creating and deleting modules is platform administration (Root only).
+    # model_schema stays open to any authenticated caller: every generic form
+    # loads its schema from it, and it only describes fields (field-level
+    # permissions are applied inside the schema).
+    action_permissions = {
+        "list": "list_app",
+        "retrieve": "view_app",
+        "lookup": "view_app",
+        "create": "add_app",
+        "destroy": "delete_app",
+    }
+    membership_actions = ("model_schema",)
 
 
     A = []
