@@ -276,6 +276,9 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                     else None
                 ),
                 "logo": data.get("logo"),
+                # the Entity's website (public - the site/ endpoint returns it
+                # before sign-in): the header site button opens it
+                "site": data.get("site"),
             })
 
         return Response(result, status=status.HTTP_200_OK)

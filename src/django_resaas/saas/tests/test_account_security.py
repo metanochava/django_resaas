@@ -305,6 +305,18 @@ class TestLegacyUserActionsAreNotOpen:
         assert entity["entityType"] == entity["entity_type"]
         assert entity["dashboard"]
 
+    def test_user_entitys_carries_the_entity_site(self, bootstrap_tenant):
+        """The header site button (quasar_resaas HeaderSite.vue) opens the
+        selected Entity's website, read from this list."""
+        tenant = bootstrap_tenant("legacy-entity-site")
+        tenant["entity"].site = "https://clinic.example.com"
+        tenant["entity"].save(update_fields=["site"])
+
+        response = tenant["client"].get(_url(tenant["user"], "userEntitys"))
+
+        entity = next(e for e in response.json() if str(e["id"]) == str(tenant["entity"].id))
+        assert entity["site"] == "https://clinic.example.com"
+
     def test_another_users_data_needs_view_user_and_the_same_entity(self, bootstrap_tenant):
         mine = bootstrap_tenant("legacy-a")
         theirs = bootstrap_tenant("legacy-b")
