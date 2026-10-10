@@ -256,4 +256,5 @@ key_value = {
     'Details': 'Details',
     'Father Name': 'Father Name',
     'Mother Name': 'Mother Name',
+    "Open the website (double-click: new tab)": "Open the website (double-click: new tab)",
 }

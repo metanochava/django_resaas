@@ -17,21 +17,10 @@ pytestmark = pytest.mark.django_db
 def test_core_profiles_are_created_with_permissions():
     group_creator(CORE_PROFILES)
 
-    for name in ("System Administrator", "Organization Administrator", "Branch Administrator"):
+    for name in ("Organization Administrator", "Branch Administrator"):
         assert Group.objects.filter(name=name).exists(), name
-
-
-def test_system_administrator_gets_platform_scoped_permissions():
-    group_creator(CORE_PROFILES)
-
-    group = Group.objects.get(name="System Administrator")
-    codenames = set(group.permissions.values_list("codename", flat=True))
-
-    assert "add_entitytype" in codenames
-    assert "add_entity" in codenames
-    # Nunca gere Branch directamente - isso é da Entity/Organization
-    # Administrator, não da plataforma.
-    assert "add_branch" not in codenames
+    # removed on 2026-10-11: it duplicated the Admin group
+    assert not Group.objects.filter(name="System Administrator").exists()
 
 
 def test_organization_administrator_gets_entity_scoped_permissions():
@@ -45,7 +34,7 @@ def test_organization_administrator_gets_entity_scoped_permissions():
     # a module (e.g. an application's hr) adds its own permissions to this
     # profile in its own profiles.py - the core names none of them
     assert "add_employee" not in codenames
-    # Não cria/apaga EntityType - isso é da plataforma (System Administrator).
+    # Não cria/apaga EntityType - isso é da plataforma (Admin / Root).
     assert "add_entitytype" not in codenames
 
 
@@ -67,13 +56,14 @@ def test_core_profiles_are_idempotent():
     group_creator(CORE_PROFILES)
     group_creator(CORE_PROFILES)
 
-    assert Group.objects.filter(name="System Administrator").count() == 1
+    assert Group.objects.filter(name="Organization Administrator").count() == 1
 
 
 def test_core_profiles_do_not_touch_bootstrap_groups():
     """Guest/Admin/Root (GROUPS, criados por create_django_resaas_groups)
     são grupos de bootstrap/teste sem permissões - group_creator() dos
-    perfis nunca deve tocar-lhes."""
+    perfis nunca lhes dá permissões (ao Admin só retira o catálogo de Apps,
+    ver test_app_catalogue_root_only.py)."""
     Group.objects.get_or_create(name="Guest")
 
     group_creator(CORE_PROFILES)

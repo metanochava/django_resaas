@@ -1,4 +1,4 @@
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 from rest_framework import viewsets, status
 from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
@@ -11,8 +11,21 @@ from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.entity_type_app import EntityTypeApp
 
 
-class AppAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
-    # PROTECTED: authenticated callers only (no public actions)
+class AppAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED, permission per action (fail closed): the App catalogue is
+    # platform administration - only the Root profile holds these codenames
+    # (saas/profiles.py revokes them from every other core profile).
+    action_permissions = {
+        "list": "list_app",
+        "retrieve": "view_app",
+        "create": "add_app",
+        "update": "change_app",
+        "partial_update": "change_app",
+        "destroy": "delete_app",
+        "entityTypes": "view_app",
+        "addEntityType": "change_app",
+        "removeEntityType": "change_app",
+    }
 
     search_fields = ['name']
     filter_backends = (filters.SearchFilter,)

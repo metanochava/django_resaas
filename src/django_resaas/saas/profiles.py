@@ -2,7 +2,7 @@
 mesmo mecanismo já usado por saude/sales/inventory/farmacia (ver
 `saas/core/utils/group_creator.py`).
 
-Estes 3 perfis são de âmbito de PLATAFORMA/TENANT (Entity/Branch), não
+Estes perfis são de âmbito de PLATAFORMA/TENANT (Entity/Branch), não
 de um módulo de negócio - por isso vivem em `saas` (core SaaS
 infrastructure, CLAUDE.md #55/#87.11) e não em `hr` ou em qualquer app
 de negócio. Os perfis só nomeiam permissões do próprio core. Um módulo (ex.: o HR de
@@ -12,13 +12,16 @@ uma aplicação) acrescenta as suas a estes mesmos perfis no seu próprio
 Não confundir com `GROUPS = ["Guest", "Admin", "Root"]` (mesmo
 ficheiro) - esses são grupos de bootstrap/teste sem permissões
 próprias, usados por `testutils`/fixtures existentes; não são
-renomeados nem alterados aqui.
+renomeados aqui - o Admin só aparece em CORE_PROFILES para lhe retirar o
+catálogo de Apps (APP_PERMISSIONS).
 
-Distinção de âmbito entre os 3 perfis:
+Distinção de âmbito:
 
-- System Administrator: administra a PLATAFORMA (catálogo de Apps,
-  EntityType, Entity de qualquer organização, Group globais) - quem
-  configura o SaaS em si, não uma organização específica.
+- A PLATAFORMA (EntityType, Entity de qualquer organização, Group globais)
+  é administrada pelo grupo Admin; não há um perfil "System Administrator"
+  (foi removido em 2026-10-11 por duplicar o Admin). O catálogo de Apps
+  (list_app e a página de módulos) é só do Root: APP_PERMISSIONS é
+  revogado ao Admin.
 - Organization Administrator: administra a SUA Entity (organização) -
   Branches, utilizadores/grupos dessa Entity.
 - Branch Administrator: administra a SUA Branch - utilizadores dessa
@@ -29,18 +32,21 @@ pelo tenant scope do request (CLAUDE.md #6/#7/#10), nunca por este
 Group - o Group só concede a CAPACIDADE, nunca o âmbito.
 """
 
+# The App catalogue (AppAPIView, AppSchemaAPIView: list/create/delete modules,
+# link them to EntityTypes) is Root-only. Root gets every permission from the
+# post_migrate signal (core/signals/permissions.py); these are taken away from
+# the Admin group, which used to hold them.
+APP_PERMISSIONS = [
+    "list_app", "view_app", "add_app", "change_app", "delete_app",
+    "hard_delete_app", "restore_app", "pdf_app", "pdf_list_app",
+]
+
 CORE_PROFILES = [
     {
-        "name": "System Administrator",
-        "permissions": [
-            "view_entitytype", "add_entitytype", "change_entitytype", "list_entitytype",
-            "view_entitytypeapp", "add_entitytypeapp", "change_entitytypeapp", "list_entitytypeapp",
-            "view_entitytypegroup", "add_entitytypegroup", "change_entitytypegroup", "list_entitytypegroup",
-            "view_app", "add_app", "change_app", "list_app",
-            "view_entity", "add_entity", "change_entity", "list_entity",
-            "view_group", "add_group", "change_group", "list_group",
-            "view_user", "add_user", "change_user", "list_user",
-        ],
+        # bootstrap group (GROUPS in group_creator.py), not a profile: listed
+        # only to take the App catalogue away from it
+        "name": "Admin",
+        "revoke": APP_PERMISSIONS,
     },
     {
         "name": "Organization Administrator",

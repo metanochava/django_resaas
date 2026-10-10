@@ -174,6 +174,19 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
 |---|---|---|
 | `EntityAPIView` (`django_resaas/entitys/`) | the caller's own Entities: list, detail, branches, active apps/models, branding reads; `create` (self-service registration of a **new** Entity) | its permission (`change_entity`, `add_entityuser`, `add_entitygroup`, ...) **and** only on the Entity of the signed context (another one is `404`), unless platform level (`change_entitytype`) |
 | `EntityTypeAPIView` (`django_resaas/entitytypes/`) | **the catalogue list (`GET entitytypes/`) is PUBLIC**, read only: live types with `id`, `name`, `label`, `icon`, `ordem` (`EntityTypePublicSerializer`; header services menu, login screen) - every field and deleted types need `list_entitytype`; branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
+| `AppAPIView` (`django_resaas/apps/`) | none | `list` `list_app`, `retrieve` / `entityTypes` `view_app`, `create` `add_app`, `update` / `partial_update` / `addEntityType` / `removeEntityType` `change_app`, `destroy` `delete_app` |
+| `AppSchemaAPIView` (`django_resaas/resaasapps/`) | `{app}/{model}/schema/` (every generic form loads its Schema 1.0 here; field permissions are applied inside) | `list` `list_app`, `{app}/` and `lookup/` `view_app`, `create` `add_app`, `destroy` `delete_app` (create/delete also need `DEBUG`) |
+
+**The App catalogue is Root-only.** The `list_app` page (quasar_resaas
+`pages/commands/AppCreatePage.vue`: create/delete modules, activate them, link them to
+EntityTypes) is platform administration. Root gets every permission from the `post_migrate`
+signal (`core/signals/permissions.py`); `saas/profiles.py` declares `APP_PERMISSIONS`
+(`list_`, `view_`, `add_`, `change_`, `delete_`, `hard_delete_`, `restore_`, `pdf_`,
+`pdf_list_app`) and **revokes** them from the `Admin` group on every migrate. There is no
+`System Administrator` profile: it duplicated `Admin` and was removed (code, seeds,
+translations and databases, 2026-10-11). The page hides each button the user's permissions don't allow (UX
+only). Tests: `saas/tests/test_app_catalogue_root_only.py`,
+`quasar_resaas/pages/commands/AppCreatePage.spec.js`.
 
 **EntityType profiles export / import** (EntityType -> template profiles -> permissions, JSON
 because of the nesting; `saas/core/services/entity_type_profiles_io_service.py`, built on the
