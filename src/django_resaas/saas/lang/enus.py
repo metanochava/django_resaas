@@ -253,4 +253,7 @@ key_value = {
     # person filiation (Person.father_name / mother_name)
     "Father's name": "Father's name",
     "Mother's name": "Mother's name",
+    'Details': 'Details',
+    'Father Name': 'Father Name',
+    'Mother Name': 'Mother Name',
 }

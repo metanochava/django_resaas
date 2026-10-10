@@ -72,6 +72,22 @@ def test_ensure_is_idempotent_and_restores_a_removed_guest(bootstrap_tenant):
     assert BranchUserGroup.all_objects.filter(user=user, branch=tenant["branch"], group__name="Guest").count() == 1
 
 
+def test_a_restored_membership_gets_guest_back(bootstrap_tenant):
+    """A membership removed together with its Guest (e.g. a revoked patient
+    portal) and later restored holds Guest again."""
+    tenant = bootstrap_tenant("guest-membership-restore")
+    user = _member("guest-lia", tenant["branch"])
+    membership = BranchUser.objects.get(user=user, branch=tenant["branch"])
+    BranchUserGroup.objects.get(user=user, branch=tenant["branch"], group__name="Guest").delete()
+    membership.delete()   # soft delete: Guest is not given back on removal
+
+    assert not _holds_guest(user, tenant["branch"])
+
+    membership.restore()
+
+    assert _holds_guest(user, tenant["branch"])
+
+
 def test_the_command_backfills_existing_memberships(bootstrap_tenant):
     tenant = bootstrap_tenant("guest-backfill")
     old = _member("guest-old", tenant["branch"], signal=False)
