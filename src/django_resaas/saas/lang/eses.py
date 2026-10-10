@@ -1045,7 +1045,6 @@ key_value = {
     "Scaffold IDE": "IDE de generación de código",
     "Scaffold new backend/frontend modules and manage which entity types use them.": "Genere nuevos módulos de backend/frontend y gestione qué tipos de entidad los usan.",
     "Schema": "Esquema",
-    "Sea": "Buscar",
     "Search Person": "Buscar persona",
     "Search an address": "Buscar una dirección",
     "Search branch": "Buscar sucursal",
