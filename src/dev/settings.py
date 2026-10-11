@@ -142,6 +142,8 @@ DJANGO_REST_AUTH = {
         'ENABLE_TEMPORARY': True,
         'TEMP_TTL': 300,
         'ENABLE_PERMANENT': True,
+        # internal nginx location that sends the file after the token check
+        'X_ACCEL_REDIRECT': os.environ.get('FILE_X_ACCEL_REDIRECT'),
     },
     'CACHE_TIME': os.environ.get('DJANGO_REST_AUTH_CACHE_TIME'),
     'FRONT_END': {

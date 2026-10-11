@@ -1,0 +1,747 @@
+# MISSÃO: LEVAR O RESAAS FRAMEWORK AO MÁXIMO NÍVEL DE MATURIDADE TÉCNICA
+
+## 1. PAPEL E OBJECTIVO
+
+Actua como uma equipa sénior composta por:
+
+- Principal Software Architect;
+- especialista em Django, Django REST Framework e Python;
+- especialista em Vue 3, Quasar, Pinia e JavaScript;
+- especialista em segurança SaaS e isolamento multi-tenant;
+- especialista em testes automatizados e engenharia de qualidade;
+- especialista em performance, DevOps, packaging e gestão de releases.
+
+O teu objectivo é auditar, corrigir, testar e consolidar integralmente o RESAAS Framework, trabalhando directamente sobre o código existente dos repositórios:
+
+- `django_resaas`: framework de backend;
+- `quasar_resaas`: framework de frontend.
+
+Os repositórios públicos de referência são:
+
+- https://github.com/metanochava/django_resaas
+- https://github.com/metanochava/quasar_resaas
+
+Se os repositórios estiverem disponíveis localmente, trabalha nas cópias locais e confirma que correspondem às versões actuais. Se não estiverem disponíveis, identifica o problema e solicita o acesso necessário. Não inventes ficheiros, resultados de testes ou estado de implementação.
+
+### Resultado pretendido
+
+Transformar o RESAAS num framework empresarial modular, multi-tenant, seguro, consistente, testável, eficiente, documentado e distribuível, com contratos estáveis entre backend e frontend.
+
+O objectivo é atingir 100% dos critérios de aceitação deste trabalho, e não afirmar que o software é absolutamente perfeito.
+
+**Regra fundamental: não declares uma tarefa concluída sem evidência verificável.**
+
+---
+
+## 2. ARQUITECTURA QUE DEVE SER PRESERVADA
+
+O RESAAS é um framework de aplicação empresarial construído sobre Django, Django REST Framework, Vue 3 e Quasar.
+
+A arquitectura existente deve ser preservada e melhorada, não substituída indiscriminadamente.
+
+O backend contém, entre outros elementos, abstracções como:
+
+- `TimeModel`, `SoftBaseModel` e modelos base;
+- `BaseAPIView` e `BaseSerializer`;
+- contexto de entidade, sucursal e grupo;
+- autenticação JWT e 2FA;
+- RBAC e permissões ao nível do objecto e dos campos;
+- schemas dinâmicos;
+- CRUD, filtros, pesquisa e relações;
+- actions e respectivos mecanismos de autorização;
+- dashboards;
+- auditoria;
+- módulos, funcionalidades e entitlements;
+- documentos, ficheiros, traduções e serviços partilhados.
+
+O frontend contém, entre outros elementos:
+
+- `BaseStore` e stores especializados;
+- `HTTPAuth` e `HTTPClient`;
+- contexto de sessão e tenant;
+- formulários e tabelas dinâmicas;
+- componentes e serviços de schema;
+- menus, rotas, permissões e actions;
+- dashboards, gráficos e documentos;
+- internacionalização e preferências da conta.
+
+Estes elementos são pontos de partida para a investigação, não uma lista de funcionalidades cuja implementação deva ser presumida como correcta.
+
+### Princípios arquitecturais obrigatórios
+
+1. Reutilizar as abstracções existentes sempre que forem adequadas.
+2. Evitar duplicar serviços, componentes, stores, validações ou regras de negócio.
+3. Manter as regras de negócio nos respectivos módulos.
+4. Manter a infraestrutura transversal nos frameworks.
+5. Fazer cumprir as regras de segurança no backend, independentemente do comportamento do frontend.
+6. Aplicar fail-closed em decisões de autorização: se a autorização não puder ser comprovada, negar o acesso.
+7. Preferir alterações pequenas, localizadas, compatíveis e cobertas por testes.
+8. Não introduzir dependências ou camadas de abstracção sem necessidade demonstrada.
+9. Não reescrever componentes estáveis apenas por preferência de estilo.
+10. Não alterar contratos públicos sem avaliar os consumidores e definir uma migração.
+
+---
+
+## 3. PROTOCOLO DE EXECUÇÃO
+
+Executa o trabalho faseadamente, pela ordem definida abaixo.
+
+Antes de alterar código:
+
+- identifica os repositórios, branches, commits e versões;
+- consulta `git status`, incluindo alterações não commitadas;
+- identifica o estado dos testes, CI, dependências e documentação;
+- localiza as convenções e os padrões arquitecturais existentes;
+- identifica funcionalidades já implementadas e respectivos testes;
+- cria um inventário de riscos, dependências e contratos;
+- determina quais os comandos de teste e validação efectivamente disponíveis.
+
+Não elimines, sobrescrevas ou reformates indiscriminadamente alterações existentes do utilizador.
+
+Não faças commits, pushes, releases, publicação de pacotes, migrações destrutivas ou alterações a serviços de produção sem autorização explícita.
+
+Não exponhas segredos encontrados durante a auditoria. Regista apenas a natureza e a localização segura do problema.
+
+Depois da inspecção inicial, começa a corrigir os problemas confirmados. Não te limites a apresentar um relatório de recomendações.
+
+Se uma decisão exigir uma mudança incompatível, uma alteração de licença, uma migração destrutiva ou uma decisão comercial, documenta-a e pede autorização para essa decisão específica. Continua todas as restantes tarefas independentes que possam ser executadas com segurança.
+
+---
+
+# FASE 1 — AUDITORIA E MAPA DA ARQUITECTURA
+
+Audita os dois repositórios em profundidade.
+
+### Backend
+
+Inspecciona:
+
+- modelos e relações;
+- managers e querysets;
+- serializers;
+- views e viewsets;
+- permissões;
+- middlewares;
+- autenticação;
+- contexto multi-tenant;
+- services;
+- actions;
+- schemas;
+- dashboards;
+- documentos e ficheiros;
+- comandos de gestão;
+- sinais e eventos;
+- migrações;
+- configurações e dependências.
+
+Identifica endpoints que não utilizem as abstracções comuns e determina se isso é intencional ou constitui uma lacuna de segurança ou consistência.
+
+Dá especial atenção a views DRF convencionais que possam não beneficiar das garantias implementadas no `BaseAPIView`.
+
+### Frontend
+
+Inspecciona:
+
+- stores e gestão de estado;
+- serviços HTTP e interceptors;
+- formulários e tabelas;
+- schemas e metadados;
+- componentes de permissões;
+- menus e rotas;
+- actions;
+- autenticação e 2FA;
+- preferências da conta;
+- ficheiros e documentos;
+- dashboards;
+- internacionalização;
+- testes dos componentes.
+
+Procura implementações duplicadas, chamadas HTTP directas que contornem os serviços comuns, validações apenas visuais e divergências entre os schemas do backend e o seu consumo pelo frontend.
+
+### Entregável
+
+Produz um inventário de achados com:
+
+- identificador;
+- severidade: crítica, alta, média ou baixa;
+- localização;
+- evidência;
+- impacto;
+- causa;
+- correcção proposta;
+- testes necessários;
+- dependências;
+- estado.
+
+Não marques uma funcionalidade como ausente sem procurar primeiro a implementação e os seus testes.
+
+---
+
+# FASE 2 — SEGURANÇA MULTI-TENANT
+
+Esta é a fase de maior prioridade.
+
+O isolamento entre entidades, sucursais e contextos não pode depender da disciplina de quem desenvolve os módulos.
+
+## 2.1. Contexto do tenant
+
+Audita integralmente o contrato de `X-RESAAS-Context` e o serviço responsável pela sua emissão e validação.
+
+Confirma que:
+
+- os tokens têm assinatura validada e expiração;
+- o contexto é associado ao utilizador autenticado;
+- a entidade, a sucursal e o grupo pertencem ao contexto permitido;
+- um token emitido para outro utilizador não permite acesso;
+- a revogação de memberships é respeitada;
+- um contexto expirado ou inválido é recusado;
+- a troca de entidade, sucursal ou grupo não deixa estado anterior indevidamente activo;
+- o contexto não pode ser substituído por headers ou parâmetros não confiáveis;
+- os caminhos de superuser e administração têm regras explícitas e testadas.
+
+Verifica também se existe uma política coerente para logout, alteração de permissões, expiração e invalidação do contexto.
+
+Não introduzas mecanismos de revogação mais complexos sem primeiro determinar o que já existe e qual é o risco real.
+
+## 2.2. Fuga de dados entre tenants
+
+Cria testes adversariais com pelo menos duas entidades independentes, múltiplas sucursais e utilizadores com permissões diferentes.
+
+Testa:
+
+- listagens e pesquisas;
+- leitura por ID;
+- criação e alteração;
+- PUT e PATCH;
+- eliminação e restauro;
+- relações entre modelos;
+- filtros e ordenação;
+- pesquisa avançada;
+- paginação;
+- exportações;
+- PDFs e documentos;
+- anexos e ficheiros;
+- dashboards e widgets;
+- actions;
+- operações em lote;
+- endpoints administrativos;
+- endpoints de associação entre utilizador, sucursal e grupo;
+- serializers com campos relacionais;
+- endpoints que recebam IDs de objectos relacionados.
+
+Manipula IDs válidos pertencentes a outros tenants e verifica se o servidor impede a leitura, alteração, associação ou eliminação indevidas.
+
+Inspecciona especificamente `BranchUserGroupAPIView` e todas as views que gerem memberships, grupos, permissões ou associações organizacionais.
+
+Verifica tanto o acesso directo como as fugas indirectas através de relações, contagens, mensagens de erro, resultados agregados e exportações.
+
+## 2.3. Autorização
+
+Confirma a ordem efectiva das verificações:
+
+Autenticação → contexto assinado validado → entitlement → permissões → âmbito do objecto → permissões de campo → regras de negócio → operação.
+
+Esta sequência representa o princípio a validar, não uma obrigação de introduzir uma nova camada se o mecanismo existente já garantir o mesmo resultado.
+
+Testa permissões concedidas e revogadas, utilizadores sem grupo, memberships inactivas, objectos de outras entidades e permissões ao nível do campo.
+
+As permissões apresentadas pelo frontend nunca substituem a autorização do backend.
+
+## 2.4. Outras áreas críticas
+
+Audita também:
+
+- 2FA e OTP;
+- limitação de tentativas;
+- reutilização e concorrência de OTP;
+- recuperação de conta;
+- redefinição de passwords;
+- registo de utilizadores;
+- elevação indevida de privilégios;
+- CSRF, CORS e gestão de sessões, quando aplicáveis;
+- upload e acesso a ficheiros;
+- exposição de segredos;
+- validação de caminhos e nomes de ficheiros;
+- operações concorrentes;
+- erros que revelem dados internos.
+
+Não introduzas mecanismos de segurança fictícios. Utiliza as bibliotecas existentes quando forem adequadas e justifica qualquer dependência nova.
+
+### Critério de conclusão
+
+Todos os cenários identificados devem ter testes reproduzíveis.
+
+Nenhuma vulnerabilidade crítica ou alta conhecida pode ficar silenciosamente por resolver. Se uma correcção exigir uma decisão externa, assinala o bloqueio e não declares a fase concluída.
+
+---
+
+# FASE 3 — INTEGRIDADE DE DADOS E CONSISTÊNCIA
+
+Audita operações que alteram múltiplos registos.
+
+Confirma que:
+
+- transacções são utilizadas onde a atomicidade é necessária;
+- erros de validação não deixam registos parciais;
+- as verificações que podem recusar uma operação acontecem antes de efeitos irreversíveis, quando apropriado;
+- operações em lote respeitam as permissões de cada objecto;
+- restrições de unicidade e integridade são impostas na base de dados quando necessário;
+- soft delete, restore e relações mantêm o estado consistente;
+- as migrações funcionam sobre uma instalação nova e uma instalação existente;
+- os serviços de auditoria registam as operações relevantes sem armazenar passwords, tokens ou outros segredos;
+- retries e concorrência não provocam duplicações ou estados inconsistentes;
+- efeitos externos não são executados indevidamente antes do commit da transacção.
+
+Analisa especialmente as operações de criação de utilizadores, associação a entidades, alteração de grupos, gestão de permissões e restauro de memberships.
+
+Corrige os problemas confirmados e acrescenta testes de regressão.
+
+---
+
+# FASE 4 — CONTRATOS DE SCHEMA E INTEGRAÇÃO FULL-STACK
+
+O backend e o frontend devem funcionar como duas partes compatíveis do mesmo framework.
+
+Audita o contrato produzido pelo endpoint `/schema/` e todos os consumidores desse contrato.
+
+Verifica:
+
+- campos e tipos;
+- obrigatoriedade;
+- validações;
+- escolhas;
+- relações;
+- campos editáveis;
+- permissões;
+- filtros;
+- ordenação;
+- paginação;
+- actions;
+- rotas;
+- metadata de interface;
+- documentos;
+- widgets;
+- mensagens de erro;
+- códigos HTTP;
+- formatos de sucesso;
+- campos opcionais e valores nulos.
+
+Confirma que `BaseSerializer`, `BaseAPIView`, `buildFormFromSchema`, `AutoForm`, stores, tabelas e services interpretam os contratos de forma consistente.
+
+Cria testes de contrato que detectem incompatibilidades antes de uma release.
+
+Verifica especificamente se uma alteração no backend pode tornar um formulário, uma tabela, uma action ou um dashboard incompatível com o frontend.
+
+Não introduzas versionamento formal de schemas apenas por princípio. Primeiro avalia a compatibilidade actual e implementa uma estratégia de versão ou negociação se os consumidores precisarem dela.
+
+Qualquer alteração incompatível deve ter uma estratégia explícita de migração.
+
+---
+
+# FASE 5 — FRONTEND, REUTILIZAÇÃO E EXPERIÊNCIA
+
+Audita a consistência interna de `quasar_resaas`.
+
+Procura:
+
+- stores que dupliquem responsabilidades;
+- componentes com lógica de negócio que deveria estar nos services;
+- chamadas HTTP que ignorem interceptors;
+- permissões implementadas apenas no cliente;
+- divergências entre o contexto activo e os pedidos;
+- estados desactualizados depois de trocar de tenant;
+- formulários que não respeitem o schema;
+- tabelas com acções indevidamente disponíveis;
+- erros de carregamento e concorrência;
+- falhas de tradução;
+- acessibilidade básica;
+- problemas de navegação;
+- comportamentos incorrectos em ecrãs pequenos;
+- dependências desnecessárias.
+
+Investiga especificamente a relação entre `UserGroupsPanel` e `GroupManagerUser`. Se tiverem responsabilidades duplicadas, identifica a fonte de verdade e consolida a implementação de acordo com a arquitectura existente, sem remover funcionalidades legítimas.
+
+Garante que os componentes reutilizáveis têm testes e que as falhas de rede ou autorização não deixam o estado visual a sugerir operações bem-sucedidas.
+
+Não confies no frontend para proteger dados ou operações.
+
+---
+
+# FASE 6 — TESTES, REGRESSÃO E CI
+
+## Backend
+
+Executa a suite existente e cria os testes que faltam para as vulnerabilidades e contratos identificados.
+
+Inclui:
+
+- testes unitários;
+- testes de integração;
+- testes de API;
+- testes multi-tenant;
+- testes de permissões;
+- testes de autenticação e 2FA;
+- testes de relações;
+- testes de migrações;
+- testes de schemas;
+- testes de actions;
+- testes de documentos;
+- testes de entitlements;
+- testes de regressão.
+
+## Frontend
+
+Executa a suite Vitest existente e acrescenta testes para:
+
+- componentes;
+- stores;
+- serviços HTTP;
+- contexto do tenant;
+- formulários e schemas;
+- permissões;
+- actions;
+- autenticação;
+- preferências;
+- internacionalização;
+- estados de erro;
+- regressões.
+
+## Integração
+
+Sempre que o ambiente permitir, executa fluxos completos desde o backend até ao frontend.
+
+Confirma que os dados, os contratos e as decisões de autorização se mantêm coerentes em todo o percurso.
+
+## CI
+
+Audita a configuração actual de CI e implementa ou corrige pipelines para:
+
+- instalação reproduzível;
+- lint e verificações estáticas;
+- testes automatizados;
+- validação de migrações;
+- build e empacotamento;
+- verificação dos contratos;
+- detecção de dependências vulneráveis;
+- análise de segredos;
+- regressões críticas de segurança.
+
+Usa ferramentas compatíveis com os repositórios. Não adiciones verificações que apenas produzam falsos positivos ou que não possam ser mantidas.
+
+Não reduzas a cobertura, não desactives testes e não alteres as expectativas para esconder falhas.
+
+**Só podes declarar os testes aprovados se os comandos tiverem sido efectivamente executados e o resultado estiver disponível.**
+
+Regista os comandos, resultados, falhas e limitações ambientais.
+
+---
+
+# FASE 7 — PERFORMANCE E ESCALABILIDADE
+
+Não optimizes com base em suposições.
+
+Estabelece uma baseline e mede:
+
+- número de queries por endpoint;
+- N+1 em serializers e relações;
+- custo de listagens e paginação;
+- geração de schemas;
+- carregamento de dashboards;
+- resolução de permissões;
+- validação de contexto;
+- inicialização da aplicação;
+- memória e tempo de resposta;
+- comportamento sob concorrência.
+
+Usa profiling, contagem de queries e benchmarks reproduzíveis.
+
+Define cenários representativos com diferentes volumes de dados e números de entidades e sucursais.
+
+Optimiza apenas os problemas medidos, privilegiando `select_related`, `prefetch_related`, índices e estratégias de cache adequadas ao caso.
+
+Qualquer cache deve respeitar a separação por utilizador, tenant, contexto, permissões e versão dos dados.
+
+Não introduzas cache que possa devolver dados de outra entidade.
+
+Verifica também o custo de invalidação, consistência e concorrência.
+
+Apresenta os valores antes e depois das optimizações. Não inventes números de throughput, latência ou capacidade.
+
+Se não existir um SLA definido, estabelece benchmarks de referência e documenta os resultados, sem inventar uma garantia comercial de desempenho.
+
+---
+
+# FASE 8 — DEPENDÊNCIAS, COMPATIBILIDADE E DISTRIBUIÇÃO
+
+Audita a instalação e a distribuição dos dois pacotes.
+
+## Backend Python
+
+Verifica a coerência entre:
+
+- `requires-python`;
+- versões de Django e DRF;
+- dependências transitivas;
+- ambientes de desenvolvimento;
+- ambientes de produção;
+- versões suportadas;
+- build e instalação do pacote.
+
+Investiga concretamente a declaração `requires-python = ">=3.9"` em conjunto com `Django==5.2.10`, que requer Python 3.10 ou superior.
+
+Corrige a declaração ou a matriz de dependências de acordo com a compatibilidade realmente pretendida. Não reduzas a versão do Django automaticamente sem avaliar as consequências.
+
+## Frontend
+
+Audita:
+
+- `package.json`;
+- `package-lock.json`;
+- peer dependencies;
+- versões de Vue, Quasar e Pinia;
+- exports públicos;
+- ficheiros incluídos na distribuição;
+- dependências de runtime;
+- build;
+- instalação a partir do Git;
+- testes do pacote instalado.
+
+Verifica o estado real da publicação no npm, uma vez que a documentação indica que a versão publicada está desactualizada.
+
+Define uma estratégia de distribuição previsível, mas não publiques pacotes sem autorização.
+
+## Compatibilidade entre versões
+
+Documenta quais as versões do backend e frontend compatíveis.
+
+Se necessário, estabelece uma matriz de compatibilidade, notas de migração e uma política de breaking changes.
+
+Não inventes suporte para versões que não tenham sido testadas.
+
+---
+
+# FASE 9 — DOCUMENTAÇÃO E ESTABILIZAÇÃO DA API
+
+Actualiza a documentação com o comportamento real do código.
+
+Documenta:
+
+- instalação;
+- configuração;
+- arquitectura;
+- contexto multi-tenant;
+- permissões;
+- autenticação e 2FA;
+- entitlements;
+- schemas;
+- actions;
+- dashboards;
+- documentos;
+- testes;
+- troubleshooting;
+- migrações;
+- upgrade;
+- compatibilidade;
+- distribuição;
+- segurança;
+- limitações conhecidas.
+
+Cria ou actualiza guias para desenvolver módulos sem duplicar a infraestrutura do framework.
+
+Verifica os exemplos de código e os comandos antes de os apresentar como válidos.
+
+Identifica os contratos públicos que devem ser tratados como estáveis. Não declares a API congelada enquanto existirem incompatibilidades importantes por resolver.
+
+Prepara uma política de versionamento semântico quando for compatível com a fase actual do projecto, incluindo depreciações e migrações.
+
+Preserva a licença e os direitos existentes. Não alteres a licença comercial nem concedas direitos adicionais sem autorização.
+
+---
+
+# FASE 10 — VALIDAÇÃO COM UM MÓDULO REAL
+
+Escolhe um módulo existente, preferencialmente Saúde ou Farmácia, que tenha complexidade suficiente para testar as capacidades do framework.
+
+Não cries um módulo artificial apenas para produzir uma demonstração.
+
+Verifica se o módulo consegue utilizar o núcleo existente para:
+
+- modelos e relações;
+- CRUD;
+- schemas;
+- formulários;
+- tabelas;
+- permissões;
+- actions;
+- contexto organizacional;
+- auditoria;
+- documentos;
+- dashboards, quando aplicável.
+
+Identifica código repetido que deveria pertencer ao framework e código específico do negócio que não deve ser generalizado.
+
+Testa também se o módulo funciona sem depender de funcionalidades de outro módulo que não deveria ser obrigatório.
+
+O objectivo é comprovar que o framework facilita o desenvolvimento sem absorver indevidamente as regras de negócio.
+
+---
+
+# FASE 11 — CORRECÇÃO E CONSOLIDAÇÃO
+
+Depois de identificar os problemas, corrige-os pela seguinte ordem:
+
+1. Vulnerabilidades críticas.
+2. Vulnerabilidades altas.
+3. Corrupção de dados e inconsistências transaccionais.
+4. Fugas entre tenants e falhas de autorização.
+5. Incompatibilidades entre backend e frontend.
+6. Regressões funcionais.
+7. Problemas de packaging e dependências.
+8. Problemas de performance comprovados.
+9. Duplicações e problemas arquitecturais.
+10. Documentação e melhorias de qualidade restantes.
+
+Agrupa as alterações por causa raiz para evitar corrigir o mesmo problema em vários locais com soluções diferentes.
+
+Após cada conjunto de alterações:
+
+- executa os testes relevantes;
+- verifica os efeitos sobre os contratos públicos;
+- analisa o diff;
+- confirma que não foram introduzidas regressões;
+- regista os resultados.
+
+No fim, executa novamente a suite completa disponível nos dois repositórios.
+
+Se os testes falharem, investiga a causa e corrige-a quando estiver dentro do âmbito e for seguro fazê-lo.
+
+Não uses alterações de configuração, exclusões, skips ou mocks excessivos para mascarar problemas reais.
+
+Não substituas implementações completas por stubs para obter testes verdes.
+
+---
+
+# FASE 12 — CRITÉRIOS OBJECTIVOS PARA 100%
+
+A missão só pode ser declarada concluída quando todos os critérios aplicáveis estiverem comprovados.
+
+| Critério | Evidência obrigatória |
+|---|---|
+| Arquitectura | Inventário actualizado e responsabilidades coerentes |
+| Isolamento multi-tenant | Testes adversariais aprovados |
+| Autorização | Testes de permissões, objectos e campos aprovados |
+| Autenticação e 2FA | Testes dos fluxos relevantes aprovados |
+| Integridade de dados | Testes transaccionais e de regressão aprovados |
+| Backend | Suite completa aprovada |
+| Frontend | Suite completa aprovada |
+| Contratos full-stack | Testes de compatibilidade aprovados |
+| Migrações | Validação em instalação nova e actualização |
+| Packaging | Build e instalação reproduzíveis |
+| Dependências | Compatibilidade e riscos documentados |
+| Performance | Baseline e resultados reproduzíveis |
+| CI | Verificações essenciais executadas automaticamente |
+| Documentação | Guias e exemplos validados |
+| Módulo real | Fluxo funcional comprovado |
+| Segurança | Nenhuma vulnerabilidade crítica ou alta conhecida sem tratamento |
+| Distribuição | Procedimento de publicação e compatibilidade documentados |
+
+Não interpretes a tabela como autorização para ignorar riscos que não estejam explicitamente enumerados.
+
+Se um critério não puder ser executado por falta de infraestrutura, acesso ou autorização, classifica-o como **BLOQUEADO**, identifica o motivo e explica exactamente o que falta.
+
+Não confundas testes escritos com testes executados, testes executados com testes aprovados, nem testes aprovados com ausência absoluta de vulnerabilidades.
+
+---
+
+# FASE 13 — RELATÓRIO FINAL OBRIGATÓRIO
+
+No final, entrega um relatório em português com as seguintes secções.
+
+## A. Estado geral
+
+- Estado inicial;
+- estado final;
+- versão e commit de cada repositório;
+- principais melhorias implementadas;
+- limitações ainda existentes.
+
+## B. Pontuação por domínio
+
+Avalia separadamente:
+
+- arquitectura;
+- segurança;
+- multi-tenancy;
+- backend;
+- frontend;
+- testes;
+- performance;
+- dependências e distribuição;
+- documentação;
+- compatibilidade.
+
+Justifica cada pontuação com evidências.
+
+## C. Vulnerabilidades
+
+Para cada problema relevante:
+
+- gravidade;
+- causa;
+- localização;
+- impacto;
+- correcção;
+- teste que demonstra o comportamento.
+
+Não publiques segredos nem dados sensíveis no relatório.
+
+## D. Testes
+
+Apresenta os comandos executados, resultados, número de testes quando efectivamente conhecido, falhas e limitações.
+
+Distingue claramente os testes do backend, frontend e integração.
+
+## E. Performance
+
+Apresenta os benchmarks medidos antes e depois, com ambiente, metodologia e limitações.
+
+## F. Alterações
+
+Lista os ficheiros relevantes modificados, o motivo da alteração e os testes associados.
+
+Identifica migrations, alterações incompatíveis e dependências novas.
+
+## G. Critérios de aceitação
+
+Para cada critério da Fase 12, usa apenas um dos estados:
+
+- `APROVADO`;
+- `REPROVADO`;
+- `BLOQUEADO`;
+- `NÃO VERIFICADO`.
+
+Não uses `APROVADO` sem evidência.
+
+## H. Dívida técnica
+
+Lista todos os problemas conhecidos que permanecem, a sua gravidade e o que é necessário para os resolver.
+
+## I. Próximos passos
+
+Apresenta apenas as tarefas efectivamente pendentes, ordenadas por risco e dependência.
+
+---
+
+# INSTRUÇÃO FINAL
+
+Começa agora pela Fase 1.
+
+Inspecciona o código real dos dois repositórios, constrói o mapa arquitectural e identifica os riscos confirmados.
+
+Depois avança faseadamente, corrigindo e testando os problemas, sem esperar por nova autorização para cada alteração local, reversível e de baixo risco.
+
+Não alteres decisões arquitecturais fundamentais por iniciativa própria. Não faças releases ou operações destrutivas. Não inventes resultados.
+
+O teu trabalho não termina quando o código parece correcto. Termina quando os critérios de aceitação foram verificados, os problemas conhecidos foram tratados ou explicitamente bloqueados e o relatório final reflecte fielmente as evidências.
+
+**A prioridade é entregar um RESAAS Framework robusto, seguro, consistente e comprovadamente funcional, preservando a arquitectura existente e evitando complexidade desnecessária.**

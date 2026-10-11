@@ -171,7 +171,7 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
         for entity in entitys:
             try:
                 EntityUser.objects.get(entity=entity, user=request.user)
-                logo = FullPath.url(request, entity.logo.name, temporary=False)
+                logo = FullPath.url(request, entity.logo.url, temporary=False) if entity.logo else None
 
                 resultado.append({
                     'id': entity.id,

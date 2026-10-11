@@ -45,8 +45,10 @@ class  PersonAPIView(BaseAPIView):
             results.append({
                 **PersonSerializer(person, context={"request": request}).data,
                 "matched_fields": candidate["matched_fields"],
+                # only the current Entity's documents: a Person is global,
+                # its documents belong to the tenant that registered them
                 "documents": DocumentSerializer(
-                    person.documents.all(), many=True, context={"request": request}
+                    person.documents.filter(entity_id=request.entity_id), many=True, context={"request": request}
                 ).data,
             })
 
@@ -98,6 +100,9 @@ class  PersonAPIView(BaseAPIView):
 
         try:
             document = person.documents.create(
+                # the tenant from the signed context (see Document.entity)
+                entity_id=request.entity_id,
+                branch_id=request.branch_id,
                 tipo_id=tipo_id,
                 numero=numero,
                 data_emissao=request.data.get("data_emissao") or None,

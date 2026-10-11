@@ -3,10 +3,15 @@ from django.conf import settings
 
 DEFAULTS = {
     'FILE_TOKEN': {
-        'KEY': 'None',
+        # no key = no file URLs (fail closed); a literal default would let
+        # anyone forge tokens on a deployment that forgot URL_FILE_KEY
+        'KEY': None,
         'ENABLE_TEMPORARY': False,
         'TEMP_TTL': 300,
         'ENABLE_PERMANENT': True,
+        # internal nginx location that serves MEDIA_ROOT after the token
+        # check (FileAccessMiddleware); None = Django serves the file
+        'X_ACCEL_REDIRECT': None,
     },
     'CACHE_TIME': 300,
     'REQUIRE_FE_CREDENTIALS': False,

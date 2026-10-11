@@ -123,7 +123,8 @@ def test_match_endpoint_returns_candidates_with_matched_fields_and_documents(boo
 
     doc_type = DocumentType.objects.create(name="ID Card", detalhes="National ID")
     person = Person.objects.create(name="Graca", surname="Machel", email="graca@example.com")
-    person.documents.create(tipo=doc_type, numero="777")
+    # documents belong to an Entity (Document.entity): this tenant's
+    person.documents.create(tipo=doc_type, numero="777", entity=tenant["entity"], branch=tenant["branch"])
 
     response = tenant["client"].post(
         "/api/django_resaas/persons/match/",

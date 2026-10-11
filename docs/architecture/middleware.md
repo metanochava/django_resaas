@@ -17,9 +17,13 @@ consistent (if empty) tenant context either way.
 ## `FileAccessMiddleware` (`core/middleware/file_access.py`) - enabled by default
 
 Only acts on requests whose path starts with `settings.MEDIA_URL`. Requires a `?token=` query
-parameter validated by `FullPath.validate_token(token)`; without a valid token it returns a `401`
-JSON response (`{"alert_error": "..."}`). This is what protects direct access to uploaded media
-files (see [`docs/features/files-pdf.md`](../features/files-pdf.md)).
+parameter validated by `FullPath.validate_token(token, request.path)` - the token must have been
+issued for that exact path. Without one it returns `401` in the error contract
+(`{"error": {"message": ..., "code": "file_token_invalid", "details": null}}`). With
+`FILE_TOKEN.X_ACCEL_REDIRECT` set, a valid request is answered with an `X-Accel-Redirect` so the
+web server sends the file. This is what protects direct access to uploaded media files - only
+when the web server sends `/media/` to Django (see
+[`docs/features/files-pdf.md`](../features/files-pdf.md#serving-the-file-web-server)).
 
 ## `FrontEndMiddleware` (`core/middleware/front_end.py`) - **not enabled by default**
 
