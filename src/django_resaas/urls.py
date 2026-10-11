@@ -50,7 +50,7 @@ from django_resaas.saas.data.user.views.request_password_reset_email import Requ
 from django_resaas.saas.data.user.views.password_token_check import PasswordTokenCheckAPIView
 from django_resaas.saas.data.user.views.set_new_password import SetNewPasswordAPIView
 from django_resaas.saas.data.user.views.mail import MailAPIView
-from django_resaas.saas.data.user.views.register import RegisterAPIView
+from django_resaas.saas.data.user.views.register import RegisterAPIView, UsernameAvailabilityAPIView
 from django_resaas.saas.data.user.views.register_otp import RequestRegisterOTPView
 from django_resaas.saas.data.user.views.profile_contact_otp import (
     RequestProfileContactOTPView,
@@ -205,6 +205,8 @@ urlpatterns = [
 
     path("register/", RegisterAPIView.as_view(), name="register"),
     path("register/otp/request/", RequestRegisterOTPView.as_view(), name="register_otp_request"),
+    # PUBLIC, throttled: is a username free (registration form suggestions)
+    path("register/username/", UsernameAvailabilityAPIView.as_view(), name="register_username"),
 
     path(
         "profile/contact/otp/request/",

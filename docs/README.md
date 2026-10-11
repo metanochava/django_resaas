@@ -21,6 +21,7 @@ backend framework.
 -   [Search](api/search.md)
 -   [Filters and pagination](api/filters-pagination.md)
 -   [Permissions](security/permissions.md)
+-   [Registration (sign-up)](security/registration.md)
 -   [Field-level permissions](security/field-permissions.md)
 -   [Entitlements (features, capacities, modules)](security/entitlements.md)
 -   [Soft delete](features/soft-delete.md)

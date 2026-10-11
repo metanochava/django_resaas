@@ -117,6 +117,40 @@ def send_registration_otp(channel, identifier, request=None, purpose="register")
         provider.send(recipient=identifier, body=plain_body)
 
 
+# Wrong codes per identifier within one OTP window. A 6-digit code lives 5
+# minutes: without this an attacker could try codes until one fits. After the
+# limit every attempt - even a right code - fails until the window expires.
+OTP_MAX_FAILED_ATTEMPTS = 5
+
+
+def _failures_key(identifier):
+    return f"resaas:otp_failures:{str(identifier).strip().lower()}"
+
+
+def otp_attempts_exhausted(identifier):
+    from django.core.cache import cache
+
+    return cache.get(_failures_key(identifier), 0) >= OTP_MAX_FAILED_ATTEMPTS
+
+
+def record_failed_otp(identifier):
+    from django.core.cache import cache
+
+    key = _failures_key(identifier)
+    if cache.add(key, 1, OTP_INTERVAL_SECONDS):
+        return
+    try:
+        cache.incr(key)
+    except ValueError:  # expired between add() and incr()
+        cache.set(key, 1, OTP_INTERVAL_SECONDS)
+
+
+def clear_failed_otp(identifier):
+    from django.core.cache import cache
+
+    cache.delete(_failures_key(identifier))
+
+
 def verify_registration_otp(channel, identifier, code):
     """Returns True iff `code` is a currently-valid OTP for `identifier`.
     Never raises on a wrong/expired code - that's just `False`."""

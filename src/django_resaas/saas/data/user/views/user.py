@@ -38,6 +38,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 from django_resaas.saas.core.base.views import BaseAPIView
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
+from django_resaas.saas.core.services.group_access_service import require_permission
 
 
 
@@ -105,6 +106,8 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             entity_id = getattr(request, "entity_id", None)
             if not entity_id:
                 return error_response(request, "Entity not found", status.HTTP_400_BAD_REQUEST, code="entity_not_found")
+            # creating a user is an administrative act of the current Entity
+            require_permission(request, "add_user")
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -130,6 +133,11 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         user = request.user
         instance = self.get_object()
+
+        # changing ANOTHER user needs change_user; a user's own personal
+        # settings (e.g. the Theme Studio, scope="user") stay self-service
+        if not user.is_superuser and instance != user:
+            require_permission(request, "change_user")
 
         # 🔥 segurança: user normal só pode atualizar users da mesma entidade
         if not user.is_superuser:
@@ -194,6 +202,8 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                     {"error": "Entity not found"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+            require_permission(request, "delete_user")
 
             # checks if the user belongs to the current entity
             pertence = EntityUser.objects.filter(
