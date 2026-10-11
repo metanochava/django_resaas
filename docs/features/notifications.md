@@ -129,6 +129,10 @@ without touching this app — see `EventDispatcher.register(pattern, listener)`)
 is logged and does not propagate, so a bug in one listener never breaks the business
 transaction that emitted the event.
 
+The generic CRUD can also emit these events by itself for models that opt in
+(`"<app>.<model>.created"`, `.updated`, ...): see [Model lifecycle events](lifecycle-events.md).
+A rule names such an event like any other.
+
 ## Rules, conditions, recipients, preferences, templates
 
 A `NotificationRule` wires one `(entity, event, channel)` to a recipient strategy and,

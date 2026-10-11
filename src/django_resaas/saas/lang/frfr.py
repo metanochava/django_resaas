@@ -1022,7 +1022,6 @@ key_value = {
     "Scaffold IDE": "IDE de génération de code",
     "Scaffold new backend/frontend modules and manage which entity types use them.": "Générez de nouveaux modules backend/frontend et gérez quels types d'entité les utilisent.",
     "Schema": "Schéma",
-    "Sea": "Rechercher",
     "Search Person": "Rechercher une personne",
     "Search an address": "Rechercher une adresse",
     "Search branch": "Rechercher une succursale",
@@ -1167,8 +1166,7 @@ key_value = {
     # group names (core)
     "Root": "Racine",
     "Admin": "Administrateur",
-    "Organization Administrator": "Administrateur de l'organisation",
-    "Branch Administrator": "Administrateur de la succursale",
+    "Branch Admin": "Admin de la succursale",
 
     # frontend UI strings
     "New group": "Nouveau groupe",

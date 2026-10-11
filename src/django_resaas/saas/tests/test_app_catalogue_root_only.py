@@ -9,7 +9,7 @@ import pytest
 from django_resaas.saas.core.utils.group_creator import group_creator
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.group import Group
-from django_resaas.saas.profiles import APP_PERMISSIONS, CORE_PROFILES
+from django_resaas.saas.profiles import APP_PERMISSIONS, CORE_PROFILES, PLATFORM_PERMISSIONS
 from django_resaas.saas.tests.test_permission_api_security import _actor, _perms
 
 pytestmark = pytest.mark.django_db
@@ -112,3 +112,24 @@ def test_only_root_keeps_the_app_permissions(bootstrap_tenant):
 
     root = set(Group.objects.get(name="Root").permissions.values_list("codename", flat=True))
     assert {"list_app", "view_app", "add_app", "change_app", "delete_app"} <= root
+
+
+def test_admin_loses_every_lib_permission_and_is_not_platform_level(bootstrap_tenant):
+    """Root = the lib/platform (Apps, EntityTypes, scaffold, IDE); Admin manages
+    its own Entity only - without change_entitytype it is not platform level, so
+    group_access_service limits it to the editable profiles of its Entity."""
+    bootstrap_tenant("platform-admin")
+    admin = Group.objects.get_or_create(name="Admin")[0]
+    admin.permissions.add(*_perms(*PLATFORM_PERMISSIONS, "change_group", "add_branch"))
+
+    group_creator(CORE_PROFILES)
+
+    held = set(admin.permissions.values_list("codename", flat=True))
+    assert not held & set(PLATFORM_PERMISSIONS), sorted(held & set(PLATFORM_PERMISSIONS))
+    assert "change_entitytype" not in held
+    # Entity administration stays
+    assert {"change_group", "add_branch"} <= held
+
+    root = set(Group.objects.get(name="Root").permissions.values_list("codename", flat=True))
+    assert {"change_entitytype", "view_scaffold", "change_scaffold", "list_app"} <= root
+

@@ -2,7 +2,11 @@
 explorer/editor/validation/apply/command-runner panels.
 
 Same privilege class as ScaffoldAPIView (management/apicommands/view/
-scaffold.py) - `IsAdminUser`, gated by `_ensure_enabled()` below. Not a
+scaffold.py) - `IsAdminUser`, gated by `_ensure_enabled()` below - and,
+on top of that, a RESAAS permission per action in the signed context
+(ActionPermissionMixin, fail closed): reading the workspace needs
+`view_scaffold`; writing, applying and running commands need
+`change_scaffold`. Not a
 tenant-scoped resource: this reads/writes the PROJECT's own source
 code, never tenant data (see mega-prompt secção 19/98 - "não confundir
 terminal/IDE com tenant data").
@@ -29,6 +33,7 @@ from django_resaas.saas.management.apicommands.service import (
 )
 from django_resaas.saas.management.apicommands.service.workspace_service import WorkspaceError
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +48,23 @@ def _ide_enabled():
 
 
 @registerView("ide", "django_resaas")
-class IDEWorkspaceAPIView(ResaasResponseMixin, ViewSet):
+class IDEWorkspaceAPIView(ActionPermissionMixin, ResaasResponseMixin, ViewSet):
 
     permission_classes = [IsAdminUser]
+
+    # the scaffold permissions (core/signals/permissions.py, granted to Root)
+    action_permissions = {
+        "list": "view_scaffold",
+        "roots": "view_scaffold",
+        "tree": "view_scaffold",
+        "read": "view_scaffold",
+        "commands": "view_scaffold",
+        # checks code, never touches the disk
+        "validate": "view_scaffold",
+        "write": "change_scaffold",
+        "apply": "change_scaffold",
+        "run": "change_scaffold",
+    }
 
     def _ensure_enabled(self, request):
         if not _ide_enabled():

@@ -26,6 +26,7 @@ backend framework.
 -   [Soft delete](features/soft-delete.md)
 -   [Files and PDF](features/files-pdf.md)
 -   [Notifications (Email/SMS/WhatsApp)](features/notifications.md)
+-   [Model lifecycle events](features/lifecycle-events.md)
 -   [Public sites and their contact form](features/public-sites.md)
 -   [Creating a new resource](development/creating-resource.md)
 -   [Building a module](development/building-a-module.md)

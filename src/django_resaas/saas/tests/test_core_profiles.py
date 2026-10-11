@@ -9,7 +9,7 @@ import pytest
 
 from django_resaas.saas.core.utils.group_creator import group_creator
 from django_resaas.saas.models.group import Group
-from django_resaas.saas.profiles import CORE_PROFILES
+from django_resaas.saas.profiles import CORE_PROFILES, CORE_RENAMES
 
 pytestmark = pytest.mark.django_db
 
@@ -17,16 +17,17 @@ pytestmark = pytest.mark.django_db
 def test_core_profiles_are_created_with_permissions():
     group_creator(CORE_PROFILES)
 
-    for name in ("Organization Administrator", "Branch Administrator"):
+    for name in ("Admin", "Branch Admin"):
         assert Group.objects.filter(name=name).exists(), name
-    # removed on 2026-10-11: it duplicated the Admin group
+    # removed on 2026-10-11: Admin administers the Entity
     assert not Group.objects.filter(name="System Administrator").exists()
+    assert not Group.objects.filter(name="Organization Administrator").exists()
 
 
-def test_organization_administrator_gets_entity_scoped_permissions():
+def test_admin_gets_entity_scoped_permissions():
     group_creator(CORE_PROFILES)
 
-    group = Group.objects.get(name="Organization Administrator")
+    group = Group.objects.get(name="Admin")
     codenames = set(group.permissions.values_list("codename", flat=True))
 
     assert "add_branch" in codenames
@@ -34,14 +35,15 @@ def test_organization_administrator_gets_entity_scoped_permissions():
     # a module (e.g. an application's hr) adds its own permissions to this
     # profile in its own profiles.py - the core names none of them
     assert "add_employee" not in codenames
-    # Não cria/apaga EntityType - isso é da plataforma (Admin / Root).
+    # Não cria/apaga EntityType - isso é da plataforma (Root).
     assert "add_entitytype" not in codenames
+    assert "change_entitytype" not in codenames
 
 
 def test_branch_administrator_gets_branch_scoped_permissions_only():
     group_creator(CORE_PROFILES)
 
-    group = Group.objects.get(name="Branch Administrator")
+    group = Group.objects.get(name="Branch Admin")
     codenames = set(group.permissions.values_list("codename", flat=True))
 
     assert "add_branchuser" in codenames
@@ -56,7 +58,7 @@ def test_core_profiles_are_idempotent():
     group_creator(CORE_PROFILES)
     group_creator(CORE_PROFILES)
 
-    assert Group.objects.filter(name="Organization Administrator").count() == 1
+    assert Group.objects.filter(name="Admin").count() == 1
 
 
 def test_core_profiles_do_not_touch_bootstrap_groups():
@@ -70,3 +72,13 @@ def test_core_profiles_do_not_touch_bootstrap_groups():
 
     guest = Group.objects.get(name="Guest")
     assert guest.permissions.count() == 0
+
+
+def test_branch_administrator_is_renamed_to_branch_admin_in_place():
+    old = Group.objects.create(name="Branch Administrator")
+
+    group_creator(CORE_PROFILES, rename_from=CORE_RENAMES)
+
+    assert not Group.objects.filter(name="Branch Administrator").exists()
+    assert Group.objects.get(name="Branch Admin").id == old.id
+
