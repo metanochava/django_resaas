@@ -1,7 +1,7 @@
 import time
 import hmac
 import hashlib
-from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode, unquote
 
 from django.utils.crypto import constant_time_compare
 
@@ -9,6 +9,10 @@ from django.utils.crypto import constant_time_compare
 class FullPath:
     """
     Geração e validação de URLs protegidas para files.
+
+    A token is signed over its expiry AND the file path it was issued for, so
+    a token from one URL never opens another file (a permanent token used to
+    be a master key for every file of the server).
     """
 
     # -------------------------
@@ -17,7 +21,12 @@ class FullPath:
 
 
     @staticmethod
-    def _generate_token(expire_at=0):
+    def _signature(key, payload, path):
+        message = f'{payload}:{unquote(path or "")}'
+        return hmac.new(key.encode(), message.encode(), hashlib.sha256).hexdigest()
+
+    @staticmethod
+    def _generate_token(path, expire_at=0):
         from django_resaas.saas.core.conf import get_setting  # lazy import
 
         key = get_setting('FILE_TOKEN.KEY')
@@ -25,28 +34,22 @@ class FullPath:
             return None
 
         payload = str(expire_at)
-        signature = hmac.new(
-            key.encode(),
-            payload.encode(),
-            hashlib.sha256
-        ).hexdigest()
-
-        return f'{payload}.{signature}'
+        return f'{payload}.{FullPath._signature(key, payload, path)}'
 
     # -------------------------
     # PUBLIC API
     # -------------------------
 
     @staticmethod
-    def generate_permanent_token():
+    def generate_permanent_token(path):
         from django_resaas.saas.core.conf import get_setting  # lazy import
 
         if not get_setting('FILE_TOKEN.ENABLE_PERMANENT'):
             return None
-        return FullPath._generate_token(0)
+        return FullPath._generate_token(path, 0)
 
     @staticmethod
-    def generate_temporary_token():
+    def generate_temporary_token(path):
         from django_resaas.saas.core.conf import get_setting  # lazy import
 
         if not get_setting('FILE_TOKEN.ENABLE_TEMPORARY'):
@@ -54,14 +57,17 @@ class FullPath:
 
         ttl = int(get_setting('FILE_TOKEN.TEMP_TTL', 300))
         expire_at = int(time.time()) + ttl
-        return FullPath._generate_token(expire_at)
+        return FullPath._generate_token(path, expire_at)
 
     @staticmethod
-    def validate_token(token):
+    def validate_token(token, path):
+        """True when token was issued for this URL path (e.g. request.path)
+        and has not expired."""
         from django_resaas.saas.core.conf import get_setting  # lazy import
 
         try:
             payload, signature = token.split('.')
+            expire_at = int(payload)
         except ValueError:
             return False
 
@@ -69,16 +75,9 @@ class FullPath:
         if not key:
             return False
 
-        expected = hmac.new(
-            key.encode(),
-            payload.encode(),
-            hashlib.sha256
-        ).hexdigest()
-
-        if not constant_time_compare(signature, expected):
+        if not constant_time_compare(signature, FullPath._signature(key, payload, path)):
             return False
 
-        expire_at = int(payload)
         if expire_at and time.time() > expire_at:
             return False
 
@@ -102,15 +101,6 @@ class FullPath:
         if not file_url:
             return None
 
-        token = (
-            FullPath.generate_temporary_token()
-            if temporary
-            else FullPath.generate_permanent_token()
-        )
-
-        if not token:
-            return None
-
         parsed = urlparse(file_url)
 
         # URL absoluta
@@ -122,6 +112,16 @@ class FullPath:
             base_url = request.build_absolute_uri(file_url)
 
         parsed = urlparse(base_url)
+
+        token = (
+            FullPath.generate_temporary_token(parsed.path)
+            if temporary
+            else FullPath.generate_permanent_token(parsed.path)
+        )
+
+        if not token:
+            return None
+
         query = parse_qs(parsed.query)
         query['token'] = token
 

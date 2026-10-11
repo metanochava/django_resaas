@@ -59,10 +59,14 @@ def create_documents(*, request, person, documents):
     documents: [{"tipo", "numero", "data_emissao", "data_validade",
         "arquivo": File|None}, ...] - only documents to CREATE. A reused
         Person's existing documents are never resent; a genuine duplicate
-        (tipo, numero) still hits Document's own unique_together.
+        (tipo, numero) within the Entity still hits Document's own unique
+        constraint. Each document belongs to the current Entity / Branch of the
+        signed context (a Person is global, its documents are not).
     """
     for doc in documents or []:
         person.documents.create(
+            entity_id=getattr(request, "entity_id", None),
+            branch_id=getattr(request, "branch_id", None),
             tipo_id=doc.get("tipo"),
             numero=doc.get("numero"),
             data_emissao=doc.get("data_emissao") or None,

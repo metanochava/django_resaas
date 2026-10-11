@@ -43,10 +43,29 @@ class Document(TimeModel):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.UUIDField()
     content_object = GenericForeignKey('content_type', 'object_id')
- 
- 
+
+    # The tenant that owns this record - set by the server from the signed
+    # context (BaseAPIView.perform_create, Person.add_document, the person
+    # registration service), never from the request body. It is what makes
+    # BaseAPIView scope documents per Entity / Branch: a Person is global,
+    # so the document cannot take its tenant from the object it describes.
+    # Nullable only for rows that predate it and could not be attributed
+    # (see migration 0004): nobody sees those (fail closed).
+    entity = models.ForeignKey(
+        "django_resaas.Entity", on_delete=models.CASCADE, null=True, blank=True,
+        related_name="documents", editable=False,
+    )
+    branch = models.ForeignKey(
+        "django_resaas.Branch", on_delete=models.CASCADE, null=True, blank=True,
+        related_name="documents", editable=False,
+    )
+
     class Meta:
-        unique_together = ('tipo', 'numero')
+        # a number is unique per type WITHIN an Entity: a global constraint
+        # made the "already exists" error reveal another tenant's document
+        constraints = [
+            models.UniqueConstraint(fields=["entity", "tipo", "numero"], name="unique_document_number_per_entity"),
+        ]
     class RESAAS:
         label_field = "numero"
         crud = True

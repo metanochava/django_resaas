@@ -31,6 +31,7 @@ def resolve_email_branding(request):
     if not host:
         return None, None
 
+    from django_resaas.saas.core.utils.full_path import FullPath
     from django_resaas.saas.models.entity import Entity
 
     entity = Entity.objects.filter(site=host).first()
@@ -40,7 +41,7 @@ def resolve_email_branding(request):
     logo_url = None
     if entity.display_logo_login and entity.logo:
         try:
-            logo_url = request.build_absolute_uri(entity.logo.url)
+            logo_url = FullPath.url(request, entity.logo.url, temporary=False)
         except ValueError:
             logo_url = None
 
