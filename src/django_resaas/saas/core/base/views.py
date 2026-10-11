@@ -30,6 +30,8 @@ from .mixins.view.select import SelectMixin
 from django_resaas.saas.core.utils import build_select_data
 from django_resaas.saas.core.utils.pagination import ResaasPagination
 from django.db import models
+from django.db import transaction
+from django_resaas.saas.core.events.lifecycle import emit_lifecycle
 
 from django.template.loader import select_template
 
@@ -625,19 +627,28 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
         if hasattr(serializer.Meta.model, "state") and "state" not in serializer.validated_data:
             data["state"] = "Active"
 
-        serializer.save(**data)
+        # the write and its lifecycle event (models with RESAAS.lifecycle_events,
+        # core/events/lifecycle.py) in one transaction
+        with transaction.atomic():
+            instance = serializer.save(**data)
+            emit_lifecycle(self.request, instance, "created")
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        fields = sorted(serializer.validated_data.keys())
+        with transaction.atomic():
+            instance = serializer.save(updated_by=self.request.user)
+            emit_lifecycle(self.request, instance, "updated", {"fields": fields})
 
     # -----------------------------------
     # 🗑 DELETE (SOFT)
     # -----------------------------------
 
     def perform_destroy(self, instance):
-        if hasattr(instance, "deleted_at"):
-            instance.deleted_at = timezone.now()
-        instance.delete(user=self.request.user)
+        with transaction.atomic():
+            if hasattr(instance, "deleted_at"):
+                instance.deleted_at = timezone.now()
+            instance.delete(user=self.request.user)
+            emit_lifecycle(self.request, instance, "deleted")
 
     # -----------------------------------
     # ♻️ RESTORE
@@ -669,9 +680,11 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             pk=pk
         )
 
-        instance.restore(
-            user=request.user
-        )
+        with transaction.atomic():
+            instance.restore(
+                user=request.user
+            )
+            emit_lifecycle(request, instance, "restored")
 
         return ok(
             request,
@@ -708,7 +721,13 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             pk=pk
         )
 
-        instance.hard_delete()
+        with transaction.atomic():
+            pk = instance.pk
+            instance.hard_delete()
+            # Django clears pk on delete: put it back so the event still says
+            # which record it was (load_instance() then finds nothing - gone)
+            instance.pk = pk
+            emit_lifecycle(request, instance, "hard_deleted")
 
         return ok(
             request,

@@ -1188,8 +1188,7 @@ key_value = {
     # group names (core)
     "Root": "Raiz",
     "Admin": "Administrador",
-    "Organization Administrator": "Administrador da organização",
-    "Branch Administrator": "Administrador da sucursal",
+    "Branch Admin": "Admin da sucursal",
 
     # frontend UI strings
     "New group": "Novo grupo",

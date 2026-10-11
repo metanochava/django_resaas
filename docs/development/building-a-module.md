@@ -18,7 +18,7 @@ uses it, as described below.
 | Routes | none to write: `build_saas_urls()` serves every registered view at `/api/<label>/<resource>/` | — |
 | Load the views at startup | import them in `AppConfig.ready()`, so their decorators (and `@resaas_action`) run before `post_migrate` | `<module>/apps.py` |
 | Activation per tenant | `App` + `EntityApp` (a module is active per Entity). New EntityTypes get the framework's own apps plus `settings.RESAAS_DEFAULT_MODULES` | settings |
-| Profiles (Group templates) | `group_creator(PROFILES)` from a `post_migrate` receiver. It is additive by profile name, so a module can add its permissions to profiles defined elsewhere (e.g. the platform's "Organization Administrator") | `<module>/profiles.py` |
+| Profiles (Group templates) | `group_creator(PROFILES)` from a `post_migrate` receiver. It is additive by profile name, so a module can add its permissions to profiles defined elsewhere (e.g. the platform's "Admin") | `<module>/profiles.py` |
 | Module permissions that are not model CRUD | `ensure_module_permissions("<label>", [{"codename", "name"}, ...])` from a `post_migrate` receiver | `<module>/apps.py` |
 | Dashboards | `DASHBOARD` / `DASHBOARDS` in `<module>/dashboard.py`, autodiscovered | [Dashboards](../architecture/dashboards.md) |
 | Translations | `<module>/lang/<code>.py` (`key_value` dict), merged by `Translate.tdc` | [Translation](https://github.com/metanochava/quasar_resaas/blob/main/docs/quasar-resaas/features/translation.md) |

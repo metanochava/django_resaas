@@ -25,7 +25,7 @@ def create_django_resaas_groups(sender, **kwargs):
 # ==========================================================
 # CREATE CORE ADMINISTRATION PROFILES
 # ==========================================================
-# System/Organization/Branch Administrator - perfis de âmbito de
+# Admin / Branch Admin - perfis de âmbito de
 # plataforma/tenant (ver saas/profiles.py), mesmo mecanismo
 # group_creator() já usado por saude/sales/inventory/farmacia. Guard
 # igual ao de todos esses apps.py: só corre depois de já existir pelo
@@ -43,9 +43,9 @@ def create_core_profiles(sender, **kwargs):
         return
 
     from django_resaas.saas.core.utils.group_creator import group_creator
-    from django_resaas.saas.profiles import CORE_PROFILES
+    from django_resaas.saas.profiles import CORE_PROFILES, CORE_RENAMES
 
-    group_creator(CORE_PROFILES)
+    group_creator(CORE_PROFILES, rename_from=CORE_RENAMES)
 
 
 # ==========================================================

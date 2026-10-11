@@ -12,19 +12,20 @@ uma aplicação) acrescenta as suas a estes mesmos perfis no seu próprio
 Não confundir com `GROUPS = ["Guest", "Admin", "Root"]` (mesmo
 ficheiro) - esses são grupos de bootstrap/teste sem permissões
 próprias, usados por `testutils`/fixtures existentes; não são
-renomeados aqui - o Admin só aparece em CORE_PROFILES para lhe retirar o
-catálogo de Apps (APP_PERMISSIONS).
+renomeados aqui. O Admin está em CORE_PROFILES: recebe a administração
+da Entity e perde as permissões da lib (PLATFORM_PERMISSIONS).
 
 Distinção de âmbito:
 
 - A PLATAFORMA (EntityType, Entity de qualquer organização, Group globais)
-  é administrada pelo grupo Admin; não há um perfil "System Administrator"
-  (foi removido em 2026-10-11 por duplicar o Admin). O catálogo de Apps
-  (list_app e a página de módulos) é só do Root: APP_PERMISSIONS é
-  revogado ao Admin.
-- Organization Administrator: administra a SUA Entity (organização) -
-  Branches, utilizadores/grupos dessa Entity.
-- Branch Administrator: administra a SUA Branch - utilizadores dessa
+  é do Root: tudo o que é da lib (catálogo de Apps, EntityTypes, scaffold
+  e Scaffold IDE - PLATFORM_PERMISSIONS, revogadas ao Admin). Não há um
+  perfil "System Administrator" (removido em 2026-10-11).
+- Admin: administra a SUA Entity (organização) - Branches, utilizadores e
+  perfis dessa Entity; só altera perfis editáveis dessa Entity
+  (core/services/group_access_service.py). Substituiu o perfil
+  "Organization Administrator" (removido em 2026-10-11).
+- Branch Admin: administra a SUA Branch - utilizadores dessa
   branch, sem gerir a Entity nem outras Branches.
 
 O isolamento real de "sua Entity"/"sua Branch" continua a ser feito
@@ -41,15 +42,39 @@ APP_PERMISSIONS = [
     "hard_delete_app", "restore_app", "pdf_app", "pdf_list_app",
 ]
 
+# Scaffold and Scaffold IDE (ScaffoldAPIView, IDEWorkspaceAPIView): they write
+# the project's source code - lib work, Root only.
+SCAFFOLD_PERMISSIONS = [
+    "view_dev", "view_crud", "view_scaffold", "add_scaffold", "change_scaffold", "delete_scaffold",
+]
+
+# EntityTypes and their templates (apps, profiles, models) are the platform's
+# catalogue. change_entitytype is also what makes a caller "platform level" in
+# core/services/group_access_service.py (sees and changes every profile).
+_ACTIONS = ("list", "view", "add", "change", "delete", "hard_delete", "restore", "pdf", "pdf_list")
+ENTITY_TYPE_PERMISSIONS = [
+    f"{action}_{model}"
+    for model in ("entitytype", "entitytypeapp", "entitytypegroup", "entitytypemodel")
+    for action in _ACTIONS
+]
+
+# Root = permissions about the lib/platform; Admin = manages ITS Entity only
+# (and, through group_access_service, only the editable profiles of that
+# Entity). These are revoked from Admin on every migrate.
+PLATFORM_PERMISSIONS = APP_PERMISSIONS + SCAFFOLD_PERMISSIONS + ENTITY_TYPE_PERMISSIONS
+
+# old profile names -> current ones (group_creator renames the existing Group in
+# place: same id, members and permissions kept). Modules that add permissions to
+# these profiles pass it too, whichever post_migrate runs first.
+CORE_RENAMES = {"Branch Admin": "Branch Administrator"}
+
 CORE_PROFILES = [
     {
-        # bootstrap group (GROUPS in group_creator.py), not a profile: listed
-        # only to take the App catalogue away from it
+        # administers ITS Entity (it replaced "Organization Administrator",
+        # removed on 2026-10-11): Branches, users, profiles of that Entity.
+        # Never the lib/platform permissions (Root's).
         "name": "Admin",
-        "revoke": APP_PERMISSIONS,
-    },
-    {
-        "name": "Organization Administrator",
+        "revoke": PLATFORM_PERMISSIONS,
         "permissions": [
             "view_entity", "change_entity",
             "view_branch", "add_branch", "change_branch", "list_branch",
@@ -65,7 +90,7 @@ CORE_PROFILES = [
         ],
     },
     {
-        "name": "Branch Administrator",
+        "name": "Branch Admin",
         "permissions": [
             "view_branch",
             "view_branchuser", "add_branchuser", "change_branchuser", "list_branchuser",

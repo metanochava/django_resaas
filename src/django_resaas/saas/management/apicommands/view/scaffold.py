@@ -35,6 +35,7 @@ import importlib
 import pprint
 from io import StringIO
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin
 
 
 # =========================================================
@@ -424,9 +425,22 @@ def write_python_pretty(code: str) -> str:
 # =========================================================
 
 @registerView("scaffold", "django_resaas")
-class ScaffoldAPIView(ResaasResponseMixin, ViewSet):
+class ScaffoldAPIView(ActionPermissionMixin, ResaasResponseMixin, ViewSet):
 
+    # staff only (IsAdminUser) AND a RESAAS permission per action in the signed
+    # context (fail closed). Generating models is lib/platform work: the
+    # scaffold permissions are Root's (saas/profiles.py PLATFORM_PERMISSIONS).
     permission_classes = [IsAdminUser]
+    action_permissions = {
+        "list": "view_scaffold",
+        "preview": "view_scaffold",
+        "create": "add_scaffold",
+        "update": "change_scaffold",
+        "partial_update": "change_scaffold",
+        "migrate": "change_scaffold",
+        "permissions": "change_scaffold",
+        "destroy": "delete_scaffold",
+    }
 
     # -----------------------------------------------------
     # LIST (GET) -> usa all()

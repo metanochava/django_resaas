@@ -176,6 +176,8 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
 | `EntityTypeAPIView` (`django_resaas/entitytypes/`) | **the catalogue list (`GET entitytypes/`) is PUBLIC**, read only: live types with `id`, `name`, `label`, `icon`, `ordem` (`EntityTypePublicSerializer`; header services menu, login screen) - every field and deleted types need `list_entitytype`; branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
 | `AppAPIView` (`django_resaas/apps/`) | none | `list` `list_app`, `retrieve` / `entityTypes` `view_app`, `create` `add_app`, `update` / `partial_update` / `addEntityType` / `removeEntityType` `change_app`, `destroy` `delete_app` |
 | `AppSchemaAPIView` (`django_resaas/resaasapps/`) | `{app}/{model}/schema/` (every generic form loads its Schema 1.0 here; field permissions are applied inside) | `list` `list_app`, `{app}/` and `lookup/` `view_app`, `create` `add_app`, `destroy` `delete_app` (create/delete also need `DEBUG`) |
+| `IDEWorkspaceAPIView` (`django_resaas/ide/`, the Scaffold IDE) | none (and only for staff users, `IsAdminUser`, with the IDE enabled: `SCAFFOLD_IDE_ENABLED`, default `DEBUG`) | `list`, `roots`, `tree`, `read`, `commands`, `validate` `view_scaffold`; `write`, `apply`, `run` `change_scaffold` |
+| `ScaffoldAPIView` (`django_resaas/scaffold/`, generates models) | none (staff users only, `IsAdminUser`) | `list`, `preview` `view_scaffold`; `create` `add_scaffold`; `update`, `migrate`, `permissions` `change_scaffold`; `destroy` `delete_scaffold` |
 
 **The App catalogue is Root-only.** The `list_app` page (quasar_resaas
 `pages/commands/AppCreatePage.vue`: create/delete modules, activate them, link them to
@@ -184,7 +186,21 @@ signal (`core/signals/permissions.py`); `saas/profiles.py` declares `APP_PERMISS
 (`list_`, `view_`, `add_`, `change_`, `delete_`, `hard_delete_`, `restore_`, `pdf_`,
 `pdf_list_app`) and **revokes** them from the `Admin` group on every migrate. There is no
 `System Administrator` profile: it duplicated `Admin` and was removed (code, seeds,
-translations and databases, 2026-10-11). The page hides each button the user's permissions don't allow (UX
+translations and databases, 2026-10-11).
+
+**Root vs Admin.** Root holds the permissions about the lib/platform; Admin manages
+**its own Entity** (Branches, users, profiles of that Entity - the core profile `Admin` in
+`saas/profiles.py`; it replaced `Organization Administrator`, removed on 2026-10-11) and
+`Branch Admin` (renamed from `Branch Administrator` through `CORE_RENAMES`) manages its own
+Branch. `saas/profiles.py` `PLATFORM_PERMISSIONS` = `APP_PERMISSIONS` +
+`SCAFFOLD_PERMISSIONS` (`view_dev`, `view_crud`, `view_`/`add_`/`change_`/`delete_scaffold`:
+scaffold and Scaffold IDE) + `ENTITY_TYPE_PERMISSIONS` (every action on `entitytype`,
+`entitytypeapp`, `entitytypegroup`, `entitytypemodel`) is revoked from `Admin` on every
+migrate. Without `change_entitytype` Admin is not *platform level* for
+`core/services/group_access_service.py`: it sees the current Entity's profiles and changes
+only one that belongs to that Entity, is editable and is not shared or a template, and it
+never grants a permission its own profile doesn't hold. Tests:
+`saas/tests/test_app_catalogue_root_only.py`, `saas/tests/test_scaffold_ide_permissions.py`. The page hides each button the user's permissions don't allow (UX
 only). Tests: `saas/tests/test_app_catalogue_root_only.py`,
 `quasar_resaas/pages/commands/AppCreatePage.spec.js`.
 
