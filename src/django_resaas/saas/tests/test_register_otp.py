@@ -82,18 +82,20 @@ def test_request_otp_for_fresh_mobile_sends_code(client, fake_notification_provi
     assert len(fake_notification_providers["sms"].sent) == 1
 
 
-def test_request_otp_for_already_registered_email_fails(client, fake_notification_providers):
+def test_request_otp_for_already_registered_email_is_neutral_and_sends_nothing(client, fake_notification_providers):
+    """Same answer as for a free address (no account enumeration), but no code."""
     User.objects.create_user(username="existing", email="taken@example.com", password="x")
 
     response = client.post(
-        "/api/register/otp/request/", {"channel": "email", "identifier": "taken@example.com"}
+        "/api/register/otp/request/", {"channel": "email", "identifier": "Taken@Example.com"}
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 202
+    assert response.json()["sent"] is True
     assert fake_notification_providers["email"].sent == []
 
 
-def test_request_otp_for_already_registered_mobile_fails(client, fake_notification_providers):
+def test_request_otp_for_already_registered_mobile_is_neutral_and_sends_nothing(client, fake_notification_providers):
     User.objects.create_user(
         username="existing2", email=None, mobile="+258840000001", password="x"
     )
@@ -102,7 +104,8 @@ def test_request_otp_for_already_registered_mobile_fails(client, fake_notificati
         "/api/register/otp/request/", {"channel": "mobile", "identifier": "+258840000001"}
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 202
+    assert fake_notification_providers["sms"].sent == []
 
 
 def test_request_otp_invalid_channel_rejected(client):

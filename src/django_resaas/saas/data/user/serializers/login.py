@@ -1,4 +1,3 @@
-from django.db.models import Q
 
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
@@ -10,14 +9,29 @@ from django.utils import timezone
 from django_resaas.saas.core.services import temporary_password_service, two_factor_service
 
 
+def _find_user(value):
+    """The account `value` names: an e-mail (case-insensitive), else a mobile,
+    else a username (case-insensitive) - in that order. One lookup at a time,
+    so a username that equals someone else's mobile or e-mail (allowed by old
+    data) can never make the login ambiguous or crash it."""
+    value = str(value or "").strip()
+    if not value:
+        return None
+
+    if "@" in value:
+        user = User.objects.filter(email__iexact=value).order_by("pk").first()
+        if user:
+            return user
+
+    return (
+        User.objects.filter(mobile=value).order_by("pk").first()
+        or User.objects.filter(username__iexact=value).order_by("pk").first()
+    )
+
+
 def authenticate(value=None, password=None):
-    try:
-        user = User.objects.get(
-            Q(email=value) |
-            Q(username=value) |
-            Q(mobile=value)
-        )
-    except User.DoesNotExist:
+    user = _find_user(value)
+    if user is None:
         return None
 
     if user.check_password(password):

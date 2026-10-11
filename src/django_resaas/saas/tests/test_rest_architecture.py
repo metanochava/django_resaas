@@ -30,6 +30,7 @@ PUBLIC_BY_DESIGN = {
     "LoginAPIView",
     "RegisterAPIView",
     "RequestRegisterOTPView",
+    "UsernameAvailabilityAPIView",  # registration form: is a username free (throttled, says nothing else)
     "RequestPasswordResetEmailAPIView",
     "PasswordTokenCheckAPIView",
     "SetNewPasswordAPIView",
