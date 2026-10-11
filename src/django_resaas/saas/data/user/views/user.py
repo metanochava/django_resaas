@@ -96,30 +96,34 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = request.user
 
+        # Everything that can refuse the request is decided BEFORE anything is
+        # written: a returned (not raised) error does not roll back
+        # transaction.atomic(), so checking the Entity after serializer.save()
+        # used to leave a User without its Entity.
+        entity_id = None
+        if not user.is_superuser:
+            entity_id = getattr(request, "entity_id", None)
+            if not entity_id:
+                return error_response(request, "Entity not found", status.HTTP_400_BAD_REQUEST, code="entity_not_found")
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
         with transaction.atomic():
-
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            new_user = serializer.save()
-
-            if not user.is_superuser:
-                entity_id = getattr(request, "entity_id", None)
-
-                if not entity_id:
-                    return Response(
-                        {"error": "Entity not found"},
-                        status=400
-                    )
-
+            if entity_id:
                 # lock the Entity: two concurrent creates cannot both take the last seat
                 Entity.objects.select_for_update().filter(pk=entity_id).first()
                 require_capacity(request, "users")
+
+            new_user = serializer.save()
+
+            if entity_id:
                 EntityUser.objects.get_or_create(
                     user=new_user,
                     entity_id=entity_id
                 )
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     
 
