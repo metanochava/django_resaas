@@ -83,6 +83,7 @@ from django_resaas.saas.data.person.views.person import PersonAPIView
 from django_resaas.saas.data.person_contact.views.person_contact import PersonContactAPIView
 from django_resaas.saas.data.site_contact_message.views.site_contact_message import (
     SiteBranchesAPIView,
+    SiteReviewsAPIView,
     SiteContactAPIView,
     SiteContactMessageAPIView,
 )
@@ -193,6 +194,7 @@ urlpatterns = [
     path("site/contact/", SiteContactAPIView.as_view(), name="site_contact"),
     # PUBLIC branches (name + main address) of the site's Entity, for its map
     path("site/branches/", SiteBranchesAPIView.as_view(), name="site_branches"),
+    path("site/reviews/", SiteReviewsAPIView.as_view(), name="site_reviews"),
 
     path("login/", LoginAPIView.as_view(), name="login"),
     path("logout/", LogoutAPIView.as_view(), name="logout"),

@@ -62,6 +62,32 @@ class SiteBranchesAPIView(APIView):
         return Response(site_service.public_branches(entity))
 
 
+class SiteReviewsAPIView(APIView):
+    """GET site/reviews/?lang=pt  -> {enabled, name, rating, total, url, reviews}
+
+    PUBLIC (explicit): the Google reviews of the site's Entity place
+    (Entity.google_place_id), read by the server with its own key and cached
+    (core/services/google_reviews_service). The Entity comes from the request
+    Origin, never from the query; throttled per client address. No place or no
+    key -> enabled false, no reviews.
+    """
+
+    permission_classes = (permissions.AllowAny,)
+    throttle_classes = (SiteReadThrottle,)
+
+    def get(self, request):
+        from django_resaas.saas.core.services.google_reviews_service import get_reviews
+
+        entity = site_service.entity_for_origin(request.headers.get("Origin"))
+        if entity is None:
+            raise ResaasAPIException(
+                "This site is not linked to any organisation.",
+                code="site_not_found",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        return Response(get_reviews(entity, request.query_params.get("lang") or "pt"))
+
+
 class SiteContactAPIView(ResaasResponseMixin, APIView):
     """POST site/contact/  {name, phone?, email?, message}
 

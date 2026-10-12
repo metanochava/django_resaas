@@ -48,6 +48,44 @@ only the branches with coordinates (the Amal site: one map, a button per branch
 when there are several). Record a branch's location in its form (address picker)
 or with `branch.set_address(latitude=…, longitude=…, …)`.
 
+## `GET site/reviews/` — the Google reviews of the site's place
+
+PUBLIC (`AllowAny`, listed in `PUBLIC_BY_DESIGN`), `SiteReviewsAPIView`,
+throttled like `site/branches/`. The Entity comes from the `Origin` (unknown →
+`404 site_not_found`); `?lang=pt` asks Google for that language.
+
+The **server** reads the Google Places API (New) - Place Details with the
+`reviews` field - for `Entity.google_place_id`, with its own key
+(`RESAAS_GOOGLE_PLACES_API_KEY`; never sent to the browser), and caches the
+answer per place and language (`RESAAS_GOOGLE_REVIEWS_CACHE_SECONDS`, default
+6 hours; a Google failure answers no reviews and is retried after 5 minutes).
+`core/services/google_reviews_service.get_reviews(entity, language)`.
+
+```json
+{"enabled": true, "name": "Clínica Amal", "rating": 4.7, "total": 128,
+ "url": "https://maps.google.com/?cid=…",
+ "reviews": [{"author": "Ana", "author_url": "https://www.google.com/maps/contrib/…",
+              "photo": "https://lh3.googleusercontent.com/…", "rating": 5,
+              "text": "…", "relative_time": "2 weeks ago", "time": "2026-09-28T10:00:00Z"}]}
+```
+
+`enabled: false` (no reviews) when the Entity has no Google Place ID or the
+server has no key. Google returns at most **5** reviews, chosen by Google; show
+them with the author's name, photo and link and a link to the place on Google
+(Google's attribution rules for Places data).
+
+Set up:
+
+1. A Google Cloud project with **Places API (New)** enabled and billing; an API
+   key restricted to that API (and to the server's IP).
+2. `GOOGLE_PLACES_API_KEY=<key>` in the backend `.env` →
+   `RESAAS_GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")`.
+3. The organisation's **Google Place ID** (Google's Place ID Finder, starts with
+   `ChIJ…`) in the Entity's `google_place_id` field (Entity form).
+
+Migration: `django_resaas.0005_entity_google_place_id` (backward compatible:
+empty = no reviews).
+
 ## `POST site/contact/` — the contact form
 
 PUBLIC (`AllowAny`, listed in `PUBLIC_BY_DESIGN`), `SiteContactAPIView`.

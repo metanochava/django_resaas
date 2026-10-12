@@ -1512,4 +1512,8 @@ key_value = {
     "Give a username to check": "Indique un nombre de usuario para comprobar",
     "This email or phone number is already registered": "Este correo o teléfono ya está registrado",
     "Invalid or expired verification code": "Código de verificación inválido o caducado",
+
+    # Google reviews
+    'Google Place ID': 'ID del lugar en Google',
+    'Google Maps place of the organisation (its public site shows its Google reviews).': 'Lugar de la organización en Google Maps (el sitio público muestra las reseñas de Google).',
 }

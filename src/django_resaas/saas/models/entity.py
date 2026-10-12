@@ -35,6 +35,16 @@ class Entity(TimeModel):
         help_text='Website associated with the entity.',
     )
 
+    # the organisation's place on Google Maps: its public site shows the Google
+    # reviews of this place (site/reviews/, core/services/google_reviews_service)
+    google_place_id = models.CharField(
+        "Google Place ID",
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text='Google Maps place of the organisation (its public site shows its Google reviews).',
+    )
+
     # when the organisation was founded - public sites show the years of
     # experience from it (null = unknown, nothing is shown)
     founded_on = models.DateField(
