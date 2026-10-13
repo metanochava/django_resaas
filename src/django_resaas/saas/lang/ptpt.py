@@ -1515,4 +1515,8 @@ key_value = {
     # Google reviews
     'Google Place ID': 'ID do local no Google',
     'Google Maps place of the organisation (its public site shows its Google reviews).': 'Local da organização no Google Maps (o site público mostra as avaliações do Google).',
+    "Open dashboard": "Abrir painel",
+    "Choose your sector": "Escolha o seu sector",
+    "Site content": "Conteúdo do site",
+    "Content of the public site of this entity type (shown at the root of its host).": "Conteúdo do site público deste tipo de entidade (mostrado na raiz do seu domínio).",
 }
