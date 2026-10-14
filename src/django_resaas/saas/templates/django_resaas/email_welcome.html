@@ -62,7 +62,7 @@
   {% if login_url %}
   <p style="text-align:center; margin:28px 0 8px;">
     <a href="{{ login_url }}"
-       style="background:{{ brand_color|default:'#1976d2' }}; color:#ffffff; text-decoration:none;
+       style="background:{{ brand_color|default:'#1976d2' }}; color:{{ brand_text_color|default:'#ffffff' }}; text-decoration:none;
               padding:12px 28px; border-radius:8px; display:inline-block; font-weight:600;">
       {{ button_label }}
     </a>

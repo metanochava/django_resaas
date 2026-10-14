@@ -93,7 +93,7 @@ def send_bootstrap_welcome_email(user, *, entity=None, entity_type=None, branch=
                 "This is an automated message confirming your account was created.",
             ),
             "footer_notice": Translate.tdc(None, "This is an automated message, please do not reply."),
-        })
+        }, entity=entity)
 
         plain_body = Translate.tdc(
             None, "Your RESAAS account ({email}) was created successfully. Username: {username}.",

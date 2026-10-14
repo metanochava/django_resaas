@@ -124,3 +124,7 @@ do not exist; access is granted by an administrator. That is a separate proposal
 
 Tests: `saas/tests/test_registration_security.py`, `saas/tests/test_register_otp.py`,
 `saas/tests/test_user_create_entity.py`.
+
+## See also
+
+- [Password reset (forgot my password)](password-reset.md) - the same OTP service, bound to its own purpose.

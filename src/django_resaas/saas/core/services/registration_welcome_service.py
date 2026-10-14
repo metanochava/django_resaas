@@ -18,7 +18,6 @@ runs - a missing/misconfigured notification provider must not turn a
 successful signup into an error response."""
 import logging
 
-from django_resaas.saas.core.utils.email_branding import resolve_email_branding
 from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.notifications.enums import Channel
@@ -47,11 +46,7 @@ def _send_welcome_email(user, request):
     if provider is None or not user.email:
         return False
 
-    entity_name, logo_url = resolve_email_branding(request)
-
     html = render_email_template("BOOTSTRAP_WELCOME", {
-        "entity_name": entity_name,
-        "logo": logo_url,
         "greeting": Translate.tdc(request, "Welcome, {username}!").format(username=user.username),
         "intro": Translate.tdc(request, "Your account has been created successfully."),
         "username_label": Translate.tdc(request, "Username"),
@@ -62,7 +57,7 @@ def _send_welcome_email(user, request):
             request, "This is an automated message confirming your account was created.",
         ),
         "footer_notice": Translate.tdc(request, "This is an automated message, please do not reply."),
-    })
+    }, request=request)
 
     plain_body = Translate.tdc(
         request, "Welcome, {username}! Your account ({email}) was created successfully.",

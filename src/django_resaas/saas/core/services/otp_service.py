@@ -22,7 +22,6 @@ import base64
 
 import pyotp
 
-from django_resaas.saas.core.utils.email_branding import resolve_email_branding
 from django_resaas.saas.core.utils.generate_key_otp import generateKeyOTP
 from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.utils.translate import Translate
@@ -41,15 +40,30 @@ _PROVIDER_CHANNEL = {
 }
 
 
-def _totp_for(identifier):
-    key = base64.b32encode(generateKeyOTP().returnValue(identifier).encode())
+# Purposes whose code is bound to the purpose as well as to the identifier: a
+# code sent to reset a password can never complete a registration or a
+# contact change for the same number, and the other way round. The original
+# purposes keep their identifier-only key (codes already in flight stay valid).
+_SCOPED_PURPOSES = {"password_reset"}
+
+
+def _totp_for(identifier, purpose="register"):
+    material = f"{purpose}:{identifier}" if purpose in _SCOPED_PURPOSES else identifier
+    key = base64.b32encode(generateKeyOTP().returnValue(material).encode())
     return pyotp.TOTP(key, interval=OTP_INTERVAL_SECONDS)
+
+
+def otp_scope(identifier, purpose="register"):
+    """The key of the failed-attempts counter: per purpose for scoped purposes,
+    so failed reset attempts do not lock a registration (and vice versa)."""
+    return f"{purpose}:{identifier}" if purpose in _SCOPED_PURPOSES else identifier
 
 
 _INTRO_BY_PURPOSE = {
     "register": "Use the code below to confirm your registration.",
     "email_change": "Use the code below to confirm your new email address.",
     "mobile_change": "Use the code below to confirm your new phone number.",
+    "password_reset": "Use the code below to reset your password.",
 }
 
 
@@ -68,7 +82,7 @@ def send_registration_otp(channel, identifier, request=None, purpose="register")
     `purpose` only changes the wording of the email/SMS body - the OTP
     itself is identical regardless (same TOTP over the same identifier)."""
 
-    totp = _totp_for(identifier)
+    totp = _totp_for(identifier, purpose)
     code = totp.now()
 
     provider_channel = _PROVIDER_CHANNEL[channel]
@@ -84,13 +98,9 @@ def send_registration_otp(channel, identifier, request=None, purpose="register")
     ).format(code=code)
 
     if channel == "email":
-        entity_name, logo_url = resolve_email_branding(request)
-
         html = render_email_template(
             "OTP_CODE",
             {
-                "entity_name": entity_name,
-                "logo": logo_url,
                 "code": code,
                 "greeting": Translate.tdc(request, "Hello,"),
                 "intro": Translate.tdc(
@@ -105,6 +115,7 @@ def send_registration_otp(channel, identifier, request=None, purpose="register")
                     request, "This is an automated message, please do not reply."
                 ),
             },
+            request=request,
         )
 
         provider.send(
@@ -151,12 +162,13 @@ def clear_failed_otp(identifier):
     cache.delete(_failures_key(identifier))
 
 
-def verify_registration_otp(channel, identifier, code):
-    """Returns True iff `code` is a currently-valid OTP for `identifier`.
-    Never raises on a wrong/expired code - that's just `False`."""
+def verify_registration_otp(channel, identifier, code, purpose="register"):
+    """Returns True iff `code` is a currently-valid OTP for `identifier` (and,
+    for a scoped purpose, that purpose). Never raises on a wrong/expired code -
+    that's just `False`."""
 
     if not code:
         return False
 
-    totp = _totp_for(identifier)
+    totp = _totp_for(identifier, purpose)
     return bool(totp.verify(str(code)))

@@ -305,6 +305,33 @@ class TestLegacyUserActionsAreNotOpen:
         assert entity["entityType"] == entity["entity_type"]
         assert entity["dashboard"]
 
+    def test_user_entitys_follow_the_entity_type_of_the_host(self, bootstrap_tenant):
+        """Signing in on saude.example.com lists only the Saude Entities;
+        a host name that is no EntityType (app.example.com) lists all."""
+        from django_resaas.saas.models.entity import Entity
+        from django_resaas.saas.models.entity_type import EntityType
+
+        tenant = bootstrap_tenant("legacy-host-type")
+        home_type = tenant["entity"].entity_type
+        other_type = EntityType.objects.create(name="Other Host Type", state="Active")
+        other = Entity.objects.create(name="Elsewhere", entity_type=other_type)
+        EntityUser.objects.create(user=tenant["user"], entity=other)
+
+        def ids(**params):
+            response = tenant["client"].get(_url(tenant["user"], "userEntitys"), params)
+            assert response.status_code == 200
+            return {str(row["id"]) for row in response.json()}
+
+        everything = ids()
+        assert {str(tenant["entity"].id), str(other.id)} <= everything
+
+        assert ids(entity_type_name=home_type.name.upper()) == {
+            str(e.id) for e in Entity.objects.filter(id__in=everything, entity_type=home_type)
+        }
+        assert ids(entity_type_name="other host type") == {str(other.id)}
+        # not an EntityType: no filter
+        assert ids(entity_type_name="app") == everything
+
     def test_user_entitys_carries_the_entity_site(self, bootstrap_tenant):
         """The header site button (quasar_resaas HeaderSite.vue) opens the
         selected Entity's website, read from this list."""

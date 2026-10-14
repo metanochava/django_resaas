@@ -460,3 +460,5 @@ python manage.py notification_cleanup
   `idempotency_key` already provides the core duplicate-prevention guarantee; a
   still-true-while-condition-persists dedup window (e.g. "don't re-notify low stock on every
   save while it stays low") is a reasonable future addition, not implemented here.
+
+The framework's own transactional e-mails (codes, reset link, welcomes) and their Entity / EntityType branding: see [Transactional e-mails](emails.md).

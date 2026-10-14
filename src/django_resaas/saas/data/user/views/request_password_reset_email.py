@@ -1,7 +1,4 @@
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMultiAlternatives
-from django.utils.encoding import smart_bytes
-from django.utils.http import urlsafe_base64_encode
 
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
@@ -12,8 +9,11 @@ from django_resaas.saas.data.user.serializers.request_password_reset_email impor
 )
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.templates import render_email_template
-from django_resaas.saas.core.utils.email_branding import resolve_email_branding
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
+from django_resaas.saas.core.exceptions import error_response
+from django_resaas.saas.core.services.password_reset_service import (
+    ResetLinkUnavailable, link_available, reset_link as build_reset_link,
+)
 
 
 class RequestPasswordResetEmailAPIView(ResaasResponseMixin, generics.GenericAPIView):
@@ -33,37 +33,34 @@ class RequestPasswordResetEmailAPIView(ResaasResponseMixin, generics.GenericAPIV
         serializer = self.serializer_class(data=request.data)
         email = request.data.get('email', '')
 
+        # before the lookup: the answer must not depend on the account existing
+        if not link_available(request):
+            return error_response(
+                request,
+                "The reset link cannot be sent from this address. Ask for a code instead.",
+                status.HTTP_503_SERVICE_UNAVAILABLE,
+                code="reset_link_unavailable",
+            )
+
         if User.objects.filter(email=email).exists():
             user = User.objects.get(email=email)
 
-            uidb64 = urlsafe_base64_encode(
-                smart_bytes(user.id)
-            )
-            token = PasswordResetTokenGenerator().make_token(user)
-
-            redirect_url = request.data.get('redirect_url', '')
-
-            base_url = request.META.get(
-                'HTTP_ORIGIN',
-                'http://mws.mytech.co.mz'
-            )
-
-            # Points straight at a frontend route (SPA hash routing) -
-            # no backend reverse() involved, so there's no URL name to
-            # keep in sync between the two.
-            reset_link = (
-                f'{base_url}/#/resetpassword/{uidb64}/{token}'
-                f'?redirect_url={redirect_url}'
-            )
-
-            entity_name, logo_url = resolve_email_branding(request)
+            # a trusted frontend origin only (CORS policy / FRONTEND_URL),
+            # on the real route /#/auth/resetpassword/<uidb64>/<token>
+            try:
+                reset_link = build_reset_link(request, user)
+            except ResetLinkUnavailable:
+                return error_response(
+                    request,
+                    "The reset link cannot be sent from this address. Ask for a code instead.",
+                    status.HTTP_503_SERVICE_UNAVAILABLE,
+                    code="reset_link_unavailable",
+                )
 
             html_message = render_email_template(
                 'PASSWORD_RESET',
                 {
                     'link': reset_link,
-                    'entity_name': entity_name,
-                    'logo': logo_url,
                     'greeting': Translate.tdc(request, 'Hi {username},').format(
                         username=user.username
                     ),
@@ -79,7 +76,8 @@ class RequestPasswordResetEmailAPIView(ResaasResponseMixin, generics.GenericAPIV
                     'footer_notice': Translate.tdc(
                         request, 'This is an automated message, please do not reply.'
                     ),
-                }
+                },
+                request=request,
             )
 
             try:
