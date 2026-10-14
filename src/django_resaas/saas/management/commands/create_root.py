@@ -162,10 +162,10 @@ class Command(BaseCommand):
                     )
                 )
                 return
-
+        entity= Entity.objects.get(entity_type=entity_type )
         data = {
             "entity_type": "SaaS",
-            "entity": "SaaS",
+            "entity": entity.name,
             "branch": "Main",
         }
 
