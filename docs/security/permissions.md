@@ -69,6 +69,11 @@ and only there (never in an Entity they are not a member of):
 - Guest is not a working relationship: code that removes a membership once
   "no profile is left" must not count Guest, and removes it together with the
   membership (example: saude's patient portal revoke).
+- **Every sign-in** (`two_factor_service.sign_in_payload` and the 2FA session
+  step) calls `ensure_guest_for_user(user)`: Guest is restored in any Branch of
+  the user where it is missing (one query when nothing is missing). A user with
+  no membership gets no Guest - there is no Branch to hold it, and Guest is never
+  given outside the user's own Branches.
 - `python manage.py resaas_ensure_guest_profile` (dry run) /
   `--apply` gives it to the memberships that existed before. Run it once per
   environment after upgrading.

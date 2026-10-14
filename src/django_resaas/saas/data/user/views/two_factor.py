@@ -21,7 +21,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from django_resaas.saas.core.exceptions import error_response
-from django_resaas.saas.core.services import session_service, two_factor_service as service
+from django_resaas.saas.core.services import guest_profile_service, session_service, two_factor_service as service
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 
@@ -123,6 +123,7 @@ class _Public(ResaasResponseMixin, generics.GenericAPIView):
 
     def session(self, request, user, extra=None):
         tokens = user.tokens()
+        guest_profile_service.ensure_guest_for_user(user)
         session_service.record_login(user, request, tokens)
 
         return Response(

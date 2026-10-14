@@ -105,3 +105,43 @@ def test_the_command_backfills_existing_memberships(bootstrap_tenant):
     again = StringIO()
     call_command("resaas_ensure_guest_profile", stdout=again)
     assert "nothing to do" in again.getvalue()
+
+
+# ------------------------------------------------------------------ at sign-in
+
+def test_signing_in_restores_a_missing_guest(bootstrap_tenant):
+    from rest_framework.test import APIClient
+
+    tenant = bootstrap_tenant("guest-login")
+    user = _member("guest-login-ana", tenant["branch"], signal=False)
+    User.objects.filter(pk=user.pk).update(is_verified_email=True)
+    assert not _holds_guest(user, tenant["branch"])
+
+    response = APIClient().post("/api/login/", {"identifier": user.username, "password": "Pass-12345"}, format="json")
+
+    assert response.status_code == 202, response.content
+    assert _holds_guest(user, tenant["branch"])
+
+
+def test_signing_in_without_a_membership_gives_no_guest(bootstrap_tenant):
+    from rest_framework.test import APIClient
+
+    bootstrap_tenant("guest-login-none")
+    user = User.objects.create_user(username="guest-nobody", email="nobody@guest.test", password="Pass-12345")
+    User.objects.filter(pk=user.pk).update(is_verified_email=True)
+
+    response = APIClient().post("/api/login/", {"identifier": user.username, "password": "Pass-12345"}, format="json")
+
+    assert response.status_code == 202, response.content
+    assert not BranchUserGroup.objects.filter(user=user).exists()
+
+
+def test_ensure_guest_for_user_fixes_only_what_is_missing(bootstrap_tenant):
+    tenant = bootstrap_tenant("guest-for-user")
+    other = Branch.objects.create(name="Second", entity=tenant["entity"])
+    user = _member("guest-two", tenant["branch"])
+    BranchUser.objects.bulk_create([BranchUser(user=user, branch=other)])
+
+    assert service.ensure_guest_for_user(user) == 1
+    assert _holds_guest(user, other)
+    assert service.ensure_guest_for_user(user) == 0
