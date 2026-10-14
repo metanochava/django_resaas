@@ -162,12 +162,11 @@ class Command(BaseCommand):
                     )
                 )
                 return
-        entity = Entity.objects.filter(
-            entity_type=entity_type
-        ).order_by('created_at', 'id').first()
+
+
+        
         data = {
             "entity_type": "SaaS",
-            "entity": entity.name,
             "branch": "Main",
         }
 
@@ -180,9 +179,14 @@ class Command(BaseCommand):
             entity_type.state = "Active"
             entity_type.save(update_fields=["state"])
 
+        
+        entity = Entity.objects.filter(
+            entity_type=entity_type
+        ).order_by('created_at', 'id').first()
+
         # 2. Entity
         entity, _ = Entity.objects.get_or_create(
-            name=data["entity"],
+            name=entity.name,
             entity_type=entity_type,
             defaults={"state": "Active"},
         )
