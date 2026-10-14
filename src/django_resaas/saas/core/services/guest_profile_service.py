@@ -11,7 +11,12 @@ gets a profile in an Entity they do not belong to (tenant isolation).
 - a post_save signal on BranchUser calls it for every new membership
   (core/signals/guest_profile.py);
 - `manage.py resaas_ensure_guest_profile` fixes the users that existed before
-  (dry run unless --apply).
+  (dry run unless --apply);
+- every sign-in calls `ensure_guest_for_user(user)` (two_factor_service.
+  sign_in_payload and the 2FA session step), so a user who can sign in always
+  holds Guest in each Branch they belong to, even when an assignment was
+  removed by hand. A user with no membership gets nothing: Guest is never
+  given outside a Branch the user belongs to.
 
 Guest is never chosen at login on its own: when a user has one profile besides
 Guest, the frontend selects that one (quasar_resaas GroupStore)."""
@@ -58,6 +63,25 @@ def ensure_guest(user, branch, group=None):
     _, c = _active(BranchGroup, branch=branch, group=group); changed |= c
     _, c = _active(BranchUserGroup, user=user, branch=branch, group=group); changed |= c
     return changed
+
+
+def ensure_guest_for_user(user):
+    """Gives `user` Guest in every Branch they are an active member of, where
+    it is missing. Number of memberships fixed (0 almost always: one query)."""
+    from django_resaas.saas.models.branch_user import BranchUser
+    from django_resaas.saas.models.branch_user_group import BranchUserGroup
+
+    group = guest_group()
+    have = set(
+        BranchUserGroup.objects.filter(user=user, group=group, state=ACTIVE).values_list("branch_id", flat=True)
+    )
+    missing = [
+        membership for membership in BranchUser.objects.filter(user=user).select_related("branch")
+        if membership.branch_id not in have
+    ]
+    for membership in missing:
+        ensure_guest(user, membership.branch, group=group)
+    return len(missing)
 
 
 def memberships_missing_guest():

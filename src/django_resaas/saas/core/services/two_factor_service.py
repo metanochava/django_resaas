@@ -394,7 +394,7 @@ def sign_in_gate(user):
 def sign_in_payload(user, request):
     """The sign-in answer once the PASSWORD step is done: either a session
     (tokens) or - when two-factor still has to happen - a challenge and NO tokens."""
-    from django_resaas.saas.core.services import session_service
+    from django_resaas.saas.core.services import guest_profile_service, session_service
 
     payload = {
         "id": user.id,
@@ -414,6 +414,8 @@ def sign_in_payload(user, request):
         return payload
 
     payload["tokens"] = user.tokens()
+    # whoever can sign in holds Guest in each Branch they belong to
+    guest_profile_service.ensure_guest_for_user(user)
     session_service.record_login(user, request, payload["tokens"])
 
     return payload
