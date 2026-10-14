@@ -192,7 +192,6 @@ admin.site.index_title = '{clean_name(name)}'
         )
 
         entity, _ = Entity.objects.get_or_create(
-            name="Tenant",
             entity_type=entity_type
         )
         

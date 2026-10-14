@@ -29,9 +29,13 @@ class TenantAPIView(APIView):
     def get(self, request):
         user = request.user
 
+        entity = Entity.objects.get(
+            entity_type=entity_type
+        )
+
         data = {
             "entity_type": "Saas",
-            "entity": "Tenant",
+            "entity": entity.name,
             "branch": "Main",
             "group": "Admin",
         }

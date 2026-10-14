@@ -23,6 +23,18 @@ uses it, as described below.
 | Dashboards | `DASHBOARD` / `DASHBOARDS` in `<module>/dashboard.py`, autodiscovered | [Dashboards](../architecture/dashboards.md) |
 | Translations | `<module>/lang/<code>.py` (`key_value` dict), merged by `Translate.tdc` | [Translation](https://github.com/metanochava/quasar_resaas/blob/main/docs/quasar-resaas/features/translation.md) |
 
+### One class per file
+
+Models, views and serializers are packages - `<module>/models/`, `<module>/views/`,
+`<module>/serializers/` - with **one class per file**, named after the class in
+snake_case without its suffix (`JournalEntryLine` → `models/journal_entry_line.py`,
+`JournalEntryLineAPIView` → `views/journal_entry_line.py`, `JournalEntryLineSerializer` →
+`serializers/journal_entry_line.py`). This includes `TextChoices` enums
+(`hr/models/leave_request_status.py`) and throttles. The package `__init__.py` re-exports
+the classes, so `from <module>.models import X` keeps working; module-level constants that
+belong to a model (e.g. `ALLOWED_TRANSITIONS`) live in that model's file, and helpers shared
+by several classes of a package live in its `_common.py`. `saude` is the reference layout.
+
 ### `apps.py` of a module
 
 ```python
