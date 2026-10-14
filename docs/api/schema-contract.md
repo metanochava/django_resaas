@@ -57,7 +57,7 @@ an additive key, and the schema stays identical for every user.
     "label": "Group",               // Model._meta.verbose_name, titlecased
     "label_plural": "Groups",       // Model._meta.verbose_name_plural, titlecased
     "pk": "id",                     // Model._meta.pk.name
-    "endpoint": "django_resaas/groups/"  // "{app}/{model}s/" convention
+    "endpoint": "django_resaas/groups/"  // the model's real API path - see below
   },
 
   "fields": [ /* the `fields` list passed in, unmodified */ ],
@@ -144,6 +144,21 @@ an additive key, and the schema stays identical for every user.
   }
 }
 ```
+
+**`model.endpoint`** (and every action / PDF endpoint built on it) is resolved by
+`ResaasSchemaBuilder.endpoint_base()`, first match wins:
+
+1. `class RESAAS: endpoint = "module/name/"` - explicit;
+2. the view registered for this model with `@register_view` in its module
+   (`VIEW_REGISTRY`, the same registry `build_saas_urls()` mounts) - so
+   `@register_view("journalentries")` gives `accounting/journalentries/` with nothing to
+   declare;
+3. the default `"{app}/{model}s/"` of an unnamed `@register_view`.
+
+Before, only 1 and 3 existed: a view registered under its own name without
+`RESAAS.endpoint` got a schema pointing at a URL that answers `404` (e.g.
+`accounting/journalentrys`, `inventory/batchs`, `sales/taxs`). Tests:
+`saas/tests/test_schema_endpoint.py`.
 
 ## Merge semantics
 

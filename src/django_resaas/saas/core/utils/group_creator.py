@@ -75,8 +75,7 @@ def group_creator(groups=None, rename_from=None):
     # ------------------------------------------------------
     # 🔥 GARANTE Entity COM entity_type
     # ------------------------------------------------------
-    entity, _ = Entity.objects.get_or_create(
-        name="Tenant",
+    entity = Entity.objects.get(
         entity_type=entity_type,  # 🔥 FIX CRÍTICO
         defaults={"state": "Active"}
     )

@@ -140,10 +140,14 @@ class Command(BaseCommand):
         user.is_verified_email= True
         user.save()
 
+        entity, _ = Entity.objects.get(
+            entity_type=entity_type
+        )
+
 
         data = {
             "entity_type": "SaaS",
-            "entity": "Tenant",
+            "entity": entity.name,
             "branch": "Main",
         }
 

@@ -70,6 +70,36 @@ class ResaasSchemaBuilder:
     # HELPER
     # =========================================================
 
+    def endpoint_base(self):
+        """The model's API path, without the trailing slash, first match wins:
+
+        1. `class RESAAS: endpoint = "module/name/"` (explicit);
+        2. the view registered for this model with @register_view in its
+           module (VIEW_REGISTRY - the same registry build_saas_urls() mounts),
+           so @register_view("journalentries") gives "accounting/journalentries"
+           without anything to declare;
+        3. the default "module/model+s" of an unnamed @register_view.
+
+        Before, only 1 and 3 existed: a named view without RESAAS.endpoint got
+        a schema pointing at a URL that answers 404."""
+        explicit = self.get_resaas_value("endpoint", None)
+        if explicit:
+            return str(explicit).strip("/")
+
+        from django_resaas.saas.core.base.registry import VIEW_REGISTRY
+
+        default = f"{self.model}s"
+        matches = []
+        for name, view_cls in VIEW_REGISTRY.get(self.app, {}).items():
+            queryset = getattr(view_cls, "queryset", None)
+            serializer_meta = getattr(getattr(view_cls, "serializer_class", None), "Meta", None)
+            model = getattr(queryset, "model", None) or getattr(serializer_meta, "model", None)
+            if model is self.Model:
+                matches.append(name)
+        if matches:
+            return f"{self.app}/{default if default in matches else sorted(matches)[0]}"
+        return f"{self.app}/{default}"
+
     def get_resaas_value(
         self,
         name,
@@ -114,19 +144,9 @@ class ResaasSchemaBuilder:
             "pk":
                 self.meta.pk.name,
 
-            # endpoint padrão da API - só correcto quando o modelo está
-            # registado via @register_view com o nome por omissão
-            # (module/model+"s"). Um @register_view(name=...) explícito
-            # com um nome diferente (ex.: NotificationPreference regista-se
-            # como "notifications/preferences", não
-            # "notifications/notificationpreferences") tem de o declarar
-            # aqui, tal como build_routes() já permite sobrepor os nomes
-            # de rota - sem isto o schema aponta para um URL que dá 404.
+            # the model's real API endpoint (see endpoint_base())
             "endpoint":
-                self.get_resaas_value(
-                    "endpoint",
-                    f"{self.app}/{self.model}s/"
-                ),
+                f"{self.endpoint_base()}/",
 
         }
 
@@ -198,9 +218,7 @@ class ResaasSchemaBuilder:
 
         actions = []
 
-        base_endpoint = (
-            f"{self.app}/{self.model}s"
-        )
+        base_endpoint = self.endpoint_base()
 
         for extra in queryset:
 
@@ -609,18 +627,10 @@ class ResaasSchemaBuilder:
                 f"pdf_list_{self.model}",
 
             "detail_endpoint":
-                (
-                    f"{self.app}/"
-                    f"{self.model}s/"
-                    "{id}/pdf/"
-                ),
+                f"{self.endpoint_base()}/" + "{id}/pdf/",
 
             "list_endpoint":
-                (
-                    f"{self.app}/"
-                    f"{self.model}s/"
-                    "pdf_list/"
-                ),
+                f"{self.endpoint_base()}/pdf_list/",
 
         }
 
