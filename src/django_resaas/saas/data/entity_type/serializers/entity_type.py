@@ -88,15 +88,18 @@ class EntityTypeSerializer(BaseSerializer):
     class Meta:
         model = EntityType
         fields = "__all__"
+        # loaded by manage.py load_entity_type_sites; the generic form has no
+        # editor for nested JSON and would send it back broken
+        read_only_fields = ["site"]
 
 class EntityTypePublicSerializer(BaseSerializer):
     """What anyone may see of the EntityType catalogue (the header's services
     menu, the login screen resolving the type from the domain): name, label,
-    icon, order. Licence, UI configuration links and profiles stay with
+    icon, order and the content of its public site. Licence, UI configuration links and profiles stay with
     EntityTypeSerializer (list_entitytype)."""
 
     permanent_fields_files = ["icon"]
 
     class Meta:
         model = EntityType
-        fields = ["id", "name", "label", "icon", "ordem"]
+        fields = ["id", "name", "label", "icon", "ordem", "site"]

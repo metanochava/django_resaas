@@ -48,6 +48,44 @@ only the branches with coordinates (the Amal site: one map, a button per branch
 when there are several). Record a branch's location in its form (address picker)
 or with `branch.set_address(latitude=…, longitude=…, …)`.
 
+## `GET site/reviews/` — the Google reviews of the site's place
+
+PUBLIC (`AllowAny`, listed in `PUBLIC_BY_DESIGN`), `SiteReviewsAPIView`,
+throttled like `site/branches/`. The Entity comes from the `Origin` (unknown →
+`404 site_not_found`); `?lang=pt` asks Google for that language.
+
+The **server** reads the Google Places API (New) - Place Details with the
+`reviews` field - for `Entity.google_place_id`, with its own key
+(`RESAAS_GOOGLE_PLACES_API_KEY`; never sent to the browser), and caches the
+answer per place and language (`RESAAS_GOOGLE_REVIEWS_CACHE_SECONDS`, default
+6 hours; a Google failure answers no reviews and is retried after 5 minutes).
+`core/services/google_reviews_service.get_reviews(entity, language)`.
+
+```json
+{"enabled": true, "name": "Clínica Amal", "rating": 4.7, "total": 128,
+ "url": "https://maps.google.com/?cid=…",
+ "reviews": [{"author": "Ana", "author_url": "https://www.google.com/maps/contrib/…",
+              "photo": "https://lh3.googleusercontent.com/…", "rating": 5,
+              "text": "…", "relative_time": "2 weeks ago", "time": "2026-09-28T10:00:00Z"}]}
+```
+
+`enabled: false` (no reviews) when the Entity has no Google Place ID or the
+server has no key. Google returns at most **5** reviews, chosen by Google; show
+them with the author's name, photo and link and a link to the place on Google
+(Google's attribution rules for Places data).
+
+Set up:
+
+1. A Google Cloud project with **Places API (New)** enabled and billing; an API
+   key restricted to that API (and to the server's IP).
+2. `GOOGLE_PLACES_API_KEY=<key>` in the backend `.env` →
+   `RESAAS_GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")`.
+3. The organisation's **Google Place ID** (Google's Place ID Finder, starts with
+   `ChIJ…`) in the Entity's `google_place_id` field (Entity form).
+
+Migration: `django_resaas.0005_entity_google_place_id` (backward compatible:
+empty = no reviews).
+
 ## `POST site/contact/` — the contact form
 
 PUBLIC (`AllowAny`, listed in `PUBLIC_BY_DESIGN`), `SiteContactAPIView`.
@@ -127,6 +165,52 @@ Entity never does.
 
 The permissions are created by the permission sync like any other model; grant
 them to the groups that handle the site's contacts.
+
+## Entity type sites (`EntityType.site`)
+
+Besides an Entity's own site, each **EntityType** has a public landing page at
+the root of its host (`saude.example.com/#/`), rendered by quasar_resaas
+(`EntityTypeSitePage`). Its content and look are data, not code:
+
+- `EntityType.site` (JSON, default `{}`; migration
+  `django_resaas.0006_entity_type_site`) holds the page content: `layout`,
+  `hero`, `stats`, `features`, `steps`, `faq`, `cta`, `show_sectors`, with
+  canonical English texts. The keys are documented in quasar_resaas
+  *Routing → `/` - the site of the host's EntityType*.
+- The colours are the type's `Theme` (`primary`, `secondary`, `accent`, ...),
+  the same Theme an Entity of that type falls back to inside the app.
+
+**API.** `site` is part of the PUBLIC EntityType list
+(`EntityTypePublicSerializer`: `id`, `name`, `label`, `icon`, `ordem`,
+`site`; `ExplicitAccessMixin` `public_actions`) and the theme of the PUBLIC
+`entitytypes/{id}/themeGet/`. It is read-only in the EntityType CRUD
+serializer (the generic form has no JSON editor). Nothing tenant-specific is
+exposed: EntityTypes are platform scoped.
+
+**Loading** - `manage.py load_entity_type_sites <file.json> [--dry-run]`:
+
+```json
+{
+  "sites": {"Saude": {"layout": "orbit", "hero": {"title": "Care for your patients, not the paperwork"}}},
+  "themes": {"Saude": {"primary": "#0E7C86", "secondary": "#2563EB", "accent": "#F97362"}},
+  "translations": {"pt-pt": {"Care for your patients, not the paperwork": "Cuide dos seus doentes, não da papelada"}}
+}
+```
+
+- Types are matched by `name`, ignoring case; a missing type is reported and
+  skipped. A type's `site` is replaced by the file's.
+- `themes` accepts only real `Theme` fields (anything else, `id`/`name`
+  included, is refused). A Theme also used by another EntityType, an Entity or
+  a User is never changed: the type first gets its own copy, so nobody else's
+  colours move. A type without a Theme gets one.
+- `translations` upserts `Translation` rows by (language, key) and clears the
+  `translation:<code>` caches. An unknown language code is refused.
+- Everything runs in one transaction; `--dry-run` rolls it back. Re-running
+  the same file changes nothing (idempotent). Nothing is loaded by migrations:
+  it is installation data (the reference application ships
+  `data/entity_type_sites.json`).
+
+Tests: `saas/tests/test_load_entity_type_sites.py`.
 
 ## Model
 

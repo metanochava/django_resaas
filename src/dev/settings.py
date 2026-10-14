@@ -261,3 +261,6 @@ CELERY_TASK_ALWAYS_EAGER = bool(int(os.environ.get("CELERY_TASK_ALWAYS_EAGER", "
 # notifications/providers/sms.py and providers/whatsapp.py.
 # TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_FROM_NUMBER
 # WHATSAPP_CLOUD_API_TOKEN / WHATSAPP_CLOUD_API_PHONE_NUMBER_ID / WHATSAPP_CLOUD_API_VERSION
+
+# Google reviews on public sites (site/reviews/): Places API key, server side only
+RESAAS_GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")

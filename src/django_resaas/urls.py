@@ -47,6 +47,9 @@ from django_resaas.saas.data.user.views.account_security import (
     TerminateSessionAPIView,
 )
 from django_resaas.saas.data.user.views.request_password_reset_email import RequestPasswordResetEmailAPIView
+from django_resaas.saas.data.user.views.password_reset import (
+    CompletePasswordResetOTPAPIView, RequestPasswordResetAPIView,
+)
 from django_resaas.saas.data.user.views.password_token_check import PasswordTokenCheckAPIView
 from django_resaas.saas.data.user.views.set_new_password import SetNewPasswordAPIView
 from django_resaas.saas.data.user.views.mail import MailAPIView
@@ -83,6 +86,7 @@ from django_resaas.saas.data.person.views.person import PersonAPIView
 from django_resaas.saas.data.person_contact.views.person_contact import PersonContactAPIView
 from django_resaas.saas.data.site_contact_message.views.site_contact_message import (
     SiteBranchesAPIView,
+    SiteReviewsAPIView,
     SiteContactAPIView,
     SiteContactMessageAPIView,
 )
@@ -193,6 +197,7 @@ urlpatterns = [
     path("site/contact/", SiteContactAPIView.as_view(), name="site_contact"),
     # PUBLIC branches (name + main address) of the site's Entity, for its map
     path("site/branches/", SiteBranchesAPIView.as_view(), name="site_branches"),
+    path("site/reviews/", SiteReviewsAPIView.as_view(), name="site_reviews"),
 
     path("login/", LoginAPIView.as_view(), name="login"),
     path("logout/", LogoutAPIView.as_view(), name="logout"),
@@ -235,6 +240,9 @@ urlpatterns = [
     path("sessions/<str:jti>/terminate/", TerminateSessionAPIView.as_view(), name="session_terminate"),
     path("security/activity/", SecurityActivityAPIView.as_view(), name="security_activity"),
     path("password/reset/email/", RequestPasswordResetEmailAPIView.as_view(), name="request_password_reset_email"),
+    # PUBLIC, throttled: "forgot my password" by e-mail or phone, with a link or a code
+    path("password/reset/request/", RequestPasswordResetAPIView.as_view(), name="request_password_reset"),
+    path("password/reset/otp/complete/", CompletePasswordResetOTPAPIView.as_view(), name="password_reset_otp_complete"),
     path("password/reset/<uidb64>/<token>/", PasswordTokenCheckAPIView.as_view(), name="password_reset_confirm"),
     path("password/reset/complete/", SetNewPasswordAPIView.as_view(), name="password_reset_complete"),
 

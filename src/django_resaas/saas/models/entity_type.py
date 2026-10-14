@@ -53,6 +53,17 @@ class EntityType(TimeModel):
         help_text='Allow entities to be created for this entity type.'
     )
 
+    # content of the public site at '/' of this entity type's host (quasar_resaas
+    # EntityTypeSitePage): hero, stats, features, steps, faq, cta. Canonical
+    # English strings, translated by the frontend (tdc) from Translation rows.
+    # Loaded with `manage.py load_entity_type_sites <file>`.
+    site = models.JSONField(
+        "Site content",
+        default=dict,
+        blank=True,
+        help_text='Content of the public site of this entity type (shown at the root of its host).'
+    )
+
     
     # =========================================================
     # DEFAULT UI CONFIGURATION

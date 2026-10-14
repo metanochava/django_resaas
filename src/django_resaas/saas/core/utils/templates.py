@@ -12,10 +12,22 @@ DEFAULT_TEMPLATES = {
 }
 
 
-def render_email_template(key, context):
+def render_email_template(key, context, request=None, entity=None):
     """
     Resolve template via settings com fallback para template da lib.
+
+    With `request` (or `entity`) the Entity / EntityType branding of
+    core/utils/email_branding.email_brand() - name, logo and theme colours -
+    fills every key the caller left empty, so all templates share the look.
     """
+    if request is not None or entity is not None:
+        from django_resaas.saas.core.utils.email_branding import email_brand
+
+        context = dict(context)
+        for key_name, value in email_brand(request, entity=entity).items():
+            if context.get(key_name) in (None, ""):
+                context[key_name] = value
+
     custom_templates = getattr(settings, 'DJANGO_REST_AUTH', {}).get('EMAIL_TEMPLATES', {})
 
     template_name = custom_templates.get(key, DEFAULT_TEMPLATES.get(key))

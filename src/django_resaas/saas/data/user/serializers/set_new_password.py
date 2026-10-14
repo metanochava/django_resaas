@@ -1,4 +1,6 @@
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.encoding import DjangoUnicodeDecodeError, smart_str
 from django.utils.http import urlsafe_base64_decode
 
@@ -32,6 +34,14 @@ class SetNewPasswordSerializer(serializers.Serializer):
         if not PasswordResetTokenGenerator().check_token(user, attrs["token"]):
             raise serializers.ValidationError(
                 Translate.tdc(request, "The reset link is invalid or has expired")
+            )
+
+        # the same password policy as registration and the reset by code
+        try:
+            validate_password(attrs["password"], user=user)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(
+                {"password": [Translate.tdc(request, message) for message in error.messages]}
             )
 
         self._user = user

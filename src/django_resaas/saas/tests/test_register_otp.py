@@ -14,6 +14,7 @@ password-reset bugs fixed alongside it:
 
 import pyotp
 import pytest
+from django.test import override_settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes
 from django.utils.http import urlsafe_base64_encode
@@ -280,6 +281,7 @@ def test_register_otp_cannot_be_reused_across_different_identifier(client):
 # =============================================================
 
 
+@override_settings(CORS_ALLOWED_ORIGINS=["http://example.test"])
 def test_request_password_reset_email_does_not_crash(client, fake_notification_providers):
     """Bug #1: reverse('password-reset-confirm', ...) used to raise
     NoReverseMatch for every single request."""
@@ -295,6 +297,7 @@ def test_request_password_reset_email_does_not_crash(client, fake_notification_p
     assert response.status_code == 202
 
 
+@override_settings(CORS_ALLOWED_ORIGINS=["http://example.test"])
 def test_request_password_reset_unknown_email_still_succeeds(client):
     """Existence of the email must never be revealed either way."""
 

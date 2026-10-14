@@ -11,6 +11,7 @@ from django.db.models import Q
 from django_resaas.saas.models.group import Group
 from django_resaas.saas.models.user import User
 from django_resaas.saas.models.entity import Entity
+from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.layout_setting import LayoutSetting
 from django_resaas.saas.data.user.serializers.me import MeSerializer
 from django_resaas.saas.models.branch import Branch
@@ -265,6 +266,15 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             Q(admins=user)
             | Q(entityuser__user=user, entityuser__deleted_at__isnull=True)
         ).select_related("entity_type").distinct().order_by("name")
+
+        # ?entity_type_name=saude: only the Entities of the EntityType of the
+        # host the user signs in on (the frontend sends its host key,
+        # utils/entityTypeHost.js). A name that is no EntityType (e.g. the
+        # "app" of app.example.com) filters nothing. This narrows the user's
+        # own list; it grants nothing.
+        entity_type_name = str(request.query_params.get("entity_type_name") or "").strip()
+        if entity_type_name and EntityType.objects.filter(name__iexact=entity_type_name).exists():
+            entities = entities.filter(entity_type__name__iexact=entity_type_name)
 
         result = []
 

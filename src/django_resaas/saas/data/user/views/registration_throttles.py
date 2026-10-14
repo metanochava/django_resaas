@@ -56,3 +56,37 @@ class UsernameCheckThrottle(_ByAddress):
     scope = "username_check"
     setting = "RESAAS_USERNAME_CHECK_THROTTLE_RATE"
     default = "120/hour"
+
+
+# Password reset (password/reset/request/ and password/reset/otp/complete/):
+# same mechanism, its own scopes and settings.
+#
+#     RESAAS_PASSWORD_RESET_OTP_THROTTLE_RATE            per client address     10/hour
+#     RESAAS_PASSWORD_RESET_OTP_IDENTIFIER_THROTTLE_RATE per e-mail / phone      5/hour
+#     RESAAS_PASSWORD_RESET_THROTTLE_RATE                per client address 20/hour
+
+class PasswordResetOTPThrottle(_ByAddress):
+    scope = "password_reset_otp"
+    setting = "RESAAS_PASSWORD_RESET_OTP_THROTTLE_RATE"
+    default = "10/hour"
+
+
+class PasswordResetOTPIdentifierThrottle(_ByAddress):
+    """Per destination: links or codes cannot be sent to one e-mail / number
+    repeatedly (flooding), whoever asks."""
+
+    scope = "password_reset_otp_identifier"
+    setting = "RESAAS_PASSWORD_RESET_OTP_IDENTIFIER_THROTTLE_RATE"
+    default = "5/hour"
+
+    def get_cache_key(self, request, view):
+        identifier = str(request.data.get("identifier") or "").replace(" ", "").lower()
+        if not identifier:
+            return None
+        return self.cache_format % {"scope": self.scope, "ident": identifier}
+
+
+class PasswordResetThrottle(_ByAddress):
+    scope = "password_reset"
+    setting = "RESAAS_PASSWORD_RESET_THROTTLE_RATE"
+    default = "20/hour"
