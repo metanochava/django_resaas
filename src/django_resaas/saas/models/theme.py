@@ -8,6 +8,31 @@ class Theme(TimeModel):
     name = models.CharField(max_length=100)
 
     # =========================================================
+    # OWNER
+    # =========================================================
+    # A theme with no owner is a TEMPLATE: everyone may use it, only
+    # change_theme (Root) may change it. "Customize" (ThemeAPIView.customize)
+    # copies a theme for ONE level - an EntityType, an Entity or a User - and
+    # that copy is visible and editable only at that level
+    # (data/theme/views/theme.py).
+    owner_entity_type = models.ForeignKey(
+        'django_resaas.EntityType', null=True, blank=True, on_delete=models.CASCADE,
+        related_name='owned_themes', help_text='Entity type this customized theme belongs to.',
+    )
+    owner_entity = models.ForeignKey(
+        'django_resaas.Entity', null=True, blank=True, on_delete=models.CASCADE,
+        related_name='owned_themes', help_text='Entity this customized theme belongs to.',
+    )
+    owner_user = models.ForeignKey(
+        'django_resaas.User', null=True, blank=True, on_delete=models.CASCADE,
+        related_name='owned_themes', help_text='User this customized theme belongs to.',
+    )
+
+    @property
+    def is_template(self):
+        return not (self.owner_entity_type_id or self.owner_entity_id or self.owner_user_id)
+
+    # =========================================================
     # CORE COLORS
     # =========================================================
 
