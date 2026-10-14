@@ -29,6 +29,7 @@ backend framework.
 -   [Files and PDF](features/files-pdf.md)
 -   [Notifications (Email/SMS/WhatsApp)](features/notifications.md)
 -   [Transactional e-mails and their branding](features/emails.md)
+-   [Themes: templates and customized copies](features/themes.md)
 -   [Model lifecycle events](features/lifecycle-events.md)
 -   [Public sites and their contact form](features/public-sites.md)
 -   [Creating a new resource](development/creating-resource.md)
