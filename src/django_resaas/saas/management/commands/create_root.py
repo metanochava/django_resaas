@@ -162,7 +162,9 @@ class Command(BaseCommand):
                     )
                 )
                 return
-        entity= Entity.objects.get(entity_type=entity_type )
+        entity = Entity.objects.filter(
+            entity_type=entity_type
+        ).order_by('created_at', 'id').first()
         data = {
             "entity_type": "SaaS",
             "entity": entity.name,
