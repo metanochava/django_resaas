@@ -25,17 +25,14 @@ class TenantAPIView(APIView):
     """
     permission_classes = [IsAuthenticated]
 
-    # @transaction.atomic
-    def get(self, request):
+    @transaction.atomic
+    def post(self, request):
+        # POST, not GET: this view creates records (a GET never changes state).
         user = request.user
 
-        entity = Entity.objects.get(
-            entity_type=entity_type
-        )
-
         data = {
-            "entity_type": "Saas",
-            "entity": entity.name,
+            "entity_type": "SaaS",
+            "entity": "Tenant",
             "branch": "Main",
             "group": "Admin",
         }
@@ -45,16 +42,22 @@ class TenantAPIView(APIView):
         # ------------------------
         entity_type, _ = EntityType.objects.get_or_create(
             name=data["entity_type"],
-            state = 'Active'
+            defaults={"state": "Active"},
         )
 
         # ------------------------
-        # 2. Entity
+        # 2. Entity: same rule as create_root - the oldest Entity of the
+        # SaaS type; only a new installation, which has none, creates it.
         # ------------------------
-        entity, created_entity = Entity.objects.get_or_create(
-            name=data["entity"],
+        entity = Entity.objects.filter(
             entity_type=entity_type
-        )
+        ).order_by("created_at", "id").first()
+        if entity is None:
+            entity = Entity.objects.create(
+                name=data["entity"],
+                entity_type=entity_type,
+                state="Active",
+            )
 
         # ManyToMany → DEPOIS
         entity.admins.add(user)
@@ -62,7 +65,7 @@ class TenantAPIView(APIView):
         EntityUser.objects.get_or_create(
             user=user,
             entity=entity,
-            state = 'Active'
+            defaults={"state": "Active"},
         )
 
         # ------------------------
@@ -71,28 +74,25 @@ class TenantAPIView(APIView):
         branch, _ = Branch.objects.get_or_create(
             name=data["branch"],
             entity=entity,
-            state = 'Active'
+            defaults={"state": "Active"},
         )
 
         BranchUser.objects.get_or_create(
             user=user,
             branch=branch,
-            state = 'Active'
+            defaults={"state": "Active"},
         )
 
         # ------------------------
         # 4. Group
         # ------------------------
-        group, _ = Group.objects.get_or_create(
-            name=data["group"],
-            state = 'Active'
-        )
+        group, _ = Group.objects.get_or_create(name=data["group"])
 
         BranchUserGroup.objects.get_or_create(
             user=user,
             branch=branch,
             group=group,
-            state = 'Active'
+            defaults={"state": "Active"},
         )
 
         # user.groups.add(group)
@@ -100,6 +100,14 @@ class TenantAPIView(APIView):
         # ------------------------
         # RESPONSE
         # ------------------------
-        return all(request, "Initial configuration created successfully", data = { "entity_type": entity_type.name, "entity": entity.name, "branch": branch.name,  "group": group.name, "user": user.username, },
-            status=status.HTTP_201_CREATED
+        return all(
+            request,
+            status=status.HTTP_201_CREATED,
+            data={
+                "entity_type": entity_type.name,
+                "entity": entity.name,
+                "branch": branch.name,
+                "group": group.name,
+                "user": user.username,
+            },
         )

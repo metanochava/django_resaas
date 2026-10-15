@@ -167,6 +167,7 @@ class Command(BaseCommand):
         
         data = {
             "entity_type": "SaaS",
+            "entity": "Tenant",
             "branch": "Main",
         }
 
@@ -179,17 +180,18 @@ class Command(BaseCommand):
             entity_type.state = "Active"
             entity_type.save(update_fields=["state"])
 
-        
+        # 2. Entity: the platform Entity is the oldest Entity of the SaaS
+        # type (the same rule as group_creator). Only a new installation,
+        # which has none yet, creates it.
         entity = Entity.objects.filter(
             entity_type=entity_type
-        ).order_by('created_at', 'id').first()
-
-        # 2. Entity
-        entity, _ = Entity.objects.get_or_create(
-            name=entity.name,
-            entity_type=entity_type,
-            defaults={"state": "Active"},
-        )
+        ).order_by("created_at", "id").first()
+        if entity is None:
+            entity = Entity.objects.create(
+                name=data["entity"],
+                entity_type=entity_type,
+                state="Active",
+            )
         if entity.state != "Active":
             entity.state = "Active"
             entity.save(update_fields=["state"])
