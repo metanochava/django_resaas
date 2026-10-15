@@ -261,9 +261,7 @@ class TestLegacyViewSetsAreProtected:
 
         rows = anonymous.get("/api/django_resaas/entitytypes/").json()
         rows = rows.get("results", rows) if isinstance(rows, dict) else rows
-
-        # `site`: the public landing content of the type (EntityType.site)
-        assert rows and all(set(row) == {"id", "value", "name", "label", "icon", "ordem", "site"} for row in rows)
+        assert rows and all(set(row) == {"id", "value", "name", "label", "icon", "ordem"} for row in rows)
         assert anonymous.post("/api/django_resaas/entitytypes/", {"name": "x"}, format="json").status_code in (401, 403)
 
     def test_entity_type_branding_reads_stay_public_but_nothing_else_of_it(self, bootstrap_tenant):

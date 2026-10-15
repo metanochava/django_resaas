@@ -166,51 +166,53 @@ Entity never does.
 The permissions are created by the permission sync like any other model; grant
 them to the groups that handle the site's contacts.
 
-## Entity type sites (`EntityType.site`)
+## Entity type sites
 
 Besides an Entity's own site, each **EntityType** has a public landing page at
 the root of its host (`saude.example.com/#/`), rendered by quasar_resaas
-(`EntityTypeSitePage`). Its content and look are data, not code:
+(`EntityTypeSitePage`). Its content is **code of the application, never
+database data**:
 
-- `EntityType.site` (JSON, default `{}`; migration
-  `django_resaas.0006_entity_type_site`) holds the page content: `layout`,
-  `hero`, `stats`, `features`, `steps`, `faq`, `cta`, `show_sectors`, with
-  canonical English texts. The keys are documented in quasar_resaas
-  *Routing → `/` - the site of the host's EntityType*.
+- The texts, layout, icons, FAQ... of each type are registered by the frontend
+  application (`registerEntityTypeSiteContent`, see quasar_resaas
+  *Routing → `/` - the site of the host's EntityType*). The backend stores and
+  serves no site content.
+- Their translations are static: canonical English keys in the frontend
+  files, pt/es/fr in `saas/lang/{ptpt,eses,frfr}.py` (merged by
+  `Translate.tdc()` and by `GET languages/{id}/translations/`, like every other
+  frontend string). No `Translation` row is created for them.
 - The colours are the type's `Theme` (`primary`, `secondary`, `accent`, ...),
   the same Theme an Entity of that type falls back to inside the app.
 
-**API.** `site` is part of the PUBLIC EntityType list
-(`EntityTypePublicSerializer`: `id`, `name`, `label`, `icon`, `ordem`,
-`site`; `ExplicitAccessMixin` `public_actions`) and the theme of the PUBLIC
-`entitytypes/{id}/themeGet/`. It is read-only in the EntityType CRUD
-serializer (the generic form has no JSON editor). Nothing tenant-specific is
-exposed: EntityTypes are platform scoped.
+**API.** The page only uses PUBLIC reads: the EntityType list
+(`EntityTypePublicSerializer`: `id`, `name`, `label`, `icon`, `ordem`;
+`ExplicitAccessMixin` `public_actions`) and the type's
+`themeGet`/`layoutSettingsGet`/`typographyGet`/`animationSettingsGet`. Nothing
+tenant-specific is exposed: EntityTypes are platform scoped.
 
-**Loading** - `manage.py load_entity_type_sites <file.json> [--dry-run]`:
+**Theme colours** - `manage.py load_entity_type_themes <file.json> [--dry-run]`:
 
 ```json
-{
-  "sites": {"Saude": {"layout": "orbit", "hero": {"title": "Care for your patients, not the paperwork"}}},
-  "themes": {"Saude": {"primary": "#0E7C86", "secondary": "#2563EB", "accent": "#F97362"}},
-  "translations": {"pt-pt": {"Care for your patients, not the paperwork": "Cuide dos seus doentes, não da papelada"}}
-}
+{"themes": {"Saude": {"primary": "#0E7C86", "secondary": "#2563EB", "accent": "#F97362"}}}
 ```
 
 - Types are matched by `name`, ignoring case; a missing type is reported and
-  skipped. A type's `site` is replaced by the file's.
-- `themes` accepts only real `Theme` fields (anything else, `id`/`name`
-  included, is refused). A Theme also used by another EntityType, an Entity or
-  a User is never changed: the type first gets its own copy, so nobody else's
-  colours move. A type without a Theme gets one.
-- `translations` upserts `Translation` rows by (language, key) and clears the
-  `translation:<code>` caches. An unknown language code is refused.
-- Everything runs in one transaction; `--dry-run` rolls it back. Re-running
-  the same file changes nothing (idempotent). Nothing is loaded by migrations:
-  it is installation data (the reference application ships
-  `data/entity_type_sites.json`).
+  skipped.
+- Only real `Theme` fields are accepted (anything else, `id`/`name` included,
+  is refused). A Theme also used by another EntityType, an Entity or a User is
+  never changed: the type first gets its own copy, so nobody else's colours
+  move. A type without a Theme gets one.
+- A file with `sites` or `translations` is refused: that content is code.
+- One transaction; `--dry-run` rolls it back; re-running the same file changes
+  nothing. Nothing is loaded by migrations: it is installation data (the
+  reference application ships `data/entity_type_themes.json`).
 
-Tests: `saas/tests/test_load_entity_type_sites.py`.
+Tests: `saas/tests/test_load_entity_type_themes.py`.
+
+**History.** `EntityType.site` (JSON, migration `0006_entity_type_site`) and
+`manage.py load_entity_type_sites` were removed before any release: migration
+`0008_remove_entity_type_site` drops the column. See
+[Upgrading](../deployment/upgrading.md).
 
 ## Model
 

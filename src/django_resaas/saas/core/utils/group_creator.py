@@ -73,11 +73,15 @@ def group_creator(groups=None, rename_from=None):
     )
 
     # ------------------------------------------------------
-    # 🔥 GARANTE Entity COM entity_type
+    # the platform Entity: the oldest Entity of the SaaS type (the same
+    # rule as create_root). None on a new installation before create_root
+    # created it - the profiles are still created and linked to the type,
+    # create_root links them to its Entity. No Entity is ever created here.
     # ------------------------------------------------------
-    entity = Entity.objects.get(
-        entity_type=entity_type,  # 🔥 FIX CRÍTICO
-        defaults={"state": "Active"}
+    entity = (
+        Entity.objects.filter(entity_type=entity_type)
+        .order_by("created_at", "id")
+        .first()
     )
 
     # ------------------------------------------------------
@@ -121,11 +125,12 @@ def group_creator(groups=None, rename_from=None):
             defaults={"state": 'Active'}
         )
 
-        EntityGroup.objects.get_or_create(
-            entity=entity,
-            group=group,
-            defaults={"state": 'Active'}
-        )
+        if entity is not None:
+            EntityGroup.objects.get_or_create(
+                entity=entity,
+                group=group,
+                defaults={"state": 'Active'}
+            )
 
         if permission_codenames:
             perms = list(Permission.objects.filter(codename__in=permission_codenames))
