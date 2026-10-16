@@ -8,13 +8,17 @@ in doubt, copy from there.
 
 ## 1. Install
 
-`django_resaas` is published on PyPI (Python 3.9+; it pins Django 5.2 and DRF 3.16):
+`django_resaas` is published on PyPI (Python 3.10+, as required by the pinned Django 5.2; it also pins DRF 3.16):
 
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install django_resaas
 django-admin startproject myproject
 ```
+
+Optional extras: `scaffold` (black, to format the code the Scaffold generates), `server`
+(gunicorn), `notifications` (celery), `dev` (pytest and test tools) - e.g.
+`pip install "django_resaas[server]"`.
 
 ## 2. `settings.py`
 

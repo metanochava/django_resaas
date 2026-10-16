@@ -214,7 +214,12 @@ class {name}Admin(admin.ModelAdmin):
 
 
 def write_python_pretty(code: str) -> str:
-    import black
+    # black is optional (extra "scaffold"): without it the generated code is
+    # written as generated - still valid Python, just not reformatted
+    try:
+        import black
+    except ImportError:
+        return code
     return black.format_str(code, mode=black.FileMode())
 
 

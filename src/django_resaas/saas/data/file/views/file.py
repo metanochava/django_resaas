@@ -41,7 +41,15 @@ class FileAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     pagination_class = ResaasPagination
 
     def get_queryset(self):
-        return self.queryset.order_by("-id")
+        # tenant scope: only the current Entity's files - retrieve, update
+        # and destroy all go through get_object(), so another Entity's id is
+        # "not found". Without a signed context there is nothing in scope.
+        entity_id = getattr(self.request, "entity_id", None)
+
+        if not entity_id:
+            return self.queryset.none()
+
+        return self.queryset.filter(entity_id=entity_id).order_by("-id")
 
     def retrieve(self, request, *args, **kwargs):
         try:
@@ -163,7 +171,12 @@ class FileAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        files = File.objects.filter(entity_id=entity_id)
+        # the Entity comes from the signed context; the query parameter is
+        # kept for compatibility but can only name the current Entity
+        if str(entity_id) != str(getattr(request, "entity_id", None)):
+            return Response([], status=status.HTTP_200_OK)
+
+        files = self.get_queryset()
         serializer = self.get_serializer(files, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

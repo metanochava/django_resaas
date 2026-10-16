@@ -7,7 +7,7 @@ A `develop` → `release/x.y.z` → `main` flow, tagged on merge, driven by the 
 ```bash
 make releases        # develop -> bump version (patch/minor/major) -> release/x.y.z
 make releasef        # release-check, then git flow release finish (local: nothing pushed)
-make publish         # release-check, upload to PyPI, THEN push main, develop and the tag
+make publish         # release-check, then upload to PyPI (push main, develop and the tag by hand)
 ```
 
 `make release-check` runs on its own too. It fails, and nothing continues, when:
@@ -80,3 +80,32 @@ grep version pyproject.toml
 If a release branch exists that shouldn't (already merged, abandoned), resolve or delete it
 explicitly rather than starting a new one alongside it — a leftover release branch will keep
 tripping the "already exists" check for whoever runs it next.
+
+## Supported versions
+
+| Component | Supported |
+|---|---|
+| Python | 3.10 - 3.14 (`requires-python = ">=3.10"`, set by the pinned Django 5.2) |
+| Django / DRF | `Django==5.2.10`, `djangorestframework==3.16.1` (pinned in `pyproject.toml`) |
+| Optional extras | `scaffold` (black), `server` (gunicorn), `notifications` (celery), `dev` (pytest, pytest-django, factory_boy) |
+
+Installations install the framework from GitHub at a ref (the reference application's
+`deploy.sh`: `pip install git+https://github.com/metanochava/django_resaas.git@<ref>`) or from
+PyPI (`pip install django_resaas==x.y.z`); both build from the same `pyproject.toml`.
+
+## Recovering from a defective release
+
+PyPI never accepts the same version twice, so a broken release is fixed **forward**:
+
+1. **Yank** the broken version on PyPI (project page → *Manage* → *Options* → *Yank*). pip stops
+   choosing it for unpinned or range requirements; an installation pinned to it still gets it.
+2. Fix on `develop` (or `make hotfixs` from `main`), then release the next patch version with the
+   normal flow (`make releasef` / `make publish`).
+3. Installations pinned to the broken version (or to a GitHub ref/tag of it) move to the fixed
+   version explicitly; if the release shipped a migration, check
+   [Upgrading](upgrading.md) before going back to an older version - never roll a database back by
+   reinstalling an older package over migrations that already ran.
+
+> [!NOTE]
+> `make publish` currently runs `release-check` and uploads to PyPI; it does **not** push `main`,
+> `develop` or the tag (despite the Makefile comment). Push them by hand after a successful upload.

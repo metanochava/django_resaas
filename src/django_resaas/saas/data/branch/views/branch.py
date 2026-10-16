@@ -1,7 +1,7 @@
 # =========================
 # Python standard library
 # =========================
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 import base64
 import os
 import random
@@ -56,8 +56,21 @@ from django_resaas.saas.data.file.serializers.file_gravar import FileGravarSeria
 
 
 
-class BranchAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
-    # PROTECTED: authenticated callers only (no public actions)
+class BranchAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions).
+    #
+    # Reads are scoped to the current Entity by get_queryset (membership
+    # actions); every write needs its permission in the signed context
+    # (ActionPermissionMixin, fail closed). Detail actions resolve the branch
+    # with self.get_object(), so another Entity's branch id is "not found".
+    membership_actions = ("list", "retrieve", "groups", "Url", "getCapasSite", "qr")
+    action_permissions = {
+        "create": "add_branch",
+        "update": "change_branch",
+        "partial_update": "change_branch",
+        "destroy": "delete_branch",
+        "postCapasSite": "change_branch",
+    }
 
     #permission_classes = (permissions.IsAuthenticated)
     search_fields = ['id','name']
@@ -115,7 +128,7 @@ class BranchAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         methods=['GET'],
     )
     def Url(self, request, id):
-        branch = Branch.objects.get(id=id)
+        branch = self.get_object()
         entity = Entity.objects.get(id=branch.entity.id)
         return Response(str(entity.entity_type.id)+'/'+str(branch.entity.id)+'/'+str(branch.id))
     
@@ -126,7 +139,8 @@ class BranchAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         methods=['GET'],
     )
     def getCapasSite(self, request, id):
-        files = Files.objects.filter(branch__id=id, funcionalidade='Cover')
+        branch = self.get_object()
+        files = Files.objects.filter(branch__id=branch.id, funcionalidade='Cover')
         files = FileSerializer(files, many=True)
         data = (files.data)
         return Response(data, status=status.HTTP_200_OK)
@@ -137,7 +151,7 @@ class BranchAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         methods=['POST'],
     )
     def postCapasSite(self, request, id):
-        branch = Branch.objects.get(id=id)
+        branch = self.get_object()
 
         request.data['entity'] = str(branch.entity.id)
         request.data['branch'] = str(branch.id)

@@ -104,6 +104,8 @@ class TestBranchUserGroupGenericCreateState:
         # o próprio bootstrap já criou este par - usa um Group novo para
         # exercitar mesmo caminho de create() que a tela de Add genérica
         other_group = Group.objects.create(name="Auditor")
+        # the endpoint only assigns profiles the current Entity owns
+        EntityGroup.objects.create(entity=tenant["entity"], group=other_group, state="Active")
 
         response = client.post(
             "/api/django_resaas/branchusergroups/",

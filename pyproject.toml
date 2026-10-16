@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.657"
+version = "0.0.658"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.9"
+# Django 5.2 supports Python 3.10 - 3.14 (docs.djangoproject.com/en/5.2/faq/install/)
+requires-python = ">=3.10"
 
 authors = [
   { name = "Dias Metano Salvador Chavana", email = "metanochava@gmail.com" }
@@ -32,8 +33,6 @@ dependencies = [
   "pyotp",
   "qrcode[pil]>=7.4.2",
   "python-barcode==0.15.1",
-  "black",
-  "gunicorn",
   "weasyprint",
   "django-money",
   "python-dotenv",
@@ -51,6 +50,15 @@ dev = [
 ]
 notifications = [
   "celery>=5.3",
+]
+# formats the code written by the Scaffold / Scaffold IDE (imported lazily,
+# Root-only lib work): not needed to run an application
+scaffold = [
+  "black",
+]
+# WSGI server for deployments (the framework never imports it)
+server = [
+  "gunicorn",
 ]
 
 [project.urls]

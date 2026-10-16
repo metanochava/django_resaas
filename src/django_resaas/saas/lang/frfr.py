@@ -1227,6 +1227,8 @@ key_value = {
     "You cannot remove the profile you are currently using.": "Vous ne pouvez pas retirer le profil que vous utilisez actuellement.",
     "This profile is not assigned to the user.": "Ce profil n'est pas attribué à l'utilisateur.",
     "This user is not a member of the current entity.": "Cet utilisateur n'est pas membre de l'entité actuelle.",
+    "This assignment must use the current branch.": "Cette attribution doit utiliser la succursale actuelle.",
+    "Does not belong to the current entity.": "N'appartient pas à l'entité actuelle.",
     "This profile is already assigned to the user.": "Ce profil est déjà attribué à l'utilisateur.",
 
     # frontend UI strings
