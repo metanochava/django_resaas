@@ -1,7 +1,7 @@
 # =========================
 # Python standard library
 # =========================
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 import importlib
 
 
@@ -31,9 +31,19 @@ from django_resaas.saas.data.language.serializers.language import LanguageSerial
 
 from django_resaas.saas.core.base.views import BaseAPIView
 
-class LanguageAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
+class LanguageAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
     # PUBLIC (explicit, READ only): needed by the login screen before there is a session
     public_actions = ('list', 'retrieve', 'translations')
+
+    # Languages are global: every write needs the permission in the signed
+    # context (ActionPermissionMixin, fail closed) - deleting one cascades to
+    # its Translation rows for every tenant.
+    action_permissions = {
+        "create": "add_language",
+        "update": "change_language",
+        "partial_update": "change_language",
+        "destroy": "delete_language",
+    }
 
     search_fields = ["id", "name"]
     filter_backends = (filters.SearchFilter,)

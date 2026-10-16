@@ -1,7 +1,7 @@
 # =========================
 # Django
 # =========================
-from django_resaas.saas.core.base.access import ExplicitAccessMixin
+from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 from django.contrib.contenttypes.models import ContentType
 
 
@@ -23,8 +23,16 @@ from django_resaas.saas.data.model.serializers.model import ModelSerializer
 
 
 
-class ModelAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
-    # PROTECTED: authenticated callers only (no public actions)
+class ModelAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
+    # PROTECTED: authenticated callers only (no public actions).
+    #
+    # READ ONLY: the ContentType catalogue is global and owned by Django's
+    # migrations; deleting one cascades to its Permissions for every tenant.
+    # list/retrieve stay open to any authenticated caller (profile screens
+    # read it); every write is undeclared, so ActionPermissionMixin denies it
+    # (403, fail closed).
+    membership_actions = ("list", "retrieve")
+    action_permissions = {}
 
     search_fields = ['id']
     filter_backends = (filters.SearchFilter,)

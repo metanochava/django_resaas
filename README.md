@@ -3,7 +3,7 @@
 **Full-stack framework for building secure, multi-tenant business applications with Django and Quasar** — this is the Django backend; [quasar_resaas](https://github.com/metanochava/quasar_resaas) is the frontend.
 
 [![PyPI](https://img.shields.io/badge/pypi-django__resaas-3776AB?logo=pypi&logoColor=white)](https://pypi.org/project/django_resaas/)
-[![Python](https://img.shields.io/badge/python-3.9%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
+[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](pyproject.toml)
 [![Django](https://img.shields.io/badge/django-5.2-0C4B33?logo=django&logoColor=white)](pyproject.toml)
 [![License: Commercial](https://img.shields.io/badge/license-commercial-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-active%20development-orange)](https://github.com/metanochava/django_resaas)

@@ -107,12 +107,19 @@ python manage.py create_root
 
 The full enterprise bootstrap command. Interactively prompts for a username/email (rejecting an
 already-used email) and a password (hidden input, with confirmation), then creates a superuser and
-the complete default tenant structure in one pass: an `EntityType` ("SaaS"), an `Entity`
-("Tenant"), a `Branch` ("Main"), the default `GROUPS` (Guest, Admin, Root) linked to the entity
+the complete default tenant structure in one pass: an `EntityType` ("SaaS"), the platform
+`Entity`, a `Branch` ("Main"), the default `GROUPS` (Guest, Admin, Root) linked to the entity
 type/entity/branch/user, the framework's apps (`django_resaas`, `notifications`) plus
 `settings.RESAAS_DEFAULT_MODULES` registered and linked to the entity type/entity, plus frontend and language defaults (via `FrontEndService.load_defaults` and
 `LanguageService.load_defaults`). Intended to be run once per environment to get a fully working
 system from a blank database.
+
+The platform `Entity` is the oldest `Entity` of the "SaaS" type - the same rule `group_creator`
+uses to link the profiles. When one already exists (running the command again, or an installation
+whose platform Entity was renamed) it is reused as it is; only a new installation, which has none,
+creates it with the name "Tenant". The command never looks the Entity up by name, so renaming the
+platform Entity does not create a second one. Every other step is a get-or-create, so running it
+again with another user only adds that user to the same structure.
 
 ## `create_entity`
 
