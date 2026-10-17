@@ -188,6 +188,21 @@ class TestVerification:
         with pytest.raises(service.TwoFactorError):
             service.verify(user, code)
 
+    def test_two_requests_that_read_the_row_before_either_wrote_cannot_both_use_a_code(self, monkeypatch):
+        # the race the conditional UPDATE exists for: both requests loaded the
+        # factor (same last_used_step) before either claimed the step. A
+        # read-check-save in Python would accept the code twice.
+        user = _user()
+        _enrol(user)
+        code = _code(user, offset=1)
+        stale = UserTwoFactor.objects.get(user=user)
+
+        assert service.verify(user, code) == "totp"
+
+        monkeypatch.setattr(service, "_row", lambda _user: stale)
+        with pytest.raises(service.TwoFactorError):
+            service.verify(user, code)
+
     def test_malformed_codes_are_rejected(self):
         user = _user()
         _enrol(user)

@@ -98,7 +98,7 @@ help:
 	@echo "DEPENDENCIES"
 	@echo "  make gitsaas                  - Reinstall django_resaas from GitHub/main"
 	@echo "  make pipsaas                  - Upgrade django_resaas from PyPI"
-	@echo "  make libs                     - Install requirements.txt"
+	@echo "  make libs                     - Install the package in editable mode with the dev extras"
 	@echo ""
 	@echo "DATABASE"
 	@echo "  make dbreset                  - Drop all PostgreSQL tables/data"
@@ -156,7 +156,7 @@ pipsaas:
 	$(PIP) install --upgrade django_resaas
 
 libs:
-	$(PIP) install -r requirements.txt
+	$(PIP) install -e ".[dev,scaffold]"
 
 
 

@@ -23,6 +23,17 @@ leaves the release branch open and untagged. `publish` uploads before pushing: i
 fails, nothing has been pushed. Fix the problem and run `make publish` again. The tag stays
 local until the upload succeeds. `make upload` also runs `release-check` first.
 
+## Continuous integration (GitHub Actions)
+
+| Workflow | Runs on | Does |
+|---|---|---|
+| `.github/workflows/ci.yml` | push to `develop`, `main`, `release/**`, `hotfix/**`; pull requests | `pip install -e ".[dev,scaffold]"`, `pip check`, `manage.py check`, `makemigrations --check`, the full suite on Python 3.10 and 3.12; builds the package, `twine check --strict`, refuses a wheel with tests, installs it in a clean virtualenv |
+| `.github/workflows/publish_pypi.yml` | a pushed tag | calls `ci.yml` first; only when it passes, checks that the tag equals the `pyproject.toml` version, builds and publishes with PyPI trusted publishing (`id-token: write`, no stored token). A version `make publish` already uploaded is skipped, not an error |
+
+Validation and publication are separate jobs: a failing suite never reaches the upload. The
+workflows hold no secret; trusted publishing must be configured on the PyPI project for this
+repository.
+
 ## Before starting a release
 
 Always check whether one is already open, before doing anything else:

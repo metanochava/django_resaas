@@ -167,7 +167,12 @@ def create_model_permissions(sender, **kwargs):
     # ------------------------------------------------------
     admin_group, _ = Group.objects.get_or_create(name="Root")
 
-    created_perms = []
+    # (content_type, codename) -> name, in declaration order; the first name
+    # declared for a key wins, as get_or_create's defaults did
+    wanted = {}
+
+    def want(ct, codename, name):
+        wanted.setdefault((ct.pk, codename), (ct, name))
 
     # ======================================================
     # MODEL EXTRA PERMISSIONS
@@ -193,15 +198,7 @@ def create_model_permissions(sender, **kwargs):
             ("restore", "Can restore"),
             ("hard_delete", "Can hard delete"),
         ]:
-            perm, _ = Permission.objects.get_or_create(
-                codename=f"{codename}_{model._meta.model_name}",
-                content_type=ct,
-                defaults={
-                    "name": f"{label} {model._meta.verbose_name}"
-                },
-            )
-
-            created_perms.append(perm)
+            want(ct, f"{codename}_{model._meta.model_name}", f"{label} {model._meta.verbose_name}")
 
         # --------------------------------------------------
         # FIELD PERMISSIONS (RESAAS.fields[<name>]["permissions"],
@@ -214,15 +211,7 @@ def create_model_permissions(sender, **kwargs):
                 field_label = field_name.replace("_", " ")
 
             for operation, label in (("view", "Can view"), ("change", "Can change")):
-                perm, _ = Permission.objects.get_or_create(
-                    codename=perms[operation],
-                    content_type=ct,
-                    defaults={
-                        "name": f"{label} {model._meta.verbose_name} {field_label}"
-                    },
-                )
-
-                created_perms.append(perm)
+                want(ct, perms[operation], f"{label} {model._meta.verbose_name} {field_label}")
 
     # ======================================================
     # SCAFFOLD PERMISSIONS
@@ -242,13 +231,31 @@ def create_model_permissions(sender, **kwargs):
         ("change_scaffold", "Can change scaffold"),
         ("delete_scaffold", "Can delete scaffold"),
     ]:
-        perm, _ = Permission.objects.get_or_create(
-            codename=codename,
-            content_type=ct,
-            defaults={"name": name},
-        )
+        want(ct, codename, name)
 
-        created_perms.append(perm)
+    # ======================================================
+    # CREATE THE MISSING ONES (one read, one bulk insert)
+    # ======================================================
+    # Same result as a get_or_create per permission (existing rows and their
+    # names are kept), in a constant number of queries: this runs on every
+    # post_migrate and for every test tenant, over every model of MY_APPS.
+    def existing():
+        rows = Permission.objects.filter(content_type_id__in={key[0] for key in wanted})
+        return {(row.content_type_id, row.codename): row for row in rows}
+
+    found = existing()
+    missing = [
+        Permission(content_type=ct, codename=codename, name=name)
+        for (ct_id, codename), (ct, name) in wanted.items()
+        if (ct_id, codename) not in found
+    ]
+
+    if missing:
+        # a concurrent run may have created some meanwhile: skip, then re-read
+        Permission.objects.bulk_create(missing, ignore_conflicts=True)
+        found = existing()
+
+    created_perms = [found[key] for key in wanted]
 
     # ======================================================
     # ATUALIZAR GROUP ROOT
