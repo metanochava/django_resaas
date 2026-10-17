@@ -1,6 +1,14 @@
 # Upgrading
 
-## Core viewsets access hardening, Python 3.10 (next release after 0.0.657)
+## Self-elevation guard, legacy reset endpoints (next release after 0.0.658)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **No self-elevation through profile assignment**: `branchusergroups/` (create/update) and `users/{id}/addGroup/` refuse to give the **caller** a profile holding permissions the caller's active profile lacks (`403 permission_not_held`, `group_access_service.check_delegation`; platform level - Root - exempt). Assigning other members is unchanged | **Breaking** (security fix) for a non-Root administrator who assigned powerful profiles to themselves | Ask a platform-level user, or give your own profile the permissions first through the normal (delegation-checked) flow |
+| **`POST mail/`** (deprecated) is an alias of `password/reset/email/`: the link is built on a trusted origin only and the answer is the same for any address (it used the raw `Origin` header and answered `500` for real accounts) | **Breaking** for callers without a trusted origin: `503 reset_link_unavailable` | Put the frontend origin in the CORS policy or set `FRONTEND_URL`; prefer `password/reset/request/` |
+| **`POST password/change/mobile/`** (deprecated) is an alias of `password/reset/otp/complete/` (`channel: "mobile"`): throttled, attempt-limited, password policy, answer `202 {"reset": true}`. The old counter HOTP (sent by nothing, never consumed, unlimited attempts) is refused | **Breaking** (security fix) for clients reading `alert_*` or using the HOTP | Request the code with `password/reset/request/` (`channel: "mobile"`, `method: "otp"`) |
+
+## Core viewsets access hardening, Python 3.10 (0.0.658)
 
 | Change | Kind | What to do |
 |---|---|---|

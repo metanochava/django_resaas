@@ -1,6 +1,7 @@
 
 from django_resaas.saas.core.base.access import ActionPermissionMixin, ExplicitAccessMixin
 from django_resaas.saas.core.exceptions import ResaasAPIException
+from django_resaas.saas.core.services import group_access_service
 from rest_framework import viewsets
 from django_resaas.saas.models.branch_user_group import BranchUserGroup
 from django_resaas.saas.data.branch_user_group.serializers.branch_user_group import BranchUserGroupSerializer
@@ -40,7 +41,25 @@ class BranchUserGroupAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewset
             branch__entity_id=entity_id,
         ).order_by('-id')
 
+    def check_self_grant(self, serializer):
+        # no self-elevation: giving YOURSELF a profile is a grant of all its
+        # permissions, so the same delegation rule as editing a profile's
+        # permissions applies (group_access_service.check_delegation:
+        # platform level exempt, otherwise 403 permission_not_held)
+        data = serializer.validated_data
+        user = data.get("user", getattr(serializer.instance, "user", None))
+        group = data.get("group", getattr(serializer.instance, "group", None))
+
+        if user is not None and group is not None and str(user.id) == str(self.request.user.id):
+            group_access_service.check_delegation(self.request, group.permissions.all())
+
+    def perform_update(self, serializer):
+        self.check_self_grant(serializer)
+        serializer.save()
+
     def perform_create(self, serializer):
+        self.check_self_grant(serializer)
+
         # A tela de Add genérica não expõe "state" como campo editável -
         # sem isto o CharField cai no default do model (TimeModel.state =
         # "Inactive"), criando associações inactivas por omissão.

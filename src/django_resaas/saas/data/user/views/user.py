@@ -27,7 +27,7 @@ from django_resaas.saas.models.entity_group import EntityGroup
 from django_resaas.saas.models.user_login import UserLogin
 from django_resaas.saas.core.base.permissions import isPermited
 from django_resaas.saas.core.utils.translate import Translate
-from django_resaas.saas.core.services import temporary_password_service, two_factor_service
+from django_resaas.saas.core.services import group_access_service, temporary_password_service, two_factor_service
 from django_resaas.saas.core.services.temporary_password_service import TemporaryPasswordError
 from django_resaas.saas.models.user_temporary_password import UserTemporaryPassword
 from django_resaas.saas.data.person.serializers.person import PersonSerializer
@@ -874,6 +874,11 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
         group, error = self._entity_group_or_error(request, request.data.get('group'))
         if error:
             return error
+
+        # no self-elevation: a profile given to yourself is a grant of all its
+        # permissions (same rule as editing a profile: check_delegation)
+        if str(target.id) == str(request.user.id):
+            group_access_service.check_delegation(request, group.permissions.all())
 
         with transaction.atomic():
             # Membership: the user must already belong to this Entity (the

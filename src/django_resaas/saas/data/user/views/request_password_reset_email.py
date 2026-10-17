@@ -30,9 +30,12 @@ class RequestPasswordResetEmailAPIView(ResaasResponseMixin, generics.GenericAPIV
             .split('/')[-1]
         )
 
-        serializer = self.serializer_class(data=request.data)
-        email = request.data.get('email', '')
+        return self.send_reset_email(request, request.data.get('email', ''))
 
+    def send_reset_email(self, request, email):
+        """The whole flow for one address (shared with the deprecated
+        MailAPIView): trusted origin only, same answer whether the account
+        exists or not."""
         # before the lookup: the answer must not depend on the account existing
         if not link_available(request):
             return error_response(

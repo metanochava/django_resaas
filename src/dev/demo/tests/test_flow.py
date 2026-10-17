@@ -143,7 +143,8 @@ def test_full_crud_flow(tenant_client):
     response = tenant_client.get("/api/demo/products/?objects=all")
     assert response.data["count"] == 1
     response = tenant_client.post(f"/api/demo/products/{product_id}/restore/")
-    assert response.status_code == 200
+    # a successful POST answers 201/202/204, never 200 (ResaasResponseMixin)
+    assert response.status_code == 202
     response = tenant_client.get("/api/demo/products/")
     assert response.data["count"] == 1
 
