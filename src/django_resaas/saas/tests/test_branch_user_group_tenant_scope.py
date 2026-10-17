@@ -280,3 +280,70 @@ class TestPermissions:
 
     def test_anonymous_is_unauthorized(self):
         assert APIClient().get(URL).status_code == 401
+
+
+class TestNoSelfElevation:
+    """An Admin (not platform level) holding add_branchusergroup must not give
+    ITSELF a profile with permissions its active profile lacks - the same
+    delegation rule as editing a profile (group_access_service)."""
+
+    @pytest.fixture
+    def admin(self, two_tenants):
+        from django.contrib.auth.models import Permission
+
+        a, _ = two_tenants
+        # an Entity administrator profile: manages assignments, not platform level
+        admin_group = _entity_group(a["entity"], "A Entity Admin")
+        admin_group.permissions.add(*Permission.objects.filter(codename__in=(
+            "add_branchusergroup", "change_branchusergroup", "list_branchusergroup", "view_branchusergroup",
+        )))
+        assert not admin_group.permissions.filter(codename="change_entitytype").exists()
+        BranchUserGroup.objects.create(user=a["member"], branch=a["branch"], group=admin_group, state="Active")
+
+        powerful = _entity_group(a["entity"], "A Powerful")
+        powerful.permissions.add(Permission.objects.get(codename="delete_branch"))
+        modest = _entity_group(a["entity"], "A Modest")
+        modest.permissions.add(Permission.objects.get(codename="view_branchusergroup"))
+        return a, _client(a["member"], a["entity"], a["branch"], admin_group), powerful, modest
+
+    def test_generic_create_refuses_self_grant_of_unheld_permissions(self, admin):
+        a, client, powerful, _ = admin
+
+        response = client.post(URL, {"branch": a["branch"].id, "user": a["member"].id, "group": powerful.id})
+
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "permission_not_held"
+        assert not BranchUserGroup.objects.filter(user=a["member"], group=powerful).exists()
+
+    def test_generic_update_refuses_self_grant_of_unheld_permissions(self, admin):
+        a, client, powerful, _ = admin
+        own = BranchUserGroup.objects.get(user=a["member"], group=a["group"])
+
+        response = client.patch(f"{URL}{own.id}/", {"group": powerful.id}, format="json")
+
+        assert response.status_code == 403
+        own.refresh_from_db()
+        assert own.group_id == a["group"].id
+
+    def test_add_group_refuses_self_grant_of_unheld_permissions(self, admin):
+        a, client, powerful, _ = admin
+
+        response = client.post(f"/api/django_resaas/users/{a['member'].id}/addGroup/", {"group": powerful.id})
+
+        assert response.status_code == 403
+        assert not BranchUserGroup.objects.filter(user=a["member"], group=powerful).exists()
+
+    def test_self_grant_of_held_permissions_still_works(self, admin):
+        a, client, _, modest = admin
+
+        response = client.post(URL, {"branch": a["branch"].id, "user": a["member"].id, "group": modest.id})
+
+        assert response.status_code == 201
+
+    def test_assigning_another_member_is_unchanged(self, admin):
+        a, client, powerful, _ = admin
+        other = _member(a["entity"], a["branch"], "bug-scope-a-other")
+
+        response = client.post(URL, {"branch": a["branch"].id, "user": other.id, "group": powerful.id})
+
+        assert response.status_code == 201

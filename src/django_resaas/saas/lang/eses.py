@@ -1668,4 +1668,5 @@ key_value = {
     "Yes. Every organisation only ever sees its own data, and every action is checked against the user's permissions.": "Sí. Cada organización solo ve sus propios datos y cada acción se comprueba con los permisos del usuario.",
     "Yes. Your public site shows the free times of each doctor, and the reception confirms the request.": "Sí. Su sitio público muestra los horarios libres de cada médico y la recepción confirma la solicitud.",
     "Your pharmacy, always in stock and in order": "Su farmacia, siempre con stock y en orden",
+    "Choose the platform made for your sector.": "Elija la plataforma hecha para su sector.",
 }

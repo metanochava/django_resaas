@@ -356,10 +356,11 @@ def test_otp_key_setting_is_configured():
     assert getattr(settings, "OTP_KEY", None)
 
 
-def test_change_password_mobile_hotp_flow_no_longer_crashes_on_otp_key(client):
-    """The pre-existing mobile-password-reset OTP flow (HOTP, counter-
-    based) only needed OTP_KEY to exist to stop crashing - this doesn't
-    re-verify its whole design, just that the missing setting is fixed."""
+def test_change_password_mobile_no_longer_accepts_the_legacy_hotp(client):
+    """password/change/mobile/ used to accept a day-long counter HOTP (never
+    sent by anything, never consumed, no attempt limit): a brute-forceable
+    public password change. It is now an alias of password/reset/otp/complete/
+    (channel "mobile"): the legacy code is refused and the password unchanged."""
 
     import base64
 
@@ -374,7 +375,38 @@ def test_change_password_mobile_hotp_flow_no_longer_crashes_on_otp_key(client):
 
     response = client.post(
         "/api/password/change/mobile/",
-        {"mobile": "+258840000099", "otp": otp, "password": "new-mobile-pass"},
+        {"mobile": "+258840000099", "otp": otp, "password": "Brand-New-Mobile-Pass-1"},
+    )
+
+    assert response.status_code == 400
+    user.refresh_from_db()
+    assert user.check_password("old") is True
+
+
+def test_change_password_mobile_completes_with_the_reset_code(client):
+    from django_resaas.saas.core.services.otp_service import _totp_for
+
+    user = User.objects.create_user(
+        username="mobileuser2", email=None, mobile="+258840000098", password="old"
+    )
+    code = _totp_for("+258840000098", "password_reset").now()
+
+    response = client.post(
+        "/api/password/change/mobile/",
+        {"mobile": "+258840000098", "otp": code, "password": "Brand-New-Mobile-Pass-1"},
     )
 
     assert response.status_code == 202
+    user.refresh_from_db()
+    assert user.check_password("Brand-New-Mobile-Pass-1") is True
+
+
+def test_change_password_mobile_has_the_attempt_limit(client):
+    from django_resaas.saas.core.services.otp_service import OTP_MAX_FAILED_ATTEMPTS
+
+    User.objects.create_user(username="mobileuser3", email=None, mobile="+258840000097", password="old")
+    payload = {"mobile": "+258840000097", "otp": "000000", "password": "Brand-New-Mobile-Pass-1"}
+
+    statuses = [client.post("/api/password/change/mobile/", payload).status_code for _ in range(OTP_MAX_FAILED_ATTEMPTS + 1)]
+
+    assert statuses[-1] == 429

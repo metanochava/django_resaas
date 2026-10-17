@@ -368,11 +368,13 @@ class TestPasswordChangeIsOwnAccount:
 
 class TestStateChangingLinksArePost:
 
-    def test_mail_is_post_only(self, monkeypatch):
+    def test_mail_is_post_only(self, monkeypatch, settings):
         """mail/ (deprecated, superseded by password/reset/email/) used to SEND an
         e-mail on GET. It is POST only now. (Its link builder still reverses a URL
         name that does not exist, so it cannot send for a real account - kept only
-        so an old caller gets a clear answer instead of a 404.)"""
+        so an old caller gets a clear answer instead of a 404.) It is now an alias
+        of password/reset/email/, so it needs a trusted frontend origin."""
+        settings.FRONTEND_URL = "https://app.rest.test"
         sent = []
         monkeypatch.setattr("django_resaas.saas.data.user.views.mail.EmailMultiAlternatives.send", lambda self, *a, **k: sent.append(self.to))
         client = APIClient()
@@ -426,7 +428,8 @@ class TestPostNeverAnswers200:
             "answer 200. Add the mixin first in the bases:\n  " + "\n  ".join(missing)
         )
 
-    def test_a_real_post_operation_answers_202(self):
+    def test_a_real_post_operation_answers_202(self, settings):
+        settings.FRONTEND_URL = "https://app.rest.test"
         response = APIClient().post("/api/mail/", {"email": "nobody@rest.test"}, format="json")
 
         assert response.status_code == 202

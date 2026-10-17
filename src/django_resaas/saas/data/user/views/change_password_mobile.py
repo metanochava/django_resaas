@@ -1,49 +1,34 @@
-import base64
-
-import pyotp
-
-from rest_framework import generics, status, permissions
+from rest_framework import status
 from rest_framework.response import Response
 
-from django_resaas.saas.models.user import User
-from django_resaas.saas.core.utils.translate import Translate
-from django_resaas.saas.core.utils.generate_key_otp import generateKeyOTP
-from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
+from django_resaas.saas.core.alerts import add_alert
+from django_resaas.saas.data.user.views.password_reset import CompletePasswordResetOTPAPIView
 
 
-class ChangePasswordMobileAPIView(ResaasResponseMixin, generics.GenericAPIView):
+class ChangePasswordMobileAPIView(CompletePasswordResetOTPAPIView):
+    """
+    POST password/change/mobile/  {mobile, otp, password}   (DEPRECATED - use
+    POST password/reset/otp/complete/ {channel: "mobile", identifier, otp, password})
 
-    # PUBLIC (explicit): used before there is a session
-    permission_classes = (permissions.AllowAny,)
+    PUBLIC (explicit): used before there is a session.
+
+    A compatibility alias of password/reset/otp/complete/ with
+    channel="mobile": the code is the one sent by password/reset/request/
+    (channel "mobile", method "otp"), bound to its purpose, throttled, with an
+    attempt limit and the password policy. It used to accept a day-long
+    counter HOTP that nothing ever sent and that was never consumed, with no
+    attempt limit - i.e. a brute-forceable public password change for any
+    account with a phone number.
+    """
+
     def post(self, request):
-        phone = request.data.get('mobile')
-        user = User.objects.get(mobile=phone)
-
-        keygen = generateKeyOTP()
-        key = base64.b32encode(
-            keygen.returnValue(phone).encode()
-        )
-        otp = pyotp.HOTP(key)
-
-        if otp.verify(request.data.get("otp"), user.counter):
-            user.set_password(request.data.get('password'))
-            user.save()
-            return Response(
-                {
-                    'alert_success': Translate.tdc(
-                        request,
-                        'Password reset successfully'
-                    )
-                },
-                status=status.HTTP_202_ACCEPTED
-            )
-
-        return Response(
-            {
-                'alert_error': Translate.tdc(
-                    request,
-                    'Invalid or expired OTP'
-                )
-            },
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        serializer = self.get_serializer(data={
+            "channel": "mobile",
+            "identifier": request.data.get("mobile"),
+            "otp": request.data.get("otp"),
+            "password": request.data.get("password"),
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        add_alert(request, "Password reset successfully", level="success")
+        return Response({"reset": True}, status=status.HTTP_200_OK)

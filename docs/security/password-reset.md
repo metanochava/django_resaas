@@ -87,7 +87,8 @@ Authentication: none (pre-session, PUBLIC on purpose). No tenant context: a User
 |---|---|
 | `POST password/reset/email/` `{email}` | Still works (link by e-mail, now on a trusted origin). New clients use `password/reset/request/`. |
 | `GET password/reset/<uidb64>/<token>/` | Unchanged (redirect check). |
-| `POST password/change/mobile/` `{mobile, otp, password}` | **Deprecated**: counter-based HOTP, no attempt limit, no password policy, legacy `alert_*` bodies. Not used by quasar_resaas' forgot-password page any more. Remove once no client calls it. |
+| `POST password/change/mobile/` `{mobile, otp, password}` | **Deprecated alias** of `password/reset/otp/complete/` with `channel: "mobile"` (same throttle, attempt limit, password policy and answers: `202 {"reset": true}`, `400` `error.details.otp` / `.password`, `429`). The code is the one sent by `password/reset/request/` (`channel: "mobile"`, `method: "otp"`). It used to accept a day-long counter HOTP that nothing sent and nothing consumed, with no attempt limit (a brute-forceable public password change); that code is refused now. Remove once no client calls it. |
+| `POST mail/` `{email}` (or `?email=`) | **Deprecated alias** of `password/reset/email/` (same trusted-origin link and same answer for any address; `400` without `email`). It used to build the link from the raw `Origin` header on a URL name that does not exist (`500` for every real account, so it told which addresses have one). |
 
 ## Troubleshooting
 

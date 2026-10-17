@@ -47,5 +47,6 @@ def test_group_creator_creates_active_saas_entity_type_when_missing():
     entity_type = EntityType.objects.get(name="SaaS")
     assert entity_type.state == "Active"
 
-    entity = Entity.objects.get(name="Tenant")
-    assert entity.state == "Active"
+    # group_creator no longer invents a platform Entity ("Tenant"): without
+    # one (a new installation before create_root) only the profiles exist
+    assert not Entity.objects.exists()
