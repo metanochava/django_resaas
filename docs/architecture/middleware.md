@@ -39,9 +39,27 @@ credentials) may call which URL scope (`/api/<scope>/...`) and with which HTTP m
 - `frontend.access` (`super`, `read`, `readwrite`, `write`) gates both the URL scope (against
   `FRONT_END.URL_RULES`) and the HTTP method allowed for that access level.
 
-> [!WARNING]
-> Known issue: the commented-out entry in `src/dev/settings.py` references
-> `django_resaas.saas.core.middleware.front_end.FrontEndMiddleware` (no underscore), but the real
-> module is `django_resaas.saas.core.middleware.front_end` (with an underscore). Uncommenting
-> that line as written would raise `ModuleNotFoundError` - the dotted path needs the
-> underscore added before this middleware can actually be enabled.
+- Refusals answer `401` (missing or unknown credentials) or `403` (scope or method not allowed)
+  in the error contract (`{"error": {"message": ..., "details": null}}`), like every other failed
+  request. Before the release after 0.0.659 they used the deprecated
+  `{"code": 10001 | 10003, "alert_error": ...}` shape.
+- The commented-out entry in `src/dev/settings.py` is the real dotted path; uncomment it to try
+  the gate in the demo project.
+
+> [!IMPORTANT]
+> **`FEK`/`FEP` are not secrets and are not authorization.** A browser frontend sends both headers
+> on every request (`quasar_resaas` `services/api.js` reads `process.env.FRONT_END_KEY` /
+> `FRONT_END_PASSWORD`), so their values are compiled into the public JavaScript bundle and
+> anyone who opens the site can read them. The gate only identifies *which kind of client* is
+> calling and narrows the URL scopes and HTTP methods it may use; it grants nothing by itself.
+> Every protected operation still needs authentication, the signed tenant context and its
+> permission (see [Permissions](../security/permissions.md)). Never use a `FrontEnd` access
+> level (`super` included) as a reason to skip those checks, and never give a `FEP` to a server
+> integration expecting it to stay confidential.
+
+### Troubleshooting: the gate seems to do nothing
+
+`REQUIRE_CREDENTIALS` is read from the project's `DJANGO_REST_AUTH.FRONT_END` setting. If the
+project's `settings.py` fills it from an environment variable, check that the variable name in
+`.env` is the one `settings.py` reads - a different name leaves it `None` (falsy) and the gate
+off, silently.

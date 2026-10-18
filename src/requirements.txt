@@ -1,15 +1,20 @@
+# Mirror of pyproject.toml [project].dependencies, for tools that want a
+# requirements file. pyproject.toml is the source of truth: prefer
+#   pip install -e ".[dev]"      (from the repository root)
+# Optional extras: scaffold (black), server (gunicorn), notifications (celery).
+
 Django==5.2.10
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
-rest-framework-simplejwt==0.0.2
-drf-writable-nested==0.7.2
+PyJWT
+cryptography
 Pillow
 pyotp
-qrcode[pil]==7.4
+qrcode[pil]>=7.4.2
 python-barcode==0.15.1
-
-
-gunicorn
+weasyprint
+django-money
+python-dotenv
 django-cors-headers
 psycopg[binary]
 django-filter

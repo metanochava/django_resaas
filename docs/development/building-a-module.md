@@ -125,6 +125,24 @@ the Root group, and a signed tenant context. It returns `user`, `entity`,
 `activate_module(entity, name)` activates one more module. Both also work
 without pytest: `from django_resaas.testing import bootstrap_tenant`.
 
+### Keeping the suite fast
+
+- Every `bootstrap_tenant` creates a user: with Django's production hasher
+  (PBKDF2) hashing dominates. Use a fast hasher in the tests only, e.g. in the
+  application's `conftest.py`:
+
+  ```python
+  def pytest_configure(config):
+      from django.conf import settings
+      settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+  ```
+
+- `pytest --nomigrations` builds the test tables from the models. Creating the
+  test database through every migration can take minutes in an application with
+  many modules; check the migrations separately (`makemigrations --check` and a
+  `migrate` on an empty database), and keep a data migration's behaviour covered
+  by its own test if a test depends on it.
+
 ## Migrations
 
 A module's migrations are its own. The framework ships its own

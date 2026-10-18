@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from rest_framework import status
 
 from django_resaas.saas.models.front_end import FrontEnd
+from django_resaas.saas.core.exceptions.handler import error_body
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.conf import get_setting
 
@@ -91,21 +92,17 @@ class FrontEndMiddleware:
 
         return False
 
+    # Answers in the RESAAS error contract ({"error": {...}}), like every other
+    # failed request; the old {"code": 10001, "alert_error": ...} shape was a
+    # deprecated alias the frontend no longer needs (it reads error.message).
     def _unauthorized(self, msg):
         return JsonResponse(
-            {
-                'code': 10001,
-                'alert_error': Translate.tdc(None, msg)
-            },
+            error_body(Translate.tdc(None, msg)),
             status=status.HTTP_401_UNAUTHORIZED
         )
 
     def _forbidden(self, msg):
         return JsonResponse(
-            {
-                'code': 10003,
-                'alert_error': Translate.tdc(None, msg)
-            },
+            error_body(Translate.tdc(None, msg)),
             status=status.HTTP_403_FORBIDDEN
         )
-

@@ -184,3 +184,22 @@ def test_method_permission_matrix(access, method, allowed):
         assert response == "ok"
     else:
         assert response.status_code == 403
+
+
+# =========================================================
+# ERROR CONTRACT
+# =========================================================
+
+@override_settings(DJANGO_REST_AUTH={"FRONT_END": BASE_FRONT_END})
+def test_refusals_use_the_error_contract():
+    import json
+
+    missing = _run_middleware(_request())
+    forbidden = _run_middleware(_request(path="/api/admin/thing/", frontend=_make_frontend("read")))
+
+    for response in (missing, forbidden):
+        body = json.loads(response.content)
+        assert list(body) == ["error"]
+        assert body["error"]["message"]
+        assert body["error"]["details"] is None
+        assert "code" not in body["error"]

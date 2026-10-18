@@ -1,0 +1,76 @@
+name: CI
+
+# Validation only: never publishes. publish_pypi.yml calls this workflow and
+# only uploads when every job here passed.
+
+on:
+  push:
+    branches: [develop, main, "release/**", "hotfix/**"]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    env:
+      DJANGO_SETTINGS_MODULE: dev.settings
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      # WeasyPrint (PDF) needs Pango at import time
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libpango-1.0-0 libpangoft2-1.0-0
+
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev,scaffold]"
+      - run: pip check
+
+      - name: Django checks
+        working-directory: src
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+
+      - name: Test suite
+        run: python -m pytest src -o addopts="" -q -rfE -p no:cacheprovider
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # scans the pushed commits / the pull request (not the whole history,
+      # which still holds the src/.env removed on 2026-08-25)
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install build twine
+      - run: python -m build
+      - run: twine check --strict dist/*
+      - name: Wheel ships no tests and installs cleanly
+        run: |
+          if unzip -l dist/*.whl | grep -E '/tests?/'; then echo "tests packaged"; exit 1; fi
+          python -m venv /tmp/clean
+          /tmp/clean/bin/pip install dist/*.whl
+          /tmp/clean/bin/pip check
+          /tmp/clean/bin/python -c "import django_resaas"

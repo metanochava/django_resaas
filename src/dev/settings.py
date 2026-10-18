@@ -89,7 +89,7 @@ MIDDLEWARE = [
 
 
     'django_resaas.saas.core.middleware.file_access.FileAccessMiddleware',
-    # 'django_resaas.saas.core.middleware.frontend.FrontEndMiddleware',
+    # 'django_resaas.saas.core.middleware.front_end.FrontEndMiddleware',
     'django_resaas.saas.core.middleware.tenant.TenantContextMiddleware',
 
 ]
