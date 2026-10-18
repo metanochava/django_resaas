@@ -169,6 +169,13 @@ permission_denied`). Actions listed in `membership_actions` need no permission,
 and the view's `get_queryset` must scope them to the caller's own objects.
 `is_membership_request()` can decide this per request.
 
+For every action that needs a permission, the signed context is also re-checked
+against the caller on each request (`ResaasContextService.validate_for_user`, as in
+`BaseAPIView.initial()`): it must belong to the authenticated user, and the user must
+still be a member of its Entity and Branch and hold its profile. Removing the
+membership closes access at once, not when the context expires. Entity admins and
+superusers pass the membership checks by design.
+
 ```python
 class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
     membership_actions = ("list", "retrieve", "branchs", "apps", "models", "themeGet", ...)
