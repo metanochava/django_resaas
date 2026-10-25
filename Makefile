@@ -55,7 +55,6 @@ endef
 	createuser create_root create_entity \
 	sync_actions sync_language \
 	dev pro staticfiles \
-	teste teste1 teste2 \
 	dbreset dbreset-migrate \
 	bump_patch bump_minor bump_major \
 	build upload release-check publish \
@@ -299,21 +298,6 @@ pro:
 staticfiles:
 	$(MANAGE) collectstatic --noinput
 
-
-# =========================================================
-# MAKE DEPENDENCY TESTS
-# =========================================================
-
-teste1:
-	@echo "Deleting the database...1"
-
-teste2:
-	@echo "Deleting the database...2"
-
-teste: teste1 teste2
-	@echo "Test completed."
-
-
 # =========================================================
 # POSTGRESQL DATABASE
 # =========================================================
@@ -377,8 +361,47 @@ django:
 pull:
 	git pull
 
+
 push:
+	git checkout develop
+	git pull origin develop
+
+	read -p "Bump (patch/minor/major): " bump
+
+	if [[ ! "$$bump" =~ ^(patch|minor|major)$$ ]]; then
+		echo "Invalid bump. Use patch, minor, or major."
+		exit 1
+	fi
+
+	bump2version "$$bump" --no-commit --no-tag
+	VERSION="$$( $(call GET_VERSION) )"
+
+	git add .
+	git commit -m "bump version $$VERSION"
 	git push origin main develop
+
+	echo "v$$VERSION pushed successfully."
+
+pushtag:
+	git checkout develop
+	git pull origin develop
+
+	read -p "Bump (patch/minor/major): " bump
+
+	if [[ ! "$$bump" =~ ^(patch|minor|major)$$ ]]; then
+		echo "Invalid bump. Use patch, minor, or major."
+		exit 1
+	fi
+
+	bump2version "$$bump" --no-commit --no-tag
+	VERSION="$$( $(call GET_VERSION) )"
+
+	git add .
+	git commit -m "bump version $$VERSION"
+	git push origin main develop --tags
+
+	echo "v$$VERSION pushed successfully."
+
 
 gitback:
 	git reset --soft HEAD~1
@@ -459,7 +482,7 @@ release-check:
 	rm -rf build
 	echo "Release check passed: dist/ is ready."
 
-publish: release-check
+publish:
 	VERSION="$$( $(call GET_VERSION) )"
 	$(PY) -m twine upload dist/*
 	echo "django_resaas $$VERSION published and pushed."

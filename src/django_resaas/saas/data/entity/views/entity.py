@@ -60,6 +60,7 @@ from django_resaas.saas.core.utils import ok
 
 from django_resaas.saas.core.services.disc_manager import DiskManegarService
 from django_resaas.saas.core.base.views import BaseAPIView, registerView
+from django_resaas.saas.core.services import qr_card_service
 from django_resaas.saas.core.base.permissions import hasPermission, isPermited
 from django_resaas.saas.core.decorators.action import resaas_action
 from django_resaas.saas.core.utils.sub_object_put import apply_sub_object_put
@@ -863,62 +864,15 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         methods=['GET'],
     )
     def pdf(self, request, *args, **kwargs):
+        # the Entity's QR card (qr_card_service): it printed a sample invoice
+        # with made-up data before
         entity = self.get_object()
-
-        # Normalmente você busca no DB
-        # invoice = Invoice.objects.get(id=invoice_id)
-        # Exemplo de dados (substituir por dados reais)
-        company = {
-            "name": "My Company Ltd",
-            "address": "Street X, Luanda, Angola",
-            "nif": "5000000000",
-            "phone": "+244 900 000 000",
-            "email": "finance@empresa.co.ao",
-        }
-
-        customer = {
-            "name": "Example Client",
-            "nif": "4000000000",
-            "address": "Street Y, Benguela, Angola",
-            "email": "cliente@email.com",
-            "phone": "+244 999 999 999",
-        }
-
-        doc = {
-            "type": "INVOICE",
-            "number": "FT 2026/000123",
-            "date": "2026-02-05",
-            "due_date": "2026-02-10",
-            "currency": "AOA",
-            "payment_method": "Bank transfer",
-            "reference": "REF-001",
-            "notes": "Thank you for your business.",
-        }
-
-        lines = [
-            {"name":"Product A", "sku":"A-001", "note":"", "qty":2, "unit_price":"10.000,00", "vat_rate":14, "total":"22.800,00"},
-            {"name":"Service B", "sku":"S-100", "note":"Monthly", "qty":1, "unit_price":"50.000,00", "vat_rate":14, "total":"57.000,00"},
-            {"name":"Service B", "sku":"S-100", "note":"Monthly", "qty":1, "unit_price":"50.000,00", "vat_rate":14, "total":"57.000,00"},
-        ]
-
-        totals = {
-            "subtotal": "60.000,00",
-            "vat_total": "8.400,00",
-            "discount_total": "0,00",
-            "grand_total": "68.400,00",
-        }
-
-        logo_b64 = None
-        with open(entity.logo.path, "rb") as f:
-            logo_b64 = png_bytes_to_b64(f.read())
-
-
-
-        qr_b64 = make_qr_b64(f"{doc['type']}|{doc['number']}|TOTAL:{totals['grand_total']}")
-        barcode_b64 = make_barcode_b64(doc["number"])
-        
-
-        return PDF("django_resaas/invoice.html", request,  company= company, customer= customer, doc= doc, lines= lines, totals= totals, logo_b64= logo_b64, qr_b64= qr_b64, barcode_b64= barcode_b64,)
+        return PDF(
+            "django_resaas/pdf/qr_card.html",
+            request,
+            doc={"name": f"QR {entity.name}"},
+            **qr_card_service.card_context(request, entity),
+        )
 
     
     # ===============================

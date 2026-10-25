@@ -272,4 +272,10 @@ key_value = {
     "Give a username to check": "Give a username to check",
     "This email or phone number is already registered": "This email or phone number is already registered",
     "Invalid or expired verification code": "Invalid or expired verification code",
+    # QR card PDF of an Entity / Branch (qr_card_service)
+    'Scan to visit our website': 'Scan to visit our website',
+    'Scan for directions': 'Scan for directions',
+    "Point your phone's camera at the code": "Point your phone's camera at the code",
+    "No website or location registered: add the Entity's website or the Branch's address to show the QR code.": "No website or location registered: add the Entity's website or the Branch's address to show the QR code.",
+    'Invalid icon size.': 'Invalid icon size.',
 }

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- QR card of an Entity or a Branch (qr_card_service.card_context), in the
+     style of payment-app QR stands: the brand colour behind, the logo and
+     the name on top, a white card with a big QR code (the logo at its
+     centre), what it opens, and the Entity's footer. One A5 page. -->
+<style>
+  @page { size: A5 portrait; margin: 0; }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #111827;
+  }
+
+  .page {
+    width: 148mm;
+    height: 210mm;
+    position: relative;
+    background: #f3f4f6;
+    overflow: hidden;
+  }
+
+  /* the brand band: the top 45% in the theme colour, with soft circles */
+  .band {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 88mm;
+    background: {{ color }};
+    border-radius: 0 0 18mm 18mm;
+    overflow: hidden;
+  }
+  .band::before,
+  .band::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .band::before { width: 90mm; height: 90mm; top: -40mm; right: -30mm; }
+  .band::after  { width: 60mm; height: 60mm; bottom: -30mm; left: -20mm; }
+
+  .brand {
+    position: relative;
+    padding-top: 9mm;
+    text-align: center;
+    color: #ffffff;
+  }
+  .brand-logo {
+    width: 20mm;
+    height: 20mm;
+    margin: 0 auto 3mm;
+    border-radius: 50%;
+    background: #ffffff;
+    padding: 2.5mm;
+  }
+  .brand-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+  }
+  .brand-logo--initial {
+    color: {{ color }};
+    font-size: 26pt;
+    font-weight: bold;
+    line-height: 15mm;
+    text-align: center;
+  }
+  .brand-name {
+    font-size: 20pt;
+    font-weight: bold;
+    line-height: 1.15;
+    padding: 0 12mm;
+  }
+  .brand-sub {
+    margin-top: 1.5mm;
+    font-size: 10pt;
+    opacity: 0.85;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* the white card with the QR code, over the band */
+  .card {
+    position: absolute;
+    top: 60mm;
+    left: 16mm;
+    right: 16mm;
+    background: #ffffff;
+    border-radius: 8mm;
+    border: 0.3mm solid #e5e7eb;
+    padding: 6mm 8mm 5mm;
+    text-align: center;
+  }
+  .card-heading {
+    font-size: 13pt;
+    font-weight: bold;
+    color: {{ color }};
+  }
+  .qr-frame {
+    width: 70mm;
+    height: 70mm;
+    margin: 4mm auto 3mm;
+    padding: 3mm;
+    border-radius: 6mm;
+    border: 0.8mm solid {{ color }};
+  }
+  .qr-frame img { width: 100%; height: 100%; }
+
+  .link {
+    display: inline-block;
+    padding: 1.5mm 5mm;
+    border-radius: 10mm;
+    background: #f3f4f6;
+    font-size: 10pt;
+    font-weight: bold;
+    color: #374151;
+  }
+  .hint {
+    margin-top: 3mm;
+    font-size: 8.5pt;
+    color: #6b7280;
+  }
+  .missing {
+    margin: 10mm 0;
+    font-size: 10pt;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .address {
+    margin-top: 4mm;
+    padding-top: 3mm;
+    border-top: 0.3mm dashed #d1d5db;
+    font-size: 9pt;
+    color: #374151;
+    line-height: 1.4;
+  }
+  .address-label {
+    font-size: 7pt;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .footer {
+    position: absolute;
+    left: 12mm;
+    right: 12mm;
+    bottom: 7mm;
+    text-align: center;
+    font-size: 8pt;
+    color: #6b7280;
+    line-height: 1.4;
+  }
+  .footer-name {
+    font-weight: bold;
+    color: {{ color }};
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+
+  <div class="band">
+    <div class="brand">
+      {% if logo_b64 %}
+        <div class="brand-logo"><img src="data:image/png;base64,{{ logo_b64 }}"></div>
+      {% else %}
+        <!-- no logo: the initial in the same white circle -->
+        <div class="brand-logo brand-logo--initial">{{ title|slice:":1"|upper }}</div>
+      {% endif %}
+      <div class="brand-name">{{ title }}</div>
+      {% if subtitle %}<div class="brand-sub">{{ subtitle }}</div>{% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    {% if qr_b64 %}
+      <div class="card-heading">{{ labels.heading }}</div>
+      <div class="qr-frame"><img src="data:image/png;base64,{{ qr_b64 }}" alt="QR"></div>
+      <div class="link">{{ link }}</div>
+      <div class="hint">{{ labels.hint }}</div>
+    {% else %}
+      <div class="missing">{{ labels.missing }}</div>
+    {% endif %}
+
+    {% if address %}
+      <div class="address">
+        <div class="address-label">{{ labels.address }}</div>
+        {{ address }}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="footer">
+    <div class="footer-name">{{ entity.name }}</div>
+    {% if entity.rodape %}<div>{{ entity.rodape }}</div>{% endif %}
+  </div>
+
+</div>
+</body>
+</html>

@@ -1668,4 +1668,13 @@ key_value = {
     "Yes. Your public site shows the free times of each doctor, and the reception confirms the request.": "Sim. O seu site público mostra os horários livres de cada médico, e a recepção confirma o pedido.",
     "Your pharmacy, always in stock and in order": "A sua farmácia, sempre com stock e em ordem",
     "Choose the platform made for your sector.": "Escolha a plataforma feita para o seu sector.",
+    # header preferences in the user menu (small screens)
+    "Dark mode": "Modo escuro",
+    "Full screen": "Ecrã inteiro",
+    # QR card PDF of an Entity / Branch (qr_card_service)
+    'Scan to visit our website': 'Leia o código para visitar o nosso site',
+    'Scan for directions': 'Leia o código para ver como chegar',
+    "Point your phone's camera at the code": 'Aponte a câmara do telemóvel para o código',
+    "No website or location registered: add the Entity's website or the Branch's address to show the QR code.": 'Sem site nem localização registados: adicione o site da Entidade ou a morada da Sucursal para mostrar o código QR.',
+    'Invalid icon size.': 'Tamanho de ícone inválido.',
 }
