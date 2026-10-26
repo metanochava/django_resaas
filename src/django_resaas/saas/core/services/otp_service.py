@@ -27,7 +27,7 @@ from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.notifications.enums import Channel
 from django_resaas.notifications.exceptions import NotificationError
-from django_resaas.notifications.providers import NotificationProviderRegistry
+from django_resaas.notifications.tenant_credentials import get_provider_for_entity
 
 OTP_INTERVAL_SECONDS = 300
 
@@ -86,7 +86,7 @@ def send_registration_otp(channel, identifier, request=None, purpose="register")
     code = totp.now()
 
     provider_channel = _PROVIDER_CHANNEL[channel]
-    provider = NotificationProviderRegistry.get(provider_channel)
+    provider = get_provider_for_entity(provider_channel)
 
     if provider is None:
         raise NotificationError(

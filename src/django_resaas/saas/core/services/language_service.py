@@ -10,8 +10,6 @@ class LanguageService:
     DEFAULT_IDIOMAS = [
         ("Português", "pt-pt"),
         ("English", "en-us"),
-        ("Español", "es-es"),
-        ("Français", "fr-fr"),
     ]
 
 

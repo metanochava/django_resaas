@@ -1,5 +1,18 @@
 # Upgrading
 
+## Two shipped languages: pt-pt and en-us (next release after 0.0.662)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **Spanish and French removed**: `saas/lang/eses.py`, `saas/lang/frfr.py`, `notifications/lang/eses.py` and `frfr.py` are gone and `LanguageService.load_defaults()` seeds only `pt-pt` and `en-us` | **Breaking** for an installation that used es-es / fr-fr: those users see English | Delete the `es-es` / `fr-fr` `Language` rows (their `Translation` rows go with them, `on_delete=CASCADE`) or keep them with your own `Translation` rows. An application module drops its own `lang/eses.py` / `lang/frfr.py` |
+
+## Platform default notification credentials (next release after 0.0.662)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **`NotificationProviderCredential.entity` is optional** (migration `notifications.0002_platform_provider_credential`): a row with `entity=null` is the platform default of a channel, used by every tenant without its own override and ahead of the env vars. Managed at `/api/notifications/platform-provider-credentials/` (platform level only). One per channel; a branch row needs an Entity. See [Notifications](../features/notifications.md#where-the-credentials-come-from) | Backward compatible: existing rows all have an Entity, and with no platform row the env vars are used as before | `python manage.py migrate notifications`. To move the platform SMTP/Twilio secrets out of `.env`: create the platform rows, check a send, then remove the env vars |
+| **Pre-session sends resolve credentials like the worker**: password reset (link and the legacy `password/reset/email/`), OTP codes and the registration welcome use `get_provider_for_entity()` instead of `NotificationProviderRegistry.get()` | Behaviour change only when a platform row exists | Nothing |
+
 ## FrontEnd gate error contract, faster permission sync, CI (next release after 0.0.659)
 
 | Change | Kind | What to do |
@@ -7,6 +20,8 @@
 | **`FrontEndMiddleware` refusals use the error contract**: `401`/`403` answer `{"error": {"message": ..., "details": null}}` instead of `{"code": 10001 \| 10003, "alert_error": ...}`. See [Middleware](../architecture/middleware.md) | **Breaking** only for a client that read `alert_error` or the numeric `code` of these answers (quasar_resaas reads `error.message`, so it is unaffected) | Read `error.message` |
 | **`src/requirements.txt`** is a mirror of `pyproject.toml` (it had not changed since 0.0.2: `qrcode==7.4` against `>=7.4.2`, no WeasyPrint/django-money/python-dotenv) and no longer lists `rest-framework-simplejwt==0.0.2`: that PyPI project is a *dependency-confusion* proof of concept (it installs a top-level `views` module, nothing of JWT). JWT comes from `djangorestframework_simplejwt` | Dependency fix | Remove it from environments installed from that file: `pip uninstall rest-framework-simplejwt`. `make libs` now runs `pip install -e ".[dev,scaffold]"` (it pointed at a `requirements.txt` that does not exist) |
 | **Permission sync in constant queries**: `create_model_permissions` (post_migrate, and `django_resaas.testing.bootstrap_tenant`) reads the existing permissions once and bulk-creates the missing ones, instead of a `get_or_create` per permission (9+ queries per model of `MY_APPS`). Same rows and names; an existing permission keeps its name | Performance, backward compatible | Nothing. Test suites built on `bootstrap_tenant` get much faster |
+| **`ActionPermissionMixin` re-validates the signed context** on every action that needs a permission (`validate_for_user`, like `BaseAPIView`): a member removed from the Entity or Branch lost access to `BaseAPIView` endpoints at once, but kept it on these views (`branchusergroups/`, `branchusers/`, `branchs/`, `files/`, `entitys/`, ...) while the profile assignment and the context (TTL) lived. See [Permissions](../security/permissions.md#legacy-viewsets-per-action-permissions-actionpermissionmixin) | Security fix; backward compatible for current members | Nothing |
+| **Removed dead code**: `saas/data/user/serializers/change_password_mobile.py` and `change_password_email.py` were unrouted copies of the old password views (the first one the vulnerable HOTP logic) shipped in the wheel. Nothing imported them | Cleanup | Nothing (import the views from `saas/data/user/views/`) |
 | **CI**: `.github/workflows/ci.yml` runs checks, migrations check, the suite (Python 3.10 and 3.12) and the package checks; `publish_pypi.yml` publishes only after it passes and when the tag equals the `pyproject.toml` version | Release process | See [Releases](releases.md) |
 
 ## Self-elevation guard, legacy reset endpoints (0.0.659)

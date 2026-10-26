@@ -71,7 +71,7 @@ Every multi-tenant SaaS app ends up needing the same set of building blocks. `dj
 * 🎚️ **Entitlements** — features, capacities (quantitative limits) and modules per installation/tenant, behind a replaceable provider, enforced by the backend
 * 📎 **Files & PDF** — secure uploads, automatic metadata, PDF generation (WeasyPrint)
 * 🔑 **JWT auth + 2FA** — `simplejwt`, OTP (`pyotp`) and QR codes built in
-* 🌍 **Built-in i18n** — file-based translations (`pt-pt`, `en-us`, `es-es`, `fr-fr`) and database-backed
+* 🌍 **Built-in i18n** — file-based translations (`pt-pt`, `en-us`) and database-backed
 * 🌐 **Dedicated middlewares** — tenant context, frontend protection and file access control
 * 💵 **Native money support** (`django-money`)
 
@@ -322,7 +322,9 @@ from django_resaas.saas.core.utils.translate import Translate
 Translate.tdc(request, "Register")
 ```
 
-Languages included out of the box: `pt-pt`, `en-us`, `es-es`, `fr-fr`.
+Languages included out of the box: `pt-pt` and `en-us` (English is the canonical key, so only
+`<app>/lang/ptpt.py` files exist). Another language is a `Language` row plus its `Translation`
+rows or `<app>/lang/<code>.py` files.
 
 ---
 

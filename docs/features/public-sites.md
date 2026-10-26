@@ -178,7 +178,7 @@ database data**:
   *Routing → `/` - the site of the host's EntityType*). The backend stores and
   serves no site content.
 - Their translations are static: canonical English keys in the frontend
-  files, pt/es/fr in `saas/lang/{ptpt,eses,frfr}.py` (merged by
+  files, pt in `saas/lang/ptpt.py` (merged by
   `Translate.tdc()` and by `GET languages/{id}/translations/`, like every other
   frontend string). No `Translation` row is created for them.
 - The colours are the type's `Theme` (`primary`, `secondary`, `accent`, ...),
@@ -208,6 +208,39 @@ tenant-specific is exposed: EntityTypes are platform scoped.
   reference application ships `data/entity_type_themes.json`).
 
 Tests: `saas/tests/test_load_entity_type_themes.py`.
+
+### Installable app (PWA) of an EntityType's domain
+
+A frontend that runs as a PWA can be installed from each EntityType's domain
+under that type's name, colour and icon (`farmacia.example.com` installs as
+"Farmacia"). Two PUBLIC reads, `GET` only, listed in `public_actions` of
+`EntityTypeAPIView` (implementation: `saas/core/services/app_manifest_service.py`):
+
+| Endpoint | Answer |
+|---|---|
+| `GET entitytypes/manifest/?name=<type name>&origin=<frontend origin>` | `application/manifest+json`: `name` / `short_name` (the type's `label`, else `name`), `display: standalone`, `theme_color` (the type's Theme `primary`; anything but `#rgb`/`#rrggbb` falls back to `#1976d2`), `background_color`, `icons` (192 / 512, `any` and `maskable`; none when the type has no icon). `Cache-Control: public, max-age=3600`. |
+| `GET entitytypes/{id}/app_icon/?size=180\|192\|512&purpose=any\|maskable` | The type's `icon` as a square PNG on white (the image inside the central 80% for `maskable`). `Cache-Control: public, max-age=86400`. |
+
+- `name` is matched ignoring case, among live types; unknown, deleted or
+  missing → `404`. An icon size or purpose outside the list → `400`; a type
+  without a readable icon → `404`.
+- `start_url`, `scope` and `id` must be the frontend's origin. `origin` is
+  written only when the CORS policy trusts it (`CORS_ALLOWED_ORIGINS` /
+  `CORS_ALLOWED_ORIGIN_REGEXES`, never `CORS_ORIGIN_ALLOW_ALL`); otherwise they
+  are left out and the browser uses the page being installed.
+- Icon `src` are relative to the manifest URL (`../{id}/app_icon/...`), so they
+  keep the API's scheme and host behind any proxy.
+- Only data already public is used (label, icon, theme colour).
+- The browser reads the manifest when the app is **installed**: an app
+  installed before a change of label or icon keeps the old one until it is
+  reinstalled (Chrome on Android may refresh it later by itself).
+
+Frontend side (dev/front `src/boot/pwa_manifest.js`): the host's EntityType key
+(`entityTypeKey`) is asked for its manifest; on `200` the page's
+`<link rel="manifest">`, `theme-color`, `apple-mobile-web-app-title` and
+`apple-touch-icon` point to it, otherwise the static manifest stays.
+
+Tests: `saas/tests/test_app_manifest.py`.
 
 **History.** `EntityType.site` (JSON, migration `0006_entity_type_site`) and
 `manage.py load_entity_type_sites` were removed before any release: migration

@@ -37,6 +37,8 @@ from rest_framework.response import Response
 # =========================
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.services.disc_manager import DiskManegarService
+from django_resaas.saas.core.services import qr_card_service
+from django_resaas.saas.core.utils import PDF
 from django_resaas.saas.core.utils.pagination import ResaasPagination
 
 from django_resaas.saas.models.entity import Entity
@@ -70,6 +72,7 @@ class BranchAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         "partial_update": "change_branch",
         "destroy": "delete_branch",
         "postCapasSite": "change_branch",
+        "pdf": "pdf_branch",
     }
 
     #permission_classes = (permissions.IsAuthenticated)
@@ -176,6 +179,18 @@ class BranchAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
             return Response(file.errors, status=status.HTTP_400_BAD_REQUEST)
         
     
+
+    # the Branch's QR card (qr_card_service): its location on Google Maps,
+    # else the Entity's website. get_object() keeps it to the current Entity.
+    @resaas_action(detail=True, methods=['GET'])
+    def pdf(self, request, *args, **kwargs):
+        branch = self.get_object()
+        return PDF(
+            "django_resaas/pdf/qr_card.html",
+            request,
+            doc={"name": f"QR {branch.name}"},
+            **qr_card_service.card_context(request, branch.entity, branch=branch),
+        )
 
     @resaas_action(
         detail=True,

@@ -76,8 +76,8 @@ CORE_PROFILES = [
         "name": "Admin",
         "revoke": PLATFORM_PERMISSIONS,
         "permissions": [
-            "view_entity", "change_entity",
-            "view_branch", "add_branch", "change_branch", "list_branch",
+            "view_entity", "change_entity", "pdf_entity",
+            "view_branch", "add_branch", "change_branch", "list_branch", "pdf_branch",
             "view_entityapp", "add_entityapp", "change_entityapp", "list_entityapp",
             "view_entitygroup", "add_entitygroup", "change_entitygroup", "list_entitygroup",
             "view_entityuser", "add_entityuser", "change_entityuser", "list_entityuser",
@@ -92,7 +92,7 @@ CORE_PROFILES = [
     {
         "name": "Branch Admin",
         "permissions": [
-            "view_branch",
+            "view_branch", "pdf_branch",
             "view_branchuser", "add_branchuser", "change_branchuser", "list_branchuser",
             "view_branchusergroup", "add_branchusergroup", "change_branchusergroup", "list_branchusergroup",
             "view_user", "add_user", "change_user", "list_user",

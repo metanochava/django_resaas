@@ -77,6 +77,14 @@ class ActionPermissionMixin:
         # imported here: base/permissions imports models (app-loading order)
         from django_resaas.saas.core.base.permissions import isPermited
         from django_resaas.saas.core.exceptions import ResaasAPIException
+        from django_resaas.saas.core.tenant.context import ResaasContextService
+
+        # the signed context is re-checked against the user on every request,
+        # like BaseAPIView.initial(): a member removed from the Entity/Branch
+        # loses access at once, not when the context expires
+        context = getattr(request, "tenant_context", None)
+        if context:
+            ResaasContextService.validate_for_user(request.user, context)
 
         if not codename or not isPermited(request=request, role=codename):
             raise ResaasAPIException(

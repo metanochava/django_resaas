@@ -169,6 +169,13 @@ permission_denied`). Actions listed in `membership_actions` need no permission,
 and the view's `get_queryset` must scope them to the caller's own objects.
 `is_membership_request()` can decide this per request.
 
+For every action that needs a permission, the signed context is also re-checked
+against the caller on each request (`ResaasContextService.validate_for_user`, as in
+`BaseAPIView.initial()`): it must belong to the authenticated user, and the user must
+still be a member of its Entity and Branch and hold its profile. Removing the
+membership closes access at once, not when the context expires. Entity admins and
+superusers pass the membership checks by design.
+
 ```python
 class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelViewSet):
     membership_actions = ("list", "retrieve", "branchs", "apps", "models", "themeGet", ...)
@@ -178,7 +185,7 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
 | View | No permission (membership) | Everything else |
 |---|---|---|
 | `EntityAPIView` (`django_resaas/entitys/`) | the caller's own Entities: list, detail, branches, active apps/models, branding reads; `create` (self-service registration of a **new** Entity) | its permission (`change_entity`, `add_entityuser`, `add_entitygroup`, ...) **and** only on the Entity of the signed context (another one is `404`), unless platform level (`change_entitytype`) |
-| `EntityTypeAPIView` (`django_resaas/entitytypes/`) | **the catalogue list (`GET entitytypes/`) is PUBLIC**, read only: live types with `id`, `name`, `label`, `icon`, `ordem` (`EntityTypePublicSerializer`; header services menu, login screen) - every field and deleted types need `list_entitytype`; branding reads (public); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
+| `EntityTypeAPIView` (`django_resaas/entitytypes/`) | **the catalogue list (`GET entitytypes/`) is PUBLIC**, read only: live types with `id`, `name`, `label`, `icon`, `ordem` (`EntityTypePublicSerializer`; header services menu, login screen) - every field and deleted types need `list_entitytype`; branding reads (public); the installable-app `manifest` / `app_icon` reads (public, see *Public sites*); the caller's **own** EntityType: detail, apps, models, groups, permissions; `user_entitys` (own Entities only) | reads of other types and cross-tenant lists (`entitys`, `branches_map`) need `view_entitytype`; every write is platform level (`change_entitytype`, `add_/delete_entitytype`) |
 | `AppAPIView` (`django_resaas/apps/`) | none | `list` `list_app`, `retrieve` / `entityTypes` `view_app`, `create` `add_app`, `update` / `partial_update` / `addEntityType` / `removeEntityType` `change_app`, `destroy` `delete_app` |
 | `AppSchemaAPIView` (`django_resaas/resaasapps/`) | `{app}/{model}/schema/` (every generic form loads its Schema 1.0 here; field permissions are applied inside) | `list` `list_app`, `{app}/` and `lookup/` `view_app`, `create` `add_app`, `destroy` `delete_app` (create/delete also need `DEBUG`) |
 | `IDEWorkspaceAPIView` (`django_resaas/ide/`, the Scaffold IDE) | none (and only for staff users, `IsAdminUser`, with the IDE enabled: `SCAFFOLD_IDE_ENABLED`, default `DEBUG`) | `list`, `roots`, `tree`, `read`, `commands`, `validate` `view_scaffold`; `write`, `apply`, `run` `change_scaffold` |

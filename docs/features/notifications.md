@@ -294,9 +294,42 @@ provider directly, which is also how tests substitute `Fake*Provider`s.
   `NotificationTemplate.provider_metadata`'s `provider_template_name`/`provider_language` sends a
   pre-approved template instead of free text.
 
+### Where the credentials come from
+
+A provider's credentials are resolved by `get_provider_for_entity(channel, entity_id=,
+branch_id=, provider_name=)` (`notifications/tenant_credentials.py`), first match wins:
+
+```
+Branch override      NotificationProviderCredential(entity=E, branch=B)
+   ↓
+Entity override      NotificationProviderCredential(entity=E, branch=null)
+   ↓
+Platform default     NotificationProviderCredential(entity=null, branch=null)
+   ↓
+Env vars / settings  EMAIL_*, TWILIO_*, WHATSAPP_CLOUD_API_*  (NotificationProviderRegistry)
+```
+
+Only `is_active` rows count, and a row for another `provider_name` than the one asked for is
+skipped. The outbox worker, the bootstrap welcome e-mail and the pre-session sends (password
+reset link, OTP codes, registration welcome, the legacy `password/reset/email/`) all resolve
+through this chain; pre-session sends have no tenant, so they use the platform default or the
+env vars.
+
+- **Platform default** — one row per channel at most (`unique_notification_provider_credential_platform_channel`).
+  It is what every tenant without its own override uses, so the SMTP password / Twilio token
+  of the platform can live in the database instead of the server's `.env`. A branch row
+  always has an Entity (`notification_provider_credential_branch_needs_entity`).
+- **Config shape** per provider: `django` (email) `host, port, username, password, use_tls,
+  use_ssl, from_email`; `twilio` `account_sid, auth_token, from_number`; `meta_cloud_api`
+  `token, phone_number_id`; `firebase` a service-account dict.
+
 > [!WARNING]
-> None of these credentials are ever stored in the database, returned by the API, written to
-> logs, or exposed in the Schema contract — env vars only.
+> `config` is encrypted at rest (`encrypted_config`, Fernet, `notifications/crypto.py`) with
+> `NOTIFICATIONS_ENCRYPTION_KEY`. It is write-only in the API (never echoed back, not even in
+> the create response), never logged and not in the Schema contract. Set
+> `NOTIFICATIONS_ENCRYPTION_KEY` explicitly: without it the key is derived from `SECRET_KEY`,
+> and rotating `SECRET_KEY` would then make every stored credential unreadable. That one key
+> stays in the environment; a database dump alone does not reveal the credentials.
 
 ## Settings reference
 
@@ -310,6 +343,7 @@ provider directly, which is also how tests substitute `Fake*Provider`s.
 | `OUTBOX_RECOVERY_INTERVAL_SECONDS` | `30` | Suggested Beat interval |
 | `NOTIFICATION_OUTBOX_RETENTION_DAYS` / `NOTIFICATION_ATTEMPT_RETENTION_DAYS` | `90` / `90` | `notification_cleanup` window |
 | `CELERY_BROKER_URL` / `CELERY_RESULT_BACKEND` | unset | Only used by this app |
+| `NOTIFICATIONS_ENCRYPTION_KEY` | derived from `SECRET_KEY` | Fernet key of `NotificationProviderCredential.config`; set it explicitly |
 
 ## Wiring Celery + Beat in a host project
 
@@ -403,6 +437,8 @@ Routed exactly like every other autoloaded resource in this framework (`{module}
 | `/api/notifications/outbox/<id>/cancel/` | `POST` | `cancel_notificationoutbox` permission, pre-`sent` only |
 | `/api/notifications/deliveryattempt/` | `GET` (list/retrieve) only | `NotificationDeliveryAttempt` |
 | `/api/notifications/catalog/` | `GET` | channels/categories/priorities/configured events |
+| `/api/notifications/provider-credentials/` | full CRUD | `NotificationProviderCredential` of the current Entity/Branch (`*_notificationprovidercredential`); `config` write-only |
+| `/api/notifications/platform-provider-credentials/` | full CRUD | Platform default rows (entity=null). Model permission **and** platform level (`change_entitytype`, Root by default), else `403` |
 
 Example — create a rule (`POST /api/notifications/rules/`, same headers as any other
 tenant-scoped request in this framework — `X-RESAAS-Context` + `L`, see
@@ -436,6 +472,13 @@ python manage.py notification_dispatch_pending
 python manage.py notification_recover_stuck
 python manage.py notification_cleanup
 ```
+
+**Symptom: e-mail/SMS still goes out with the old account.** Check, in order: an active
+Branch or Entity override for that channel (it wins over the platform default); the platform
+row's `is_active` and `provider_name` (`django`, `twilio`, `meta_cloud_api`, `firebase`); only
+then the env vars. **Symptom: `could not decrypt stored config`.** `NOTIFICATIONS_ENCRYPTION_KEY`
+(or `SECRET_KEY`, when the key is not set) changed since the row was saved: save the row's
+`config` again with the current key.
 
 ## Known limitations
 

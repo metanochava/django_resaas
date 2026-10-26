@@ -252,3 +252,199 @@ def test_email_tenant_override_is_used_by_resolver(notification_tenant, fake_pro
     assert isinstance(provider, EmailProvider)
     assert provider is not fake_providers["email"]
     assert provider._override["host"] == "smtp.tenant.example.com"
+
+
+# =====================================================================
+# PLATFORM DEFAULT (entity=null)
+# =====================================================================
+
+PLATFORM_URL = "/api/notifications/platform-provider-credentials/"
+TENANT_URL = "/api/notifications/provider-credentials/"
+
+
+def _platform_sms(token="platform-token"):
+    credential = NotificationProviderCredential(channel=Channel.SMS, provider_name="twilio")
+    credential.set_config({"account_sid": "AC-platform", "auth_token": token, "from_number": "+1platform"})
+    credential.save()
+    return credential
+
+
+def test_platform_row_is_used_without_entity(fake_providers):
+    _platform_sms()
+
+    provider = get_provider_for_entity(Channel.SMS)
+
+    assert isinstance(provider, SMSProvider)
+    assert provider._credentials()[1] == "platform-token"
+
+
+def test_platform_row_is_used_by_a_tenant_without_override(notification_tenant, fake_providers):
+    _platform_sms()
+
+    provider = get_provider_for_entity(Channel.SMS, entity_id=notification_tenant["entity"].id)
+
+    assert provider._credentials()[1] == "platform-token"
+
+
+def test_tenant_override_beats_platform_row(notification_tenant, fake_providers):
+    _platform_sms()
+    tenant_row = NotificationProviderCredential(
+        entity=notification_tenant["entity"], channel=Channel.SMS, provider_name="twilio",
+    )
+    tenant_row.set_config({"account_sid": "AC-t", "auth_token": "tenant-token", "from_number": "+1"})
+    tenant_row.save()
+
+    provider = get_provider_for_entity(Channel.SMS, entity_id=notification_tenant["entity"].id)
+
+    assert provider._credentials()[1] == "tenant-token"
+
+
+def test_inactive_platform_row_falls_back_to_env(fake_providers):
+    credential = _platform_sms()
+    credential.is_active = False
+    credential.save()
+
+    assert get_provider_for_entity(Channel.SMS) is fake_providers["sms"]
+
+
+def test_one_platform_row_per_channel():
+    from django.db import IntegrityError, transaction
+
+    _platform_sms()
+
+    with pytest.raises(IntegrityError), transaction.atomic():
+        _platform_sms("second")
+
+
+def test_branch_row_needs_an_entity(notification_tenant):
+    from django.db import IntegrityError, transaction
+
+    credential = NotificationProviderCredential(
+        branch=notification_tenant["branch"], channel=Channel.SMS, provider_name="twilio",
+    )
+    credential.set_config({"auth_token": "x"})
+
+    with pytest.raises(IntegrityError), transaction.atomic():
+        credential.save()
+
+
+def test_platform_level_creates_and_lists_platform_rows(notification_tenant):
+    client = notification_tenant["client"]  # Root: platform level
+
+    response = client.post(PLATFORM_URL, {
+        "channel": "sms", "provider_name": "twilio",
+        "config": {"account_sid": "AC-new", "auth_token": "new-secret", "from_number": "+1"},
+    }, format="json")
+
+    assert response.status_code == 201, response.json()
+    assert "config" not in response.json()
+    assert "new-secret" not in response.content.decode()
+
+    row = NotificationProviderCredential.objects.get(id=response.json()["id"])
+    assert row.entity_id is None and row.branch_id is None
+    assert row.get_config()["auth_token"] == "new-secret"
+
+    listed = client.get(PLATFORM_URL).json()
+    items = listed["results"] if isinstance(listed, dict) else listed
+    assert [item["id"] for item in items] == [str(row.id)]
+    assert "new-secret" not in client.get(PLATFORM_URL).content.decode()
+
+
+def test_platform_view_never_shows_entity_rows(notification_tenant):
+    tenant_row = NotificationProviderCredential(
+        entity=notification_tenant["entity"], channel=Channel.EMAIL, provider_name="django",
+    )
+    tenant_row.set_config({"host": "smtp.tenant.example.com"})
+    tenant_row.save()
+
+    client = notification_tenant["client"]
+    listed = client.get(PLATFORM_URL).json()
+    items = listed["results"] if isinstance(listed, dict) else listed
+
+    assert items == []
+    assert client.get(f"{PLATFORM_URL}{tenant_row.id}/").status_code == 404
+
+
+def test_tenant_view_never_shows_platform_rows(notification_tenant):
+    platform_row = _platform_sms()
+    client = notification_tenant["client"]
+
+    listed = client.get(TENANT_URL).json()
+    items = listed["results"] if isinstance(listed, dict) else listed
+
+    assert str(platform_row.id) not in [item["id"] for item in items]
+    assert client.get(f"{TENANT_URL}{platform_row.id}/").status_code == 404
+    assert client.delete(f"{TENANT_URL}{platform_row.id}/").status_code == 404
+
+
+def test_below_platform_level_is_forbidden(notification_tenant):
+    from django.contrib.auth.models import Permission
+    from rest_framework.test import APIClient
+
+    from django_resaas.saas.core.tenant.context import ResaasContextService
+    from django_resaas.saas.models.branch_user import BranchUser
+    from django_resaas.saas.models.branch_user_group import BranchUserGroup
+    from django_resaas.saas.models.entity_group import EntityGroup
+    from django_resaas.saas.models.entity_user import EntityUser
+    from django_resaas.saas.models.group import Group
+    from django_resaas.saas.models.user import User
+
+    platform_row = _platform_sms()
+    tenant = notification_tenant
+    user = User.objects.create_user(username="cred-admin", email="cred-admin@example.com", password="pass-12345")
+    EntityUser.objects.get_or_create(user=user, entity=tenant["entity"])
+    BranchUser.objects.get_or_create(user=user, branch=tenant["branch"])
+    group = Group.objects.create(name="Credentials Admin")
+    EntityGroup.objects.create(entity=tenant["entity"], group=group, state="Active")
+    # every model permission of the credentials, but not platform level
+    group.permissions.set(Permission.objects.filter(codename__endswith="_notificationprovidercredential"))
+    BranchUserGroup.objects.create(user=user, group=group, branch=tenant["branch"])
+    context = ResaasContextService.issue(
+        user=user, entity_id=tenant["entity"].id, branch_id=tenant["branch"].id, group_id=group.id,
+    )
+    client = APIClient(raise_request_exception=False)
+    client.force_authenticate(user=user)
+    client.credentials(HTTP_X_RESAAS_CONTEXT=context["token"], HTTP_L="1")
+
+    assert client.get(PLATFORM_URL).status_code == 403
+    assert client.post(PLATFORM_URL, {
+        "channel": "email", "provider_name": "django", "config": {"host": "smtp.evil.example.com"},
+    }, format="json").status_code == 403
+    assert client.patch(f"{PLATFORM_URL}{platform_row.id}/", {"is_active": False}, format="json").status_code == 403
+    assert client.delete(f"{PLATFORM_URL}{platform_row.id}/").status_code == 403
+
+    platform_row.refresh_from_db()
+    assert platform_row.is_active is True
+    assert not NotificationProviderCredential.objects.filter(channel=Channel.EMAIL).exists()
+
+
+def test_anonymous_cannot_reach_platform_rows():
+    from rest_framework.test import APIClient
+
+    assert APIClient().get(PLATFORM_URL).status_code in (401, 403)
+
+
+def test_password_reset_email_uses_the_platform_row(fake_providers, monkeypatch, rf, settings):
+    """Pre-session sends (password reset, OTP, welcome) resolve through
+    the same chain: platform row first, then the env/settings default."""
+    from django_resaas.saas.core.services import password_reset_service
+    from django_resaas.saas.models.user import User
+
+    settings.CORS_ALLOWED_ORIGINS = ["https://app.platform.test"]
+    credential = NotificationProviderCredential(channel=Channel.EMAIL, provider_name="django")
+    credential.set_config({"host": "smtp.platform.example.com", "from_email": "noreply@platform.example.com"})
+    credential.save()
+    used = {}
+
+    def _send(self, recipient, subject=None, body=None, metadata=None, idempotency_key=None):
+        used.update(host=self._override.get("host"), recipient=recipient)
+        return {"success": True}
+
+    monkeypatch.setattr(EmailProvider, "send", _send)
+    user = User.objects.create_user(username="reset-platform", email="reset@platform.test", password="pass-12345")
+    request = rf.post("/", HTTP_ORIGIN="https://app.platform.test")
+    request.lang_id = None
+
+    password_reset_service.send_link(request, user, "email")
+
+    assert used == {"host": "smtp.platform.example.com", "recipient": "reset@platform.test"}

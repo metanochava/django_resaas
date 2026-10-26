@@ -153,9 +153,45 @@ them, on top of WeasyPrint:
 - `make_qr_b64(text)` / `make_barcode_b64(value)` — QR code / Code128 barcode as a base64-encoded
   PNG, ready to embed directly in an HTML template's `<img src="data:image/png;base64,...">`.
 - `png_bytes_to_b64(png_bytes)` — the shared base64-encoding helper the two functions above use.
+- `make_brand_qr_b64(text, color="#000000", logo_bytes=None)` — a QR code for printed cards:
+  rounded modules in a brand colour, error correction H and, when given, the logo in a white
+  rounded square at the centre. Use it where a person scans the code from paper; keep
+  `make_qr_b64` for codes read by software (documents, labels).
 
 `BaseAPIView`'s built-in PDF actions (per-record and list export, gated by the `pdf_<model>`/
 `pdf_list_<model>` permissions — see [Schema 1.0 contract](../api/schema-contract.md#shape)) are
 what most models use these through; an application only needs to supply its own template.
 Application-specific layout belongs in the app's own templates — reuse the utilities above rather
 than duplicating QR/barcode generation per app.
+
+
+### QR card of an Entity / Branch
+
+A printable A5 card in the style of payment-app QR stands: the Entity's theme colour behind, the
+logo and the name on top, a white card with a big QR code (the logo at its centre), what it opens,
+and the Entity's name and `rodape` at the bottom.
+
+| Endpoint | Permission | Scope |
+|---|---|---|
+| `GET /api/django_resaas/entitys/{id}/pdf/` | `pdf_entity` | the Entity of the signed context (another one is 404, except at platform level) |
+| `GET /api/django_resaas/branchs/{id}/pdf/` | `pdf_branch` | a Branch of the current Entity (another Entity's is 404) |
+
+Both are PROTECTED (`ActionPermissionMixin`: no permission → 403). `Admin` gets both,
+`Branch Admin` gets `pdf_branch` (`saas/profiles.py`).
+
+What the QR code opens (`core/services/qr_card_service.py`):
+
+- **Entity** — its website (`Entity.site`); without one, Google Maps (`google_place_id`, else the
+  first Branch with a location).
+- **Branch** — Google Maps directions to its main `Address` (latitude/longitude, else `place_id`,
+  else the formatted address); without one, the Entity's website. The card also prints the address.
+- Neither — no QR code: the card says to add the Entity's website or the Branch's address.
+
+Only absolute http(s) websites are used. The colour is the theme `primary` of the Entity (else of
+its EntityType) and must be `#rgb`/`#rrggbb` — anything else falls back to `#1976D2`, because the
+value is written into the template's CSS. Texts are translated with the request language
+(`Translate.tdc`, keys in `saas/lang/*.py`). Template: `django_resaas/pdf/qr_card.html`.
+Tests: `saas/tests/test_qr_card.py`.
+
+Before, `entitys/{id}/pdf/` printed a sample invoice with made-up data; the `qr` actions (JSON
+with base64 images and an `/#/?e=` URL no frontend reads) are unchanged.

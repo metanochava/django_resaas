@@ -80,4 +80,5 @@ key_value = {
     "Resolved": "Resolvido",
     "Closed": "Encerrado",
     "View of": "Vista de",
+    "Platform level is required.": "É necessário o nível de plataforma.",
 }

@@ -2,8 +2,8 @@
 had no lang/ directory at all before this fix, and sidebar.py's menu
 values / dashboard.py's widget labels reach tdc()/Translate.tdc() as
 lookup keys - both must be canonical English and translated into
-pt-pt/fr-fr/es-es (via notifications' own lang/<code>.py, or the
-shared saas core one)."""
+pt-pt (via notifications' own lang/ptpt.py, or the shared saas core
+one); English is the key itself."""
 import re
 
 import pytest
@@ -12,19 +12,13 @@ from django_resaas.notifications.sidebar import ALL as NOTIF_SIDEBAR
 from django_resaas.notifications.dashboard import DASHBOARD as NOTIF_DASHBOARD
 from django_resaas.notifications.enums import Channel, Category, Priority, OutboxStatus, ErrorType
 from django_resaas.notifications.lang import ptpt as notif_ptpt
-from django_resaas.notifications.lang import frfr as notif_frfr
-from django_resaas.notifications.lang import eses as notif_eses
 from django_resaas.saas.lang import ptpt as saas_ptpt
-from django_resaas.saas.lang import frfr as saas_frfr
-from django_resaas.saas.lang import eses as saas_eses
 
 pytestmark = pytest.mark.django_db
 
 NON_ENGLISH_CHARS = re.compile(r"[àâãçéêíóôõúÀ-ÿ]")
 
 PT = {**saas_ptpt.key_value, **notif_ptpt.key_value}
-FR = {**saas_frfr.key_value, **notif_frfr.key_value}
-ES = {**saas_eses.key_value, **notif_eses.key_value}
 
 
 def _sidebar_menu_labels(entries):
@@ -64,5 +58,5 @@ def test_label_is_canonical_english(label):
 
 @pytest.mark.parametrize("label", ALL_LABELS)
 def test_label_is_translated(label):
-    for lang_name, lang in (("pt-pt", PT), ("fr-fr", FR), ("es-es", ES)):
+    for lang_name, lang in (("pt-pt", PT),):
         assert label in lang, f"{label!r} has no {lang_name} translation"

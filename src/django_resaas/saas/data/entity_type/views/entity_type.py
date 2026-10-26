@@ -12,12 +12,13 @@ from django.contrib.auth.models import Permission
 from django_resaas.saas.data.permission.serializers.permission import PermissionSerializer
 
 from rest_framework import viewsets, filters, status
+from rest_framework.exceptions import NotFound, ValidationError
 from django_resaas.saas.core.decorators.action import resaas_action
 from rest_framework.response import Response
 from django.db.models import F
 from django_resaas.saas.core.entitlements import require_capacity
 from django_resaas.saas.core.utils.translate import Translate
-from django_resaas.saas.core.services import entity_type_profiles_io_service, group_permissions_io_service
+from django_resaas.saas.core.services import app_manifest_service, entity_type_profiles_io_service, group_permissions_io_service
 from django_resaas.saas.core.utils.full_path import FullPath
 
 from django_resaas.saas.models.entity_type import EntityType
@@ -57,7 +58,12 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
     # session - the branding reads, and the catalogue list (header services
     # menu, EntityType of the domain) which then shows public fields only
     # (EntityTypePublicSerializer) unless the caller holds list_entitytype.
-    public_actions = ('list', 'themeGet', 'layoutSettingsGet', 'typographyGet', 'animationSettingsGet')
+    # manifest / app_icon: the installable app (PWA) of the type's domain,
+    # fetched by the browser without a session (app_manifest_service).
+    public_actions = (
+        'list', 'themeGet', 'layoutSettingsGet', 'typographyGet', 'animationSettingsGet',
+        'manifest', 'app_icon',
+    )
 
     # EntityTypes are platform configuration. A member may READ their own
     # EntityType (the catalogue the Entity's group screens need); anything
@@ -474,6 +480,36 @@ class EntityTypeAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.Mod
         else:
             animation_settings = {}
         return Response(animation_settings, status=status.HTTP_200_OK)
+
+    # GET entitytypes/manifest/?name=<EntityType name>&origin=<frontend origin>
+    @resaas_action(detail=False, methods=['GET'])
+    def manifest(self, request, *args, **kwargs):
+        name = (request.query_params.get("name") or "").strip()
+        entity_type = EntityType.objects.filter(deleted_at__isnull=True, name__iexact=name).first() if name else None
+        if entity_type is None:
+            raise NotFound()
+        data = app_manifest_service.manifest(entity_type, request.query_params.get("origin"))
+        response = HttpResponse(json.dumps(data), content_type="application/manifest+json")
+        response["Cache-Control"] = "public, max-age=3600"
+        return response
+
+    # GET entitytypes/{id}/app_icon/?size=192|180|512&purpose=any|maskable
+    @resaas_action(detail=True, methods=['GET'])
+    def app_icon(self, request, *args, **kwargs):
+        entity_type = self.get_object()
+        try:
+            size = int(request.query_params.get("size") or 192)
+        except ValueError:
+            size = 0
+        purpose = request.query_params.get("purpose") or "any"
+        if size not in app_manifest_service.ALLOWED_ICON_SIZES or purpose not in app_manifest_service.PADDING:
+            raise ValidationError({"size": [Translate.tdc(request, "Invalid icon size.")]})
+        png = None if entity_type.deleted_at else app_manifest_service.icon_png(entity_type, size, purpose)
+        if png is None:
+            raise NotFound()
+        response = HttpResponse(png, content_type="image/png")
+        response["Cache-Control"] = "public, max-age=86400"
+        return response
 
 
 
