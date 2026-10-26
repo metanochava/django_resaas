@@ -1,5 +1,18 @@
 # Upgrading
 
+## Two shipped languages: pt-pt and en-us (next release after 0.0.662)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **Spanish and French removed**: `saas/lang/eses.py`, `saas/lang/frfr.py`, `notifications/lang/eses.py` and `frfr.py` are gone and `LanguageService.load_defaults()` seeds only `pt-pt` and `en-us` | **Breaking** for an installation that used es-es / fr-fr: those users see English | Delete the `es-es` / `fr-fr` `Language` rows (their `Translation` rows go with them, `on_delete=CASCADE`) or keep them with your own `Translation` rows. An application module drops its own `lang/eses.py` / `lang/frfr.py` |
+
+## Platform default notification credentials (next release after 0.0.662)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **`NotificationProviderCredential.entity` is optional** (migration `notifications.0002_platform_provider_credential`): a row with `entity=null` is the platform default of a channel, used by every tenant without its own override and ahead of the env vars. Managed at `/api/notifications/platform-provider-credentials/` (platform level only). One per channel; a branch row needs an Entity. See [Notifications](../features/notifications.md#where-the-credentials-come-from) | Backward compatible: existing rows all have an Entity, and with no platform row the env vars are used as before | `python manage.py migrate notifications`. To move the platform SMTP/Twilio secrets out of `.env`: create the platform rows, check a send, then remove the env vars |
+| **Pre-session sends resolve credentials like the worker**: password reset (link and the legacy `password/reset/email/`), OTP codes and the registration welcome use `get_provider_for_entity()` instead of `NotificationProviderRegistry.get()` | Behaviour change only when a platform row exists | Nothing |
+
 ## FrontEnd gate error contract, faster permission sync, CI (next release after 0.0.659)
 
 | Change | Kind | What to do |

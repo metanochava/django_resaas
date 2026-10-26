@@ -21,7 +21,7 @@ import logging
 from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.notifications.enums import Channel
-from django_resaas.notifications.providers import NotificationProviderRegistry
+from django_resaas.notifications.tenant_credentials import get_provider_for_entity
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ def send_registration_welcome(user, channel, request=None):
 
 
 def _send_welcome_email(user, request):
-    provider = NotificationProviderRegistry.get(Channel.EMAIL)
+    provider = get_provider_for_entity(Channel.EMAIL)
     if provider is None or not user.email:
         return False
 
@@ -73,7 +73,7 @@ def _send_welcome_email(user, request):
 
 
 def _send_welcome_sms(user, request):
-    provider = NotificationProviderRegistry.get(Channel.SMS)
+    provider = get_provider_for_entity(Channel.SMS)
     if provider is None or not user.mobile:
         return False
 

@@ -178,7 +178,7 @@ database data**:
   *Routing → `/` - the site of the host's EntityType*). The backend stores and
   serves no site content.
 - Their translations are static: canonical English keys in the frontend
-  files, pt/es/fr in `saas/lang/{ptpt,eses,frfr}.py` (merged by
+  files, pt in `saas/lang/ptpt.py` (merged by
   `Translate.tdc()` and by `GET languages/{id}/translations/`, like every other
   frontend string). No `Translation` row is created for them.
 - The colours are the type's `Theme` (`primary`, `secondary`, `accent`, ...),

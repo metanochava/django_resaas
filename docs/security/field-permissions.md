@@ -99,7 +99,7 @@ PATCH /api/demo/agreements/<id>/
 ```
 
 - `code` is stable, and `details.fields` lists the blocked field names. The message is translated
-  (`Translate.tdc`, in all four languages).
+  (`Translate.tdc`, in pt-pt and en-us).
 - **Re-sending the current value is not a change.** An update that sends the value the record
   already holds is accepted. `BaseStore` PATCHes the whole loaded record back, so a view-only
   user can still edit the agreement's other fields.

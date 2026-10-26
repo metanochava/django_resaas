@@ -1,5 +1,3 @@
-from django.core.mail import EmailMultiAlternatives
-
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 
@@ -11,6 +9,9 @@ from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.exceptions import error_response
+from django_resaas.notifications.enums import Channel
+from django_resaas.notifications.exceptions import NotificationError
+from django_resaas.notifications.tenant_credentials import get_provider_for_entity
 from django_resaas.saas.core.services.password_reset_service import (
     ResetLinkUnavailable, link_available, reset_link as build_reset_link,
 )
@@ -84,19 +85,16 @@ class RequestPasswordResetEmailAPIView(ResaasResponseMixin, generics.GenericAPIV
             )
 
             try:
-                mail = EmailMultiAlternatives(
-                    subject=Translate.tdc(
-                        request,
-                        'Password reset'
-                    ),
-                    body='',
-                    to=[email],
+                # platform default credential (DB) or the EMAIL_* settings
+                provider = get_provider_for_entity(Channel.EMAIL)
+                if provider is None:
+                    raise NotificationError("No provider registered for channel='email'.")
+                provider.send(
+                    recipient=email,
+                    subject=Translate.tdc(request, 'Password reset'),
+                    body=reset_link,
+                    metadata={'html': html_message},
                 )
-                mail.attach_alternative(
-                    html_message,
-                    'text/html'
-                )
-                mail.send()
 
             except Exception:
                 return Response(

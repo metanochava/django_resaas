@@ -69,7 +69,7 @@ last (Django's `%(verbose_name_plural)s`), e.g. "Activate selected departments":
 | Soft delete selected … | sets `deleted_at` | `deleted_at` |
 
 Activate/Deactivate also stamp `updated_at`/`updated_by` (a queryset `update()` bypasses `save()`).
-The labels are translated per request through `Translate.tdc` (pt-pt, en-us, es-es, fr-fr, keys in
+The labels are translated per request through `Translate.tdc` (pt-pt, en-us, keys in
 `saas/lang/*.py`); an admin browser sends no `L` header, so it uses `LANGUAGE_CODE`.
 **Backward compatible**: the old plain labels ("Restore selected") were replaced; nothing read them.
 Tests: `saas/tests/test_admin_state_actions.py`.

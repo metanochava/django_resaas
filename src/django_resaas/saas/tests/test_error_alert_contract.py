@@ -150,14 +150,13 @@ class TestTranslation:
 
     def test_the_message_is_translated_with_the_request_language(self):
         assert _handle(ValidationError({"a": ["x"]}), lang="pt-pt").data["error"]["message"] == "Corrija os campos assinalados."
-        assert _handle(ValidationError({"a": ["x"]}), lang="fr-fr").data["error"]["message"] == "Veuillez corriger les champs signalés."
+        assert _handle(ValidationError({"a": ["x"]}), lang="en-us").data["error"]["message"] == "Please correct the highlighted fields."
 
     def test_the_code_is_never_translated(self):
         english = _handle(PermissionDenied(), lang="en-us").data["error"]["code"]
         portuguese = _handle(PermissionDenied(), lang="pt-pt").data["error"]["code"]
-        spanish = _handle(PermissionDenied(), lang="es-es").data["error"]["code"]
 
-        assert english == portuguese == spanish == "permission_denied"
+        assert english == portuguese == "permission_denied"
 
     def test_a_drf_default_message_is_translated(self):
         assert _handle(PermissionDenied(), lang="pt-pt").data["error"]["message"] == "Não tem permissão para realizar esta operação."

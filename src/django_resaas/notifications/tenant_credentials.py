@@ -4,8 +4,8 @@ get_provider_for_entity() is what NotificationProviderRegistry.get()
 becomes when a tenant might have their own account (e.g. a hospital's
 own WhatsApp Business number) instead of the platform-wide default -
 identical to calling NotificationProviderRegistry.get(channel, name)
-directly when entity_id is None or the tenant has no active override,
-so every existing caller is unaffected.
+directly when there is neither a tenant override nor a platform default
+row (entity=null), so every existing caller is unaffected.
 """
 
 from django_resaas.notifications.enums import Channel
@@ -31,32 +31,40 @@ def _provider_class_for(channel, provider_name):
     return _PROVIDER_CLASSES.get((channel, provider_name))
 
 
+def _provider_from(credential):
+    provider_class = _provider_class_for(credential.channel, credential.provider_name)
+    if provider_class is None:
+        return None
+    return provider_class(credentials=credential.get_config())
+
+
 def get_provider_for_entity(channel, *, entity_id=None, branch_id=None, provider_name=None):
     """Resolution order: an active branch-specific override, then an
-    active entity-wide override (branch=null), then the platform-wide
-    default from NotificationProviderRegistry (env vars). `provider_name`,
-    when given (a rule's explicit provider override), is matched
-    against the credential row too - a tenant override for a different
-    provider than the one requested is not used."""
+    active entity-wide override (branch=null), then the active platform
+    default row (entity=null), then the platform-wide default from
+    NotificationProviderRegistry (env vars). `provider_name`, when given
+    (a rule's explicit provider override), is matched against the
+    credential rows too - a row for a different provider than the one
+    requested is not used."""
 
+    from django_resaas.notifications.models import NotificationProviderCredential
+
+    qs = NotificationProviderCredential.objects.filter(channel=channel, is_active=True)
+    if provider_name:
+        qs = qs.filter(provider_name=provider_name)
+
+    candidates = []
     if entity_id is not None:
-        from django_resaas.notifications.models import NotificationProviderCredential
-
-        qs = NotificationProviderCredential.objects.filter(
-            entity_id=entity_id, channel=channel, is_active=True,
-        )
-        if provider_name:
-            qs = qs.filter(provider_name=provider_name)
-
-        credential = None
         if branch_id is not None:
-            credential = qs.filter(branch_id=branch_id).first()
-        if credential is None:
-            credential = qs.filter(branch__isnull=True).first()
+            candidates.append(qs.filter(entity_id=entity_id, branch_id=branch_id))
+        candidates.append(qs.filter(entity_id=entity_id, branch__isnull=True))
+    candidates.append(qs.filter(entity__isnull=True))
 
+    for candidate in candidates:
+        credential = candidate.first()
         if credential is not None:
-            provider_class = _provider_class_for(channel, credential.provider_name)
-            if provider_class is not None:
-                return provider_class(credentials=credential.get_config())
+            provider = _provider_from(credential)
+            if provider is not None:
+                return provider
 
     return NotificationProviderRegistry.get(channel, provider_name)

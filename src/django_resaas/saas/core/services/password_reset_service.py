@@ -28,7 +28,7 @@ from django.utils.http import urlsafe_base64_encode
 
 from django_resaas.notifications.enums import Channel
 from django_resaas.notifications.exceptions import NotificationError
-from django_resaas.notifications.providers import NotificationProviderRegistry
+from django_resaas.notifications.tenant_credentials import get_provider_for_entity
 from django_resaas.saas.core.services.otp_service import send_registration_otp
 from django_resaas.saas.core.utils.templates import render_email_template
 from django_resaas.saas.core.utils.translate import Translate
@@ -104,7 +104,7 @@ def send_link(request, user, channel):
             "ignore_notice": Translate.tdc(request, "If you didn't request this, you can safely ignore this email."),
             "footer_notice": Translate.tdc(request, "This is an automated message, please do not reply."),
         }, request=request)
-        provider = NotificationProviderRegistry.get(Channel.EMAIL)
+        provider = get_provider_for_entity(Channel.EMAIL)
         if provider is None:
             raise NotificationError("No provider registered for channel='email'.")
         provider.send(
@@ -115,7 +115,7 @@ def send_link(request, user, channel):
         )
         return
 
-    provider = NotificationProviderRegistry.get(Channel.SMS)
+    provider = get_provider_for_entity(Channel.SMS)
     if provider is None:
         raise NotificationError("No provider registered for channel='sms'.")
     provider.send(
