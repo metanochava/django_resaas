@@ -1,5 +1,11 @@
 # Upgrading
 
+## Entity administrators may delegate (next release after 0.0.664)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **The current Entity's administrator may delegate** (`group_access_service.is_entity_admin`): a user listed in the Entity's **Admins** and acting with a profile that holds `change_entity` may give profiles - to itself included - and edit profile permissions even with permissions its own profile lacks, in that Entity only | Behaviour change (relaxes `permission_not_held` for entity administrators) | Check who is listed in each Entity's Admins: they can now give any of the Entity's profiles |
+
 ## Default language per EntityType / Entity, and Celery required (next release after 0.0.663)
 
 | Change | Kind | What to do |
