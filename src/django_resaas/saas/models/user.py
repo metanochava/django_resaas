@@ -179,11 +179,14 @@ class User(
     # LANGUAGE
     # =====================================================
 
+    # personal language; NULL = the Entity's, then the EntityType's
+    # (see get_effective_language)
     language = models.ForeignKey(
         'django_resaas.Language',
         on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        help_text='Personal language. Leave empty to inherit from the entity.'
     )
 
     # =====================================================
@@ -416,6 +419,34 @@ class User(
                 return entity_type.theme
 
         return None
+
+    # =====================================================
+    # EFFECTIVE LANGUAGE
+    #
+    # User > Entity > EntityType > platform default (pt-pt).
+    # =====================================================
+
+    def get_effective_language(
+        self,
+        entity=None
+    ):
+
+        if self.language:
+            return self.language
+
+        if entity:
+
+            if getattr(entity, 'language', None):
+                return entity.language
+
+            entity_type = getattr(entity, 'entity_type', None)
+
+            if entity_type and getattr(entity_type, 'language', None):
+                return entity_type.language
+
+        from django_resaas.saas.core.services.language_service import LanguageService
+
+        return LanguageService.platform_default()
 
     # =====================================================
     # EFFECTIVE LAYOUT
@@ -687,6 +718,12 @@ class User(
             'animation': source(
                 self.animation_settings,
                 'animation_settings'
+            ),
+
+            # None = the platform default (no level chose one)
+            'language': source(
+                self.language,
+                'language'
             )
 
         }

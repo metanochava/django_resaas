@@ -205,6 +205,10 @@ key_value = {
     "Mobile": "Telemóvel",
     "Phone": "Telefone",
     "Language": "Idioma",
+    "Default language of this entity type.": "Idioma por defeito deste tipo de entidade.",
+    "Default language of this entity. Leave empty to inherit from the entity type.": "Idioma por defeito desta entidade. Deixe vazio para herdar do tipo de entidade.",
+    "Personal language. Leave empty to inherit from the entity.": "Idioma pessoal. Deixe vazio para herdar da entidade.",
+    "Use the entity's language": "Usar o idioma da entidade",
 
 
     # =========================================================

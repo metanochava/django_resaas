@@ -18,6 +18,10 @@ class UserSerializer(BaseSerializer):
             # neste endpoint (ver components/theme/useThemeStudio.js
             # no quasar_resaas).
             'theme', 'layout_settings', 'typography', 'animation_settings',
+            # personal language (null = the Entity's, then the EntityType's -
+            # User.get_effective_language); the header's language menu saves
+            # it here
+            'language',
         ]
         # email/mobile can NEVER change through a generic PATCH here -
         # ownership of the new value must be proven via OTP first (see

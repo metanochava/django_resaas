@@ -12,6 +12,14 @@ class LanguageService:
         ("English", "en-us"),
     ]
 
+    # the platform's language when neither the User, the Entity nor the
+    # EntityType chose one (User.get_effective_language)
+    PLATFORM_DEFAULT_CODE = "pt-pt"
+
+    @classmethod
+    def platform_default(cls):
+        return Language.objects.filter(code=cls.PLATFORM_DEFAULT_CODE).first()
+
 
 
     @classmethod

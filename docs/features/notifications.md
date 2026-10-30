@@ -348,8 +348,8 @@ env vars.
 ## Wiring Celery + Beat in a host project
 
 `django_resaas.notifications.tasks` uses `@shared_task`, so it binds to whatever Celery app the
-host project creates — this framework doesn't ship one. `pip install django_resaas[notifications]`
-for the `celery` dependency, then, in the host project (next to its `settings.py`):
+host project creates — this framework doesn't ship one. The `celery` package is a dependency of
+django_resaas (installed with it); then, in the host project (next to its `settings.py`):
 
 ```python
 # yourproject/celery.py

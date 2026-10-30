@@ -17,8 +17,9 @@ django-admin startproject myproject
 ```
 
 Optional extras: `scaffold` (black, to format the code the Scaffold generates), `server`
-(gunicorn), `notifications` (celery), `dev` (pytest and test tools) - e.g.
-`pip install "django_resaas[server]"`.
+(gunicorn), `dev` (pytest and test tools) - e.g. `pip install "django_resaas[server]"`.
+`celery` is installed with the framework (django_resaas.notifications needs it); running a
+worker and a broker is still the host project's choice.
 
 ## 2. `settings.py`
 
@@ -111,8 +112,8 @@ signed `X-RESAAS-Context` header; `FileAccessMiddleware` protects uploaded files
 optional: add it to require the `FEK`/`FEP` frontend credentials — see
 [Middleware](../architecture/middleware.md).
 
-Email, notifications (`NOTIFICATIONS_ENABLED`, the outbox settings) and Celery are optional and
-off by default; `src/dev/settings.py` lists every setting with its environment variable, and
+Email, notifications (`NOTIFICATIONS_ENABLED`, the outbox settings) and the Celery broker/worker
+are optional and off by default (the `celery` package itself is always installed); `src/dev/settings.py` lists every setting with its environment variable, and
 [Notifications](../features/notifications.md) explains when you need them.
 
 ## 3. `urls.py`

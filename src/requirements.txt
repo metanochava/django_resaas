@@ -1,7 +1,8 @@
 # Mirror of pyproject.toml [project].dependencies, for tools that want a
 # requirements file. pyproject.toml is the source of truth: prefer
 #   pip install -e ".[dev]"      (from the repository root)
-# Optional extras: scaffold (black), server (gunicorn), notifications (celery).
+# Optional extras: scaffold (black), server (gunicorn). Celery is required
+# (django_resaas.notifications); the old "notifications" extra still works.
 
 Django==5.2.10
 djangorestframework==3.16.1
@@ -18,3 +19,4 @@ python-dotenv
 django-cors-headers
 psycopg[binary]
 django-filter
+celery>=5.3

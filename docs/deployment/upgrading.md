@@ -1,5 +1,13 @@
 # Upgrading
 
+## Default language per EntityType / Entity, and Celery required (next release after 0.0.663)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **`EntityType.language` and `Entity.language`** (migration `0009_entity_and_type_default_language`): default language, resolved User > Entity > EntityType > `pt-pt`. `/api/me/` `language` is now the effective one, plus `own_language`; the public EntityType list carries `language`. See [Languages](../features/languages.md) | Backward compatible: both fields start empty, so nobody's language changes | `python manage.py migrate django_resaas` |
+| **`celery>=5.3` is a required dependency** (was the `notifications` extra) | Backward compatible: `django_resaas[notifications]` still resolves | Nothing; `pip install` brings Celery. A broker and a worker are still needed to deliver notifications |
+| **Fix: `dispatch_pending_notifications` on Postgres** - the batch selection used `select_for_update(skip_locked=True)` without a transaction and raised `TransactionManagementError` on every periodic run, so the recovery path never dispatched anything (SQLite tests never take that branch) | Bug fix | Nothing; pending/retry rows are picked up by the next Beat run after upgrading |
+
 ## Two shipped languages: pt-pt and en-us (next release after 0.0.662)
 
 | Change | Kind | What to do |

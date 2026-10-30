@@ -19,7 +19,7 @@ on Postgres, with a portable fallback on SQLite).
 import logging
 
 from django.conf import settings
-from django.db import connection
+from django.db import connection, transaction
 from django.utils import timezone
 
 from django_resaas.notifications.enums import OutboxStatus
@@ -119,7 +119,10 @@ class OutboxDispatcher:
         # from the atomic conditional UPDATE in try_dispatch(), this only
         # affects batch-selection efficiency, not safety.
         if connection.features.has_select_for_update_skip_locked:
-            with connection.cursor():
+            # select_for_update needs a transaction (a bare cursor is none:
+            # Postgres raised TransactionManagementError on every run); the
+            # lock lasts only while the ids are read
+            with transaction.atomic():
                 ids = list(
                     base_qs.select_for_update(skip_locked=True)
                     .order_by("priority", "scheduled_at")[:batch_size]

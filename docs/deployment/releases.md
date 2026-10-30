@@ -98,7 +98,7 @@ tripping the "already exists" check for whoever runs it next.
 |---|---|
 | Python | 3.10 - 3.14 (`requires-python = ">=3.10"`, set by the pinned Django 5.2) |
 | Django / DRF | `Django==5.2.10`, `djangorestframework==3.16.1` (pinned in `pyproject.toml`) |
-| Optional extras | `scaffold` (black), `server` (gunicorn), `notifications` (celery), `dev` (pytest, pytest-django, factory_boy) |
+| Optional extras | `scaffold` (black), `server` (gunicorn), `dev` (pytest, pytest-django, factory_boy). `celery` is a required dependency; the old `notifications` extra still resolves |
 
 Installations install the framework from GitHub at a ref (the reference application's
 `deploy.sh`: `pip install git+https://github.com/metanochava/django_resaas.git@<ref>`) or from

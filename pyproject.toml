@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django_resaas"
-version = "0.0.663"
+version = "0.0.664"
 description = "Django SAAS Framework"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -39,6 +39,9 @@ dependencies = [
   "django-cors-headers",
   "psycopg[binary]",
   "django-filter",
+  # django_resaas.notifications dispatches through Celery (notifications/tasks.py);
+  # the app is always installed, so Celery is required, not an extra
+  "celery>=5.3",
 ]
 
 [project.optional-dependencies]

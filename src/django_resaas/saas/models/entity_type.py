@@ -68,6 +68,18 @@ class EntityType(TimeModel):
         help_text='Default visual theme used by this entity type.'
     )
 
+    # default language of the type's Entities and users (User > Entity >
+    # EntityType, see User.get_effective_language); also the login screen's
+    # language before anyone signs in
+    language = models.ForeignKey(
+        'django_resaas.Language',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='entity_types',
+        help_text='Default language of this entity type.'
+    )
+
     layout_settings = models.ForeignKey(
         'django_resaas.LayoutSetting',
         null=True,
