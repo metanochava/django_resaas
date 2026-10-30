@@ -156,7 +156,8 @@ def test_the_framework_exposes_no_deploy_endpoint(path):
 
 ET = "/api/django_resaas/entitytypes/"
 # + "value": BaseSerializer's label/value output (the id)
-PUBLIC_FIELDS = {"id", "value", "name", "label", "icon", "ordem"}
+# language: the type's default language, which the login screen applies
+PUBLIC_FIELDS = {"id", "value", "name", "label", "icon", "ordem", "language"}
 
 
 def test_the_entity_type_catalogue_is_public_with_public_fields_only(bootstrap_tenant):

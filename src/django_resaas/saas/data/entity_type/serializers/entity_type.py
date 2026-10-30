@@ -93,10 +93,26 @@ class EntityTypePublicSerializer(BaseSerializer):
     """What anyone may see of the EntityType catalogue (the header's services
     menu, the login screen resolving the type from the domain): name, label,
     icon and order. Licence, UI configuration links and profiles stay with
-    EntityTypeSerializer (list_entitytype)."""
+    EntityTypeSerializer (list_entitytype). `language` is the type's default
+    language, the login screen's language before anyone signs in."""
 
     permanent_fields_files = ["icon"]
+    language = serializers.SerializerMethodField()
+
+    def get_language(self, obj):
+        language = obj.language
+        if not language:
+            return None
+        return {"id": language.id, "name": language.name, "code": language.code}
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # RepresentationMixin rewrites model FKs as {id, value, label}; the
+        # login screen applies this language, so it needs its name and code
+        data["language"] = self.get_language(instance)
+        data.pop("language_id", None)
+        return data
 
     class Meta:
         model = EntityType
-        fields = ["id", "name", "label", "icon", "ordem"]
+        fields = ["id", "name", "label", "icon", "ordem", "language"]

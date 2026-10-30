@@ -2,7 +2,6 @@ from django_resaas.saas.core.base.serializers import BaseSerializer
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.entity_type import EntityType
 from django_resaas.saas.models.user import User
-from django_resaas.saas.models.language import Language
 
 from rest_framework import serializers
 
@@ -10,6 +9,9 @@ from rest_framework import serializers
 class MeSerializer(BaseSerializer):
 
     language = serializers.SerializerMethodField()
+    # the user's own choice (id), null = inherits from the Entity/EntityType;
+    # `language` above is the effective one
+    own_language = serializers.SerializerMethodField()
     ui_config = serializers.SerializerMethodField()
     ui_sources = serializers.SerializerMethodField()
 
@@ -43,18 +45,12 @@ class MeSerializer(BaseSerializer):
         return obj.get_ui_sources(entity)
 
     def get_language(self, obj):
+        """The effective language: User > Entity > EntityType > platform
+        default (User.get_effective_language)."""
 
-        language = getattr(
-            obj,
-            "language",
-            None
-        )
+        entity, _entity_type = self._tenant_objects()
 
-        if not language:
-
-            language = Language.objects.filter(
-                code="pt-pt"
-            ).first()
+        language = obj.get_effective_language(entity)
 
         if not language:
             return None
@@ -64,6 +60,17 @@ class MeSerializer(BaseSerializer):
             "name": language.name,
             "code": language.code,
         }
+
+    def get_own_language(self, obj):
+        return obj.language_id
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # RepresentationMixin rewrites every model FK by name, which would put
+        # the user's OWN language (often null) back in "language": keep the
+        # effective one there (own_language holds the user's choice)
+        data["language"] = self.get_language(instance)
+        return data
 
     class Meta:
 
@@ -81,6 +88,7 @@ class MeSerializer(BaseSerializer):
             "is_verified_mobile",
             "password_changed_at",
             "language",
+            "own_language",
             "last_login",
 
             # Overrides pessoais em bruto (FK own-level, null = herdar

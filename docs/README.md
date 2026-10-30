@@ -30,6 +30,7 @@ backend framework.
 -   [Notifications (Email/SMS/WhatsApp)](features/notifications.md)
 -   [Transactional e-mails and their branding](features/emails.md)
 -   [Themes: templates and customized copies](features/themes.md)
+-   [Languages: default per EntityType, Entity and User](features/languages.md)
 -   [Model lifecycle events](features/lifecycle-events.md)
 -   [Public sites and their contact form](features/public-sites.md)
 -   [Creating a new resource](development/creating-resource.md)

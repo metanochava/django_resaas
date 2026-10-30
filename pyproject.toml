@@ -39,6 +39,9 @@ dependencies = [
   "django-cors-headers",
   "psycopg[binary]",
   "django-filter",
+  # django_resaas.notifications dispatches through Celery (notifications/tasks.py);
+  # the app is always installed, so Celery is required, not an extra
+  "celery>=5.3",
 ]
 
 [project.optional-dependencies]
