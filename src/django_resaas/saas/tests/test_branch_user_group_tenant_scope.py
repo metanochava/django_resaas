@@ -347,3 +347,68 @@ class TestNoSelfElevation:
         response = client.post(URL, {"branch": a["branch"].id, "user": other.id, "group": powerful.id})
 
         assert response.status_code == 201
+
+
+class TestEntityAdminMayDelegate:
+    """The CURRENT Entity's administrator - listed in Entity.admins AND acting
+    with a profile that administers the Entity (change_entity) - may give a
+    profile with permissions it lacks, itself included
+    (group_access_service.is_entity_admin). Either condition alone is not
+    enough, and it never reaches another Entity."""
+
+    @pytest.fixture
+    def entity_admin(self, two_tenants):
+        from django.contrib.auth.models import Permission
+
+        a, b = two_tenants
+        admin_group = _entity_group(a["entity"], "A Admin profile")
+        admin_group.permissions.add(*Permission.objects.filter(codename__in=(
+            "add_branchusergroup", "change_branchusergroup", "list_branchusergroup",
+            "view_branchusergroup", "change_entity",
+        )))
+        assert not admin_group.permissions.filter(codename="change_entitytype").exists()
+        BranchUserGroup.objects.create(user=a["member"], branch=a["branch"], group=admin_group, state="Active")
+
+        powerful = _entity_group(a["entity"], "A Radiologist")
+        powerful.permissions.add(Permission.objects.get(codename="delete_branch"))
+        return a, b, admin_group, powerful
+
+    def test_listed_admin_gives_itself_an_unheld_profile(self, entity_admin):
+        a, _b, admin_group, powerful = entity_admin
+        a["entity"].admins.add(a["member"])
+        client = _client(a["member"], a["entity"], a["branch"], admin_group)
+
+        response = client.post(f"/api/django_resaas/users/{a['member'].id}/addGroup/", {"group": powerful.id})
+
+        assert response.status_code == 202, response.json()
+        assert BranchUserGroup.objects.filter(user=a["member"], group=powerful).exists()
+
+    def test_admin_profile_without_the_admins_column_is_refused(self, entity_admin):
+        a, _b, admin_group, powerful = entity_admin
+        assert not a["entity"].admins.filter(id=a["member"].id).exists()
+        client = _client(a["member"], a["entity"], a["branch"], admin_group)
+
+        response = client.post(f"/api/django_resaas/users/{a['member'].id}/addGroup/", {"group": powerful.id})
+
+        assert response.status_code == 403
+        assert response.json()["error"]["code"] == "permission_not_held"
+
+    def test_admins_column_with_a_lesser_profile_is_refused(self, entity_admin):
+        a, _b, _admin_group, powerful = entity_admin
+        a["entity"].admins.add(a["member"])
+        # acting with the plain member profile (no change_entity)
+        client = _client(a["member"], a["entity"], a["branch"], a["group"])
+
+        response = client.post(URL, {"branch": a["branch"].id, "user": a["member"].id, "group": powerful.id})
+
+        assert response.status_code == 403
+
+    def test_admin_of_another_entity_is_not_exempt_here(self, entity_admin):
+        a, b, admin_group, powerful = entity_admin
+        # listed as admin of B only, acting in A
+        b["entity"].admins.add(a["member"])
+        client = _client(a["member"], a["entity"], a["branch"], admin_group)
+
+        response = client.post(f"/api/django_resaas/users/{a['member'].id}/addGroup/", {"group": powerful.id})
+
+        assert response.status_code == 403

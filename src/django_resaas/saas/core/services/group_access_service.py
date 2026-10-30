@@ -39,6 +39,31 @@ def is_platform(request):
     return isPermited(request=request, role=PLATFORM_PERMISSION)
 
 
+# the capability of the Entity administrator profile (Admin): administers the
+# Entity. Never the profile's name - authorization uses permissions.
+ENTITY_ADMIN_PERMISSION = "change_entity"
+
+
+def is_entity_admin(request):
+    """The caller administers the CURRENT Entity: listed in Entity.admins (the
+    entity's "Admins") AND its active group may administer the Entity
+    (change_entity). Both are needed: the column alone (a user acting with a
+    lesser profile) or the profile alone (an Admin profile in an Entity whose
+    Admins do not list the user) is not enough."""
+
+    from django_resaas.saas.models.entity import Entity
+
+    entity_id = getattr(request, "entity_id", None)
+    user = getattr(request, "user", None)
+    if not entity_id or user is None or not getattr(user, "is_authenticated", False):
+        return False
+
+    if not Entity.objects.filter(id=entity_id, admins=user).exists():
+        return False
+
+    return isPermited(request=request, role=ENTITY_ADMIN_PERMISSION)
+
+
 def visible_groups(request, queryset):
     """Every group at platform level; otherwise the current Entity's groups."""
 
@@ -105,9 +130,14 @@ def check_delegation(request, changed_permissions):
     Platform level (change_entitytype - Root by default) is exempt: it already
     manages every profile (check_group_changeable) and must be able to grant
     any permission, including ones its own group lacks - e.g. permissions a
-    module created after Root was set up."""
+    module created after Root was set up.
 
-    if is_platform(request):
+    The current Entity's administrator is exempt too (is_entity_admin: listed
+    in the Entity's Admins AND acting with a profile that administers the
+    Entity): it gives the Entity's profiles - the health staff ones, for
+    example - to its people and to itself, inside its own Entity only."""
+
+    if is_platform(request) or is_entity_admin(request):
         return
 
     held = held_codenames(request)
