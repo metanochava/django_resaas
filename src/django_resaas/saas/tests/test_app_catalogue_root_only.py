@@ -133,3 +133,19 @@ def test_admin_loses_every_lib_permission_and_is_not_platform_level(bootstrap_te
     root = set(Group.objects.get(name="Root").permissions.values_list("codename", flat=True))
     assert {"change_entitytype", "view_scaffold", "change_scaffold", "list_app"} <= root
 
+
+
+def test_root_lists_modules_in_production_but_cannot_create_or_delete(bootstrap_tenant, settings):
+    # production runs with DEBUG off: the list_app page still needs the
+    # module list; scaffolding/deleting source code stays dev only
+    settings.DEBUG = False
+    tenant = bootstrap_tenant("appcat-prod")
+    client = tenant["client"]
+
+    response = client.get(SCHEMA)
+    assert response.status_code == 200
+    names = [row["name"] for row in response.json()["apps"]]
+    assert names
+
+    assert client.post(SCHEMA, {"name": "billingprod"}, format="json").status_code == 403
+    assert client.delete(f"{SCHEMA}billingprod/").status_code == 403

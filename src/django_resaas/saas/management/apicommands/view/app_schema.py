@@ -713,12 +713,14 @@ class AppSchemaAPIView(ActionPermissionMixin, ExplicitAccessMixin, ModelViewSet)
     A = []
     serializer_class = None
 
+    # Creating/deleting a module writes the project's source code: dev only.
+    # Listing only reads settings.MY_APPS, so it works everywhere (the
+    # list_app page builds its cards from it, also in production).
     def _ensure_dev(self, request):
         if not settings.DEBUG:
             raise PermissionDenied("module_creation_disabled")
 
     def list(self, request):
-        self._ensure_dev(request)
         result = []
 
         for app in settings.MY_APPS:
