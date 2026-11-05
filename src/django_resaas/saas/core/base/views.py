@@ -184,6 +184,21 @@ def build_search_query(Model, search, request=None):
 # 🧩 VIEW REGISTRY
 # -----------------------------------
 
+def _app_catalogue_name(app_label):
+    """The App-catalogue name (AppConfig.name, i.e. the MY_APPS entry such as
+    "django_resaas.saas") for a given app_label. The two differ only for the
+    framework's own apps packaged inside django_resaas (saas -> label
+    "django_resaas", notifications -> label "notifications"); for every other
+    module name == label, so this is a no-op there. Falls back to the label
+    unchanged when no AppConfig matches it."""
+    from django.apps import apps as django_apps
+
+    for cfg in django_apps.get_app_configs():
+        if cfg.label == app_label:
+            return cfg.name
+    return app_label
+
+
 def register_view(name=None, module=None):
     def decorator(cls):
         key = name or cls.__name__.lower().replace('apiview', '') + 's'
@@ -453,14 +468,23 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
             return fail( request,  f"{request.user}, you are not associated with any entity.",  status=403  )
 
         if module:
+            # `module` is the app_label (the VIEW_REGISTRY key / URL mount, e.g.
+            # "django_resaas"). The App catalogue and EntityApp rows store the
+            # AppConfig.name (the MY_APPS entry, e.g. "django_resaas.saas"),
+            # which differs from the label for the framework's own apps packaged
+            # inside django_resaas (saas, notifications). Match either form so
+            # the lookup works whether a module was catalogued by its name
+            # (production, the canonical form) or by its label; for business
+            # modules name == label and the two collapse to one.
+            app_name = _app_catalogue_name(module)
             ativo = EntityApp.objects.filter(
                 entity__id=request.entity_id,
-                app__name=module,
+                app__name__in={app_name, module},
                 state="Active"
             ).exists()
 
             if not ativo:
-                return fail(request, f"Module <b>'{module}'</b> is not active.", status=403)
+                return fail(request, f"Module <b>'{app_name}'</b> is not active.", status=403)
 
             # entitlements: an active module may still be outside what this
             # installation/tenant is entitled to (AND, never OR)

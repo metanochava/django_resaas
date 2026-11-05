@@ -21,17 +21,26 @@ FRAMEWORK_MODULES = ("django_resaas", "notifications")
 
 
 def default_modules():
-    """App labels activated for a new EntityType: the framework's own apps
+    """App names activated for a new EntityType: the framework's own apps
     (the installed ones) plus the application's settings.RESAAS_DEFAULT_MODULES
-    (e.g. ["hr"]). The framework never names a business module itself."""
+    (e.g. ["hr"]). The framework never names a business module itself.
+
+    Returns the AppConfig.name (the MY_APPS entry, e.g. "django_resaas.saas"),
+    which is what the App catalogue stores and what BaseAPIView's module guard
+    looks up (via the view's app_label -> name). For business modules
+    name == label, so only the framework's own apps (saas, notifications),
+    whose label differs from their dotted name, are affected."""
     from django.apps import apps
     from django.conf import settings
 
-    installed = {config.label for config in apps.get_app_configs()}
-    names = [label for label in FRAMEWORK_MODULES if label in installed]
-    for label in getattr(settings, "RESAAS_DEFAULT_MODULES", []) or []:
-        if label not in names:
-            names.append(label)
+    by_label = {config.label: config.name for config in apps.get_app_configs()}
+    names = [by_label[label] for label in FRAMEWORK_MODULES if label in by_label]
+    for entry in getattr(settings, "RESAAS_DEFAULT_MODULES", []) or []:
+        # an application may list a module by its label or its dotted name;
+        # store the catalogue name either way
+        name = by_label.get(entry, entry)
+        if name not in names:
+            names.append(name)
     return names
 
 
