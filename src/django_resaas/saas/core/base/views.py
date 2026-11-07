@@ -20,6 +20,8 @@ from django_resaas.saas.core.base.field_access import (
 )
 from django_resaas.saas.core.base.response_mixin import ResaasResponseMixin
 from django_resaas.saas.core.utils.translate import Translate
+from django_resaas.saas.core.utils.status_tone import status_tone
+from django.utils.html import format_html
 from django_resaas.saas.core.utils import ok, fail  # noqa
 from django_resaas.saas.core.entitlements.service import has_module
 from django_resaas.saas.core.base.registry import VIEW_REGISTRY
@@ -1096,6 +1098,17 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
                         str(value)
                         if value
                         else "-"
+                    )
+
+                elif field.name == "state" and value not in (None, ""):
+
+                    # the same colours as the frontend (utils/status.js)
+                    display_method = getattr(instance, "get_state_display", None)
+                    label = str(display_method()) if display_method else str(value)
+                    value = format_html(
+                        '<span class="state state-{}">{}</span>',
+                        status_tone(value, label),
+                        Translate.tdc(request, label),
                     )
 
                 elif field.choices:
