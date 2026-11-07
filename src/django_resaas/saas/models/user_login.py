@@ -18,6 +18,11 @@ class UserLogin(TimeModel):
     # outstanding/blacklisted token rows say whether it is still active)
     token_jti = models.CharField(max_length=64, null=True, blank=True, db_index=True)
 
+    # sessions started from one another by single sign-on, across the domains
+    # of one browser (core/services/sso_service.py): signing out ends them
+    # together. Null for a session no single sign-on touched.
+    sso_family = models.UUIDField(null=True, blank=True, db_index=True)
+
     class Meta:
         permissions = ()
 

@@ -227,3 +227,92 @@ class TestRedirectCheck:
         response = APIClient().get("/api/sso/redirect_check/", {"redirect_uri": redirect_uri})
         assert response.status_code == 400
         assert response.data["error"]["code"] == "sso_invalid_redirect"
+
+
+ADOPT = "https://auth.mytech.co.mz/#/sso/adopt"
+
+
+def _carry(client, redirect_uri=CALLBACK, **extra):
+    """client's session -> a new session on another domain (an APIClient)."""
+    issued, verifier = _code(client, redirect_uri)
+    body = {"code": issued.data["code"], "code_verifier": verifier, "redirect_uri": redirect_uri, **extra}
+    response = APIClient(raise_request_exception=False).post("/api/sso/token/", body, format="json")
+    assert response.status_code == 202, response.data
+    carried = APIClient(raise_request_exception=False)
+    carried.credentials(HTTP_AUTHORIZATION=f"Bearer {response.data['tokens']['access']}")
+    carried.refresh = response.data["tokens"]["refresh"]
+    return carried
+
+
+def _refresh_works(client):
+    return APIClient().post("/api/refresh_token/", {"refresh": client.refresh}, format="json").status_code in (200, 202)
+
+
+class TestSignOutEverywhere:
+    def test_signing_out_on_any_domain_ends_every_domain_of_the_browser(self):
+        user = _account()
+        client_a = _sign_in(user)             # local login on a client domain
+        central = _carry(client_a, ADOPT)     # handed over to the central one
+        client_b = _carry(central)            # another domain, silently
+        other_device = _sign_in(user)         # unrelated: another device
+
+        assert len({UserLogin.objects.get(token_jti=jti).sso_family for jti in (
+            _jti(client_a), _jti(central), _jti(client_b))}) == 1
+
+        response = client_b.post("/api/sso/logout/", {}, format="json")
+        assert response.status_code == 202, response.data
+        assert response.data["ended"] == 3
+
+        assert not any(_refresh_works(c) for c in (client_a, central, client_b))
+        assert _refresh_works(other_device)
+        assert AuditLog.objects.filter(action=sso_service.SIGN_OUT).exists()
+
+    def test_after_signing_out_the_central_access_token_cannot_start_a_session(self):
+        user = _account()
+        central = _sign_in(user)
+        _carry(central).post("/api/sso/logout/", {}, format="json")
+
+        # the central access token still lives a few minutes
+        issued, _ = _code(central)
+        assert issued.status_code == 401
+        assert issued.data["error"]["code"] == "sso_session_ended"
+
+    def test_a_session_without_single_sign_on_ends_alone(self):
+        user = _account()
+        client = _sign_in(user)
+        other = _sign_in(user)
+
+        response = client.post("/api/sso/logout/", {}, format="json")
+        assert response.data["ended"] == 1
+        assert not _refresh_works(client)
+        assert _refresh_works(other)
+
+    def test_adopting_brings_the_replaced_central_session_into_the_family(self):
+        user = _account()
+        old_central = _sign_in(user)
+        client_b = _carry(old_central)        # B came from the old central session
+        client_a = _sign_in(user)             # a local login elsewhere
+        new_central = _carry(client_a, ADOPT, previous_refresh=old_central.refresh)
+
+        new_central.post("/api/sso/logout/", {}, format="json")
+
+        assert not any(_refresh_works(c) for c in (old_central, client_b, client_a, new_central))
+
+    @pytest.mark.parametrize("previous", ["not-a-token", "", None])
+    def test_an_invalid_previous_session_is_ignored(self, previous):
+        user = _account()
+        _carry(_sign_in(user), ADOPT, previous_refresh=previous)
+
+    def test_another_users_previous_session_is_never_joined(self):
+        user, intruder = _account(), _account("bruno")
+        intruder_client = _sign_in(intruder)
+        central = _carry(_sign_in(user), ADOPT, previous_refresh=intruder_client.refresh)
+
+        central.post("/api/sso/logout/", {}, format="json")
+        assert _refresh_works(intruder_client)
+
+
+def _jti(client):
+    from rest_framework_simplejwt.tokens import RefreshToken
+
+    return RefreshToken(client.refresh)["jti"]

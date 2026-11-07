@@ -8,6 +8,7 @@ minutes). Nothing about location is inferred (no IP geolocation) - only what the
 browser itself sent (its user agent).
 """
 import re
+import uuid
 
 from django.utils import timezone
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
@@ -42,8 +43,9 @@ def describe_device(user_agent):
     return " · ".join(part for part in (browser, system) if part)
 
 
-def record_login(user, request, tokens):
-    """Remember this sign-in: who, when, on what device, and which session."""
+def record_login(user, request, tokens, sso_family=None):
+    """Remember this sign-in: who, when, on what device, and which session
+    (`sso_family`: the single sign-on family it joins, if any)."""
     agent = request.META.get("HTTP_USER_AGENT", "") if request is not None else ""
 
     return UserLogin.objects.create(
@@ -51,6 +53,7 @@ def record_login(user, request, tokens):
         dispositivo=describe_device(agent),
         info=agent[:500],
         token_jti=RefreshToken(tokens["refresh"])["jti"],
+        sso_family=sso_family,
     )
 
 
@@ -113,3 +116,58 @@ def terminate_others(user, current_sid):
         count += 1
 
     return count
+
+
+# ---------------------------------------------------------------- single sign-on
+# Sessions started from one another by single sign-on (one browser, several
+# domains) share a family id on their UserLogin rows, so signing out on any of
+# those domains ends all of them - never the user's sessions on other devices.
+
+def sso_family_of(user, jti):
+    """The family of session `jti` (given one when it had none yet); a new id
+    when the session is unknown (a token issued before sessions)."""
+    login = UserLogin.objects.filter(user=user, token_jti=jti).first() if jti else None
+
+    if login is None:
+        return uuid.uuid4()
+
+    if login.sso_family is None:
+        login.sso_family = uuid.uuid4()
+        login.save(update_fields=["sso_family"])
+
+    return login.sso_family
+
+
+def join_sso_family(user, family, jti):
+    """Bring session `jti` - and its whole family - into `family`."""
+    login = UserLogin.objects.filter(user=user, token_jti=jti).first()
+
+    if login is None or login.sso_family == family:
+        return
+
+    if login.sso_family is None:
+        UserLogin.objects.filter(pk=login.pk).update(sso_family=family)
+    else:
+        UserLogin.objects.filter(user=user, sso_family=login.sso_family).update(sso_family=family)
+
+
+def terminate_sso_family(user, jti):
+    """End session `jti` and every session of its family; returns how many."""
+    login = UserLogin.objects.filter(user=user, token_jti=jti).first()
+
+    if login is None or login.sso_family is None:
+        return int(terminate(user, jti))
+
+    jtis = UserLogin.objects.filter(user=user, sso_family=login.sso_family).values_list("token_jti", flat=True)
+    count = 0
+
+    for token in _active_tokens(user).filter(jti__in=list(jtis)):
+        BlacklistedToken.objects.get_or_create(token=token)
+        count += 1
+
+    return count
+
+
+def session_ended(jti):
+    """Whether session `jti` has been ended (its refresh token blacklisted)."""
+    return bool(jti) and BlacklistedToken.objects.filter(token__jti=jti).exists()

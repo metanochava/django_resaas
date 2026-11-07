@@ -17,7 +17,10 @@ Rules:
   its redirect_uri and PKCE challenge, and works once (row lock + used_at);
 - redeeming it mints a new session (refresh token + UserLogin) on the target
   domain, listed and ended like any other session. Tenant context (Entity,
-  Branch, Group) is NOT carried: each domain chooses and validates its own.
+  Branch, Group) is NOT carried: each domain chooses and validates its own;
+- sessions started from one another share a family (session_service), and
+  signing out (`sign_out`) ends the whole family: no domain of that browser
+  signs itself in again. Sessions on other devices are not touched.
 """
 import base64
 import hashlib
@@ -37,6 +40,7 @@ from django_resaas.saas.models.sso_authorization_code import SsoAuthorizationCod
 CODE_TTL = 60  # seconds
 HASH_SALT = "resaas.sso.code"
 SIGN_IN = "SSO_SIGN_IN"
+SIGN_OUT = "SSO_SIGN_OUT"
 
 # RFC 7636: the S256 challenge is base64url(sha256(verifier)) without padding
 # (43 chars); the verifier is 43-128 unreserved characters
@@ -86,6 +90,12 @@ def issue_code(user, redirect_uri, code_challenge, request=None):
     if not isinstance(code_challenge, str) or not _CHALLENGE.match(code_challenge):
         raise SsoError("sso_invalid_request", "The sign-in request is not valid.")
 
+    source_jti = session_service.current_session_id(request) or ""
+    # an access token outlives its session by a few minutes: a session that
+    # was signed out of never starts another one
+    if session_service.session_ended(source_jti):
+        raise SsoError("sso_session_ended", "Your session has ended. Sign in again.", 401)
+
     now = timezone.now()
     # spent and expired codes of this user have no use left
     SsoAuthorizationCode.objects.filter(user=user, expires_at__lt=now).delete()
@@ -96,23 +106,16 @@ def issue_code(user, redirect_uri, code_challenge, request=None):
         code_hash=_hash(code),
         redirect_uri=redirect_uri,
         code_challenge=code_challenge,
-        source_jti=session_service.current_session_id(request) or "",
+        source_jti=source_jti,
         expires_at=now + timedelta(seconds=CODE_TTL),
     )
     return code
 
 
-def _source_session_ended(row):
-    if not row.source_jti:
-        return False
-    from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
-
-    return BlacklistedToken.objects.filter(token__jti=row.source_jti).exists()
-
-
 def redeem(code, code_verifier, redirect_uri, request=None):
-    """Spend a code and return its user (the caller mints the new session).
-    Every failure is the same answer, so nothing is learned about a code."""
+    """Spend a code; returns (user, source_jti) - the caller mints the new
+    session in the family of `source_jti` (`family_for`). Every failure is the
+    same answer, so nothing is learned about a code."""
     invalid = SsoError("sso_code_invalid", "This sign-in link is no longer valid. Sign in again.", 401)
 
     if not all(isinstance(value, str) for value in (code, code_verifier, redirect_uri)):
@@ -139,7 +142,7 @@ def redeem(code, code_verifier, redirect_uri, request=None):
             constant_time_compare(row.redirect_uri, redirect_uri)
             and constant_time_compare(row.code_challenge, challenge_for(code_verifier))
             and row.user.is_active
-            and not _source_session_ended(row)
+            and not session_service.session_ended(row.source_jti)
         )
 
     if not valid:
@@ -152,4 +155,36 @@ def redeem(code, code_verifier, redirect_uri, request=None):
         request=request,
         details={"origin": redirect_origin(redirect_uri)},
     )
-    return row.user
+    return row.user, row.source_jti
+
+
+def previous_session(user, refresh):
+    """The jti of `refresh` when it is a live session of `user` (the session
+    a domain had before adopting another one), else None. Never fails."""
+    if not isinstance(refresh, str) or not refresh:
+        return None
+
+    from rest_framework_simplejwt.exceptions import TokenError
+    from rest_framework_simplejwt.settings import api_settings
+    from rest_framework_simplejwt.tokens import RefreshToken
+
+    try:
+        token = RefreshToken(refresh)  # signature, expiry and blacklist
+    except TokenError:
+        return None
+
+    if str(token.get(api_settings.USER_ID_CLAIM)) != str(getattr(user, api_settings.USER_ID_FIELD)):
+        return None
+    return token.get("jti")
+
+
+def sign_out(user, request):
+    """End the request's session and every session of its single sign-on
+    family; returns how many were ended."""
+    jti = session_service.current_session_id(request)
+    if not jti:
+        return 0
+
+    ended = session_service.terminate_sso_family(user, jti)
+    audit_service.record(action=SIGN_OUT, target=user, actor=user, request=request, details={"ended": ended})
+    return ended
