@@ -161,6 +161,10 @@ them, on top of WeasyPrint:
 `BaseAPIView`'s built-in PDF actions (per-record and list export, gated by the `pdf_<model>`/
 `pdf_list_<model>` permissions — see [Schema 1.0 contract](../api/schema-contract.md#shape)) are
 what most models use these through; an application only needs to supply its own template.
+The default list template (`django_resaas/pdf/list.html`) shows `state` as a coloured,
+translated badge (`saas/core/utils/status_tone.py`: Active green, Inactive red, other values
+their own tone - the same map as quasar_resaas `utils/status.js`); the details template leaves
+`state` out.
 Application-specific layout belongs in the app's own templates — reuse the utilities above rather
 than duplicating QR/barcode generation per app.
 
