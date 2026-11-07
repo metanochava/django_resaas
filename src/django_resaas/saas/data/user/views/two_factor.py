@@ -121,10 +121,10 @@ class _Public(ResaasResponseMixin, generics.GenericAPIView):
 
         return service.read_challenge(challenge if isinstance(challenge, str) else "", purpose)
 
-    def session(self, request, user, extra=None):
+    def session(self, request, user, extra=None, sso_family=None):
         tokens = user.tokens()
         guest_profile_service.ensure_guest_for_user(user)
-        session_service.record_login(user, request, tokens)
+        session_service.record_login(user, request, tokens, sso_family=sso_family)
 
         return Response(
             {

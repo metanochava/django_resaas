@@ -8,6 +8,7 @@ without typing the password again.
 
 Code: `saas/core/services/sso_service.py`, `saas/data/user/views/sso.py`,
 `saas/models/sso_authorization_code.py` (migration `0010_sso_authorization_code`),
+`saas/core/services/session_service.py` (`UserLogin.sso_family`, migration `0011_userlogin_sso_family`),
 `saas/data/user/views/registration_throttles.py` (`SsoTokenThrottle`).
 Tests: `saas/tests/test_sso.py`.
 Frontend: quasar_resaas `services/sso.js`, `pages/auth/SsoPage.vue`, `router/authGuard.js`,
@@ -22,7 +23,8 @@ needs. One domain is **central** (the frontend's `SSO_URL`, for example
 | Endpoint | Access | Body / query | Answer |
 |---|---|---|---|
 | `POST /api/sso/code/` | PROTECTED (`IsAuthenticated`) | `{redirect_uri, code_challenge}` | `{code, expires_in}` |
-| `POST /api/sso/token/` | PUBLIC (`PUBLIC_BY_DESIGN`), throttled | `{code, code_verifier, redirect_uri}` | the same body as `POST /api/login/` (`id`, `email`, `username`, `mobile`, `tokens`, ...) |
+| `POST /api/sso/token/` | PUBLIC (`PUBLIC_BY_DESIGN`), throttled | `{code, code_verifier, redirect_uri, previous_refresh?}` | the same body as `POST /api/login/` (`id`, `email`, `username`, `mobile`, `tokens`, ...) |
+| `POST /api/sso/logout/` | PROTECTED (`IsAuthenticated`) | `{}` | `{ended}`: how many sessions were ended |
 | `GET /api/sso/redirect_check/?redirect_uri=` | PUBLIC (`PUBLIC_BY_DESIGN`), throttled, read-only | `redirect_uri` | `{allowed: true}` |
 
 ## Rules
@@ -50,6 +52,19 @@ needs. One domain is **central** (the frontend's `SSO_URL`, for example
   (`session_service.record_login`), so the session appears in `GET /api/sessions/`
   and can be ended like any other. The event is audited as `SSO_SIGN_IN` (details:
   the destination origin).
+- **One family per browser.** A session minted by `sso/token/` joins the family
+  (`UserLogin.sso_family`) of the session the code came from. `previous_refresh`
+  (optional) is the session the domain is replacing (the central domain adopting a
+  client's local login): when it is a live session of the same user, its whole family
+  is merged into the new one; otherwise it is ignored.
+- **Signing out ends the family.** `sso/logout/` ends the request's session and every
+  session of its family (audited as `SSO_SIGN_OUT`, details: `ended`), so no domain of
+  that browser signs itself in again. Sessions on other devices are not touched. A
+  session no single sign-on touched ends alone. To leave one domain only, the frontend
+  calls the plain `POST /api/logout/` and stops that domain signing itself in
+  (quasar_resaas routing docs, "Sign out of this site only").
+- **An ended session issues nothing.** `sso/code/` refuses an access token whose
+  session has been ended (it outlives it by a few minutes): 401 `sso_session_ended`.
 - **No tenant context.** Entity, Branch and Group are not carried: each domain
   chooses and validates its own (`X-RESAAS-Context`).
 
@@ -72,14 +87,16 @@ cache (e.g. Redis).
 | `sso_invalid_redirect` | 400 | `redirect_uri` is not a trusted destination |
 | `sso_invalid_request` | 400 | `code_challenge` is missing or malformed |
 | `sso_code_invalid` | 401 | the code cannot be redeemed (any reason) |
+| `sso_session_ended` | 401 | `sso/code/` with the access token of a session that was ended |
 
 Messages are translated (`saas/lang/ptpt.py`).
 
 ## Limits
 
-- Signing out on one domain ends that domain's session only. To end every session,
-  use the account's sessions list (`POST /api/sessions/terminate_others/` or
-  `POST /api/sessions/<jti>/terminate/`). An access token already issued lives out its
-  few minutes.
+- Signing out ends the sessions of that browser's family; sessions on other devices
+  stay (end them from the account's sessions list: `POST /api/sessions/terminate_others/`
+  or `POST /api/sessions/<jti>/terminate/`). A tab already open on another domain keeps
+  its access token for its last few minutes (`ACCESS_TOKEN_LIFETIME`); it cannot be
+  renewed, so the tab is then signed out.
 - The concurrency test (two simultaneous redemptions) needs a server database; it is
   skipped on SQLite.
