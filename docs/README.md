@@ -23,6 +23,7 @@ backend framework.
 -   [Permissions](security/permissions.md)
 -   [Registration (sign-up)](security/registration.md)
 -   [Password reset (forgot my password)](security/password-reset.md)
+-   [Single sign-on between domains](security/single-sign-on.md)
 -   [Field-level permissions](security/field-permissions.md)
 -   [Entitlements (features, capacities, modules)](security/entitlements.md)
 -   [Soft delete](features/soft-delete.md)

@@ -1681,4 +1681,11 @@ key_value = {
     "Point your phone's camera at the code": 'Aponte a câmara do telemóvel para o código',
     "No website or location registered: add the Entity's website or the Branch's address to show the QR code.": 'Sem site nem localização registados: adicione o site da Entidade ou a morada da Sucursal para mostrar o código QR.',
     'Invalid icon size.': 'Tamanho de ícone inválido.',
+    "This site is not allowed to use the shared sign-in.": "Este site não está autorizado a usar o início de sessão partilhado.",
+    "The sign-in request is not valid.": "O pedido de início de sessão não é válido.",
+    "This sign-in link is no longer valid. Sign in again.": "Esta ligação de início de sessão já não é válida. Inicie sessão novamente.",
+    "Signing you in": "A iniciar a sessão",
+    "The shared sign-in could not be completed.": "Não foi possível concluir o início de sessão partilhado.",
+    "Continue with single sign-on": "Continuar com início de sessão único",
+    "Use the account you are already signed in with on another site": "Usar a conta com que já iniciou sessão noutro site",
 }
