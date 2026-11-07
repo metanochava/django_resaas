@@ -90,3 +90,11 @@ class PasswordResetThrottle(_ByAddress):
     scope = "password_reset"
     setting = "RESAAS_PASSWORD_RESET_THROTTLE_RATE"
     default = "20/hour"
+
+
+class SsoTokenThrottle(_ByAddress):
+    """Single sign-on: exchanging a code for a session (sso/token/)."""
+
+    scope = "sso_token"
+    setting = "RESAAS_SSO_TOKEN_THROTTLE_RATE"
+    default = "60/hour"

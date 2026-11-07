@@ -48,6 +48,8 @@ PUBLIC_BY_DESIGN = {
     "LoginTwoFactorAPIView",
     "LoginTwoFactorSetupAPIView",
     "LoginTwoFactorSetupConfirmAPIView",
+    "SsoTokenAPIView",  # single sign-on: single-use code + PKCE verifier -> session (throttled)
+    "SsoRedirectCheckAPIView",  # single sign-on: is a redirect_uri trusted (read-only, throttled)
 }
 
 # GET handlers that write only to a temp file / cache, never to the database

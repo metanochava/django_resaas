@@ -30,6 +30,7 @@ from rest_framework import routers
 from django_resaas.saas.data.user.views.login import LoginAPIView, TokenRefreshView
 from django_resaas.saas.data.user.views.logins import LoginsAPIView
 from django_resaas.saas.data.user.views.logout import LogoutAPIView
+from django_resaas.saas.data.user.views.sso import SsoCodeAPIView, SsoRedirectCheckAPIView, SsoTokenAPIView
 from django_resaas.saas.data.user.views.me import MeAPIView
 from django_resaas.saas.data.user.views.verify_email import VerifyEmail
 from django_resaas.saas.data.user.views.change_password_email import ChangePasswordEmailAPIView
@@ -235,6 +236,9 @@ urlpatterns = [
     path("login/two_factor/", LoginTwoFactorAPIView.as_view(), name="login_two_factor"),
     path("login/two_factor/setup/", LoginTwoFactorSetupAPIView.as_view(), name="login_two_factor_setup"),
     path("login/two_factor/setup/confirm/", LoginTwoFactorSetupConfirmAPIView.as_view(), name="login_two_factor_setup_confirm"),
+    path("sso/code/", SsoCodeAPIView.as_view(), name="sso_code"),
+    path("sso/token/", SsoTokenAPIView.as_view(), name="sso_token"),
+    path("sso/redirect_check/", SsoRedirectCheckAPIView.as_view(), name="sso_redirect_check"),
     path("sessions/", SessionsAPIView.as_view(), name="sessions"),
     path("sessions/terminate_others/", TerminateOtherSessionsAPIView.as_view(), name="sessions_terminate_others"),
     path("sessions/<str:jti>/terminate/", TerminateSessionAPIView.as_view(), name="session_terminate"),
