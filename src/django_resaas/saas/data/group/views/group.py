@@ -75,6 +75,7 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
         "permissions_csv": "view_group",
         "permissions_pdf": "view_group",
         "import_permissions": "change_group",
+        "menu_visibility": "change_group",
     }
 
     def initial(self, request, *args, **kwargs):
@@ -345,6 +346,36 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
             request, self.get_object(), request.FILES.get("file"), request.data.get("mode") or "add",
         )
         return Response(summary, status=status.HTTP_200_OK)
+
+    @resaas_action(detail=True, methods=["POST"], label="Show module in menu", icon="visibility",
+                   permission="change_group", visible=False)
+    def menu_visibility(self, request, id, *args, **kwargs):
+        """{"app_label": "saude", "visible": false}: whether this profile's
+        menu shows the module (UserAPIView.menus). Only the menu - the
+        permissions are unchanged. Same rules as changing its permissions."""
+        from django.apps import apps as django_apps
+
+        group = self.get_changeable_object()
+        app_label = str(request.data.get("app_label") or "").strip()
+        visible = request.data.get("visible")
+
+        if not isinstance(visible, bool):
+            raise ResaasAPIException("visible must be true or false.", code="invalid_visible",
+                                     status_code=status.HTTP_400_BAD_REQUEST)
+        if app_label not in {config.label for config in django_apps.get_app_configs()}:
+            raise ResaasAPIException("Unknown module.", code="unknown_module",
+                                     status_code=status.HTTP_400_BAD_REQUEST)
+
+        with transaction.atomic():
+            group = Group.objects.select_for_update().get(pk=group.pk)
+            hidden = [label for label in (group.hidden_menu_apps or []) if label != app_label]
+            if not visible:
+                hidden.append(app_label)
+            group.hidden_menu_apps = sorted(set(hidden))
+            group.save(update_fields=["hidden_menu_apps"])
+
+        return Response({"id": str(group.id), "hidden_menu_apps": group.hidden_menu_apps},
+                        status=status.HTTP_200_OK)
 
     @resaas_action(
         detail=True,

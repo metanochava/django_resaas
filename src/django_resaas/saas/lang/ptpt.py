@@ -1694,4 +1694,9 @@ key_value = {
     "The shared sign-in could not be completed.": "Não foi possível concluir o início de sessão partilhado.",
     "Continue with single sign-on": "Continuar com início de sessão único",
     "Use the account you are already signed in with on another site": "Usar a conta com que já iniciou sessão noutro site",
+    "Show module in menu": "Mostrar módulo no menu",
+    "Shown in the menu of this profile. Click to hide it.": "Visível no menu deste perfil. Clique para o esconder.",
+    "Hidden from the menu of this profile. Click to show it.": "Escondido do menu deste perfil. Clique para o mostrar.",
+    "visible must be true or false.": "visible deve ser verdadeiro ou falso.",
+    "Unknown module.": "Módulo desconhecido.",
 }

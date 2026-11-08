@@ -149,3 +149,37 @@ A module's migrations are its own. The framework ships its own
 (`django_resaas`, `notifications`), and a module depends on them by their
 shipped names, e.g. `("django_resaas", "0001_initial")`. See
 [Upgrading](../deployment/upgrading.md).
+
+## Sidebar menu (`<app>/sidebar.py`)
+
+`GET /api/django_resaas/users/<id>/menus/` (`UserAPIView.menus`) reads `ALL`
+from the `sidebar.py` of every module that is active and entitled for the
+Entity type. It keeps only what the selected profile (BranchUserGroup) may
+see. Each entry of `ALL` is one of:
+
+- **a group:** `{"MENU", "ICON", "SUBMENUS": [...]}`. Each submenu item has
+  `menu`, `icon`, `route` and `role`, plus optional `add_route` / `add_role`
+  (the **+** button) and a nested `submenu`. An item is kept when its `role`
+  is among the profile's permissions; a group with no item left is dropped.
+- **a direct link:** `{"MENU", "ICON", "ROUTE", "ROLE"}`, with no `SUBMENUS`.
+  It is shown only when the profile has `ROLE`; a link without `ROLE` is
+  never shown (fail closed). The API returns it as
+  `{"menu", "icon", "route", "submenu": []}`. quasar_resaas
+  (`LeftMenuSegundo`, `TopMenuSegundo`, `isMenuLink()` in
+  `services/routing.js`) opens the route in one click instead of a submenu.
+  Example: saude's top-level "Patients" → `list_paciente`, which stays inside
+  the Saude group too.
+
+**Hiding a module per profile:** a profile (Group) can hide a module from its
+menu without changing its permissions (`Group.hidden_menu_apps`, app labels).
+The Permissions modal (quasar_resaas `PermissionManager`, eye button on each
+module) calls `POST /api/auth/groups/{id}/menu_visibility/`
+`{"app_label": "saude", "visible": false}`. That call is PROTECTED: it needs
+`change_group` and follows the same "group changeable" rules as
+`setGroupPermissions`. An unknown module or a non-boolean `visible` is a 400.
+`menus` skips every entry of a hidden module. `GroupSerializer` returns
+`hidden_menu_apps`, and `PermissionSerializer` returns each permission's
+`app_label`.
+
+Tests: `saas/tests/test_menus_direct_link.py`, `saas/tests/test_menus_superuser.py`,
+`saas/tests/test_menu_visibility.py`.
