@@ -57,23 +57,30 @@ def resolve_person(*, request, person_id=None, person_data=None, photo=None):
 def create_documents(*, request, person, documents):
     """
     documents: [{"tipo", "numero", "data_emissao", "data_validade",
-        "arquivo": File|None}, ...] - only documents to CREATE. A reused
+        "arquivos": [File, ...] (or the older "arquivo": File|None)}, ...] - only documents to CREATE. A reused
         Person's existing documents are never resent; a genuine duplicate
         (tipo, numero) within the Entity still hits Document's own unique
         constraint. Each document belongs to the current Entity / Branch of the
         signed context (a Person is global, its documents are not).
     """
+    from django_resaas.saas.data.document.views.document import add_document_files
+
     for doc in documents or []:
-        person.documents.create(
+        document = person.documents.create(
             entity_id=getattr(request, "entity_id", None),
             branch_id=getattr(request, "branch_id", None),
             tipo_id=doc.get("tipo"),
             numero=doc.get("numero"),
             data_emissao=doc.get("data_emissao") or None,
             data_validade=doc.get("data_validade") or None,
-            arquivo=doc.get("arquivo") or None,
             created_by=request.user,
             updated_by=request.user,
+        )
+        # a document may have several files: "arquivos" (list), or the
+        # older single "arquivo"
+        add_document_files(
+            request, document,
+            list(doc.get("arquivos") or []) + [f for f in [doc.get("arquivo")] if f],
         )
 
 
@@ -89,3 +96,18 @@ def create_contacts(*, request, person, contacts):
             raise PersonRegistrationError({"contacts": serializer.errors})
 
         serializer.save(created_by=request.user, updated_by=request.user)
+
+
+def documents_with_files(request, documents):
+    """The registration payload's documents with their uploaded files: each
+    document names its files by multipart key, "_file_keys" (a list - a
+    document may have several files) or the older single "_file_key"."""
+    result = []
+    for doc in documents or []:
+        keys = list(doc.get("_file_keys") or [])
+        if doc.get("_file_key"):
+            keys.append(doc["_file_key"])
+        files = [request.FILES.get(key) for key in keys if key]
+        clean = {k: v for k, v in doc.items() if k not in ("_file_keys", "_file_key", "arquivo", "arquivos")}
+        result.append({**clean, "arquivos": [f for f in files if f]})
+    return result

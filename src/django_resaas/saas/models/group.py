@@ -27,6 +27,10 @@ class Group(models.Model):
     # (UserAPIView.menus). Only the menu: the permissions stay what they are.
     hidden_menu_apps = models.JSONField(default=list, blank=True)
 
+    # permission codenames whose menu entries this profile does not show
+    # (core/menus.py menu_roles). Only the menu: the permission stays granted.
+    hidden_menu_permissions = models.JSONField(default=list, blank=True)
+
 
     class Meta:
         verbose_name = 'group'

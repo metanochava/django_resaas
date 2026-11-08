@@ -77,3 +77,24 @@ class Document(TimeModel):
         }
     def __str__(self):
         return f"{self.tipo.name} - {self.numero}"
+
+
+def document_file_path(instance, file_name):
+    document = instance.document
+    return f'documents/{document.content_type.model}/{document.object_id}/{file_name}'
+
+
+class DocumentFile(TimeModel):
+    """One of the files of a Document (a document may have several: both sides
+    of an ID card, several pages). Its tenant is its Document's. Before this a
+    Document had one file (Document.arquivo); migration 0014 copied each such
+    file here, and new files are only stored here."""
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name="files")
+    arquivo = models.FileField(upload_to=document_file_path, max_length=500)
+    name = models.CharField(max_length=255, blank=True, default="")
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):
+        return self.name or self.arquivo.name

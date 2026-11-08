@@ -1,4 +1,4 @@
-from .document import Document
+from .document import Document, DocumentFile
 from .person import Person
 from .person_contact import PersonContact
 from .entity_type_group import EntityTypeGroup

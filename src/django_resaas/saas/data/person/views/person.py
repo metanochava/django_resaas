@@ -3,7 +3,8 @@
 # Django REST Framework
 # =========================
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
+from django_resaas.saas.data.document.views.document import add_document_files
 from rest_framework import filters
 from rest_framework import status
 from rest_framework import viewsets
@@ -99,18 +100,24 @@ class  PersonAPIView(BaseAPIView):
             )
 
         try:
-            document = person.documents.create(
-                # the tenant from the signed context (see Document.entity)
-                entity_id=request.entity_id,
-                branch_id=request.branch_id,
-                tipo_id=tipo_id,
-                numero=numero,
-                data_emissao=request.data.get("data_emissao") or None,
-                data_validade=request.data.get("data_validade") or None,
-                arquivo=request.FILES.get("arquivo"),
-                created_by=request.user,
-                updated_by=request.user,
-            )
+            with transaction.atomic():
+                document = person.documents.create(
+                    # the tenant from the signed context (see Document.entity)
+                    entity_id=request.entity_id,
+                    branch_id=request.branch_id,
+                    tipo_id=tipo_id,
+                    numero=numero,
+                    data_emissao=request.data.get("data_emissao") or None,
+                    data_validade=request.data.get("data_validade") or None,
+                    created_by=request.user,
+                    updated_by=request.user,
+                )
+                # a document may have several files (DocumentFile): "files"
+                # repeated, or the older single "arquivo"
+                add_document_files(
+                    request, document,
+                    request.FILES.getlist("files") + [f for f in [request.FILES.get("arquivo")] if f],
+                )
         except (ValidationError, IntegrityError) as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 

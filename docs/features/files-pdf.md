@@ -128,7 +128,25 @@ through `content_type` + `object_id` (e.g. `Person.documents`).
   the object they describe when it has an Entity; the others stay without one and are
   visible to nobody (fail closed).
 
-Tests: `saas/tests/test_document_tenant_isolation.py`, `saas/tests/test_document_api.py`.
+- **Several files** (`DocumentFile`, `document.files`): a document may have several
+  files (both sides of an ID card, several pages). They are a sub-resource of the
+  document, with the permission to change it (`change_document`) and the document's own
+  tenant scope:
+  - `POST documents/{id}/files/` (multipart, `files` repeated, at most 20) adds them and
+    answers the document (`201`); no file is a `400` `no_files`.
+  - `DELETE documents/{id}/files/{file_id}/` removes one (`204`, soft delete); a file of
+    another document is a `404` `file_not_found`.
+  - `DocumentSerializer.files` lists them (`{id, name, arquivo: {url, ...}, created_at}`).
+  - `persons/{id}/add_document/` takes `files` (repeated), and the registrations
+    (`hr/employees/register/`, `saude/pacientes/register/`) take `_file_keys` per
+    document (`person_registration_service.documents_with_files`). The older single
+    `arquivo` / `_file_key` still work and become one `DocumentFile`.
+  - `Document.arquivo` is kept for compatibility but no longer written. Migration
+    `django_resaas.0014_documentfile` copied each existing `arquivo` into a `DocumentFile`
+    (same stored file, nothing copied on disk).
+
+Tests: `saas/tests/test_document_tenant_isolation.py`, `saas/tests/test_document_api.py`,
+`saas/tests/test_document_files.py`.
 
 ## Upload paths
 

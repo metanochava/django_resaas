@@ -606,6 +606,7 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
         # =====================================================
         user_perms = set()
         hidden_apps = set()
+        hidden_perms = set()
 
         if branch_id and group_id:
             branch_user_group = (
@@ -626,6 +627,11 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                     str(label).strip().lower()
                     for label in (branch_user_group.group.hidden_menu_apps or [])
                 }
+                # permissions whose menu entries this profile does not show
+                hidden_perms = {
+                    str(codename).strip().lower()
+                    for codename in (branch_user_group.group.hidden_menu_permissions or [])
+                }
                 user_perms = {
                     str(codename).strip().lower()
                     for codename in branch_user_group
@@ -633,6 +639,9 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                     .permissions
                     .values_list("codename", flat=True)
                 }
+
+        # the menu shows what the profile may open, minus what it hides
+        menu_perms = user_perms - hidden_perms
 
         # =====================================================
         # ACTIVE APPS FOR ENTITY TYPE
@@ -700,8 +709,9 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             if not has_module(request, app_config.label):
                 continue
 
-            if str(app_config.label).strip().lower() in hidden_apps:
-                continue
+            # the module's eye hides its menu groups; its direct links follow
+            # only their own permission's eye (hidden_menu_permissions)
+            app_hidden = str(app_config.label).strip().lower() in hidden_apps
 
             module_name = f"{app_config.name}.sidebar"
 
@@ -736,7 +746,7 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                 # ROLE is never shown (fail closed).
                 if MENU and ROUTE and not SUBMENUS:
                     role = str(menu_config.get("ROLE") or "").strip().lower()
-                    if role and role in user_perms:
+                    if role and role in menu_perms:
                         MENUS.append({
                             "menu": MENU,
                             "icon": ICON,
@@ -747,12 +757,12 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                         })
                     continue
 
-                if not MENU or not SUBMENUS:
+                if not MENU or not SUBMENUS or app_hidden:
                     continue
 
                 filtered_submenus = self.filter_menu_by_permission(
                     SUBMENUS,
-                    user_perms
+                    menu_perms
                 )
 
                 if not filtered_submenus:
