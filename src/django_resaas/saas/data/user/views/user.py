@@ -605,6 +605,7 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
         # nenhum caso especial aqui.
         # =====================================================
         user_perms = set()
+        hidden_apps = set()
 
         if branch_id and group_id:
             branch_user_group = (
@@ -619,6 +620,12 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             )
 
             if branch_user_group:
+                # modules this profile does not show in its menu (the
+                # permissions stay; GroupAPIView.menu_visibility)
+                hidden_apps = {
+                    str(label).strip().lower()
+                    for label in (branch_user_group.group.hidden_menu_apps or [])
+                }
                 user_perms = {
                     str(codename).strip().lower()
                     for codename in branch_user_group
@@ -693,6 +700,9 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             if not has_module(request, app_config.label):
                 continue
 
+            if str(app_config.label).strip().lower() in hidden_apps:
+                continue
+
             module_name = f"{app_config.name}.sidebar"
 
             try:
@@ -719,6 +729,23 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                 MENU = menu_config.get("MENU")
                 ICON = menu_config.get("ICON", "menu")
                 SUBMENUS = menu_config.get("SUBMENUS", [])
+                ROUTE = menu_config.get("ROUTE")
+
+                # a direct top-level link (no submenu): {"MENU", "ICON",
+                # "ROUTE", "ROLE"}. It needs its permission - a link without
+                # ROLE is never shown (fail closed).
+                if MENU and ROUTE and not SUBMENUS:
+                    role = str(menu_config.get("ROLE") or "").strip().lower()
+                    if role and role in user_perms:
+                        MENUS.append({
+                            "menu": MENU,
+                            "icon": ICON,
+                            "app": app_config.name,
+                            "app_label": app_config.label,
+                            "route": ROUTE,
+                            "submenu": [],
+                        })
+                    continue
 
                 if not MENU or not SUBMENUS:
                     continue

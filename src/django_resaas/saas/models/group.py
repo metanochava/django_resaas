@@ -23,6 +23,10 @@ class Group(models.Model):
         related_name='resaas_groups'  # 🔥 ESSENCIAL
     )
 
+    # app labels of the modules whose menu this profile does not show
+    # (UserAPIView.menus). Only the menu: the permissions stay what they are.
+    hidden_menu_apps = models.JSONField(default=list, blank=True)
+
 
     class Meta:
         verbose_name = 'group'
