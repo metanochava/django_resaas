@@ -66,3 +66,64 @@ def test_group_payload_carries_the_hidden_modules(bootstrap_tenant):
 
     assert response.status_code == 200, response.data
     assert response.data["hidden_menu_apps"] == ["notifications"]
+
+
+# --- one permission's menu entries (Group.hidden_menu_permissions) ---
+
+def _codenames(menus):
+    found = set()
+
+    def walk(items):
+        for item in items or []:
+            if item.get("route"):
+                found.add(item["route"])
+            walk(item.get("submenu"))
+
+    walk(menus)
+    return found
+
+
+def test_hiding_a_permission_removes_its_menu_entry_only(bootstrap_tenant):
+    from django_resaas.saas.core.menus import menu_roles
+
+    tenant = bootstrap_tenant("menu-vis-perm")
+    group = tenant["root_group"]
+    perms = set(group.permissions.values_list("codename", flat=True))
+    # a list permission of the notifications menu the profile has
+    before = _menus(tenant)
+    notif = next(m for m in before if m["app_label"] == "notifications")
+    role = next(r for r in sorted(menu_roles()) if r in perms and r.startswith("list_")
+                and r.replace("list_", "") in str(notif).lower())
+    perms_before = set(group.permissions.values_list("id", flat=True))
+
+    response = _visibility(tenant, group, permission=role, visible=False)
+
+    assert response.status_code in (200, 202), response.data
+    assert response.data["hidden_menu_permissions"] == [role]
+    after = _menus(tenant)
+    assert len(str(after)) < len(str(before))
+    # the module itself stays, and the permission stays granted
+    assert set(Group.objects.get(pk=group.pk).permissions.values_list("id", flat=True)) == perms_before
+
+    response = _visibility(tenant, group, permission=role, visible=True)
+    assert response.data["hidden_menu_permissions"] == []
+    assert _menus(tenant) == before
+
+
+def test_permission_without_menu_entry_is_refused(bootstrap_tenant):
+    tenant = bootstrap_tenant("menu-vis-perm-bad")
+    group = tenant["root_group"]
+
+    assert _visibility(tenant, group, permission="no_such_codename", visible=False).status_code == 400
+
+
+def test_group_payload_lists_the_menu_permissions(bootstrap_tenant):
+    from django_resaas.saas.core.menus import menu_roles
+
+    tenant = bootstrap_tenant("menu-vis-perm-payload")
+    group = tenant["root_group"]
+
+    data = tenant["client"].get(f"/api/auth/groups/{group.id}/").data
+    assert data["hidden_menu_permissions"] == []
+    assert set(data["menu_permissions"]) == set(menu_roles())
+    assert data["menu_permissions"]

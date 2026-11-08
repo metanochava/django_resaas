@@ -177,9 +177,24 @@ module) calls `POST /api/auth/groups/{id}/menu_visibility/`
 `{"app_label": "saude", "visible": false}`. That call is PROTECTED: it needs
 `change_group` and follows the same "group changeable" rules as
 `setGroupPermissions`. An unknown module or a non-boolean `visible` is a 400.
-`menus` skips every entry of a hidden module. `GroupSerializer` returns
+`menus` skips the menu groups (`SUBMENUS`) of a hidden module. Its direct
+links do not depend on the module's visibility: they follow only their own
+permission (below), so a profile can hide the Saude group and keep the
+top-level "Patients" link. `GroupSerializer` returns
 `hidden_menu_apps`, and `PermissionSerializer` returns each permission's
 `app_label`.
+
+**Hiding one permission's menu entries per profile:** the same call with
+`{"permission": "list_paciente", "visible": false}` hides every menu entry
+whose `ROLE` / `role` is that codename, and the **+** button whose `add_role`
+is that codename (`Group.hidden_menu_permissions`, lowercase codenames). The
+permission stays granted: the profile can still open the route. Only codenames
+that some `sidebar.py` uses can be hidden (`saas/core/menus.py`
+`menu_roles()`); any other codename is a 400 `unknown_menu_permission`.
+`GroupSerializer` returns `hidden_menu_permissions` and `menu_permissions`
+(the codenames the sidebars use, the same list for every group). The
+Permissions modal shows an eye button next to each of these permissions.
+`menus` builds the menu from the profile's permissions minus the hidden ones.
 
 Tests: `saas/tests/test_menus_direct_link.py`, `saas/tests/test_menus_superuser.py`,
 `saas/tests/test_menu_visibility.py`.

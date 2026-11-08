@@ -350,32 +350,46 @@ class GroupAPIView(ExplicitAccessMixin, viewsets.ModelViewSet):
     @resaas_action(detail=True, methods=["POST"], label="Show module in menu", icon="visibility",
                    permission="change_group", visible=False)
     def menu_visibility(self, request, id, *args, **kwargs):
-        """{"app_label": "saude", "visible": false}: whether this profile's
-        menu shows the module (UserAPIView.menus). Only the menu - the
-        permissions are unchanged. Same rules as changing its permissions."""
+        """{"app_label": "saude", "visible": false} hides or shows a module in
+        this profile's menu; {"permission": "list_paciente", "visible": false}
+        does the same for the menu entries of one permission (a codename the
+        sidebars use, core/menus.py). Only the menu - the permissions are
+        unchanged. Same rules as changing its permissions."""
         from django.apps import apps as django_apps
+        from django_resaas.saas.core.menus import menu_roles
 
         group = self.get_changeable_object()
         app_label = str(request.data.get("app_label") or "").strip()
+        permission = str(request.data.get("permission") or "").strip().lower()
         visible = request.data.get("visible")
 
         if not isinstance(visible, bool):
             raise ResaasAPIException("visible must be true or false.", code="invalid_visible",
                                      status_code=status.HTTP_400_BAD_REQUEST)
-        if app_label not in {config.label for config in django_apps.get_app_configs()}:
-            raise ResaasAPIException("Unknown module.", code="unknown_module",
-                                     status_code=status.HTTP_400_BAD_REQUEST)
+        if permission:
+            if permission not in menu_roles():
+                raise ResaasAPIException("This permission has no menu entry.", code="unknown_menu_permission",
+                                         status_code=status.HTTP_400_BAD_REQUEST)
+            field, value = "hidden_menu_permissions", permission
+        else:
+            if app_label not in {config.label for config in django_apps.get_app_configs()}:
+                raise ResaasAPIException("Unknown module.", code="unknown_module",
+                                         status_code=status.HTTP_400_BAD_REQUEST)
+            field, value = "hidden_menu_apps", app_label
 
         with transaction.atomic():
             group = Group.objects.select_for_update().get(pk=group.pk)
-            hidden = [label for label in (group.hidden_menu_apps or []) if label != app_label]
+            hidden = [item for item in (getattr(group, field) or []) if item != value]
             if not visible:
-                hidden.append(app_label)
-            group.hidden_menu_apps = sorted(set(hidden))
-            group.save(update_fields=["hidden_menu_apps"])
+                hidden.append(value)
+            setattr(group, field, sorted(set(hidden)))
+            group.save(update_fields=[field])
 
-        return Response({"id": str(group.id), "hidden_menu_apps": group.hidden_menu_apps},
-                        status=status.HTTP_200_OK)
+        return Response({
+            "id": str(group.id),
+            "hidden_menu_apps": group.hidden_menu_apps,
+            "hidden_menu_permissions": group.hidden_menu_permissions,
+        }, status=status.HTTP_200_OK)
 
     @resaas_action(
         detail=True,

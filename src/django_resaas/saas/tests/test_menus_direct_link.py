@@ -59,3 +59,34 @@ def test_direct_link_hidden_without_the_permission(bootstrap_tenant, notificatio
     menus = _menus(tenant)
 
     assert not any(m["menu"] in ("Patients", "No role") for m in menus)
+
+
+def test_direct_link_does_not_depend_on_its_modules_visibility(bootstrap_tenant, notifications_sidebar):
+    """The module's eye hides its menu groups; a direct link follows only its
+    own permission's eye (Group.hidden_menu_permissions)."""
+    tenant = bootstrap_tenant("menus-direct-indep")
+    group = tenant["root_group"]
+    codename = group.permissions.values_list("codename", flat=True).order_by("codename").first()
+    notifications_sidebar["module"] = types.SimpleNamespace(ALL=[
+        {"MENU": "Patients", "ICON": "groups", "ROUTE": "list_paciente", "ROLE": codename},
+        {"MENU": "Group", "ICON": "folder", "SUBMENUS": [
+            {"menu": "Entry", "icon": "list", "route": "entry", "role": codename},
+        ]},
+    ])
+
+    group.hidden_menu_apps = ["notifications"]
+    group.save(update_fields=["hidden_menu_apps"])
+    menus = [m["menu"] for m in _menus(tenant)]
+    assert "Patients" in menus
+    assert "Group" not in menus
+
+    group.hidden_menu_permissions = [codename]
+    group.save(update_fields=["hidden_menu_permissions"])
+    assert "Patients" not in [m["menu"] for m in _menus(tenant)]
+
+    group.hidden_menu_apps = []
+    group.save(update_fields=["hidden_menu_apps"])
+    # the module shown again: the hidden permission still hides its entries
+    menus = _menus(tenant)
+    assert "Patients" not in [m["menu"] for m in menus]
+    assert "Group" not in [m["menu"] for m in menus]
