@@ -893,7 +893,6 @@ def _can_pick(request, Model):
         request.user, request.user.is_authenticated,
         getattr(request, "entity_type_id", None), getattr(request, "entity_id", None),
         getattr(request, "branch_id", None), getattr(request, "group_id", None),
-        getattr(request, "lang_id", None),
     ]):
         return False
     return BranchUserGroup.objects.filter(

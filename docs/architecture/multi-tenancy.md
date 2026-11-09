@@ -7,6 +7,11 @@ as two headers:
   `TenantContextMiddleware`) that decodes into `entity_type_id`,
   `entity_id`, `branch_id` and `group_id`.
 - `L` - the active language id, read independently into `request.lang_id`.
+  It is not authorization: `check_permission` (`isPermited`) and the relation
+  picker (`relations/`, `_can_pick`) do not need it. Before, a request without
+  `L` was refused on every permission, so a browser whose stored language had
+  been emptied got a 403 on every protected list after a reload, while the menu
+  still loaded. Test: `saas/tests/test_permission_without_language.py`.
 
 `TenantContextMiddleware` runs on every request and always initializes all
 five of `request.entity_type_id` / `entity_id` / `branch_id` / `group_id` /

@@ -128,6 +128,11 @@ through `content_type` + `object_id` (e.g. `Person.documents`).
   the object they describe when it has an Entity; the others stay without one and are
   visible to nobody (fail closed).
 
+- **Identity document type** (`Person.identity_document_type`, migration
+  `django_resaas.0015_person_identity_document_type`): the type of the person's
+  identity document (e.g. BI), optional, `SET_NULL`. The person intake form shows it
+  in the personal data and fills the first document's type with it; the health PDFs
+  print the person's document of that type first.
 - **Several files** (`DocumentFile`, `document.files`): a document may have several
   files (both sides of an ID card, several pages). They are a sub-resource of the
   document, with the permission to change it (`change_document`) and the document's own

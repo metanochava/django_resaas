@@ -37,6 +37,8 @@ class Document(TimeModel):
 
     data_emissao = models.DateField(null=True, blank=True)
     data_validade = models.DateField(null=True, blank=True)
+    # who issued it (e.g. "Arquivo de Identificação Civil de Maputo")
+    issued_by = models.CharField(max_length=200, null=True, blank=True)
 
     arquivo = models.FileField(upload_to=document_path, null=True, blank=True)
 
