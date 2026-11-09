@@ -109,6 +109,7 @@ class  PersonAPIView(BaseAPIView):
                     numero=numero,
                     data_emissao=request.data.get("data_emissao") or None,
                     data_validade=request.data.get("data_validade") or None,
+                    issued_by=(request.data.get("issued_by") or "").strip() or None,
                     created_by=request.user,
                     updated_by=request.user,
                 )

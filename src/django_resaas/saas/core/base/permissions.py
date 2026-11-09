@@ -55,6 +55,9 @@ class HasAppPermission(BasePermission):
 def check_permission(request, role):
     role = role
 
+    # The language (header L) is not authorization: a request that arrives
+    # without it (a browser whose stored language was emptied) used to be
+    # refused on every permission - every protected list a 403 after a reload.
     if not all([
         request.user,
         request.user.is_authenticated,
@@ -62,7 +65,6 @@ def check_permission(request, role):
         request.entity_id,
         request.branch_id,
         request.group_id,
-        request.lang_id,
     ]):
         return False
 

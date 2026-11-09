@@ -50,6 +50,11 @@ class Person(AddressMixin,TimeModel):
     phone=models.CharField(max_length=30,null=True,blank=True)
     alternative_phone=models.CharField(max_length=30,null=True,blank=True)
     occupation=models.CharField(max_length=150,null=True,blank=True)
+    # the type of the person's identity document (e.g. BI): the first document
+    # of the person intake form takes it, and it is the document the health
+    # PDFs print (medical certificate). A Person is global; the document
+    # itself belongs to an Entity (Document.entity).
+    identity_document_type=models.ForeignKey("django_resaas.DocumentType",on_delete=models.SET_NULL,null=True,blank=True,related_name="+")
  
 
     documents=GenericRelation("django_resaas.Document")

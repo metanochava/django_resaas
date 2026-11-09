@@ -56,7 +56,7 @@ def resolve_person(*, request, person_id=None, person_data=None, photo=None):
 
 def create_documents(*, request, person, documents):
     """
-    documents: [{"tipo", "numero", "data_emissao", "data_validade",
+    documents: [{"tipo", "numero", "data_emissao", "data_validade", "issued_by",
         "arquivos": [File, ...] (or the older "arquivo": File|None)}, ...] - only documents to CREATE. A reused
         Person's existing documents are never resent; a genuine duplicate
         (tipo, numero) within the Entity still hits Document's own unique
@@ -73,6 +73,7 @@ def create_documents(*, request, person, documents):
             numero=doc.get("numero"),
             data_emissao=doc.get("data_emissao") or None,
             data_validade=doc.get("data_validade") or None,
+            issued_by=(doc.get("issued_by") or "").strip() or None,
             created_by=request.user,
             updated_by=request.user,
         )

@@ -120,6 +120,7 @@ class DocumentAdmin(BaseAdmin):
         'numero',
         'data_emissao',
         'data_validade',
+        'issued_by',
     )
 
     list_filter = ('tipo',)

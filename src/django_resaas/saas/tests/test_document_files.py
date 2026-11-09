@@ -136,3 +136,29 @@ def test_registration_documents_carry_their_files():
 
     assert [len(d["arquivos"]) for d in docs] == [2, 1, 0]
     assert "_file_keys" not in docs[0]
+
+
+def test_a_document_records_who_issued_it(bootstrap_tenant):
+    from django.contrib.auth.models import Permission
+    from django_resaas.saas.tests.test_person_add_document import _sync_saas_actions
+    from django_resaas.saas.core.services.person_registration_service import create_documents
+    from types import SimpleNamespace
+
+    tenant = bootstrap_tenant("doc-issued-by")
+    _sync_saas_actions()
+    tenant["root_group"].permissions.add(*Permission.objects.filter(codename="add_document_person"))
+    doc_type = DocumentType.objects.create(name="BI", detalhes="x")
+    person = Person.objects.create(name="Rosa", surname="Chissano")
+
+    response = tenant["client"].post(
+        f"/api/django_resaas/persons/{person.id}/add_document/",
+        {"tipo": str(doc_type.id), "numero": "BI-9", "issued_by": "Arquivo de Identificação Civil de Maputo"},
+        format="multipart",
+    )
+    assert response.status_code == 201, response.data
+    assert response.data["issued_by"] == "Arquivo de Identificação Civil de Maputo"
+
+    other = Person.objects.create(name="Ana", surname="Bila")
+    request = SimpleNamespace(entity_id=tenant["entity"].id, branch_id=tenant["branch"].id, user=tenant["user"])
+    create_documents(request=request, person=other, documents=[{"tipo": doc_type.id, "numero": "BI-10", "issued_by": "DIC Matola"}])
+    assert Document.objects.get(numero="BI-10").issued_by == "DIC Matola"
