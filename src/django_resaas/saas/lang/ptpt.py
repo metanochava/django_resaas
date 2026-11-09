@@ -1713,4 +1713,7 @@ key_value = {
     "This permission has no menu entry.": "Esta permissão não tem entrada no menu.",
     "Menu entry shown for this profile. Click to hide it.": "Entrada visível no menu deste perfil. Clique para a esconder.",
     "Menu entry hidden for this profile. Click to show it.": "Entrada escondida do menu deste perfil. Clique para a mostrar.",
+    "DD/MM/YYYY": "DD/MM/AAAA",
+    "MM/DD/YYYY": "MM/DD/AAAA",
+    "Back to top": "Voltar ao topo",
 }
