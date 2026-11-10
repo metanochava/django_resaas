@@ -73,6 +73,7 @@ from django_resaas.saas.data.branch_user.views.branch_user import BranchUserAPIV
 from django_resaas.saas.data.branch_user_group.views.branch_user_group import BranchUserGroupAPIView
 from django_resaas.saas.data.document.views.document import DocumentAPIView
 from django_resaas.saas.data.document_type.views.document_type import DocumentTypeAPIView
+from django_resaas.saas.data.branch_opening_hours.views.branch_opening_hours import BranchOpeningHoursAPIView
 
 
 
@@ -133,6 +134,7 @@ routerdjango_resaas.register("translations", TranslationAPIView, basename="trans
 routerdjango_resaas.register("themes", ThemeAPIView, basename="themes")
 routerdjango_resaas.register("layoutsettings", LayoutSettingAPIView, basename="layoutsettings")
 routerdjango_resaas.register("documenttypes", DocumentTypeAPIView, basename="documenttypes")
+routerdjango_resaas.register("branchopeninghours", BranchOpeningHoursAPIView, basename="branchopeninghours")
 routerdjango_resaas.register("documents", DocumentAPIView, basename="documents")
 
 

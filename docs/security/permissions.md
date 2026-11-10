@@ -204,7 +204,9 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
 
 **The App catalogue is Root-only.** The `list_app` page (quasar_resaas
 `pages/commands/AppCreatePage.vue`: create/delete modules, activate them, link them to
-EntityTypes) is platform administration. Root gets every permission from the `post_migrate`
+EntityTypes, and explain what each one is for - `App.description`, a Text field, shown in a
+modal from the info button beside the state; edited with `change_app`) is platform
+administration. Root gets every permission from the `post_migrate`
 signal (`core/signals/permissions.py`); `saas/profiles.py` declares `APP_PERMISSIONS`
 (`list_`, `view_`, `add_`, `change_`, `delete_`, `hard_delete_`, `restore_`, `pdf_`,
 `pdf_list_app`) and **revokes** them from the `Admin` group on every migrate. There is no

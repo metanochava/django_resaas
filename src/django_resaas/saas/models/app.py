@@ -5,6 +5,8 @@ from django_resaas.saas.core.base.models import TimeModel
 
 class App(TimeModel):
     name = models.CharField(max_length=100, null=True)
+    # what the module is for, shown on the Modules page (list_app)
+    description = models.TextField(null=True, blank=True)
     class Meta:
         permissions = ()
 

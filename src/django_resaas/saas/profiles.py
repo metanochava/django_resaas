@@ -78,6 +78,9 @@ CORE_PROFILES = [
         "permissions": [
             "view_entity", "change_entity", "pdf_entity",
             "view_branch", "add_branch", "change_branch", "list_branch", "pdf_branch",
+            # the branches' opening hours (BranchOpeningHours)
+            "view_branchopeninghours", "add_branchopeninghours", "change_branchopeninghours",
+            "list_branchopeninghours", "delete_branchopeninghours",
             "view_entityapp", "add_entityapp", "change_entityapp", "list_entityapp",
             "view_entitygroup", "add_entitygroup", "change_entitygroup", "list_entitygroup",
             "view_entityuser", "add_entityuser", "change_entityuser", "list_entityuser",
