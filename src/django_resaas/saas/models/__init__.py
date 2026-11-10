@@ -10,3 +10,4 @@ from .user_temporary_password import UserTemporaryPassword
 from .two_factor import UserTwoFactor
 from .sso_authorization_code import SsoAuthorizationCode
 from .site_contact_message import SiteContactMessage
+from .branch_opening_hours import BranchOpeningHours
