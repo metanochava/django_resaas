@@ -74,6 +74,7 @@ from django_resaas.saas.data.branch_user_group.views.branch_user_group import Br
 from django_resaas.saas.data.document.views.document import DocumentAPIView
 from django_resaas.saas.data.document_type.views.document_type import DocumentTypeAPIView
 from django_resaas.saas.data.branch_opening_hours.views.branch_opening_hours import BranchOpeningHoursAPIView
+from django_resaas.saas.data.form_definition.views.form_definition import FormDefinitionAPIView, FormEngineViewSet
 
 
 
@@ -135,6 +136,9 @@ routerdjango_resaas.register("themes", ThemeAPIView, basename="themes")
 routerdjango_resaas.register("layoutsettings", LayoutSettingAPIView, basename="layoutsettings")
 routerdjango_resaas.register("documenttypes", DocumentTypeAPIView, basename="documenttypes")
 routerdjango_resaas.register("branchopeninghours", BranchOpeningHoursAPIView, basename="branchopeninghours")
+# Form Engine (saas/core/forms): the layers, and resolve / validate / draft
+routerdjango_resaas.register("formdefinitions", FormDefinitionAPIView, basename="formdefinitions")
+routerdjango_resaas.register("forms", FormEngineViewSet, basename="forms")
 routerdjango_resaas.register("documents", DocumentAPIView, basename="documents")
 
 

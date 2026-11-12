@@ -97,6 +97,13 @@ ALL = [
         # 'crud': { 'module': 'django_resaas', 'model': 'User' }
     },
     {
+        # Form Engine (saas/core/forms): the forms' layers and versions
+        "menu": "Forms",
+        "icon": "dynamic_form",
+        "role": "list_formdefinition",
+        "route": "list_formdefinition",
+    },
+    {
         "menu": "App",
         "icon": "view_module",
         "role": "list_app",
