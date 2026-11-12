@@ -49,6 +49,16 @@ MODULE_PERMISSIONS = {
             "codename": "view_core_dashboard",
             "name": "Can view Access Control dashboard",
         },
+        # Form Engine (saas/core/forms): publishing a version of a form, and
+        # keeping the platform / entity type layers (Root - see profiles.py)
+        {
+            "codename": "publish_formdefinition",
+            "name": "Can publish a form definition",
+        },
+        {
+            "codename": "manage_platform_formdefinition",
+            "name": "Can keep the platform and entity type forms",
+        },
     ],
 
 
@@ -268,7 +278,9 @@ def create_model_permissions(sender, **kwargs):
     # permissions from the start; every other group gets them only by an
     # explicit grant.
     admin_group.permissions.add(*Permission.objects.filter(
-        codename__in=("view_temporary_password", "regenerate_temporary_password")
+        codename__in=("view_temporary_password", "regenerate_temporary_password",
+                      # the Form Engine's platform / entity type layers and publishing
+                      "manage_platform_formdefinition", "publish_formdefinition")
     ))
 
 

@@ -61,7 +61,11 @@ ENTITY_TYPE_PERMISSIONS = [
 # Root = permissions about the lib/platform; Admin = manages ITS Entity only
 # (and, through group_access_service, only the editable profiles of that
 # Entity). These are revoked from Admin on every migrate.
-PLATFORM_PERMISSIONS = APP_PERMISSIONS + SCAFFOLD_PERMISSIONS + ENTITY_TYPE_PERMISSIONS
+# the platform and entity type layers of the forms (saas/core/forms): Root only;
+# an Entity's Admin keeps its own Entity / Branch layers
+FORM_PLATFORM_PERMISSIONS = ["manage_platform_formdefinition"]
+
+PLATFORM_PERMISSIONS = APP_PERMISSIONS + SCAFFOLD_PERMISSIONS + ENTITY_TYPE_PERMISSIONS + FORM_PLATFORM_PERMISSIONS
 
 # old profile names -> current ones (group_creator renames the existing Group in
 # place: same id, members and permissions kept). Modules that add permissions to
@@ -81,6 +85,9 @@ CORE_PROFILES = [
             # the branches' opening hours (BranchOpeningHours)
             "view_branchopeninghours", "add_branchopeninghours", "change_branchopeninghours",
             "list_branchopeninghours", "delete_branchopeninghours",
+            # its Entity's / Branches' layers of the forms (saas/core/forms)
+            "list_formdefinition", "view_formdefinition", "add_formdefinition", "change_formdefinition",
+            "delete_formdefinition", "publish_formdefinition",
             "view_entityapp", "add_entityapp", "change_entityapp", "list_entityapp",
             "view_entitygroup", "add_entitygroup", "change_entitygroup", "list_entitygroup",
             "view_entityuser", "add_entityuser", "change_entityuser", "list_entityuser",
