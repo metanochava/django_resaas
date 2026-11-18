@@ -27,6 +27,7 @@ from django_resaas.saas.core.utils.translate import Translate
 from django_resaas.saas.models.app import App
 from django_resaas.saas.models.entity import Entity
 from django_resaas.saas.models.entity_app import EntityApp
+from django_resaas.saas.core.services import admin_profile_service
 from django_resaas.saas.models.entity_user import EntityUser
 from django_resaas.saas.models.file import File
 from django_resaas.saas.models.branch import Branch
@@ -244,6 +245,8 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
             if entity_app.state != "Active":
                 entity_app.state = "Active"
                 entity_app.save(update_fields=["state"])
+            # the Admin profile gets every permission of the module
+            admin_profile_service.grant_app(te.app.name)
 
         for u in data['admins']:
             user = User.objects.get(id = u)
@@ -486,6 +489,8 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         EntityApp.objects.get_or_create(
             entity=entity, app=app, defaults={"state": "Active"}
         )
+        # the Admin profile gets every permission of the module
+        admin_profile_service.grant_app(app.name)
 
         return Response(
             {

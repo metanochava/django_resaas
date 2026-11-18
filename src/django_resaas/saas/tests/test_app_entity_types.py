@@ -47,7 +47,23 @@ class TestAppEntityTypes:
         )
 
         assert response.status_code == 201
-        assert EntityTypeApp.objects.filter(app=app, entity_type=entity_type).exists()
+        assert EntityTypeApp.objects.get(app=app, entity_type=entity_type).state == "Active"
+
+    def test_add_entity_type_activates_an_inactive_link(self, bootstrap_tenant):
+        tenant = bootstrap_tenant("app-entitytypes-add-inactive")
+        client = tenant["client"]
+
+        app = App.objects.create(name="billing")
+        entity_type = tenant["entity"].entity_type
+        EntityTypeApp.objects.create(entity_type=entity_type, app=app, state="Inactive")
+
+        response = client.post(
+            f"/api/django_resaas/apps/{app.id}/addEntityType/",
+            {"id": str(entity_type.id)},
+        )
+
+        assert response.status_code == 201
+        assert EntityTypeApp.objects.get(app=app, entity_type=entity_type).state == "Active"
 
     def test_add_entity_type_is_idempotent(self, bootstrap_tenant):
         tenant = bootstrap_tenant("app-entitytypes-add-twice")
@@ -116,3 +132,47 @@ class TestAppEntityTypes:
         assert response.status_code == 202
         assert not EntityTypeApp.objects.filter(app=app_a, entity_type=entity_type).exists()
         assert EntityTypeApp.objects.filter(app=app_b, entity_type=entity_type).exists()
+
+
+class TestAppEntities:
+    """apps/{id}/entities/: the Entities that use an app (EntityApp), linked
+    only when the Entity's type has the app (as EntityAPIView.addApp)."""
+
+    def test_lists_active_and_available_entities(self, bootstrap_tenant):
+        tenant = bootstrap_tenant("app-entities-list")
+        client = tenant["client"]
+        app = App.objects.create(name="billing")
+        entity = tenant["entity"]
+        EntityTypeApp.objects.create(entity_type=entity.entity_type, app=app, state="Active")
+
+        response = client.get(f"/api/django_resaas/apps/{app.id}/entities/")
+        assert response.status_code == 200
+        assert [row["id"] for row in response.data["available"]] == [str(entity.id)]
+        assert response.data["active"] == []
+
+    def test_links_and_unlinks_an_entity(self, bootstrap_tenant):
+        from django_resaas.saas.models.entity_app import EntityApp
+
+        tenant = bootstrap_tenant("app-entities-link")
+        client = tenant["client"]
+        app = App.objects.create(name="billing")
+        entity = tenant["entity"]
+        EntityTypeApp.objects.create(entity_type=entity.entity_type, app=app, state="Active")
+        url = f"/api/django_resaas/apps/{app.id}/entities/"
+
+        assert client.post(url, {"entity": str(entity.id)}, format="json").status_code == 201
+        assert client.post(url, {"entity": str(entity.id)}, format="json").status_code in (200, 202)  # idempotent
+        assert EntityApp.objects.get(entity=entity, app=app).state == "Active"
+        assert [row["id"] for row in client.get(url).data["active"]] == [str(entity.id)]
+
+        assert client.delete(f"{url}{entity.id}/").status_code == 204
+        assert not EntityApp.objects.filter(entity=entity, app=app).exists()
+
+    def test_an_entity_whose_type_lacks_the_app_is_refused(self, bootstrap_tenant):
+        tenant = bootstrap_tenant("app-entities-refuse")
+        client = tenant["client"]
+        app = App.objects.create(name="billing")
+        url = f"/api/django_resaas/apps/{app.id}/entities/"
+
+        assert client.post(url, {"entity": str(tenant["entity"].id)}, format="json").status_code == 400
+        assert client.post(url, {"entity": "not-a-uuid"}, format="json").status_code == 400

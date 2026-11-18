@@ -44,6 +44,9 @@ def test_app_collection_actions_need_their_permission(bootstrap_tenant, method, 
     ("get", "entityTypes/", None),
     ("post", "addEntityType/", {"id": "x"}),
     ("post", "removeEntityType/", {"id": "x"}),
+    ("get", "entities/", None),
+    ("post", "entities/", {"entity": "x"}),
+    ("delete", "entities/00000000-0000-0000-0000-000000000000/", None),
 ])
 def test_app_detail_actions_need_their_permission(bootstrap_tenant, method, suffix, body):
     slug = suffix.strip("/").lower() or "x"

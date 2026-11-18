@@ -110,6 +110,12 @@ class DjangoResaasConfig(AppConfig):
             sender=self
         )
 
+        # every module that migrates: when it is active for an Entity, the
+        # Admin profile gets its permissions (admin_profile_service)
+        from django_resaas.saas.core.services.admin_profile_service import on_post_migrate
+
+        post_migrate.connect(on_post_migrate, dispatch_uid="resaas_admin_profile_active_apps")
+
 
         # ==================================================
         # PERMISSIONS SIGNALS
