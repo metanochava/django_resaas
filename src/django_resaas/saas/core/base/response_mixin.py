@@ -38,6 +38,14 @@ class ResaasResponseMixin:
             if merged is not data:
                 response.data = data = merged
 
+        # a refresh token answered to a frontend of the API's own site goes in
+        # its HttpOnly cookie, never in the body (core/services/refresh_cookie.py)
+        if isinstance(data, dict) and not getattr(response, "is_rendered", False):
+            from django_resaas.saas.core.services import refresh_cookie
+
+            refresh_cookie.apply(request, response)
+            data = response.data
+
         if (
             request.method == "POST"
             and response.status_code == status.HTTP_200_OK

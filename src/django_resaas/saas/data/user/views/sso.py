@@ -64,7 +64,12 @@ class SsoTokenAPIView(_Public):
             return _error(request, error)
 
         family = session_service.sso_family_of(user, source_jti)
-        previous = sso_service.previous_session(user, request.data.get("previous_refresh"))
+        from django_resaas.saas.core.services import refresh_cookie
+
+        # the session this domain replaces: the body's, else its HttpOnly cookie
+        previous = sso_service.previous_session(
+            user, request.data.get("previous_refresh") or refresh_cookie.read(request)
+        )
         if previous:
             session_service.join_sso_family(user, family, previous)
 
@@ -75,12 +80,16 @@ class SsoLogoutAPIView(ResaasResponseMixin, generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
+        from django_resaas.saas.core.services import refresh_cookie
+
         ended = sso_service.sign_out(request.user, request)
 
-        return Response(
+        response = Response(
             {"ended": ended, "alert_success": Translate.tdc(request, "Logout successful")},
             status=status.HTTP_200_OK,
         )
+        refresh_cookie.clear(response)
+        return response
 
 
 class SsoRedirectCheckAPIView(_Public):

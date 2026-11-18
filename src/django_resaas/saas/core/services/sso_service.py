@@ -159,7 +159,7 @@ def redeem(code, code_verifier, redirect_uri, request=None):
 
 
 def previous_session(user, refresh):
-    """The jti of `refresh` when it is a live session of `user` (the session
+    """The session id of `refresh` when it is a live session of `user` (the session
     a domain had before adopting another one), else None. Never fails."""
     if not isinstance(refresh, str) or not refresh:
         return None
@@ -175,7 +175,8 @@ def previous_session(user, refresh):
 
     if str(token.get(api_settings.USER_ID_CLAIM)) != str(getattr(user, api_settings.USER_ID_FIELD)):
         return None
-    return token.get("jti")
+    # the session's id (stays when the refresh rotates); jti for older tokens
+    return token.get("sid") or token.get("jti")
 
 
 def sign_out(user, request):
