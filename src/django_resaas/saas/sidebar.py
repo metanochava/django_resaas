@@ -97,6 +97,20 @@ ALL = [
         # 'crud': { 'module': 'django_resaas', 'model': 'User' }
     },
     {
+        # the phone's bottom tabs: Root edits the Entity Types' (template)
+        "menu": "Phone tabs",
+        "icon": "tab",
+        "role": "list_entitytypemobiletab",
+        "route": "list_entitytypemobiletab",
+    },
+    {
+        # ... and an Entity's Admin its own (replacing the type's)
+        "menu": "My phone tabs",
+        "icon": "tab",
+        "role": "list_entitymobiletab",
+        "route": "list_entitymobiletab",
+    },
+    {
         # Form Engine (saas/core/forms): the forms' layers and versions
         "menu": "Forms",
         "icon": "dynamic_form",
