@@ -1,7 +1,7 @@
 """
 Regression test for a real bug found while building the demo app (Phase 6):
 BootstrapService/create_root/app_service all created App/EntityApp rows with
-`state='Active'` (an int, coerced to the string "1" on a CharField), but the actual
+`state=1` (an int, coerced to the string "1" on a CharField), but the actual
 per-request gate in BaseAPIView.initial() checks `state="Active"`. That meant
 every tenant bootstrapped via these paths got a 403 ("Module is not active")
 on every single API call - confirmed empirically before the fix.
@@ -13,6 +13,7 @@ with a self-heal step so it also repairs any pre-existing state="1" row
 instead of crashing on the (entity, app) unique constraint.
 """
 import pytest
+from django.apps import apps
 from django.contrib.auth import get_user_model
 
 from django_resaas.saas.core.services.bootstrap_service import BootstrapService
@@ -20,6 +21,13 @@ from django_resaas.saas.models.app import App
 from django_resaas.saas.models.entity_app import EntityApp
 
 pytestmark = pytest.mark.django_db
+
+
+def _notifications():
+    """The catalogue name of the notifications app: App/EntityApp rows store
+    the AppConfig.name ("django_resaas.notifications"), which is what
+    BaseAPIView's module guard looks up (bootstrap_service.default_modules)."""
+    return apps.get_app_config("notifications").name
 
 
 def _make_user():
@@ -39,7 +47,7 @@ def test_bootstrapped_default_module_is_actually_active():
 
     entity_app = EntityApp.objects.get(
         entity=result["entity"],
-        app__name="notifications",
+        app__name=_notifications(),
     )
     assert entity_app.state == "Active"
 
@@ -47,21 +55,21 @@ def test_bootstrapped_default_module_is_actually_active():
     # request through - it must find this row.
     assert EntityApp.objects.filter(
         entity__id=result["entity"].id,
-        app__name="notifications",
+        app__name=_notifications(),
         state="Active",
     ).exists()
 
 
 def test_bootstrap_self_heals_a_preexisting_broken_row():
-    """A row already broken by the old `state='Active'` behavior gets repaired on
+    """A row already broken by the old `state=1` behavior gets repaired on
     the next bootstrap run instead of causing a duplicate-row crash."""
     user = _make_user()
 
     result = BootstrapService.run("SaaS", "Tenant", "Main", user, "Admin")
-    entity_app = EntityApp.objects.get(entity=result["entity"], app__name="notifications")
+    entity_app = EntityApp.objects.get(entity=result["entity"], app__name=_notifications())
 
-    # simulate a row left over from the old buggy code path
-    entity_app.state = "Active"
+    # simulate a row left over from the old buggy code path (state "1")
+    entity_app.state = "1"
     entity_app.save(update_fields=["state"])
 
     # running bootstrap again must not raise (no duplicate (entity, app) row)
@@ -71,5 +79,5 @@ def test_bootstrap_self_heals_a_preexisting_broken_row():
     entity_app.refresh_from_db()
     assert entity_app.state == "Active"
     assert EntityApp.objects.filter(
-        entity=result["entity"], app__name="notifications"
+        entity=result["entity"], app__name=_notifications()
     ).count() == 1
