@@ -262,48 +262,14 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        entities = Entity.objects.filter(
-            Q(admins=user)
-            | Q(entityuser__user=user, entityuser__deleted_at__isnull=True)
-        ).select_related("entity_type").distinct().order_by("name")
+        # the same list as the sign-in boot (core/services/boot_service.py):
+        # admin or member, narrowed to the host's EntityType
+        # (?entity_type_name=saude, utils/entityTypeHost.js) - a name that is
+        # no EntityType filters nothing; it narrows, it grants nothing
+        from django_resaas.saas.core.services import boot_service
 
-        # ?entity_type_name=saude: only the Entities of the EntityType of the
-        # host the user signs in on (the frontend sends its host key,
-        # utils/entityTypeHost.js). A name that is no EntityType (e.g. the
-        # "app" of app.example.com) filters nothing. This narrows the user's
-        # own list; it grants nothing.
-        entity_type_name = str(request.query_params.get("entity_type_name") or "").strip()
-        if entity_type_name and EntityType.objects.filter(name__iexact=entity_type_name).exists():
-            entities = entities.filter(entity_type__name__iexact=entity_type_name)
-
-        result = []
-
-        for entity in entities:
-            data = EntitySerializer(
-                entity,
-                context={"request": request},
-            ).data
-
-            result.append({
-                "id": data["id"],
-                # entity_type ({id, value, label}) is what every frontend
-                # consumer of the selected Entity reads (the home dashboards
-                # pick the module from it). entityType is the old key, kept
-                # for compatibility (DEPRECATED).
-                "entity_type": data["entity_type"],
-                "entityType": data["entity_type"],
-                "name": data["name"],
-                "dashboard": data["dashboard"],
-                "created_at": (
-                    data["created_at"].split("-")[0]
-                    if data.get("created_at")
-                    else None
-                ),
-                "logo": data.get("logo"),
-                # the Entity's website (public - the site/ endpoint returns it
-                # before sign-in): the header site button opens it
-                "site": data.get("site"),
-            })
+        entities = boot_service.entities_of(user, request.query_params.get("entity_type_name"))
+        result = boot_service.entity_rows(request, entities)
 
         return Response(result, status=status.HTTP_200_OK)
 
@@ -536,47 +502,9 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
 
 
     def filter_menu_by_permission(self, menu_list, user_perms):
-        result = []
+        from django_resaas.saas.core.menus import filter_menu_by_permission
 
-        user_perms = {
-            str(permission).strip().lower()
-            for permission in (user_perms or [])
-            if permission
-        }
-
-        for item in menu_list:
-            role = item.get("role")
-            add_role = item.get("add_role")
-
-            role = str(role).strip().lower() if role else None
-            add_role = str(add_role).strip().lower() if add_role else None
-
-            sub = self.filter_menu_by_permission(
-                item.get("submenu", []),
-                user_perms
-            )
-
-            has_perm = role is None or role in user_perms
-            add_perm = add_role is None or add_role in user_perms
-
-            if has_perm or sub:
-                new = {
-                    key: value
-                    for key, value in item.items()
-                    if key not in {"role", "add_role"}
-                }
-
-                if not add_perm:
-                    new.pop("add_route", None)
-
-                if sub:
-                    new["submenu"] = sub
-                else:
-                    new.pop("submenu", None)
-
-                result.append(new)
-
-        return result
+        return filter_menu_by_permission(menu_list, user_perms)
 
 
     @resaas_action(detail=True, methods=['GET'])
@@ -590,131 +518,9 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
 
     @resaas_action(detail=True, methods=['GET'])
     def menus(self, request, *args, **kwargs):
+        from django_resaas.saas.core.menus import build_menus
 
-        tipo_id = getattr(request, "entity_type_id", None)
-
-        if not tipo_id:
-            return Response([], status=status.HTTP_200_OK)
-
-        # =====================================================
-        # EFFECTIVE PERMISSIONS FOR CURRENT BRANCH/GROUP
-        #
-        # Deliberadamente SEM bypass de is_superuser aqui: o menu
-        # reflecte sempre o grupo/perfil actualmente seleccionado
-        # (BranchUserGroup), mesmo para superuser. Sem isto, trocar o
-        # perfil activo para "Guest" (BootstrapService já associa o
-        # criador da entity a "Guest" além do grupo admin escolhido,
-        # precisamente para servir de pré-visualização) nunca mudava o
-        # menu de um superuser - via sempre tudo, independentemente do
-        # perfil seleccionado. Um superuser continua a ver tudo nas
-        # entities/branches onde estiver em "Root" (que já tem todas
-        # as permissões via create_model_permissions), sem precisar de
-        # nenhum caso especial aqui.
-        # =====================================================
-        from django_resaas.saas.core.menus import active_app_names, is_active_app as _is_active, menu_permissions
-
-        # the menu shows what the profile may open, minus what it hides
-        menu_perms, hidden_apps = menu_permissions(request)
-        active_apps = active_app_names(tipo_id)
-
-        def is_active_app(app_config):
-            return _is_active(app_config, active_apps)
-
-        # =====================================================
-        # BUILD MENUS
-        # =====================================================
-        MENUS = []
-
-        # the same order as the module catalogue (list_app): the platform's
-        # modules first (django_resaas, django_resaas.<x>), then the
-        # business modules in settings.MY_APPS order; anything else last
-        from django.conf import settings
-
-        my_apps = list(getattr(settings, "MY_APPS", []) or [])
-
-        def menu_order(app_config):
-            name = str(app_config.name or "").lower()
-            platform = name.startswith("django_resaas") or "." in name
-            position = my_apps.index(app_config.name) if app_config.name in my_apps else len(my_apps)
-            return (0 if platform else 1, position)
-
-        for app_config in sorted(apps.get_app_configs(), key=menu_order):
-
-            if not is_active_app(app_config):
-                continue
-
-            # entitlements: a module outside what the tenant is entitled to has no menu
-            if not has_module(request, app_config.label):
-                continue
-
-            # the module's eye hides its menu groups; its direct links follow
-            # only their own permission's eye (hidden_menu_permissions)
-            app_hidden = str(app_config.label).strip().lower() in hidden_apps
-
-            module_name = f"{app_config.name}.sidebar"
-
-            try:
-                sidebar = importlib.import_module(module_name)
-
-            except ModuleNotFoundError as exc:
-                # Ignore only when this app has no sidebar.
-                # If the sidebar exists but one of its internal imports fails,
-                # re-raise the real error instead of hiding it.
-                if exc.name == module_name:
-                    continue
-                raise
-
-            ALL = getattr(sidebar, "ALL", [])
-
-            if not isinstance(ALL, (list, tuple)):
-                continue
-
-            for menu_config in ALL:
-
-                if not isinstance(menu_config, dict):
-                    continue
-
-                MENU = menu_config.get("MENU")
-                ICON = menu_config.get("ICON", "menu")
-                SUBMENUS = menu_config.get("SUBMENUS", [])
-                ROUTE = menu_config.get("ROUTE")
-
-                # a direct top-level link (no submenu): {"MENU", "ICON",
-                # "ROUTE", "ROLE"}. It needs its permission - a link without
-                # ROLE is never shown (fail closed).
-                if MENU and ROUTE and not SUBMENUS:
-                    role = str(menu_config.get("ROLE") or "").strip().lower()
-                    if role and role in menu_perms:
-                        MENUS.append({
-                            "menu": MENU,
-                            "icon": ICON,
-                            "app": app_config.name,
-                            "app_label": app_config.label,
-                            "route": ROUTE,
-                            "submenu": [],
-                        })
-                    continue
-
-                if not MENU or not SUBMENUS or app_hidden:
-                    continue
-
-                filtered_submenus = self.filter_menu_by_permission(
-                    SUBMENUS,
-                    menu_perms
-                )
-
-                if not filtered_submenus:
-                    continue
-
-                MENUS.append({
-                    "menu": MENU,
-                    "icon": ICON,
-                    "app": app_config.name,
-                    "app_label": app_config.label,
-                    "submenu": filtered_submenus,
-                })
-
-        return Response(MENUS, status=status.HTTP_200_OK)
+        return Response(build_menus(request), status=status.HTTP_200_OK)
 
 
     # ==========================================================
