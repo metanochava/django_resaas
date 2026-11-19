@@ -7,7 +7,8 @@ with an Entity override, filtered by the CURRENT profile.
   permissions (core/menus.menu_permissions: effective, minus the hidden
   ones), its app is active for the Entity Type and entitled (has_module) -
   the same rules as the sidebar. The frontend never decides.
-- At most MAX_TABS, in order; the frontend adds "More" (the drawer).
+- At most MAX_TABS, in order. There is no "More" tab: the header's ☰ (top
+  left) already opens the drawer with every menu.
 
 Each module may offer candidates in `<app>/mobile_tabs.py`:
 
@@ -24,7 +25,7 @@ from django.apps import apps
 from django_resaas.saas.core.menus import active_app_names, is_active_app, menu_permissions
 from django_resaas.saas.models.mobile_tab import EntityMobileTab, EntityTypeMobileTab
 
-MAX_TABS = 4
+MAX_TABS = 5
 
 
 def _rows(request):

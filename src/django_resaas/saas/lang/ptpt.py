@@ -1813,6 +1813,7 @@ key_value = {
     "Suggest tabs": "Sugerir tabs",
     "Add the tabs the active modules of this entity type suggest": "Acrescentar as tabs que os módulos activos deste tipo de entidade sugerem",
     "Tabs created": "Tabs criadas",
+    "No phone tabs yet.": "Ainda não há tabs do telemóvel.",
     "Entity type mobile tab": "Tab do telemóvel do tipo de entidade",
     "Entity type mobile tabs": "Tabs do telemóvel do tipo de entidade",
     "Entity mobile tab": "Tab do telemóvel da entidade",

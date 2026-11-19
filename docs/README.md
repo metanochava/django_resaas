@@ -34,6 +34,7 @@ backend framework.
 -   [Languages: default per EntityType, Entity and User](features/languages.md)
 -   [Model lifecycle events](features/lifecycle-events.md)
 -   [Public sites and their contact form](features/public-sites.md)
+-   [Phone bottom tabs](features/mobile-tabs.md)
 -   [Creating a new resource](development/creating-resource.md)
 -   [Building a module](development/building-a-module.md)
 -   [Minimal example app](../src/dev/README.md)
