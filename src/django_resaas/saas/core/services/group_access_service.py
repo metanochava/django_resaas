@@ -117,6 +117,7 @@ def held_codenames(request):
             user=request.user,
             group_id=request.group_id,
             branch_id=request.branch_id,
+            state="Active",
             branch__entity_id=request.entity_id,
             branch__entity__entity_type_id=request.entity_type_id,
         ).values_list("group__permissions__codename", flat=True)

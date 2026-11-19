@@ -74,6 +74,7 @@ from django_resaas.saas.data.branch_user_group.views.branch_user_group import Br
 from django_resaas.saas.data.document.views.document import DocumentAPIView
 from django_resaas.saas.data.document_type.views.document_type import DocumentTypeAPIView
 from django_resaas.saas.data.branch_opening_hours.views.branch_opening_hours import BranchOpeningHoursAPIView
+from django_resaas.saas.data.mobile_tab.views.mobile_tab import EntityMobileTabAPIView, EntityTypeMobileTabAPIView  # noqa: F401
 from django_resaas.saas.data.form_definition.views.form_definition import FormDefinitionAPIView, FormEngineViewSet
 
 

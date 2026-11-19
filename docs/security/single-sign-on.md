@@ -48,6 +48,7 @@ needs. One domain is **central** (the frontend's `SSO_URL`, for example
 - **Same answer for every failure.** Unknown, used, expired, wrong verifier, wrong
   `redirect_uri`, inactive user, ended source session or a malformed body all answer
   401 `sso_code_invalid`.
+- **Sessions are identified by their id (`sid`), not by the current refresh token's jti:** the refresh rotates (see [sessions-and-tokens.md](sessions-and-tokens.md)); a code's `source_jti`, `previous_refresh` and the family all use the session id.
 - **A new session.** Redeeming mints a new refresh token and a `UserLogin` row
   (`session_service.record_login`), so the session appears in `GET /api/sessions/`
   and can be ended like any other. The event is audited as `SSO_SIGN_IN` (details:

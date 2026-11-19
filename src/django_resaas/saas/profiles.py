@@ -54,7 +54,7 @@ SCAFFOLD_PERMISSIONS = [
 _ACTIONS = ("list", "view", "add", "change", "delete", "hard_delete", "restore", "pdf", "pdf_list")
 ENTITY_TYPE_PERMISSIONS = [
     f"{action}_{model}"
-    for model in ("entitytype", "entitytypeapp", "entitytypegroup", "entitytypemodel")
+    for model in ("entitytype", "entitytypeapp", "entitytypegroup", "entitytypemodel", "entitytypemobiletab")
     for action in _ACTIONS
 ]
 
@@ -89,6 +89,9 @@ CORE_PROFILES = [
             "list_formdefinition", "view_formdefinition", "add_formdefinition", "change_formdefinition",
             "delete_formdefinition", "publish_formdefinition",
             "view_entityapp", "add_entityapp", "change_entityapp", "list_entityapp",
+            # its Entity's own phone tabs (EntityMobileTab), replacing its Entity Type's
+            "view_entitymobiletab", "add_entitymobiletab", "change_entitymobiletab", "list_entitymobiletab",
+            "delete_entitymobiletab",
             "view_entitygroup", "add_entitygroup", "change_entitygroup", "list_entitygroup",
             "view_entityuser", "add_entityuser", "change_entityuser", "list_entityuser",
             "view_group", "add_group", "change_group", "list_group",

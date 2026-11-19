@@ -217,6 +217,10 @@ admin.site.index_title = '{clean_name(name)}'
         if entity_app.state != "Active":
             entity_app.state = "Active"
             entity_app.save(update_fields=["state"])
+        # the Admin profile gets every permission of the module
+        from django_resaas.saas.core.services import admin_profile_service
+
+        admin_profile_service.grant_app(app.name)
 
         
         ct, _ = ContentType.objects.get_or_create(

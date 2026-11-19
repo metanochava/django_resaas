@@ -119,7 +119,7 @@ class BranchAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
         methods=['GET'],
     )
     def groups(self, request, id):
-        branchUserGroups = BranchUserGroup.objects.all().filter(branch__id=id, user__id=request.user.id)
+        branchUserGroups = BranchUserGroup.objects.all().filter(branch__id=id, user__id=request.user.id, state="Active")
         suc = []
         for branchUserGroup in branchUserGroups:
             suc.append({'id': branchUserGroup.group.id, 'name': branchUserGroup.group.name})

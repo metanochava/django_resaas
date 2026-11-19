@@ -1,5 +1,11 @@
 # Upgrading
 
+## Profile assignments: only Active ones give access (next release after 0.0.685)
+
+| Change | Kind | What to do |
+|---|---|---|
+| **`BranchUserGroup.state` is enforced**: an Inactive assignment grants no permission, is refused as the context's profile (`403`) and is not offered to pick; new assignments are Active; `users/{id}/groupState/` switches one on/off (`change_branchusergroup`). See [Permissions](../security/permissions.md) | Behaviour change | `migrate`: `0023_branchusergroup_state_active` sets every existing assignment Active, so nobody loses a profile. Code that creates assignments with `state="Inactive"` on purpose now really switches them off |
+
 ## Entity administrators may delegate (next release after 0.0.664)
 
 | Change | Kind | What to do |

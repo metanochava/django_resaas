@@ -520,7 +520,7 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
         if error:
             return error
 
-        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id).first()
+        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id, state="Active").first()
         
         per = []
         if (branchUserGroup):
@@ -580,11 +580,18 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
 
 
     @resaas_action(detail=True, methods=['GET'])
+    def mobile_tabs(self, request, *args, **kwargs):
+        """The bottom tabs of a phone-sized screen for the CURRENT profile
+        (core/services/mobile_tab_service.py: the same permission, module and
+        entitlement rules as menus)."""
+        from django_resaas.saas.core.services.mobile_tab_service import tabs_for
+
+        return Response(tabs_for(request), status=status.HTTP_200_OK)
+
+    @resaas_action(detail=True, methods=['GET'])
     def menus(self, request, *args, **kwargs):
 
         tipo_id = getattr(request, "entity_type_id", None)
-        branch_id = getattr(request, "branch_id", None)
-        group_id = getattr(request, "group_id", None)
 
         if not tipo_id:
             return Response([], status=status.HTTP_200_OK)
@@ -604,103 +611,34 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
         # as permissões via create_model_permissions), sem precisar de
         # nenhum caso especial aqui.
         # =====================================================
-        user_perms = set()
-        hidden_apps = set()
-        hidden_perms = set()
-
-        if branch_id and group_id:
-            branch_user_group = (
-                BranchUserGroup.objects
-                .filter(
-                    user_id=request.user.id,
-                    branch_id=branch_id,
-                    group_id=group_id
-                )
-                .select_related("group")
-                .first()
-            )
-
-            if branch_user_group:
-                # modules this profile does not show in its menu (the
-                # permissions stay; GroupAPIView.menu_visibility)
-                hidden_apps = {
-                    str(label).strip().lower()
-                    for label in (branch_user_group.group.hidden_menu_apps or [])
-                }
-                # permissions whose menu entries this profile does not show
-                hidden_perms = {
-                    str(codename).strip().lower()
-                    for codename in (branch_user_group.group.hidden_menu_permissions or [])
-                }
-                user_perms = {
-                    str(codename).strip().lower()
-                    for codename in branch_user_group
-                    .group
-                    .permissions
-                    .values_list("codename", flat=True)
-                }
+        from django_resaas.saas.core.menus import active_app_names, is_active_app as _is_active, menu_permissions
 
         # the menu shows what the profile may open, minus what it hides
-        menu_perms = user_perms - hidden_perms
-
-        # =====================================================
-        # ACTIVE APPS FOR ENTITY TYPE
-        # =====================================================
-        apps_qs = (
-            EntityTypeApp.objects
-            .filter(entity_type_id=tipo_id)
-            .select_related("app")
-        )
-
-        active_apps = {
-            str(item.app.name).strip().lower()
-            for item in apps_qs
-            if item.app and item.app.name
-        }
+        menu_perms, hidden_apps = menu_permissions(request)
+        active_apps = active_app_names(tipo_id)
 
         def is_active_app(app_config):
-            """
-            Supports App.name values in any of these common forms:
-
-                past.app
-                app
-                past
-                django_resaas.notifications
-                notifications
-
-            Django AppConfig may expose:
-                name  = full dotted Python path
-                label = Django app label
-            """
-
-            app_name = str(app_config.name or "").strip().lower()
-            app_label = str(app_config.label or "").strip().lower()
-
-            parts = [
-                part
-                for part in app_name.split(".")
-                if part
-            ]
-
-            candidates = {
-                app_name,
-                app_label,
-            }
-
-            if parts:
-                candidates.add(parts[0])
-                candidates.add(parts[-1])
-
-            candidates.discard("")
-
-            return bool(candidates.intersection(active_apps))
+            return _is_active(app_config, active_apps)
 
         # =====================================================
         # BUILD MENUS
         # =====================================================
         MENUS = []
 
-        for app_config in apps.get_app_configs():
+        # the same order as the module catalogue (list_app): the platform's
+        # modules first (django_resaas, django_resaas.<x>), then the
+        # business modules in settings.MY_APPS order; anything else last
+        from django.conf import settings
+
+        my_apps = list(getattr(settings, "MY_APPS", []) or [])
+
+        def menu_order(app_config):
+            name = str(app_config.name or "").lower()
+            platform = name.startswith("django_resaas") or "." in name
+            position = my_apps.index(app_config.name) if app_config.name in my_apps else len(my_apps)
+            return (0 if platform else 1, position)
+
+        for app_config in sorted(apps.get_app_configs(), key=menu_order):
 
             if not is_active_app(app_config):
                 continue
@@ -901,6 +839,56 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
     @resaas_action(
         detail=True,
         methods=['POST'],
+        permission='change_branchusergroup',
+    )
+    def groupState(self, request, id):
+        """Switch a user's profile in the current branch on or off
+        ({"group": id, "state": "Active" | "Inactive"}). Only an Active
+        assignment grants access (permissions, context, menus)."""
+        target, error = self._group_assignment_guard(request, id)
+        if error:
+            return error
+
+        group_id = request.data.get('group')
+        state = request.data.get('state')
+
+        if state not in ("Active", "Inactive"):
+            return self._group_error(request, "invalid_state", "The state must be Active or Inactive.", status.HTTP_400_BAD_REQUEST)
+
+        # never lock yourself out of the profile you are acting with
+        if state == "Inactive" and str(target.id) == str(request.user.id) and str(group_id) == str(request.group_id):
+            return self._group_error(request, "cannot_deactivate_own_active_group", "You cannot deactivate the profile you are currently using.", status.HTTP_400_BAD_REQUEST)
+
+        try:
+            assignment = BranchUserGroup.objects.filter(
+                user_id=target.id,
+                branch_id=request.branch_id,
+                group_id=group_id,
+            ).first()
+        except (ValueError, TypeError, DjangoValidationError):
+            assignment = None
+
+        if assignment is None or not self._is_entity_member(request, target):
+            return self._group_error(request, "group_not_assigned", "This profile is not assigned to the user.", status.HTTP_404_NOT_FOUND)
+
+        # switching a profile back on grants its permissions again: no
+        # self-elevation (same rule as assigning it to yourself)
+        if state == "Active" and str(target.id) == str(request.user.id):
+            group_access_service.check_delegation(request, assignment.group.permissions.all())
+
+        if assignment.state != state:
+            assignment.state = state
+            assignment.updated_by = request.user
+            assignment.save(update_fields=['state', 'updated_by', 'updated_at'])
+
+        return Response(
+            {'id': str(assignment.group_id), 'name': assignment.group.name, 'state': assignment.state},
+            status=status.HTTP_200_OK,
+        )
+
+    @resaas_action(
+        detail=True,
+        methods=['POST'],
         permission='add_branchusergroup',
     )
     def addGroup(self, request, id):
@@ -942,12 +930,15 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             if assignment and not assignment.deleted_at:
                 return self._group_error(request, "group_already_assigned", "This profile is already assigned to the user.", status.HTTP_409_CONFLICT)
 
+            # an assigned profile is Active (a restored one too); only an
+            # Admin switches it off afterwards (groupState)
             if assignment:
                 assignment.deleted_at = None
-                assignment.save(update_fields=['deleted_at'])
+                assignment.state = "Active"
+                assignment.save(update_fields=['deleted_at', 'state'])
                 message = 'Group linked successfully'
             else:
-                assignment = BranchUserGroup.objects.create(user=target, group=group, branch=branch)
+                assignment = BranchUserGroup.objects.create(user=target, group=group, branch=branch, state="Active")
                 message = 'Group added successfully'
 
         return Response(

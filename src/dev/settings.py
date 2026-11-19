@@ -178,16 +178,20 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        # JWT only (Bearer). Basic (a password on any request: no login
+        # throttle, no two-factor), Token (unused: no tokens issued) and
+        # Session (an admin cookie authenticating the API) were removed.
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
     )
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    # each refresh returns a new refresh token and blacklists the one used; a
+    # rotated token used again ends its session family (session_service)
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
 }
 
 # --------------------------
@@ -264,3 +268,7 @@ CELERY_TASK_ALWAYS_EAGER = bool(int(os.environ.get("CELERY_TASK_ALWAYS_EAGER", "
 
 # Google reviews on public sites (site/reviews/): Places API key, server side only
 RESAAS_GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY")
+
+# the HttpOnly refresh cookie (core/services/refresh_cookie.py); the sites are
+# set per test (RESAAS_REFRESH_COOKIE_SITES)
+CORS_ALLOW_CREDENTIALS = True

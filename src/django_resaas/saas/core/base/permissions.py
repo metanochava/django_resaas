@@ -72,6 +72,7 @@ def check_permission(request, role):
         user=request.user,
         group_id=request.group_id,
         branch_id=request.branch_id,
+        state="Active",  # an assignment switched off by an Admin grants nothing
         branch__entity_id=request.entity_id,
         branch__entity__entity_type_id=request.entity_type_id,
         group__permissions__codename=role,
