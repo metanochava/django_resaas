@@ -177,6 +177,7 @@ def resolve_branch_admin(ctx: ResolverContext):
         BranchUserGroup.objects.filter(
             branch=branch,
             group__permissions__codename=permission_codename,
+            state="Active",
         )
         .values_list("user", flat=True)
         .distinct()

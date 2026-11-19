@@ -49,7 +49,7 @@ def menu_permissions(request):
     group_id = getattr(request, "group_id", None)
     if not (branch_id and group_id):
         return set(), set()
-    link = (BranchUserGroup.objects.filter(user_id=request.user.id, branch_id=branch_id, group_id=group_id)
+    link = (BranchUserGroup.objects.filter(user_id=request.user.id, branch_id=branch_id, group_id=group_id, state="Active")
             .select_related("group").first())
     if link is None:
         return set(), set()

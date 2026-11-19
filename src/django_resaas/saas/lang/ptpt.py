@@ -1262,6 +1262,13 @@ key_value = {
     "This profile does not belong to the current entity.": "Este perfil não pertence à entidade actual.",
     "You cannot remove the profile you are currently using.": "Não pode remover o perfil que está a usar neste momento.",
     "This profile is not assigned to the user.": "Este perfil não está atribuído ao utilizador.",
+    # Profiles tab: an assigned profile switched on/off (users/{id}/groupState/)
+    "You cannot deactivate the profile you are currently using.": "Não pode desactivar o perfil que está a usar neste momento.",
+    "The state must be Active or Inactive.": "O estado tem de ser Activo ou Inactivo.",
+    "Profile activated.": "Perfil activado.",
+    "Profile deactivated.": "Perfil desactivado.",
+    "Deactivate this profile: it stops giving access": "Desactivar este perfil: deixa de dar acesso",
+    "Activate this profile: it gives access again": "Activar este perfil: volta a dar acesso",
     "This user is not a member of the current entity.": "Este utilizador não é membro da entidade actual.",
     "This assignment must use the current branch.": "Esta atribuição tem de usar a sucursal actual.",
     "Does not belong to the current entity.": "Não pertence à entidade actual.",

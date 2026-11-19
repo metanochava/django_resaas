@@ -520,7 +520,7 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
         if error:
             return error
 
-        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id).first()
+        branchUserGroup = BranchUserGroup.objects.filter(user__id = id, branch__id=request.branch_id, group__id=request.group_id, state="Active").first()
         
         per = []
         if (branchUserGroup):
@@ -839,6 +839,56 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
     @resaas_action(
         detail=True,
         methods=['POST'],
+        permission='change_branchusergroup',
+    )
+    def groupState(self, request, id):
+        """Switch a user's profile in the current branch on or off
+        ({"group": id, "state": "Active" | "Inactive"}). Only an Active
+        assignment grants access (permissions, context, menus)."""
+        target, error = self._group_assignment_guard(request, id)
+        if error:
+            return error
+
+        group_id = request.data.get('group')
+        state = request.data.get('state')
+
+        if state not in ("Active", "Inactive"):
+            return self._group_error(request, "invalid_state", "The state must be Active or Inactive.", status.HTTP_400_BAD_REQUEST)
+
+        # never lock yourself out of the profile you are acting with
+        if state == "Inactive" and str(target.id) == str(request.user.id) and str(group_id) == str(request.group_id):
+            return self._group_error(request, "cannot_deactivate_own_active_group", "You cannot deactivate the profile you are currently using.", status.HTTP_400_BAD_REQUEST)
+
+        try:
+            assignment = BranchUserGroup.objects.filter(
+                user_id=target.id,
+                branch_id=request.branch_id,
+                group_id=group_id,
+            ).first()
+        except (ValueError, TypeError, DjangoValidationError):
+            assignment = None
+
+        if assignment is None or not self._is_entity_member(request, target):
+            return self._group_error(request, "group_not_assigned", "This profile is not assigned to the user.", status.HTTP_404_NOT_FOUND)
+
+        # switching a profile back on grants its permissions again: no
+        # self-elevation (same rule as assigning it to yourself)
+        if state == "Active" and str(target.id) == str(request.user.id):
+            group_access_service.check_delegation(request, assignment.group.permissions.all())
+
+        if assignment.state != state:
+            assignment.state = state
+            assignment.updated_by = request.user
+            assignment.save(update_fields=['state', 'updated_by', 'updated_at'])
+
+        return Response(
+            {'id': str(assignment.group_id), 'name': assignment.group.name, 'state': assignment.state},
+            status=status.HTTP_200_OK,
+        )
+
+    @resaas_action(
+        detail=True,
+        methods=['POST'],
         permission='add_branchusergroup',
     )
     def addGroup(self, request, id):
@@ -880,12 +930,15 @@ class UserAPIView(ResaasResponseMixin, viewsets.ModelViewSet):
             if assignment and not assignment.deleted_at:
                 return self._group_error(request, "group_already_assigned", "This profile is already assigned to the user.", status.HTTP_409_CONFLICT)
 
+            # an assigned profile is Active (a restored one too); only an
+            # Admin switches it off afterwards (groupState)
             if assignment:
                 assignment.deleted_at = None
-                assignment.save(update_fields=['deleted_at'])
+                assignment.state = "Active"
+                assignment.save(update_fields=['deleted_at', 'state'])
                 message = 'Group linked successfully'
             else:
-                assignment = BranchUserGroup.objects.create(user=target, group=group, branch=branch)
+                assignment = BranchUserGroup.objects.create(user=target, group=group, branch=branch, state="Active")
                 message = 'Group added successfully'
 
         return Response(

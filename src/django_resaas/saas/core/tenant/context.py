@@ -188,6 +188,8 @@ class ResaasContextService:
             user=user,
             group_id=group_id,
             deleted_at__isnull=True,
+            # an assignment switched off by an Admin is no profile to act with
+            state="Active",
         ).exists()
 
 

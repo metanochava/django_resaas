@@ -134,6 +134,21 @@ Creating, changing or deleting a `Permission` row needs `add_permission` / `chan
 A user's profiles in the current Branch are managed by `users/{id}/addGroup/` and `removeGroup/`
 (`UserAPIView`, permission- and tenant-checked).
 
+**An assignment is Active or Inactive, and only an Active one gives access** (2026-11-19).
+`BranchUserGroup.state` defaults to `Active`: every new assignment, and one `addGroup/` restores,
+is Active. An Admin switches it on and off with `POST users/{id}/groupState/`
+`{"group": id, "state": "Active" | "Inactive"}` (`change_branchusergroup`, same tenant guards;
+`400 invalid_state`, `404 group_not_assigned`; switching off the profile you are acting with is
+`400 cannot_deactivate_own_active_group`; switching one of your own back on is delegation-checked
+like `addGroup/`). An Inactive assignment is left out of: `check_permission` and the effective
+permissions (`group_access_service`), the context's profile (`ResaasContextService.validate_group`
+→ `403`), the profiles to pick from (`branchs/{id}/groups/`; the frontend `GroupStore` also drops
+them from `userGroups/`), `users/{id}/permissions/`, menus and phone tabs, notification recipients
+and the schema's relation pickers. `users/{id}/userGroups/` still lists it, with its `state`, for
+the Profiles tab. Migration `0023_branchusergroup_state_active` made every existing assignment
+Active (the old `addGroup` left them at the `TimeModel` default, "Inactive", which nothing read).
+Tests: `saas/tests/test_user_group_state.py`.
+
 ### Groups themselves (`auth/groups/`)
 
 `GroupAPIView` applies the same rules (`saas/core/services/group_access_service.py`). Every action
