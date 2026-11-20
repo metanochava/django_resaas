@@ -76,10 +76,12 @@ def make_brand_qr_b64(text: str, color: str = "#000000", logo_bytes: bytes = Non
     return png_bytes_to_b64(buf.getvalue())
 
 
-def make_barcode_b64(value: str) -> str:
+def make_barcode_b64(value: str, text: bool = True) -> str:
+    """Code 128 of `value`; text=False draws only the bars (a template that
+    scales the image prints the value itself, undistorted)."""
     CODE128 = barcode.get_barcode_class("code128")
     buf = BytesIO()
-    CODE128(value, writer=ImageWriter()).write(buf, options={"quiet_zone": 2})
+    CODE128(value, writer=ImageWriter()).write(buf, options={"quiet_zone": 2, "write_text": text})
     return png_bytes_to_b64(buf.getvalue())
 
 def _entity_label(request):

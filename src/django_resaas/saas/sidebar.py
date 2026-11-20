@@ -97,6 +97,13 @@ ALL = [
         # 'crud': { 'module': 'django_resaas', 'model': 'User' }
     },
     {
+        # the Branch's printers and the paper each document comes out on
+        "menu": "Printers",
+        "icon": "print",
+        "role": "list_printer",
+        "route": "list_printer",
+    },
+    {
         # the phone's bottom tabs: Root edits the Entity Types' (template)
         "menu": "Phone tabs",
         "icon": "tab",

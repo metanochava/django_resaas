@@ -44,6 +44,7 @@ PUBLIC_BY_DESIGN = {
     "SiteContactAPIView",       # contact form of a public site (Origin -> Entity, throttled)
     "SiteBranchesAPIView",      # branches + address of a public site, for its map (Origin -> Entity)
     "SiteReviewsAPIView",       # Google reviews of a public site's place (Origin -> Entity, throttled)
+    "PrintVerifyAPIView",       # a printed document's QR code: signed token -> its public fields (throttled)
     "TokenRefreshView",
     "LoginTwoFactorAPIView",
     "LoginTwoFactorSetupAPIView",

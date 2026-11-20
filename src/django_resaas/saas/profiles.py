@@ -89,6 +89,8 @@ CORE_PROFILES = [
             "list_formdefinition", "view_formdefinition", "add_formdefinition", "change_formdefinition",
             "delete_formdefinition", "publish_formdefinition",
             "view_entityapp", "add_entityapp", "change_entityapp", "list_entityapp",
+            # the printers of its Branches and the documents each prints by default
+            "view_printer", "add_printer", "change_printer", "list_printer", "delete_printer",
             # its Entity's own phone tabs (EntityMobileTab), replacing its Entity Type's
             "view_entitymobiletab", "add_entitymobiletab", "change_entitymobiletab", "list_entitymobiletab",
             "delete_entitymobiletab",
