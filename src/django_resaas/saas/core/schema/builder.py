@@ -155,6 +155,34 @@ class ResaasSchemaBuilder:
     # PERMISSIONS
     # =========================================================
 
+    def build_operations(self):
+        """Which writes the model's API accepts (its registered views'
+        http_method_names): {create, update, delete}. A read-only endpoint
+        (StockItem: balances change only through movements) says so, and
+        the frontend offers no Add / Edit / Delete for it. Several views of
+        one model: any of them allowing it counts. No registered view: all
+        True (the earlier behaviour)."""
+        from django_resaas.saas.core.base.registry import VIEW_REGISTRY
+
+        allowed = set()
+        found = False
+        for views in VIEW_REGISTRY.values():
+            for view in views.values():
+                queryset = getattr(view, "queryset", None)
+                serializer = getattr(view, "serializer_class", None)
+                model = getattr(queryset, "model", None) or getattr(getattr(serializer, "Meta", None), "model", None)
+                if model is not self.Model:
+                    continue
+                found = True
+                allowed.update(method.lower() for method in getattr(view, "http_method_names", []) or [])
+        if not found:
+            return {"create": True, "update": True, "delete": True}
+        return {
+            "create": "post" in allowed,
+            "update": bool(allowed & {"put", "patch"}),
+            "delete": "delete" in allowed,
+        }
+
     def build_permissions(self):
 
         permissions = {}
@@ -721,6 +749,11 @@ class ResaasSchemaBuilder:
 
             "permissions":
                 permissions,
+
+            # the writes the API accepts (build_operations) - additive to
+            # Schema 1.0: a client without it keeps offering every write
+            "operations":
+                self.build_operations(),
 
             "routes":
                 routes,

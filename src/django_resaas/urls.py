@@ -112,6 +112,7 @@ from django_resaas.view import home
 from django_resaas.saas.core.utils.autoload_urls import build_saas_urls
 
 from django_resaas.saas.data.context.views.context import ResaasBootAPIView, ResaasContextAPIView
+from django_resaas.saas.data.printing.views.printing import PrintDocumentPDFAPIView, PrintDocumentsAPIView, PrinterAPIView, PrintVerifyAPIView  # noqa: F401
 from django_resaas.saas.data.entitlement.views.entitlement import EntitlementsAPIView
 
 from django_resaas.saas.core.dashboards.views import (
@@ -173,6 +174,9 @@ urlpatterns = [
     path('', home, name='home'),
     path(  "resaas/context/", ResaasContextAPIView.as_view(), name="resaas_context" ),
     path(  "resaas/boot/", ResaasBootAPIView.as_view(), name="resaas_boot" ),
+    path(  "printing/documents/", PrintDocumentsAPIView.as_view(), name="printing_documents" ),
+    path(  "printing/verify/<str:token>/", PrintVerifyAPIView.as_view(), name="printing_verify" ),
+    path(  "printing/<str:code>/<str:object_id>/pdf/", PrintDocumentPDFAPIView.as_view(), name="printing_pdf" ),
     path("resaas/entitlements/", EntitlementsAPIView.as_view(), name="resaas_entitlements"),
     
 

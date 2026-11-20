@@ -13,3 +13,4 @@ from .site_contact_message import SiteContactMessage
 from .branch_opening_hours import BranchOpeningHours
 from .form_definition import FormDefinition, FormDraft
 from .mobile_tab import EntityMobileTab, EntityTypeMobileTab
+from .printer import Printer

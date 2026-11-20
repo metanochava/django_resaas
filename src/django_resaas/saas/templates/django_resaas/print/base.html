@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+{% load i18n %}
+<html>
+<head>
+<meta charset="utf-8">
+<title>{{ pdf_title|default:document.label }}</title>
+<style>
+  {{ page_css|safe }}
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "DejaVu Sans", Arial, sans-serif; color: #111; }
+  .sheet { font-size: 10pt; line-height: 1.35; }
+  .roll { font-size: {% if paper.width <= 58 %}7.5pt{% else %}8.5pt{% endif %}; line-height: 1.3; }
+  .head { text-align: center; margin-bottom: 3mm; }
+  .sheet .head { text-align: left; display: flex; gap: 4mm; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 3mm; }
+  .head img { max-height: {% if paper.thermal %}14mm{% else %}18mm{% endif %}; max-width: 40mm; }
+  .head .who { font-weight: bold; font-size: 1.15em; }
+  .head .where { color: #444; }
+  .title { font-weight: bold; text-transform: uppercase; text-align: center; margin: 2mm 0; letter-spacing: 0.5px; }
+  .meta { display: flex; justify-content: space-between; gap: 2mm; color: #333; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; border-bottom: 1px solid #333; font-weight: bold; padding: 1mm 0; }
+  td { padding: 0.8mm 0; vertical-align: top; }
+  .num { text-align: right; white-space: nowrap; }
+  .rule { border-top: 1px dashed #333; margin: 2mm 0; }
+  .total { font-weight: bold; font-size: 1.2em; }
+  .foot { text-align: center; color: #555; margin-top: 3mm; font-size: 0.9em; }
+  .codes { text-align: center; margin-top: 3mm; }
+  .codes .qr { width: {% if paper.thermal %}{% if paper.width <= 58 %}26mm{% else %}32mm{% endif %}{% else %}28mm{% endif %}; }
+  .codes .barcode { display: block; margin: 2mm auto 0; height: 12mm; max-width: 100%; }
+  /* wide enough for a counter scanner on a roll */
+  .roll .codes .barcode { width: 85%; height: 12mm; }
+  .barcode-text { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 1px; text-align: center; font-size: 0.9em; }
+  .sheet .codes { display: flex; justify-content: space-between; align-items: flex-end; }
+  .sheet .codes .barcode { margin: 0; width: 60mm; }
+  {% block style %}{% endblock %}
+</style>
+</head>
+<body class="{% if paper.thermal %}roll{% else %}sheet{% endif %}">
+  <div class="head">
+    {% if logo_b64 %}<img src="data:image/png;base64,{{ logo_b64 }}">{% endif %}
+    <div>
+      {% if entity %}<div class="who">{{ entity.name }}</div>{% endif %}
+      {% if branch %}<div class="where">{{ branch.name }}</div>{% endif %}
+    </div>
+  </div>
+  {% block content %}{% endblock %}
+  {% block codes %}
+  {% if qr_b64 or barcode_b64 %}
+  <div class="codes">
+    {% if qr_b64 %}<img class="qr" src="data:image/png;base64,{{ qr_b64 }}" alt="QR">{% endif %}
+    {% if barcode_b64 %}<div class="barcode-box"><img class="barcode" src="data:image/png;base64,{{ barcode_b64 }}" alt="{{ barcode_value }}"><div class="barcode-text">{{ barcode_value }}</div></div>{% endif %}
+  </div>
+  {% endif %}
+  {% endblock %}
+  <div class="foot">{% block footer %}{{ printed_at|date:"Y-m-d H:i" }}{% endblock %}</div>
+</body>
+</html>

@@ -42,8 +42,19 @@ def create_core_profiles(sender, **kwargs):
     if not EntityType.objects.exists():
         return
 
+    from django.contrib.auth.management import create_permissions
+
+    from django_resaas.saas.core.signals.permissions import create_model_permissions
     from django_resaas.saas.core.utils.group_creator import group_creator
     from django_resaas.saas.profiles import CORE_PROFILES, CORE_RENAMES
+
+    # This receiver is connected before the ones that create the permissions
+    # (contrib.auth's and signals/permissions.py): a model added by this
+    # migration reached the profiles with no permissions yet ("profile 'Admin'
+    # expects permissions that do not exist") until the next migrate. Both
+    # are idempotent.
+    create_permissions(kwargs["app_config"], verbosity=0, using=kwargs.get("using", "default"))
+    create_model_permissions(sender=sender, **kwargs)
 
     group_creator(CORE_PROFILES, rename_from=CORE_RENAMES)
 
