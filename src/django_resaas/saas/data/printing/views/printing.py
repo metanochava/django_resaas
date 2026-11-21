@@ -96,6 +96,22 @@ class PrintDocumentPDFAPIView(ResaasResponseMixin, APIView):
         return render_pdf(request, document, obj, paper, download=request.query_params.get("download") == "1")
 
 
+# a record's estado / status that means the printed document no longer counts
+VOIDED_WORDS = ("anulad", "cancelad", "cancelled", "canceled", "voided", "revoked", "revogad")
+
+
+def _local_time(iso):
+    """"2026-11-20T13:05+00:00" -> "2026-11-20 14:05" (the server's time zone)."""
+    from datetime import datetime
+
+    from django.utils import timezone
+
+    try:
+        return timezone.localtime(datetime.fromisoformat(str(iso))).strftime("%Y-%m-%d %H:%M")
+    except (TypeError, ValueError):
+        return str(iso or "")
+
+
 class PrintVerifyThrottle(_ByAddress):
     scope = "print_verify"
     setting = "RESAAS_PRINT_VERIFY_THROTTLE_RATE"
@@ -114,10 +130,13 @@ class PrintVerifyAPIView(ResaasResponseMixin, APIView):
     throttle_classes = [PrintVerifyThrottle]
 
     def get(self, request, token):
-        from django_resaas.saas.core.printing.verify import read_token
+        from django_resaas.saas.core.printing.verify import ISSUE, read_payload, read_token
 
         not_found = ResaasAPIException("This document was not issued by this system.",
                                        code="document_not_verified", status_code=404)
+        payload = read_payload(token)
+        if payload and payload["d"] == ISSUE:
+            return self._issued(request, payload, not_found)
         found = read_token(token)
         document = registry.get(found[0]) if found else None
         if document is None or not document.get("verify") or not document.get("verify_queryset"):
@@ -142,4 +161,42 @@ class PrintVerifyAPIView(ResaasResponseMixin, APIView):
             "fields": [{"label": Translate.tdc(request, label),
                         "value": Translate.tdc(request, value) if isinstance(value, str) else value}
                        for label, value in public.items()],
+        }, status=status.HTTP_200_OK)
+
+    def _issued(self, request, payload, not_found):
+        """A PDF verified by its issue token (core/utils PDF()): what it is,
+        who issued it and when; for one record, whether it still stands
+        (gone, or its estado/status voided/cancelled). Never the record's content."""
+        from django.apps import apps as django_apps
+        from django_resaas.saas.models.branch import Branch
+        from django_resaas.saas.models.entity import Entity
+
+        entity = Entity.objects.filter(id=payload.get("e")).first() if payload.get("e") else None
+        branch = Branch.objects.filter(id=payload.get("b"), entity=entity).first() if payload.get("b") and entity else None
+        voided = False
+        if payload.get("m") and payload.get("o"):
+            try:
+                model = django_apps.get_model(payload["m"])
+            except (LookupError, ValueError):
+                raise not_found
+            manager = getattr(model, "all_objects", None) or model._default_manager
+            obj = manager.filter(pk=payload["o"]).first()
+            if obj is not None and entity is not None and getattr(obj, "entity_id", entity.id) != entity.id:
+                raise not_found
+            # gone (deleted / soft-deleted), or its business status says so;
+            # TimeModel.state is no signal ("Inactive" is its default)
+            deleted = obj is None or getattr(obj, "deleted_at", None) is not None
+            status_value = " ".join(str(getattr(obj, name, "") or "") for name in ("estado", "status")).lower() if obj is not None else ""
+            voided = deleted or any(word in status_value for word in VOIDED_WORDS)
+        t = lambda text: Translate.tdc(request, text)  # noqa: E731
+        fields = [{"label": t("Issued on"), "value": _local_time(payload.get("t"))}]
+        if payload.get("m"):
+            fields.append({"label": t("Status"), "value": t("No longer valid") if voided else t("Valid")})
+        return Response({
+            "voided": voided,
+            "document": t(payload.get("s") or "Document"),
+            "entity": getattr(entity, "name", None),
+            "branch": getattr(branch, "name", None),
+            "issued_at": payload.get("t"),
+            "fields": fields,
         }, status=status.HTTP_200_OK)

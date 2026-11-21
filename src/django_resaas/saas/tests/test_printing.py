@@ -212,3 +212,75 @@ def test_the_public_page_shows_only_the_public_fields(bootstrap_tenant):
         assert anonymous.get(f"/api/printing/verify/{gone}/").status_code == 404
     finally:
         printing.unregister("django_resaas.verifiable_branch")
+
+
+def test_a_landscape_document_turns_sheets_but_not_rolls():
+    from django_resaas.saas.core.printing.render import oriented, page_css
+
+    sheet = oriented({"landscape": True}, "a7")
+    assert (sheet["width"], sheet["height"], sheet["short_side"]) == (105, 74, 74)
+    assert "size: 105mm 74.0mm" in page_css(sheet)
+    roll = oriented({"landscape": True}, "thermal_80")
+    assert roll["width"] == 80 and not roll.get("landscape")
+    assert oriented({}, "a7")["width"] == 74
+
+
+def test_the_verification_link_follows_the_frontend_that_asked(settings, rf):
+    from django_resaas.saas.core.printing.verify import verify_base
+
+    settings.ALLOWED_HOSTS = ["*"]
+    settings.CORS_ALLOWED_ORIGINS = []
+    settings.CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://.*\.example\.com$"]
+    settings.RESAAS_VERIFY_URL = ""
+
+    # a cross-origin call: its Origin, only when the API trusts it
+    assert verify_base(rf.get("/", HTTP_ORIGIN="https://shop.example.com")) == "https://shop.example.com"
+    assert verify_base(rf.get("/", HTTP_ORIGIN="https://evil.test", HTTP_HOST="api.example.com")) == ""
+    # same origin (the site proxies /api/, no Origin): the page's Referer, else the host
+    assert verify_base(rf.get("/", HTTP_REFERER="https://shop.example.com/pos/1", HTTP_HOST="shop.example.com")) == "https://shop.example.com"
+    assert verify_base(rf.get("/", HTTP_HOST="shop.example.com")) == "https://shop.example.com"
+    # nothing trusted: the configured address
+    settings.RESAAS_VERIFY_URL = "https://app.example.com/"
+    assert verify_base(rf.get("/", HTTP_ORIGIN="https://evil.test")) == "https://app.example.com"
+
+
+def test_every_pdf_gets_a_verification_qr_unless_it_has_its_own(bootstrap_tenant, settings, rf):
+    from unittest import mock
+
+    from django_resaas.saas.core.utils import bar_qr_code_64 as pdfmod
+
+    settings.RESAAS_VERIFY_URL = "https://app.example.com"
+    tenant = bootstrap_tenant("pdf-verify-qr")
+    request = rf.get("/", HTTP_HOST="testserver")
+    request.entity_id, request.branch_id = tenant["entity"].id, tenant["branch"].id
+    html = "<html><body><p>Hello</p></body></html>"
+
+    with mock.patch.object(pdfmod, "HTML", wraps=pdfmod.HTML) as rendered:
+        pdfmod.PDF(html, request, pdf_subject="Report", verify_object=tenant["branch"])
+        page = rendered.call_args.kwargs["string"]
+    assert "Scan to verify this document" in page and "data:image/png;base64," in page
+
+    with mock.patch.object(pdfmod, "HTML", wraps=pdfmod.HTML) as rendered:
+        pdfmod.PDF(html, request, no_verify_qr=True)
+        assert "Scan to verify" not in rendered.call_args.kwargs["string"]
+
+
+def test_an_issued_pdf_verifies_and_says_when_its_record_is_gone(bootstrap_tenant, rf):
+    from rest_framework.test import APIClient
+
+    from django_resaas.saas.core.printing.verify import make_issue_token
+    from django_resaas.saas.models.branch import Branch
+
+    tenant = bootstrap_tenant("pdf-verify-issue")
+    extra = Branch.objects.create(entity=tenant["entity"], name="Gone soon")
+    token = make_issue_token("Report", tenant["entity"].id, extra.id, extra)
+    anonymous = APIClient()
+
+    answer = anonymous.get(f"/api/printing/verify/{token}/").data
+    assert answer["document"] == "Report" and answer["entity"] == tenant["entity"].name and answer["voided"] is False
+
+    extra.delete()
+    assert anonymous.get(f"/api/printing/verify/{token}/").data["voided"] is True
+    # a list (no record): issuer and date only
+    listing = anonymous.get(f"/api/printing/verify/{make_issue_token('List', tenant['entity'].id)}/").data
+    assert listing["voided"] is False and [f["label"] for f in listing["fields"]] == ["Issued on"]

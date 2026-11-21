@@ -13,6 +13,7 @@ imports a module by name - it looks for that file, like mobile_tabs.py):
         "queryset": lambda request: ...,      # the objects the request may print (tenant scope)
         "context": lambda request, obj, paper: {...},
         "title": lambda obj: "Receipt 12",    # optional, the PDF's title
+        "landscape": False,                   # optional: sheets turned sideways (rolls ignore it)
     }]
 
 `register(document)` adds one at runtime (tests, apps without the file).

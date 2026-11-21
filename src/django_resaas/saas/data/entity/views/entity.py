@@ -877,6 +877,7 @@ class EntityAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
             request,
             doc={"name": f"QR {entity.name}"},
             **qr_card_service.card_context(request, entity),
+            no_verify_qr=True,  # the card's QR code is the Entity's own link
         )
 
     
