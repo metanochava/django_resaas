@@ -8,11 +8,11 @@
   {{ page_css|safe }}
   * { box-sizing: border-box; }
   body { margin: 0; font-family: "DejaVu Sans", Arial, sans-serif; color: #111; }
-  .sheet { font-size: 10pt; line-height: 1.35; }
+  .sheet { font-size: {% if paper.short_side <= 74 %}7pt{% elif paper.short_side <= 105 %}8.5pt{% else %}10pt{% endif %}; line-height: {% if paper.short_side <= 74 %}1.25{% else %}1.35{% endif %}; }
   .roll { font-size: {% if paper.width <= 58 %}7.5pt{% else %}8.5pt{% endif %}; line-height: 1.3; }
   .head { text-align: center; margin-bottom: 3mm; }
   .sheet .head { text-align: left; display: flex; gap: 4mm; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 3mm; }
-  .head img { max-height: {% if paper.thermal %}14mm{% else %}18mm{% endif %}; max-width: 40mm; }
+  .head img { max-height: {% if paper.thermal %}14mm{% elif paper.short_side <= 74 %}9mm{% else %}18mm{% endif %}; max-width: {% if paper.short_side <= 74 %}20mm{% else %}40mm{% endif %}; }
   .head .who { font-weight: bold; font-size: 1.15em; }
   .head .where { color: #444; }
   .title { font-weight: bold; text-transform: uppercase; text-align: center; margin: 2mm 0; letter-spacing: 0.5px; }

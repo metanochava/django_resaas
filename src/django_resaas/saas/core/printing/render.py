@@ -11,6 +11,18 @@ PX_TO_MM = 25.4 / 96
 MEASURE_HEIGHT_MM = 3000
 
 
+def oriented(document, paper_code):
+    """The paper the document prints on: a sheet turned sideways when the
+    document says "landscape": True (a roll has no orientation). `short_side`
+    is what the base template sizes its text by."""
+    paper = dict(PAPER_FORMATS[paper_code])
+    if document.get("landscape") and not paper["thermal"] and paper["height"]:
+        paper["width"], paper["height"] = paper["height"], paper["width"]
+        paper["landscape"] = True
+    paper["short_side"] = min(paper["width"], paper["height"] or paper["width"])
+    return paper
+
+
 def page_css(paper, height_mm=None):
     height = height_mm or paper["height"] or MEASURE_HEIGHT_MM
     return f"@page {{ size: {paper['width']}mm {height:.1f}mm; margin: {paper['margin']}mm; }}"
@@ -37,7 +49,7 @@ def branding(request):
 def _context(request, document, obj, paper_code):
     from django.utils import timezone
 
-    paper = PAPER_FORMATS[paper_code]
+    paper = oriented(document, paper_code)
     context = branding(request)
     context.update(dict(document["context"](request, obj, paper) or {}))
     context.update({"paper": paper, "paper_code": paper_code, "document": document,
@@ -60,6 +72,12 @@ def _codes(request, document, obj):
         from .verify import verify_url
 
         builders["qr"] = lambda request_, obj_: verify_url(request_, document["code"], obj_)
+    elif not builders.get("qr"):
+        # every printed document has a verification QR (owner rule): the
+        # generic one - what it is, who issued it, whether the record stands
+        from .verify import issue_url
+
+        builders["qr"] = lambda request_, obj_: issue_url(request_, document["label"], obj_)
     for key, make in (("qr", make_qr_b64), ("barcode", bars_only)):
         build = builders.get(key)
         if not build:
@@ -83,7 +101,7 @@ def content_height_mm(template, context):
 
 
 def render_pdf(request, document, obj, paper_code, download=False):
-    paper = PAPER_FORMATS[paper_code]
+    paper = oriented(document, paper_code)
     context = _context(request, document, obj, paper_code)
     context["request"] = request
     height = None

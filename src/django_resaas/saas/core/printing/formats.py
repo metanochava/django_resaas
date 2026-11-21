@@ -9,6 +9,8 @@ PAPER_FORMATS = {
     "a4": {"label": "A4", "width": 210, "height": 297, "margin": 12, "thermal": False},
     "a5": {"label": "A5", "width": 148, "height": 210, "margin": 10, "thermal": False},
     "a6": {"label": "A6", "width": 105, "height": 148, "margin": 7, "thermal": False},
+    # half an A6 sheet (a slip: vital signs, a queue ticket...)
+    "a7": {"label": "A7 (half A6)", "width": 74, "height": 105, "margin": 4, "thermal": False},
 }
 
 PAPER_CHOICES = tuple((code, paper["label"]) for code, paper in PAPER_FORMATS.items())

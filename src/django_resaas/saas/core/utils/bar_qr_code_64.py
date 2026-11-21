@@ -135,6 +135,33 @@ def _template_subject(template_path):
     return template_path.rsplit("/", 1)[-1][:-5].replace("_", " ").strip().title() or None
 
 
+def _verify_qr(request, subject, obj=None):
+    """(qr_b64, url) of the PDF's verification link, or None (no trusted
+    frontend address to point at)."""
+    try:
+        from django_resaas.saas.core.printing.verify import issue_url
+
+        url = issue_url(request, subject, obj)
+    except Exception:
+        return None
+    return (make_qr_b64(url), url) if url else None
+
+
+def _with_verify_block(html, qr_b64, request):
+    """A template that shows no qr_b64: the QR code after its content."""
+    from django_resaas.saas.core.utils.translate import Translate
+
+    label = Translate.tdc(request, "Scan to verify this document")
+    block = (
+        '<div style="page-break-inside: avoid; break-inside: avoid; text-align: right; margin-top: 3mm; '
+        'font-size: 7pt; color: #555;">'
+        f'<img src="data:image/png;base64,{qr_b64}" style="width: 20mm; height: 20mm;" alt="">'
+        f'<div>{label}</div></div>'
+    )
+    index = html.lower().rfind("</body>")
+    return html[:index] + block + html[index:] if index != -1 else html + block
+
+
 def PDF(template_path, request, doc=None, download=False, **context):
     """Render a template to a PDF response.
 
@@ -154,10 +181,20 @@ def PDF(template_path, request, doc=None, download=False, **context):
     from django_resaas.saas.core.utils.translate import Translate
 
     context["request"] = request
+    # every PDF carries a QR code with its verification link (owner rule):
+    # unless the caller brings its own (a table's order link, a receipt's)
+    verify_qr = None
+    verify_object = context.pop("verify_object", None)
+    if not context.get("qr_b64") and not context.pop("no_verify_qr", False):
+        verify_qr = _verify_qr(request, context.get("pdf_subject") or _template_subject(template_path), verify_object)
+        if verify_qr:
+            context["qr_b64"], context["verify_url"] = verify_qr
     if template_path.split('.')[-1] == 'html':
         html = render_to_string(template_path, context)
     else:
         html = template_path
+    if verify_qr and verify_qr[0] not in html:
+        html = _with_verify_block(html, verify_qr[0], request)
 
     document = HTML(string=html, base_url=request.build_absolute_uri("/")).render()
     metadata = document.metadata

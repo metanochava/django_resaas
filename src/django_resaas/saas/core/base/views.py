@@ -43,7 +43,6 @@ from django_filters.rest_framework import (
 )
 
 from django_resaas.saas.core.utils import (
-    make_qr_b64,
     make_barcode_b64,
     png_bytes_to_b64,
     PDF
@@ -991,9 +990,8 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
                 entity
             ),
 
-            "qr_b64": make_qr_b64(
-                str(instance.pk)
-            ),
+            # the QR code: the record's verification link (core/utils PDF())
+            "verify_object": instance,
 
             "barcode_b64": make_barcode_b64(
                 str(instance.pk)
@@ -1151,9 +1149,8 @@ class BaseAPIView(ResaasResponseMixin, SelectMixin, ModelViewSet):
                 entity
             ),
 
-            "qr_b64": make_qr_b64(
-                str(entity_id)
-            ),
+            # the QR code: the list's verification link (core/utils PDF()) -
+            # who issued it and when
 
             "barcode_b64": make_barcode_b64(
                 str(entity_id)

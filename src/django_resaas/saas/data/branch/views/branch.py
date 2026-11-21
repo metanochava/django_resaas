@@ -190,6 +190,7 @@ class BranchAPIView(ActionPermissionMixin, ExplicitAccessMixin, viewsets.ModelVi
             request,
             doc={"name": f"QR {branch.name}"},
             **qr_card_service.card_context(request, branch.entity, branch=branch),
+            no_verify_qr=True,  # the card's QR code is the Branch's own link
         )
 
     @resaas_action(
