@@ -161,6 +161,20 @@ class LayoutSetting(TimeModel):
         default=False,
     )
 
+    # every form field (s-input, s-select, s-date, s-file...) looks the same:
+    # this style unless the component itself says otherwise
+    FIELD_STYLE_CHOICES = (
+        ("outlined", "Outlined"),
+        ("filled", "Filled"),
+        ("standout", "Standout"),
+        ("borderless", "Borderless"),
+    )
+    field_style = models.CharField(
+        max_length=12,
+        choices=FIELD_STYLE_CHOICES,
+        default="outlined",
+    )
+
     # =========================================================
     # META
     # =========================================================
@@ -221,6 +235,7 @@ class LayoutSetting(TimeModel):
 
             "rounded": self.rounded,
             "dense": self.dense,
+            "field_style": self.field_style,
         }
 
     def __str__(self):
