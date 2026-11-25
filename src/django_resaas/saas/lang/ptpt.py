@@ -1799,6 +1799,7 @@ key_value = {
     "The form this key gives in this entity and branch (every published layer).": "O formulário que esta chave dá nesta entidade e unidade (todas as camadas publicadas).",
     "Layers": "Camadas",
     "Save as a new version": "Gravar como nova versão",
+    "Only an Entity admin can save a branch-level form": "Só um Admin da entidade pode gravar um formulário de nível branch",
     "A published version never changes: saving makes a new draft version": "Uma versão publicada nunca muda: gravar cria uma nova versão em rascunho",
     "Publish": "Publicar",
     "Publish this version: the form starts using it": "Publicar esta versão: o formulário passa a usá-la",

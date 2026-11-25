@@ -37,7 +37,7 @@ from django_resaas.saas.models.model_extra_action import ModelExtraAction
 from django_resaas.saas.management.apicommands.service.app_service import AppScaffoldService
 
 from django_resaas.saas.core.schema import  ResaasSchemaBuilder 
-from django_resaas.saas.core.base.field_access import get_field_permissions
+from django_resaas.saas.core.base.field_access import get_field_permissions, hidden_tenant_fields
 from django_resaas.saas.core.utils.relation_preview import get_relation_preview_config
 
 # 🔧 Logger
@@ -859,6 +859,12 @@ class AppSchemaAPIView(ActionPermissionMixin, ExplicitAccessMixin, ModelViewSet)
             ["id", "nid", "codigo", "code", "nome", "name", "person"],
             ["state", "entity", "branch", "created_by", "updated_by",  "created_at", "updated_at", "deleted_at", ],
         )
+
+        # tenant fields the caller's role may not read (entity: Root only,
+        # branch: Entity admin only) are not part of this caller's schema, so
+        # they get no column and no input
+        hidden = hidden_tenant_fields(request, Model)
+        fields = [f for f in fields if f.get("name") not in hidden]
 
         schema = ResaasSchemaBuilder(Model=Model, fields=fields).build()
         return all(request, **schema)

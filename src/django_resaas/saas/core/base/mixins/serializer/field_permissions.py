@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import status
 
 from django_resaas.saas.core.base.field_access import (
-    get_field_permissions,
+    get_field_restrictions,
     unreadable_fields,
     unwritable_fields,
 )
@@ -34,7 +34,7 @@ class FieldPermissionsMixin:
 
         model = getattr(getattr(self, "Meta", None), "model", None)
 
-        if model is None or not get_field_permissions(model):
+        if model is None or not get_field_restrictions(model):
             return fields
 
         request = self.context.get("request")
