@@ -85,6 +85,7 @@ from django_resaas.saas.data.file.views.file import FileAPIView
 from django_resaas.saas.data.permission.views.permission import PermissionAPIView
 from django_resaas.saas.data.model.views.model import ModelAPIView
 from django_resaas.saas.data.app.views.app import AppAPIView
+from django_resaas.saas.data.menu.views.menu import MenuAPIView, MenuItemAPIView
 from django_resaas.saas.data.user.views.user import UserAPIView
 from django_resaas.saas.data.person.views.person import PersonAPIView
 from django_resaas.saas.data.person_contact.views.person_contact import PersonContactAPIView
@@ -160,6 +161,8 @@ routerauth.register("permissions", PermissionAPIView, basename="permissions")
 
 routerdjango_resaas.register("models", ModelAPIView, basename="models")
 routerdjango_resaas.register("apps", AppAPIView, basename="apps")
+routerdjango_resaas.register("menus", MenuAPIView, basename="menus")
+routerdjango_resaas.register("menuitems", MenuItemAPIView, basename="menuitems")
 routerdjango_resaas.register("resaasapps", AppSchemaAPIView, basename="resaasapps")
 routerdjango_resaas.register("scaffolds", ScaffoldAPIView, basename="scaffolds")
 routerdjango_resaas.register("ide", IDEWorkspaceAPIView, basename="ide")
