@@ -18,8 +18,28 @@ def _collect(items, roles):
         _collect(item.get("submenu"), roles)
 
 
-@lru_cache(maxsize=1)
 def menu_roles():
+    """The permission codes the menu visibility toggles may act on (phase 17).
+
+    The database menus are the source once they exist: every item's permission
+    code and add permission code. With no database menus (e.g. an installation
+    not migrated yet) the sidebar.py declarations are read, as before. Not cached:
+    the database is read on each call, so an edit shows at once."""
+    from django_resaas.saas.models.menu import Menu, MenuItem
+
+    if not Menu.objects.exists():
+        return _sidebar_menu_roles()
+
+    roles = set()
+    for code, add_code in MenuItem.objects.values_list("permission_code", "add_permission_code"):
+        for value in (code, add_code):
+            if value:
+                roles.add(str(value).strip().lower())
+    return frozenset(roles)
+
+
+@lru_cache(maxsize=1)
+def _sidebar_menu_roles():
     roles = set()
     for app_config in apps.get_app_configs():
         module_name = f"{app_config.name}.sidebar"
@@ -125,6 +145,37 @@ def filter_menu_by_permission(menu_list, user_perms):
     return result
 
 
+def _database_menus(menu_perms, hidden_apps):
+    """(covered app keys, {app key: entries}) from the database menus (phase 9).
+
+    Covered = the modules that an active menu is explicitly presented in
+    (MenuModule). A menu with no module is not used here yet: nothing is
+    replaced by an unrestricted menu. With no database menus, nothing is covered
+    and build_menus is exactly the sidebar.py path."""
+    from django_resaas.saas.core.services.menu_builder import MenuBuilder
+    from django_resaas.saas.core.services.menu_repository import MenuRepository
+
+    covered = {
+        str(link.app.name).strip().lower()
+        for menu in MenuRepository.active_menus(None)
+        for link in menu.modules.all()
+        if link.app.name
+    }
+    if not covered:
+        return frozenset(), {}
+
+    # one tree per covered app: an item restricted to another module must not
+    # appear in this app's block, and a shared menu is shown in each of its apps
+    by_app = {}
+    for key in sorted(covered):
+        entries = MenuBuilder.build_from(menu_perms, hidden_apps=hidden_apps, app_names=[key])
+        for entry in entries:
+            entry["app"] = key
+            entry["app_label"] = key
+        by_app[key] = entries
+    return frozenset(covered), by_app
+
+
 def build_menus(request):
     """The sidebar of the CURRENT profile (request.entity_type_id/branch_id/
     group_id from the RESAAS context): every active, entitled module's
@@ -159,6 +210,10 @@ def build_menus(request):
     menu_perms, hidden_apps = menu_permissions(request)
     active_apps = active_app_names(tipo_id)
 
+    # database menus (phase 9): an app with an active menu presented in it shows
+    # that menu tree instead of its sidebar.py; every other app is unchanged
+    db_covered, db_by_app = _database_menus(menu_perms, hidden_apps)
+
     def module_active(app_config):
         return is_active_app(app_config, active_apps)
 
@@ -191,7 +246,16 @@ def build_menus(request):
 
         # the module's eye hides its menu groups; its direct links follow
         # only their own permission's eye (hidden_menu_permissions)
-        app_hidden = str(app_config.label).strip().lower() in hidden_apps
+        app_key = str(app_config.label).strip().lower()
+
+        # covered apps: their submenus come from the database menus, placed in
+        # the app's place in the order; their direct top-level links stay in
+        # sidebar.py (a link is not a menu tree: phase 11 keeps its shape)
+        db_for_app = app_key in db_covered
+        if db_for_app:
+            MENUS.extend(db_by_app.get(app_key, []))
+
+        app_hidden = app_key in hidden_apps
 
         module_name = f"{app_config.name}.sidebar"
 
@@ -205,6 +269,10 @@ def build_menus(request):
             if exc.name == module_name:
                 continue
             raise
+
+        # covered apps: the database holds their menus and direct links (phase 17)
+        if db_for_app:
+            continue
 
         ALL = getattr(sidebar, "ALL", [])
 
@@ -237,7 +305,7 @@ def build_menus(request):
                     })
                 continue
 
-            if not MENU or not SUBMENUS or app_hidden:
+            if db_for_app or not MENU or not SUBMENUS or app_hidden:
                 continue
 
             filtered_submenus = filter_menu_by_permission(
