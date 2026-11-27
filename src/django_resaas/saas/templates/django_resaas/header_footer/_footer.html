@@ -1,0 +1,27 @@
+{% comment %}
+Standard footer of a printed document (RESAAS, shared by every module): the
+barcode, the Entity's name on the left, the document name on the right and the
+Entity's footer text (Entity.rodape) under them. The sizes and the position
+come only from the template's CSS (.footer, .footer-table, .barcode-header,
+.footer-center): there is no size parameter here.
+  footer_label  the document name on the right
+  org_name      the name on the left (default: the Entity's name)
+  indent        True puts 2 spaces before the name
+Example: {% include "django_resaas/header_footer/_footer.html" with footer_label=labels.title %}
+{% endcomment %}
+<div class="footer">
+  <div class="barcode-header">
+    {% if barcode_b64 %}<img src="data:image/png;base64,{{ barcode_b64 }}">{% endif %}
+  </div>
+  <table class="footer-table">
+    <tr>
+      <td class="footer-left">{% if indent %}&nbsp;&nbsp;{% endif %}{% if org_name %}{{ org_name }}{% else %}{{ entity.name }}{% endif %}</td>
+      <td class="footer-right">{{ footer_label }}</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="footer-center" style="width:100%;">
+        {{ entity.rodape|default:""|safe }}
+      </td>
+    </tr>
+  </table>
+</div>

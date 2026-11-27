@@ -1,0 +1,26 @@
+{% comment %}
+Standard header of a printed document (RESAAS, shared by every module): the
+logo on the left, the document title and the Entity's name in the middle, the
+QR code on the right. The sizes stay in each template's CSS (.header, .logo,
+.title, .subtitle, .qr), because the pages differ.
+  header_title  the document title
+  org_name      the name under the title (default: the Entity's name); a
+                module may format it, e.g. "Clínica X" in the health PDFs
+  indent        True puts 3 spaces before the name
+{% endcomment %}
+<div class="header">
+  <table class="header-table">
+    <tr>
+      <td class="logo">
+        {% if logo_b64 %}<img src="data:image/png;base64,{{ logo_b64 }}">{% endif %}
+      </td>
+      <td class="title">
+        <h1>{{ header_title }}</h1>
+        <div class="subtitle">{% if indent %}&nbsp;&nbsp;&nbsp;{% endif %}{% if org_name %}{{ org_name }}{% else %}{{ entity.name }}{% endif %}</div>
+      </td>
+      <td class="qr">
+        {% if qr_b64 %}<img src="data:image/png;base64,{{ qr_b64 }}">{% endif %}
+      </td>
+    </tr>
+  </table>
+</div>

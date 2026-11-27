@@ -52,7 +52,7 @@ class SiteBranchesAPIView(APIView):
     throttle_classes = (SiteReadThrottle,)
 
     def get(self, request):
-        entity = site_service.entity_for_origin(request.headers.get("Origin"))
+        entity = site_service.entity_for_origin(request)
         if entity is None:
             raise ResaasAPIException(
                 "This site is not linked to any organisation.",
@@ -78,7 +78,7 @@ class SiteReviewsAPIView(APIView):
     def get(self, request):
         from django_resaas.saas.core.services.google_reviews_service import get_reviews
 
-        entity = site_service.entity_for_origin(request.headers.get("Origin"))
+        entity = site_service.entity_for_origin(request)
         if entity is None:
             raise ResaasAPIException(
                 "This site is not linked to any organisation.",
@@ -103,7 +103,7 @@ class SiteContactAPIView(ResaasResponseMixin, APIView):
     throttle_classes = (SiteContactThrottle,)
 
     def post(self, request):
-        origin = request.headers.get("Origin")
+        origin = site_service.origin_from_request(request)
         entity = site_service.entity_for_origin(origin)
         if entity is None:
             raise ResaasAPIException(

@@ -10,10 +10,23 @@
     }
 
     .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
       margin-bottom: 20px;
+    }
+
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .header-table td {
+      padding: 0;
+      vertical-align: middle;
+    }
+
+    .logo {
+      width: 100px;
+      text-align: left;
     }
 
     .logo img {
@@ -21,7 +34,22 @@
     }
 
     .title {
+      text-align: center;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    .qr {
+      width: 100px;
       text-align: right;
+    }
+
+    .doc-meta {
+      margin-bottom: 15px;
     }
 
     .title h1 {
@@ -86,8 +114,25 @@
     .footer {
       margin-top: 40px;
       font-size: 11px;
-      text-align: center;
       color: #777;
+    }
+    .footer-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .footer-table td {
+      padding: 1px 0;
+      border: none;
+      vertical-align: middle;
+    }
+    .footer-left {
+      text-align: left;
+    }
+    .footer-right {
+      text-align: right;
+    }
+    .footer-center {
+      text-align: center;
     }
 
     .qr, .barcode {
@@ -99,20 +144,11 @@
 
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo">
-      {% if logo_b64 %}
-        <img src="data:image/png;base64,{{ logo_b64 }}">
-      {% endif %}
-    </div>
+  <!-- HEADER (standard RESAAS header; the QR stays in the body below) -->
+  {% include "django_resaas/header_footer/_header.html" with header_title=doc.type org_name=company.name qr_b64="" %}
 
-    <div class="title">
-      <h1>{{ doc.type }}</h1>
-      <div>Nº: {{ doc.number }}</div>
-      <div>Data: {{ doc.date }}</div>
-      <div>Vencimento: {{ doc.due_date }}</div>
-    </div>
+  <div class="doc-meta">
+    Nº: {{ doc.number }} · Data: {{ doc.date }} · Vencimento: {{ doc.due_date }}
   </div>
 
   <!-- COMPANY & CUSTOMER -->
@@ -211,10 +247,8 @@
     {{ doc.notes }}
   </div>
 
-  <!-- FOOTER -->
-  <div class="footer">
-    Document gerado automaticamente pelo sistema
-  </div>
+  <!-- FOOTER (standard RESAAS footer; the barcode stays in the body above) -->
+  {% include "django_resaas/header_footer/_footer.html" with footer_label=doc.number org_name=company.name barcode_b64="" %}
 
 </body>
 </html>
