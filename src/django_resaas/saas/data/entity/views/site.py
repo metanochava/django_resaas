@@ -19,7 +19,7 @@ class SiteAPIView(APIView):
         # trailing slash): site_service.entity_for_origin, shared with the
         # contact form (site/contact/).
         entity = entity_for_origin(
-            request.headers.get("Origin"),
+            request,
             Entity.objects.select_related(
                 "theme",
                 "typography",

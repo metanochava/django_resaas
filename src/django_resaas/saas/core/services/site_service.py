@@ -20,9 +20,46 @@ from django_resaas.saas.models.site_contact_message import SiteContactMessage
 CONTACT_MESSAGE_RECEIVED = "site.contact_message.received"
 
 
+def origin_from_request(request):
+    """The site identifier from an HTTP request: Origin header first
+    (cross-origin browser calls), else Referer (same-origin browser GET calls
+    where Origin is omitted), else the request's own Host header (when a site
+    proxies /api/ directly)."""
+    if request is None:
+        return ""
+    if hasattr(request, "headers"):
+        origin = request.headers.get("Origin")
+        if origin:
+            return origin
+        referer = request.headers.get("Referer")
+        if referer:
+            return referer
+    elif hasattr(request, "META"):
+        origin = request.META.get("HTTP_ORIGIN")
+        if origin:
+            return origin
+        referer = request.META.get("HTTP_REFERER")
+        if referer:
+            return referer
+    try:
+        return request.get_host()
+    except Exception:
+        return ""
+
+
 def site_host(origin):
-    """host[:port] of an Origin header, or "" when there is none."""
-    return urlparse(origin or "").netloc
+    """host[:port] of an Origin/Referer header or host string, or "" when there is none."""
+    if not origin:
+        return ""
+    if hasattr(origin, "headers") or hasattr(origin, "META") or hasattr(origin, "get_host"):
+        origin = origin_from_request(origin)
+    origin = str(origin).strip()
+    if not origin:
+        return ""
+    if "://" not in origin and not origin.startswith("//"):
+        origin = f"//{origin}"
+    netloc = urlparse(origin).netloc or ""
+    return netloc.split("/")[0]
 
 
 def entity_for_origin(origin, queryset=None):
@@ -32,8 +69,12 @@ def entity_for_origin(origin, queryset=None):
     "http://clinicaamal.co.mz") - but not consistently: existing rows use
     http even for sites served over https, and not every row has the same
     trailing slash. Match on host[:port] only, accepting either scheme and
-    an optional trailing slash.
+    an optional trailing slash. When origin is a request object, candidate
+    origins are resolved via origin_from_request.
     """
+    if hasattr(origin, "headers") or hasattr(origin, "META") or hasattr(origin, "get_host"):
+        origin = origin_from_request(origin)
+
     netloc = site_host(origin)
     if not netloc:
         return None
@@ -46,6 +87,11 @@ def entity_for_origin(origin, queryset=None):
         )
         .first()
     )
+
+
+def entity_for_request(request, queryset=None):
+    """Find the Entity for an incoming HTTP request (Origin -> Referer -> Host)."""
+    return entity_for_origin(request, queryset=queryset)
 
 
 def receive_contact_message(entity, origin, data):
